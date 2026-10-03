@@ -47,7 +47,7 @@ S-cool hướng tới việc cung cấp một không gian chung cho ba hoạt đ
 2. **Học tập:** tổ chức course, lesson, tài liệu và tiến độ.
 3. **Tham gia:** quản lý event, membership và quyền truy cập.
 
-Problem statement ngắn dùng cho phạm vi triển khai sẽ được nhóm duy trì trong `01_PRODUCT_SCOPE.md`. Bản discovery chi tiết trước đây được lưu trong `archive/discovery-v1/01_PROBLEM_STATEMENT.md` để tham khảo.
+Problem statement dùng cho phạm vi triển khai được duy trì trong `01_PRODUCT_SCOPE.md`.
 
 ## 4. Tầm nhìn sản phẩm
 

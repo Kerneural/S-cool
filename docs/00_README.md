@@ -13,7 +13,11 @@ Bốn tài liệu sống là:
 3. `03_DELIVERY_PLAN.md` — milestones, vertical slices, ownership, test và Definition of Done.
 4. `04_DEVOPS_OPERATIONS.md` — local environment, CI, build, secrets, database, queue và vận hành.
 
-Các outline discovery cũ được lưu tại `archive/discovery-v1/` để tham khảo, không tiếp tục cập nhật.
+Các outline discovery cũ đã được loại khỏi workspace; sử dụng bốn tài liệu sống ở trên.
+
+Quy tắc team và agent sử dụng AI: [AI_WORKFLOW.md](AI_WORKFLOW.md). Đọc trước khi triển khai hoặc nhận commit.
+
+Quy trình Eurus Agent được hợp nhất trong `AI_WORKFLOW.md`; checkpoint và technical plan cho issue đang làm tại [WORKING_CONTEXT.md](WORKING_CONTEXT.md). Linear vẫn là nguồn theo dõi tiến độ. `AGENTS.md` ở root là entrypoint để agent đọc đúng các tài liệu này.
 
 ## Các quyết định hiện tại
 

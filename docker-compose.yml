@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: scool_app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - scool-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: scool_nginx
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - scool-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: scool_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: scool
+      MYSQL_USER: scool_user
+      MYSQL_PASSWORD: scool_password
+      MYSQL_ROOT_PASSWORD: root_secret_password
+    volumes:
+      - scool_mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - scool-network
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: scool_mailpit
+    restart: unless-stopped
+    ports:
+      - "8025:8025" # Web UI xem email
+      - "1025:1025" # SMTP server
+    networks:
+      - scool-network
+
+volumes:
+  scool_mysql_data:
+    driver: local
+
+networks:
+  scool-network:
+    driver: bridge

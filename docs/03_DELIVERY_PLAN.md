@@ -190,6 +190,8 @@ Không tạo Initiative hoặc nhiều Project cho recovery timebox này. Linear
 |---|---|
 | Team | `EurusDevSec` |
 | Project | `S-cool MVP — Local` |
+| Project URL | `https://linear.app/eurusdevsec/project/s-cool-mvp-local-1d6991ed5de2` |
+| Linear runbook | `https://linear.app/eurusdevsec/document/s-cool-linear-workflow-and-milestone-runbook-a875737d9e3c` |
 | Lead | Hoàng |
 | Members | Hoàng, Tiến, Khoa |
 | Status ban đầu | `Planned`; chuyển `Started` khi VS-01 bắt đầu |
@@ -197,7 +199,7 @@ Không tạo Initiative hoặc nhiều Project cho recovery timebox này. Linear
 | Target date | 08/10/2026 |
 | Priority | `High` |
 
-Không cần tạo Cycle riêng sáu ngày. Nếu team đã có Cycle đang hoạt động thì gắn issues S-cool vào Cycle đó; Project và Milestone vẫn là mốc giao hàng chính.
+Không cần tạo Cycle riêng sáu ngày. Tại thời điểm setup 03/10/2026, team chưa có current Cycle nên issues chưa được gắn Cycle; Project và Milestone là mốc giao hàng chính.
 
 #### Workflow
 
@@ -220,19 +222,21 @@ Không cần tạo Cycle riêng sáu ngày. Nếu team đã có Cycle đang ho�
 
 #### Parent issues và milestone mapping
 
-| Parent issue | Milestone | Assignee | Reviewer | Trạng thái khởi tạo |
-|---|---|---|---|---|
-| VS-01 Identity & Local Bootstrap | M1 | Hoàng | Tiến | Ready/In Progress |
-| VS-02 Creator Creates Private Community | M2 | Hoàng | Khoa | Ready |
-| VS-03 Invitation & Tenant Isolation | M2 | Hoàng | Khoa | Backlog; chuyển Ready sau VS-02 |
-| VS-04 Community Feed | M3 | Tiến | Khoa | Backlog |
-| VS-05 Classroom Publishing | M3 | Khoa | Tiến | Backlog |
-| VS-06 Lesson Progress | M3 | Khoa | Hoàng | Backlog |
-| VS-07 Community Events | M3 | Tiến | Khoa | Backlog |
-| VS-08 SePay Sandbox Access | M4 | Hoàng | Khoa | Backlog |
-| VS-09 Creator Member Management | M4 | Hoàng | Tiến | Backlog |
-| VS-10 Platform Administration | M4 | Khoa | Hoàng | Backlog |
-| VS-11 Hardening & Local Demo | M5 | Cả team | Cross-review | Backlog |
+| Linear ID | Parent issue | Milestone | Assignee | Reviewer | Trạng thái khởi tạo |
+|---|---|---|---|---|---|
+| EUR-5 | VS-01 Identity & Local Bootstrap | M1 | Hoàng | Tiến | In Progress |
+| EUR-6 | VS-02 Creator Creates Private Community | M2 | Hoàng | Khoa | Todo |
+| EUR-7 | VS-03 Invitation & Tenant Isolation | M2 | Hoàng | Khoa | Backlog |
+| EUR-8 | VS-04 Community Feed | M3 | Chờ mời Tiến vào workspace | Khoa | Backlog |
+| EUR-10 | VS-05 Classroom Publishing | M3 | Chờ mời Khoa vào workspace | Tiến | Backlog |
+| EUR-9 | VS-06 Lesson Progress | M3 | Chờ mời Khoa vào workspace | Hoàng | Backlog |
+| EUR-11 | VS-07 Community Events | M3 | Chờ mời Tiến vào workspace | Khoa | Backlog |
+| EUR-12 | VS-08 SePay Sandbox Access | M4 | Hoàng | Khoa | Backlog |
+| EUR-13 | VS-09 Creator Member Management | M4 | Hoàng | Tiến | Backlog |
+| EUR-14 | VS-10 Platform Administration | M4 | Chờ mời Khoa vào workspace | Hoàng | Backlog |
+| EUR-15 | VS-11 Hardening & Local Demo | M5 | Chờ đủ team | Cross-review | Backlog |
+
+Tiến và Khoa chưa xuất hiện trong workspace Linear tại thời điểm setup, vì vậy các issue dự kiến giao cho họ đang để unassigned; intended owner/reviewer đã được ghi trong issue description và project comment.
 
 Chỉ tạo sub-issue khi phần việc có owner hoặc acceptance độc lập. Trước mắt chỉ phân rã VS-01 và VS-02; không nhập hàng chục sub-issue cho M3–M5 khi dependency chưa sẵn sàng.
 
