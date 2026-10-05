@@ -8,22 +8,65 @@ services:
     working_dir: /var/www/html
     volumes:
       - ./:/var/www/html
+    depends_on:
+      mysql:
+        condition: service_healthy
     networks:
       - scool-network
+    healthcheck:
+      # FPM listener liveness; nginx /up verifies an actual Laravel response.
+      test: ["CMD", "nc", "-z", "127.0.0.1", "9000"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  queue:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: scool_queue
+    restart: unless-stopped
+    working_dir: /var/www/html
+    command: php artisan queue:work database --sleep=3 --tries=3 --max-time=3600
+    stop_grace_period: 90s
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      app:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+    networks:
+      - scool-network
+    healthcheck:
+      # Inspect PID 1, not the healthcheck's own grep process. Not a backlog probe.
+      test: ["CMD-SHELL", "tr '\\000' ' ' < /proc/1/cmdline | grep -q '^php artisan queue:work database '"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
 
   nginx:
     image: nginx:alpine
     container_name: scool_nginx
     restart: unless-stopped
     ports:
-      - "8080:80"
+      - "127.0.0.1:8080:80"
     volumes:
       - ./:/var/www/html
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
-      - app
+      app:
+        condition: service_healthy
     networks:
       - scool-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1/up || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
 
   mysql:
     image: mysql:8.0
@@ -38,19 +81,33 @@ services:
       - scool_mysql_data:/var/lib/mysql
       - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
-      - "3306:3306"
+      - "127.0.0.1:3306:3306"
     networks:
       - scool-network
+    healthcheck:
+      # mysqladmin ping exits 0 even on Access denied; authenticate and query instead.
+      # These are local-only sample credentials, never reuse them in production.
+      test: ["CMD-SHELL", "mysql --host=127.0.0.1 --user=\"$$MYSQL_USER\" --password=\"$$MYSQL_PASSWORD\" --database=\"$$MYSQL_DATABASE\" --execute='SELECT 1' >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   mailpit:
     image: axllent/mailpit:latest
     container_name: scool_mailpit
     restart: unless-stopped
     ports:
-      - "8025:8025" # Web UI xem email
-      - "1025:1025" # SMTP server
+      - "127.0.0.1:8025:8025" # Web UI xem email (chỉ mở loopback local)
+      - "127.0.0.1:1025:1025" # SMTP server (chỉ mở loopback local)
     networks:
       - scool-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:8025/api/v1/info || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
 
 volumes:
   scool_mysql_data:
