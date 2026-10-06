@@ -27,6 +27,24 @@ Bootstrap requires a fresh checkout without `.env`, dependencies or an existing 
 Ports 8080, 3306, 8025 and 1025 must be free.
 On failure, investigate the failed step; do not delete `.env` or volumes to bypass guards.
 
+## Local demo accounts
+
+Bootstrap seeds these accounts automatically. Open [Login](http://127.0.0.1:8080/login)
+and use any email below with password `password`.
+
+| Display name | Email |
+|---|---|
+| Local Developer | `devops-demo@scool.local` |
+| Demo Creator | `creator@scool.local` |
+| Demo Member | `member@scool.local` |
+| Demo Platform Admin | `admin@scool.local` |
+| Test User | `test@example.com` |
+
+These are synthetic local-only credentials, never for staging or production.
+Persona names do not grant Creator/Member/Admin permissions. Re-running the seed
+preserves existing accounts and passwords; it does not reset them to `password`.
+You can also register a new account.
+
 ## Daily operations
 
 Run from the repository root. Always use project `scool` to keep the namespace independent of the folder name.
