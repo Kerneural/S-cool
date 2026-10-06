@@ -1,129 +1,94 @@
 # S-cool
 
-Private multi-community learning platform. Laravel, MySQL, Blade, Alpine.js,
-Tailwind CSS và Vite. Local-first; chưa phải cấu hình production.
+Private learning-community platform built with Laravel, MySQL, Blade, Alpine.js, Tailwind CSS and Vite.
+The current environment is local development, not a production deployment.
 
-## Setup local — Bash
+## First-time setup
 
-Cần Bash, Git, Docker Engine/Desktop (Linux containers), Docker Compose có `--wait`,
-Node.js/npm và curl. Windows dùng **Git Bash** hoặc WSL2 có Docker integration;
-với WSL dùng Node/npm trong WSL, không trộn dependencies giữa hai host runtime.
-Không cần PHP/MySQL trên host. Chạy tại root repository.
-
-Checkout mới, chưa có stack/volume S-cool:
+Start Docker and run in Bash (Git Bash on Windows; WSL requires Docker integration).
+Git, Node.js/npm and curl are required; host PHP, Composer and MySQL are not.
+Node 22 is verified. On WSL, use Node/npm installed inside WSL.
 
 ```bash
+git clone --branch main https://github.com/Kerneural/S-cool.git scool
+cd scool
 bash scripts/verify-fresh-setup.sh --mode bootstrap
 ```
 
-Bootstrap kiểm tra checkout sạch/resources, tạo .env/key local, build PHP image,
-install Composer/npm từ lockfiles, build assets, chờ MySQL rồi guard database rỗng,
-migrate/seed và kiểm tra rerun. Worker chỉ bật sau khi bảng jobs tồn tại.
-Sau đó kiểm tra đủ năm service, đúng checkout, HTTP /up, real queue job và quality gates.
-Mọi failure trả non-zero; không SkipTests, không tự reset/rollback/xóa volume.
+Setup checks the shared repository contract, creates `.env`/key, installs locked dependencies,
+builds assets, migrates/seeds, starts five services and verifies the environment.
+Wait for `[PASS] bootstrap on this host`. No extra installation command or Vite dev server is needed.
 
-### Setup manual / tiếp tục bootstrap dở dang
+- [Application](http://127.0.0.1:8080/login): register a new account.
+- [Mailpit](http://127.0.0.1:8025): inspect local test mail; it does not deliver to real inboxes.
+- MySQL: `127.0.0.1:3306`; the application connects internally using hostname `mysql`.
 
-Đọc bước lỗi trước khi chạy tiếp; chỉ dùng local data. Các credentials mẫu không dùng
-ngoài local. Không ghi đè .env hoặc tạo lại key của môi trường đã sử dụng.
+Bootstrap requires a fresh checkout without `.env`, dependencies or an existing S-cool stack/volume.
+Ports 8080, 3306, 8025 and 1025 must be free.
+On failure, investigate the failed step; do not delete `.env` or volumes to bypass guards.
 
-```bash
-set -euo pipefail
-if [[ ! -f .env ]]; then cp .env.example .env; fi
-docker compose -p scool build app queue
-docker compose -p scool run --rm --no-deps app composer install --no-interaction --prefer-dist
-if grep -Eq '^APP_KEY=[[:space:]]*$' .env; then
-    docker compose -p scool run --rm --no-deps app php artisan key:generate --no-interaction
-fi
-npm ci
-npm run build
-docker compose -p scool up -d --wait mysql
-# Guard local connection/test DB before applying migrations.
-docker compose -p scool run --rm --no-deps app php scripts/verify-runtime.php config
-docker compose -p scool run --rm --no-deps app php artisan migrate --no-interaction
-docker compose -p scool up -d --wait
-```
+## Local demo accounts
 
-Stack mặc định dùng project `scool`; commands pin `-p scool` để không lệch namespace theo tên folder.
-Tiếp tục môi trường đã setup: `docker compose -p scool up -d --wait`.
-Database test `scool_test` được init khi volume MySQL được tạo lần đầu.
-Volume cũ thiếu test DB cần xử lý riêng, không xóa volume để ép init.sql chạy lại.
+Bootstrap seeds these accounts automatically. Open [Login](http://127.0.0.1:8080/login)
+and use any email below with password `password`.
 
-### Seed baseline local
+| Display name | Email |
+|---|---|
+| Local Developer | `devops-demo@scool.local` |
+| Demo Creator | `creator@scool.local` |
+| Demo Member | `member@scool.local` |
+| Demo Platform Admin | `admin@scool.local` |
+| Test User | `test@example.com` |
 
-```bash
-docker compose -p scool exec -T app php artisan db:seed
-```
+These are synthetic local-only credentials, never for staging or production.
+Persona names do not grant Creator/Member/Admin permissions. Re-running the seed
+preserves existing accounts and passwords; it does not reset them to `password`.
+You can also register a new account.
 
-Demo seed chỉ local/testing, từ chối staging/production kể cả --force.
-Năm persona dùng mật khẩu mẫu local; nhãn Creator/Member/Admin chưa cấp role.
-Seed rerun chỉ thêm tài khoản thiếu, không đổi attributes đã có; hashes/timestamps
-giữa hai fresh runs không byte-identical. Không expose dữ liệu/tài khoản mẫu ra Internet.
+## Daily operations
 
-- Web: http://127.0.0.1:8080/login
-- Mailpit: http://127.0.0.1:8025 (SMTP local sink).
-- MySQL host: `127.0.0.1:3306`; Laravel dùng hostname `mysql`.
-- HMR: `npm run dev` chỉ khi phát triển; kiểm tra built assets không cần Vite server.
-
-## Kiểm tra và vận hành
+Run from the repository root. Always use project `scool` to keep the namespace independent of the folder name.
 
 ```bash
-docker compose -p scool ps
-docker compose -p scool exec -T app composer test       # full test suite
-docker compose -p scool exec -T app composer pint:test  # Laravel Pint preset
-docker compose -p scool exec -T app composer verify     # style + tests
-docker compose -p scool logs --tail=30 queue
+docker compose -p scool up -d --wait                    # Start the configured environment
+docker compose -p scool ps                             # Service status
+docker compose -p scool logs --tail=30 queue            # Worker process logs
 docker compose -p scool exec -T app php artisan queue:failed
-# Worker giữ code trong RAM: restart sau khi sửa job/config.
-docker compose -p scool restart queue
-docker compose -p scool down # giữ named volume; không thêm -v
+docker compose -p scool restart queue                  # After changing jobs/config
+docker compose -p scool exec -T app php artisan db:seed # Add missing local demo users
+docker compose -p scool down                           # Stop; preserve MySQL data
 ```
 
-Verify môi trường đã setup, **không migrate/seed dev**:
+Frontend: use `npm run dev` for hot reload. Stop Vite and run `npm run build` to test built assets.
+Application/job logs are in `storage/logs/laravel.log`, separate from worker process logs.
+
+## Verification
 
 ```bash
-bash scripts/verify-fresh-setup.sh --mode verify
-bash scripts/test-setup-verification.sh
+docker compose -p scool exec -T app composer test       # Full test suite
+docker compose -p scool exec -T app composer pint:test  # Code style
+docker compose -p scool exec -T app composer verify     # Style + tests
+bash scripts/verify-fresh-setup.sh --mode verify        # Build + runtime/queue + style/tests
+bash scripts/test-setup-verification.sh                # Setup guard regressions
 ```
 
-Verify luôn build assets mới, kiểm tra health/ownership/HTTP, UUID-marked log-only job,
-Composer validate, Pint và full tests trên **scool_test**. Safety guard chạy trước
-RefreshDatabase. Dừng Vite trước; nếu public/hot còn stale, xác nhận server đã tắt
-trước khi xóa file đó. Tests không xóa shared Mailpit inbox.
+Verify requires the running stack with Vite stopped; it does not migrate/seed the development DB.
+If `public/hot` remains, confirm Vite has stopped before removing that file.
 
-### Fresh drill tách biệt trên cùng Docker host
+## Safety
 
-Chỉ từ checkout sạch khác, không dùng clone đang có .env/vendor/node_modules/build:
+- Tests use `scool_test`, separate from development `scool`. The test DB is created on initial volume setup; older volumes missing it need separate investigation.
+- Do not use `down -v`, `migrate:fresh`, `queue:clear` or `queue:flush` during normal operations.
+- Demo seed preserves existing users. Persona names do not grant Creator/Member/Admin permissions. Never use sample credentials outside local development.
+- Do not share `.env`, keys or sensitive data. Seed/reset/build does not make the local configuration production-ready.
 
-```bash
-bash scripts/verify-fresh-setup.sh --mode bootstrap --project scool-eur20-fresh
-bash scripts/verify-fresh-setup.sh --mode verify --project scool-eur20-fresh
-```
+## Working with AI
 
-Overlay `scripts/fixtures/compose.fresh.yml` tái sử dụng base runtime, chỉ đổi names
-và loopback ports: web 18080, MySQL 13306, Mailpit UI 18025/SMTP 11025.
-Volume tách theo project, không reuse volume dev. Overlay dùng `!override` để
-**thay** port list thay vì thêm port dev; cần Compose >= 2.24.4.
-Xem [Docker Compose merge rules](https://docs.docker.com/reference/compose-file/merge/#replace-value).
-Chỉ chạy một isolated drill cùng lúc do port list cố định.
-Khi dừng, dùng đúng cả hai Compose files/project, không dùng down -v:
+Open the repository root and start a new session with:
+`start EUR-XX - Read AGENTS.md and report readiness before editing.`
 
-```bash
-docker compose -p scool-eur20-fresh -f docker-compose.yml \
-    -f scripts/fixtures/compose.fresh.yml down
-```
+Shared rules: [AI_WORKFLOW.md](docs/AI_WORKFLOW.md). They are IDE-neutral; personal agent settings are not required or distributed.
+Agents must not commit/push/merge or mark Done without explicit authorization.
 
-Healthcheck chỉ kiểm tra giới hạn; healthy không thay thế queue smoke.
-Không dùng migrate:fresh/queue:clear/queue:flush/down -v trong vận hành thường ngày.
-
-## Evidence EUR-20
-
-Mỗi run chỉ chứng minh **một host**. Fresh checkout/volume mới trên cùng máy không
-trở thành máy thứ hai. Cần evidence **hai máy độc lập**: host alias, OS,
-Docker/Compose/Bash/Node/npm versions, HEAD + dirty state, trạng thái ban đầu,
-migration/seed/rerun/queue/test counts/build và sanitized output.
-Gắn vào EUR-20 và EUR-5; không đưa .env, keys, user rows hoặc raw Mailpit bodies lên issue.
-Fresh Bootstrap và Verify là hai loại evidence khác nhau; CI EUR-26 là gate riêng.
-
-Tài liệu chuẩn: [docs/00_README.md](docs/00_README.md).
-Handoff: [docs/WORKING_CONTEXT.md](docs/WORKING_CONTEXT.md).
+Project documentation: [docs/00_README.md](docs/00_README.md).
+Setup evidence and remaining acceptance gaps: [docs/WORKING_CONTEXT.md](docs/WORKING_CONTEXT.md) and EUR-20 in Linear.

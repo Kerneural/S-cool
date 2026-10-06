@@ -1,59 +1,34 @@
-# Bộ tài liệu S-cool
+# S-cool documentation
 
-> Trạng thái: Bốn tài liệu sống để team tự viết, review và cập nhật trong quá trình phát triển.
+## Shared entrypoints
 
-## Cấu trúc hiện tại
+- [Project overview](00_PROJECT_OVERVIEW.md): background and product context; not a daily progress log.
+- [Product Scope](01_PRODUCT_SCOPE.md): problem, actors, golden flow, MVP and exclusions.
+- [Domain & Architecture](02_DOMAIN_ARCHITECTURE.md): domain model, tenancy, authorization, workflows and ADRs.
+- [Delivery Plan](03_DELIVERY_PLAN.md): milestones, slices, ownership and acceptance gates.
+- [README](../README.md) and checked-in runtime scripts/configuration: reproducible setup and operations.
+- [AI workflow](AI_WORKFLOW.md): tool-neutral working rules.
+- [Working context](WORKING_CONTEXT.md): issue-specific technical plans and checkpoints, not authoritative progress.
 
-`00_PROJECT_OVERVIEW.md` là tài liệu nền để nắm bức tranh toàn dự án. Nó không phải tài liệu phải cập nhật hằng ngày.
+Root `AGENTS.md` routes agents to the shared contract. Linear owns delivery status and assignments; Git/GitHub owns code/review/CI evidence. Personal IDE configuration, upstream caches and the local operations notebook are ignored, optional and never prerequisites for teammates.
 
-Bốn tài liệu sống là:
+After cloning, open the repository root and request `start EUR-XX - Read AGENTS.md and report readiness before editing.` Shared file/privacy checks run during setup. They do not prove agent obedience or authorize publication.
 
-1. `01_PRODUCT_SCOPE.md` — vấn đề, actors, golden flow, MVP và out-of-scope.
-2. `02_DOMAIN_ARCHITECTURE.md` — domain model, multi-tenancy, authorization, workflows và trade-off kỹ thuật.
-3. `03_DELIVERY_PLAN.md` — milestones, vertical slices, ownership, test và Definition of Done.
-4. `04_DEVOPS_OPERATIONS.md` — local environment, CI, build, secrets, database, queue và vận hành.
+## Current product decisions
 
-Các outline discovery cũ đã được loại khỏi workspace; sử dụng bốn tài liệu sống ở trên.
+- Multi-community platform; a user may own or join multiple communities.
+- MVP communities are private and invite-only; no public discovery or self-join.
+- Email-bound invitations remain a proposed baseline to confirm before migration.
+- Initial payment integration uses SePay Sandbox; real-money production payment is deferred.
+- Community/Classroom/Calendar follows Skool's broad product structure, not copied branding or pixel-perfect UI.
+- Stabilize local delivery before choosing hosting.
+- MySQL is the only database. Laravel, Vite, Tailwind CSS and Alpine.js are required; Blade is the rendering baseline.
+- Decision on 2026-10-05: finish the MVP first. The mentor demo is a feature/workflow reference, not a requirement to switch to React or copy its UI. The research handoff remains in Product Scope, section 19.
 
-Quy tắc team và agent sử dụng AI: [AI_WORKFLOW.md](AI_WORKFLOW.md). Đọc trước khi triển khai hoặc nhận commit.
+## Updating the documents
 
-Quy trình Eurus Agent được hợp nhất trong `AI_WORKFLOW.md`; checkpoint và technical plan cho issue đang làm tại [WORKING_CONTEXT.md](WORKING_CONTEXT.md). Linear vẫn là nguồn theo dõi tiến độ. `AGENTS.md` ở root là entrypoint để agent đọc đúng các tài liệu này.
+Clarify the next slice's scope and golden flow, then tenancy/authorization/state, delivery dependencies and verification. Do not postpone all coding until every document is finished. Update the relevant canonical document when a decision changes.
 
-## Các quyết định hiện tại
+Use `FACT` for verified facts, `ASSUMPTION` for provisional claims, `DECISION` for agreed choices, `TODO` for gaps and `OUT` for explicit exclusions. Keep architecture decisions in Domain & Architecture and operating behavior in checked-in setup documentation/source.
 
-- `DECISION`: S-cool là nền tảng multi-community theo yêu cầu mentor.
-- `DECISION`: Mọi community MVP là private và invite-only; không public discovery/join.
-- `PROPOSED`: Invitation ràng buộc với email cụ thể để bảo đảm đúng nhóm; Hoàng xác nhận trước migration.
-- `DECISION`: Payment giai đoạn đầu dùng SePay Sandbox; payment production xem xét sau.
-- `DECISION`: UI lấy Community/Classroom/Calendar của Skool làm tham chiếu vừa phải, không sao chép thương hiệu hoặc pixel-perfect.
-- `DECISION`: Hoàn thiện và ổn định local trước; hosting được quyết định sau.
-- `DECISION`: Database duy nhất của dự án là MySQL; không support song song MariaDB.
-- `FACT`: Stack bắt buộc là Laravel, MySQL, Vite, Tailwind CSS và Alpine.js.
-
-## Thứ tự viết
-
-1. Chốt `01_PRODUCT_SCOPE.md` đến mức biết chính xác Must scope và golden flow.
-2. Viết phần multi-tenancy, authorization, domain model và state machine trong `02_DOMAIN_ARCHITECTURE.md`.
-3. Chia scope thành vertical slices và milestone trong `03_DELIVERY_PLAN.md`.
-4. Thiết kế local setup và quality gates trong `04_DEVOPS_OPERATIONS.md`.
-
-Không cần hoàn thiện toàn bộ tài liệu trước khi code. Chỉ cần phần liên quan tới slice sắp làm đủ rõ, sau đó cập nhật tài liệu khi có quyết định mới.
-
-## Quy ước viết
-
-- `FACT`: sự thật đã được kiểm chứng hoặc yêu cầu chính thức từ mentor.
-- `ASSUMPTION`: giả định tạm thời, cần kiểm chứng.
-- `DECISION`: quyết định đã được nhóm thống nhất.
-- `TODO`: nội dung còn thiếu và người chịu trách nhiệm bổ sung.
-- `OUT`: chủ động loại khỏi phạm vi.
-
-Quyết định sản phẩm ghi trong Product Scope hoặc Delivery Plan. Quyết định kiến trúc ghi trong Domain & Architecture. Quyết định vận hành ghi trong DevOps & Operations.
-
-## Điều kiện để bắt đầu slice đầu tiên
-
-- [ ] Actors và quyền của slice đã rõ.
-- [ ] Acceptance criteria có thể kiểm thử.
-- [ ] Tenant boundary và authorization impact đã được xác định.
-- [ ] Entity/state liên quan đã đủ rõ để thiết kế migration.
-- [ ] Owner và reviewer đã được chỉ định.
-- [ ] Local setup hoặc dependency cần thiết đã sẵn sàng.
+Before implementation, the slice needs clear roles/permissions, testable AC, tenancy/security impact, relevant entities/states, assigned implementation/review responsibility and ready dependencies.

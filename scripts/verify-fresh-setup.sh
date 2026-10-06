@@ -29,6 +29,7 @@ if [[ "$mode" == bootstrap ]]; then assert_fresh_checkout "$repo_root"; fi
 for tool in git docker node npm curl; do
     command -v "$tool" >/dev/null || { fail "Missing prerequisite: $tool"; exit 1; }
 done
+run 'Shared agent contract' "$BASH" "$script_dir/verify-agent-contract.sh"
 # Docker Desktop: keep container paths such as /var/www/html from MSYS rewriting.
 # Host bind paths are still passed explicitly; cygpath converts them when needed.
 docker_root=$repo_root

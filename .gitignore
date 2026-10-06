@@ -1,7 +1,9 @@
 BAO_CAO_TIEN_DO_GIAI_DOAN_1.md
-/docs/04_DEVOPS_OPERATIONS.md
 archive/
-.agent-reference/
+# Personal agent configuration, upstream cache and operations notebook.
+/.agent/
+/.agent-reference/
+/docs/04_DEVOPS_OPERATIONS.md
 .setup-drills/
 
 /.phpunit.cache
@@ -27,3 +29,4 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+/docs/DEVOPS_CHEATSHEET.md
