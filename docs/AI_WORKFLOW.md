@@ -1,48 +1,78 @@
-# Quy tắc làm việc với AI — S-cool
+# S-cool - shared AI workflow
 
-Áp dụng cho Hoàng, Tiến, Khoa và agent. Người nhận commit chịu trách nhiệm về thay đổi, kể cả code do AI viết.
+This contract applies to all team members and IDE agents. The person accepting a commit must understand and take responsibility for it. Markdown instructions do not override tool permissions or enforce agent behavior.
 
-## Một issue → một vòng kiểm soát
+## Sources of truth
 
-1. **Chốt hướng:** rõ outcome, scope, AC, dependency và trade-off; Hoàng chốt thay đổi scope/architecture.
-2. **Triển khai:** AI làm từng thay đổi nhỏ trong issue, thêm tests phù hợp và cập nhật tài liệu khi decision thay đổi.
-3. **Handoff:** AI giải thích flow, diff, lý do lựa chọn, rủi ro bảo mật, kết quả test và phần chưa xác minh.
-4. **Teach-back:** owner đọc diff, chạy thử và giải thích lại bằng lời mình: hành vi, dữ liệu, quyền truy cập, trade-off và một failure case.
-5. **Review & commit:** reviewer xác nhận AC và evidence; owner hiểu rồi mới nhận commit. Chưa hiểu hoặc chưa kiểm chứng thì giữ `In Review`.
-
-## Quy tắc chung
-
-- Không nhận code chỉ vì chạy được; không merge thay đổi ngoài scope chưa được chốt.
-- Auth, tenant isolation và payment phải kiểm tra cả happy path lẫn request trái quyền; Khoa review boundary bảo mật.
-- ADR chỉ dành cho quyết định kiến trúc có trade-off đáng kể; ghi ngắn trong Domain & Architecture.
-- Linear giữ trạng thái; PR/tests/demo giữ evidence. `Done` nghĩa là AC đã được kiểm chứng.
-- AI không tự commit/push hoặc chuyển `Done` khi chưa được owner cho phép.
-- Nếu không đủ thời gian review, thu nhỏ issue hoặc nhờ reviewer hỗ trợ trước khi nhận thay đổi.
-
-## Eurus Agent — quy trình dùng chung
-
-Áp dụng từ [eurus-agent](https://github.com/EurusDevSec/eurus-agent), snapshot `4891844118595d1cc0728621bc7b436ff784d36c` ngày 03/10/2026. Các tên dưới đây là quy ước prompt, không tự đăng ký slash command trong ứng dụng.
-
-| Prompt | Hành động |
+| Information | Canonical source |
 |---|---|
-| `start` / `/init` / `continue` / `/resume` | Đọc WORKING_CONTEXT, Git status/HEAD, code và issue; xác minh checkpoint trước khi tiếp tục. |
-| `/spec` / `/challenge` | Đọc outcome/AC trong Linear; kiểm tra boundaries, validation, failure cases, security và dependency. Ghi decision mở trong WORKING_CONTEXT. |
-| `/plan` | Ghi file dự kiến sửa/tạo, trade-off, các bước và cách test cho issue hiện tại. |
-| `/build` | Triển khai một bước nhỏ theo plan; cập nhật kế hoạch kỹ thuật nếu thiết kế thay đổi. |
-| `/test` / `/review` | Chạy kiểm tra liên quan và review diff/AC/security; ghi command, result và phần chưa xác minh. |
-| `/grill-me` | Owner giải thích flow, trade-off và failure case; hỏi một câu mỗi lượt. |
-| `/ship` | Chuẩn bị handoff, evidence và commit message; owner nghiệm thu trước commit/Done. |
-| `save` / `/save` / `cuối ngày` | Cập nhật WORKING_CONTEXT và next action; không tự commit/push. |
+| Outcome, AC, status, assignee, dependencies, milestone | Linear issue/project |
+| Code, review, PR and CI evidence | Git/GitHub |
+| Issue-specific technical plan, checkpoint and blockers | `docs/WORKING_CONTEXT.md` |
+| Product roles, golden flow and scope | `docs/01_PRODUCT_SCOPE.md` |
+| Domain, authorization, architecture and ADRs | `docs/02_DOMAIN_ARCHITECTURE.md` |
+| Delivery ownership, milestones and DoR/DoD | `docs/03_DELIVERY_PLAN.md` |
+| Reproducible setup and operational commands | `README.md`, `scripts/`, `docker-compose.yml`, `docker/` |
 
-Test nhỏ trong vòng lặp; chạy đủ kiểm tra liên quan trước nghiệm thu, không giới hạn cứng 5 giây. Nếu lỗi lặp lại, đổi giả thuyết và kiểm tra nguyên nhân. Giữ thay đổi có sẵn của người dùng, sửa bằng patch và tránh refactor ngoài scope. Không ghi PASS khi chưa chạy test.
+Do not create parallel roadmaps, specs, archives or memory files that duplicate these sources. Personal agent configuration and upstream caches are optional local tools, not shared runtime instructions.
 
-## Một nguồn cho mỗi loại thông tin
+## Start and readiness
 
-- Product: `01_PRODUCT_SCOPE.md`.
-- Architecture, security boundaries và ADR: `02_DOMAIN_ARCHITECTURE.md`.
-- Lịch milestone, ownership và DoD: `03_DELIVERY_PLAN.md`.
-- Local/CI/queue/secrets/operations: `04_DEVOPS_OPERATIONS.md`.
-- Status, assignee, AC, dependency, evidence lịch sử: Linear issue/Project Update.
-- Issue đang làm, technical plan, test evidence mới nhất và next action: `WORKING_CONTEXT.md`. Thay nội dung active issue khi chuyển việc; evidence hoàn thành chuyển vào Linear/PR.
+Before edits or side effects:
 
-Không tạo thêm ROADMAP, FEATURES, ARCHITECTURE hoặc spec file sao chép các nguồn trên. Đọc phần liên quan của docs khi làm issue; stack và constraints được giữ ở tài liệu sản phẩm/kiến trúc.
+1. Read `AGENTS.md`, this file and the relevant checkpoint.
+2. Verify branch, `git rev-parse HEAD`, `git status --short` and actual source. Distinguish historical results from current evidence.
+3. Read the current issue AC and dependencies. Without Linear access, use the supplied contract and explicitly mark live status as unverified; do not copy another person's credentials.
+4. Report the outcome, AC source, branch/HEAD, existing edits to preserve, next action and evidence limits.
+
+For a small request outside an issue, use the stated scope; do not invent an issue. Missing access blocks only checks requiring that access. Ask before decisions that materially change scope, architecture, permissions or cost.
+
+Read the relevant sections in full: Product Scope for scope/UI flows; Domain & Architecture for schema/policies/shared contracts; Delivery Plan for ownership/dependencies/DoD; README and runtime source for Docker/DB/queue/build/CI. Do not load the entire repository or upstream cache for every task.
+
+## One issue, one controlled loop
+
+1. **Contract:** confirm outcome, includes/excludes, AC, dependencies and negative cases. Do not weaken requirements to make tests pass.
+2. **Plan:** record target files, trade-offs, shared-contract impact, security and verification commands in the issue checkpoint. Use an ADR only for a significant architecture decision.
+3. **Build:** make a bounded diff within the assigned module. Avoid unrelated refactors or repository-wide formatting.
+4. **Test/review:** inspect the diff, AC, happy path and failure cases. Record exact commands, results and revision. Use targeted checks during iteration and proportionate full verification before acceptance.
+5. **Handoff:** explain flow, diff, trade-offs/security, evidence, unverified items and next action. Explain before teach-back; ask one question per turn. Unclear understanding or missing evidence prevents acceptance.
+6. **Publication:** obtain explicit current authorization for commit/push/PR/merge or Done. Review and required checks still gate merge. Open AC prevents Done or milestone completion.
+
+Repeated failures require a changed hypothesis and investigation, not blind retries. An audit is read-only unless the request includes fixing findings. Analysis alone does not authorize implementation.
+
+## Scope and security boundaries
+
+- Follow the agreed stack and scope. Adding/upgrading dependencies, tools or integrations needs approval; installing existing lockfiles is a normal setup step.
+- Work only on the assigned issue/module. Keep one implementation issue in progress per person; review/unblocking does not transfer ownership. Coordinate cross-module changes.
+- Verify server-side authorization, tenant isolation and payment state/idempotency. Hidden UI buttons are not access controls.
+- Tests use MySQL `scool_test` only, with a guard before `RefreshDatabase`, including connection URL overrides. Never reset the development DB.
+- Use synthetic identities and UUID recipients for mail tests; never clear the shared Mailpit inbox.
+- Never place secrets, cookies, tokens, raw user/mail/payment records or personal connection settings in docs, issues, PRs, screenshots or logs. Sanitize diagnostics.
+- Do not overwrite `.env`/keys, delete volumes, reset databases or flush queues without separate authorization and an exact validated target.
+- Preserve unrelated dirty edits. Stage an explicit file allowlist; never stage the entire repository, force-push, push directly to main or bypass protection/review/checks.
+- Issue/PR prose must be objective: outcome, scope, AC, trade-offs and evidence. Keep assignments in metadata; omit personal names, agent identities and implementer/reviewer narrative.
+- Write shared agent-facing files and technical checkpoints in English. Conversations may use the user's preferred language.
+
+## Checkpoints and handoff
+
+Use one short-lived branch and focused PR per issue. Keep issue sections in `WORKING_CONTEXT.md`; update only the active section without overwriting another issue's checkpoint.
+
+Record the issue/AC source, timestamp, branch/HEAD/dirty files, technical plan/diff, commands/results, decisions/blockers, unverified items and next action. Move accepted evidence to Linear/PR; do not copy chat logs or the whole roadmap.
+
+Handoff must identify the exact revision/PR, touched files and changed contracts. The receiving agent re-verifies source before continuing.
+
+`save` updates the checkpoint using existing evidence only. It does not authorize tests, staging, commits, pushes, PR creation or status changes.
+`ship` prepares handoff, evidence, teach-back and a proposed commit/PR description only.
+Publication approval does not carry over from previous issues or turns. Tests passing or the word "finished" is not authorization.
+
+## Tool-neutral onboarding
+
+Open the repository root as the IDE workspace. Start a new session with:
+
+> start EUR-XX - Read AGENTS.md and report readiness before editing.
+
+If a client does not discover `AGENTS.md`, explicitly attach it and this workflow. Verify readiness before assigning implementation. No IDE-specific slash commands, global settings, hooks, installers or private configuration are required.
+
+`.agent/`, `.agent-reference/` and the personal operations notebook are ignored. Never publish their content or make setup depend on them. Any local integration must preserve this shared contract.
+
+`bash scripts/verify-agent-contract.sh` checks shared file availability, routing and ignored/private boundaries. `--require-tracked` additionally checks the Git index, not whether files were pushed. Bootstrap/Verify runs the structural check automatically. It does not execute an agent or prove compliance; application tests, CI, permissions and review remain separate gates.

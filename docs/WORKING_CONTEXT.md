@@ -1,51 +1,77 @@
-# Working context — S-cool
+# S-cool - working context
 
-> Checkpoint không thay thế Linear/Git/runtime evidence. Đọc lại HEAD/status/code khi resume.
+A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
-## Issue hiện tại — 06/10/2026
+## EUR-20 - setup verification checkpoint (2026-10-06)
 
-- [EUR-20](https://linear.app/eurusdevsec/issue/EUR-20/add-testbuild-commands-and-verify-fresh-setup-on-two-machines), parent EUR-5, M1. Đọc live cuối: **In Review**; không tự ghi Done.
-- Nhánh publication `codex/eur-20-fresh-setup`, tạo từ main `661d878ca323af5b164e0d9d703e51eb15714738` (EUR-19 đã merge). Base tree giống HEAD đã dùng cho fresh drill; URL PR/commit evidence cập nhật trên Linear.
-- Đã cho phép commit, push, tạo PR và comment EUR-20. Không merge/Done, đổi dependency/dates hoặc triển khai CI EUR-26.
-- Code + local Verify + fresh isolated Bootstrap đã đạt; **AC hai máy độc lập vẫn còn mở**.
+- [EUR-20](https://linear.app/eurusdevsec/issue/EUR-20/add-testbuild-commands-and-verify-fresh-setup-on-two-machines), parent EUR-5, M1. Last recorded Linear status: In Review; not refreshed for this documentation change.
+- Local branch `codex/eur-20-fresh-setup`, HEAD `b9c8e5a481984da7359bb86530e3c2032c30b7e2`.
+- PR [#5](https://github.com/Kerneural/S-cool/pull/5) was verified merged on 2026-10-06 into main `7038dd9af07849d6b6b1e48b1fd11f5b6c88c715`. Local checkout remains on the publication branch with unrelated dirty edits; do not automatically switch/reset it.
+- Code, local verification and a same-host isolated fresh bootstrap passed. The AC requiring two independent machines remains open. Merge does not supply missing evidence.
+- No current authorization to publish this follow-up, change Linear status or implement CI EUR-26.
 
-## Implementation / flow
+### Implementation and flow
 
-- Bash entrypoint `scripts/verify-fresh-setup.sh`: --mode bootstrap|verify, mặc định verify. Helpers `setup-verification.sh`; regression `test-setup-verification.sh`.
-- Script cũ được thay thế, README/DEVOPS_CHEATSHEET chuyển lệnh sang Bash. PHP helper giữ Laravel configuration/DB/seed/queue guards; không chuyển business checks sang shell.
-- Bootstrap: guard checkout/resources → env/key/image/lockfile install → production build → MySQL ready → actual empty local DB guard → migrate → seed/rerun preservation → worker/stack ready → exact service/checkout/HTTP/queue → Composer validate/style/full tests.
-- Verify không migrate/seed dev; tests chỉ scool_test, safety guard trước RefreshDatabase. Real queue smoke chỉ ghi log với UUID marker.
-- Native failure/nonzero, thiếu service/health/checkout mismatch hoặc timeout đều fail-closed; không SkipTests/stale manifest false green; không automatic reset/flush/volume deletion.
-- Isolated --project scool-eur20-NAME reuse Compose base với fixtures/compose.fresh.yml, chỉ đổi names/loopback ports và volume namespace. !override thay port list, Compose >= 2.24.4. Git Bash path normalization/MSYS Docker paths/native curl đã kiểm chứng.
-- Composer contracts test/pint/pint:test/verify; bỏ boilerplate SQLite. Lockfiles/package versions không đổi.
+- Bash entrypoint `scripts/verify-fresh-setup.sh --mode bootstrap|verify`; default is verify. Shell helper: `setup-verification.sh`; regression: `test-setup-verification.sh`. PHP helper retains Laravel configuration/DB/seed/queue guards.
+- Bootstrap: checkout/resource guards -> env/key/image/locked dependencies -> built assets -> MySQL readiness and actual empty local DB guard -> migrate -> seed/rerun preservation -> stack/worker readiness -> service/checkout/HTTP/queue checks -> Composer validation/style/full tests.
+- Verify does not migrate/seed the development DB. Tests are guarded to `scool_test` before RefreshDatabase. The real queue smoke job only writes a unique log marker.
+- Native errors, missing health/service, checkout mismatches and timeouts fail closed. No automatic resets, queue flushes or volume deletion.
+- Isolated `--project scool-eur20-NAME` uses the base Compose contract plus `fixtures/compose.fresh.yml`; only names, loopback ports and volume namespace change. Compose >= 2.24.4 is needed for `!override`.
+- Git Bash path normalization, MSYS container paths and native curl were verified. Composer exposes test/pint/pint:test/verify; lockfile versions were not upgraded.
 
-## Evidence tự chạy
+### Historical runtime evidence
 
-- Git Bash 5.2.26; Docker Engine 29.7.2, Compose 5.3.1; Node 22.23.2/npm 10.9.8; Vite 6.4.3.
-- Bash syntax + **19 regression checks PASS**; Bootstrap trên checkout đang dùng bị chặn trước ghi vì .env có sẵn.
-- Bash Verify stack dev exit 0: Composer validate --strict PASS, Pint **57 files PASS**, **52 tests / 215 assertions PASS**; live Mailpit SMTP integration không skip; production build và daemon smoke PASS.
-- **Fresh Bootstrap thật PASS** trên local clone HEAD + exact EUR-20 script patch. Ban đầu không env/vendor/node_modules/build; new volume, không reuse dev data.
-- Fresh clone: `R:/_Projects/Eurus_Workspace/scool/.setup-drills/eur20-87d60d2c` (gitignored). Project `scool-eur20-audit`, volume `scool-eur20-audit_scool_mysql_data`.
-- PHP image build, 112 Composer packages install, npm ci, key, empty DB guard, 3 migrations, 5 personas + unchanged rerun, đủ 5 healthy services/ownership, HTTP /up đều đạt.
+These results are revision-specific; they are not new evidence for later edits.
+
+- Git Bash 5.2.26; Docker Engine 29.7.2 / Compose 5.3.1; Node 22.23.2 / npm 10.9.8; Vite 6.4.3.
+- Setup guard regressions: 19 PASS. Existing-checkout bootstrap was rejected before writes because `.env` already existed.
+- Local Verify: exit 0, Composer validate --strict, Pint 57 files, 52 tests / 215 assertions, live Mailpit SMTP, built assets and queue smoke passed.
+- Fresh same-host drill: an ignored clone and new project/volume, initially without env/dependencies/assets. Source was HEAD plus an exact script patch, not an immutable CI revision.
+- Fresh bootstrap: PHP image, 112 Composer packages, npm ci, key, empty DB guard, 3 migrations, 5 seeded personas and preserved rerun; five healthy services, HTTP and queue checks passed. Exit 0 in 239 seconds; no fixed-duration promise.
 - Fresh queue marker `EUR20-smoke-df2beafc-657f-4240-9604-bc2a18c45da8`: pending=0, failed=0, handler=1.
-- Fresh full tests **52 PASS / 215 assertions**, Pint **57 PASS**, production build PASS; bootstrap exit 0, 239s (không cam kết thời gian cố định).
-- Entry script SHA256 `7A95B3CB2973432414B8EE1A349167A99CD20AAE0796FEACC69B2D654ADD6FFA`; source dirty, không phải immutable commit/CI.
-- Evidence comments: EUR-20 `4aca27fa-d9f0-464b-8782-e1684f202dc5`; parent EUR-5 `db013a37-76d3-4e65-8dff-80cf24bb1113`. AC setup/tests/build/parent evidence tick; AC hai máy giữ unchecked.
+- Fresh full tests: 52 / 215 assertions; Pint 57 files; production asset build passed.
+- Script SHA256 at that run: `7A95B3CB2973432414B8EE1A349167A99CD20AAE0796FEACC69B2D654ADD6FFA`. Subsequent structural-preflight edits change that script; do not reuse this hash as current proof.
+- Evidence comments: EUR-20 `4aca27fa-d9f0-464b-8782-e1684f202dc5`; EUR-5 `db013a37-76d3-4e65-8dff-80cf24bb1113`.
+- Previous preflight variant also passed Verify in 57 seconds: 52 tests / 215 assertions, Pint 57, Vite 59 modules, queue marker `EUR20-smoke-def83635-f6bd-468b-8859-7a749b054331` with pending=0/failed=0/handler=1. This was a dirty follow-up, not CI or fresh-bootstrap evidence for the current variant.
 
-## Security / limits
+### Security and acceptance limits
 
-- Full npm audit exit 1: **5 high + 2 moderate**, dependency tree Tailwind (braces/chokidar/fast-glob/micromatch/tailwindcss; postcss-nested/selector-parser). Major-upgrade remediation chưa áp dụng; không audit fix --force.
-- Đã ghi vào EUR-26 comment `712baa0d-628a-4468-9948-dcc2c6ba3ce7`; phải sửa hoặc approved exception trước security gate. Omit-dev audit = 0 không chứng minh compiled frontend an toàn.
-- **Một host**, dù có clean clone/isolated stack. Không gọi là máy thứ hai. Cần thêm host độc lập chạy đúng source + sanitized evidence: OS/tools, SHA/dirty, initial state, migration/seed/queue/test/build.
-- Runtime queue single-file log probe không phải guarantee exactly-once delivery chung. Timeout giữ job để chẩn đoán, không clear queue.
-- Git Bash đã chạy thực tế; Linux/WSL chưa có runtime evidence. Không tự cài thêm runtime/scanner.
-- Isolated stack được dừng bằng đúng project/files, giữ checkout/volume/images để tra cứu; dev stack giữ nguyên. Không down -v hoặc xóa shared inbox.
+- Recorded full npm audit: 5 high + 2 moderate in the Tailwind dependency tree. No force upgrade was applied. Remediation or an approved exception is required before a security gate.
+- EUR-26 security comment: `712baa0d-628a-4468-9948-dcc2c6ba3ce7`. An omit-dev audit of zero does not prove compiled frontend safety.
+- A clean clone and isolated stack on one host are not a second machine. Obtain independent-host OS/tool/revision/initial-state/migration/seed/queue/test/build evidence.
+- Git Bash was runtime-tested; Linux/WSL runtime remains unverified. The log probe is not a general exactly-once queue guarantee.
+- The isolated stack was stopped without deleting its volume; development data and the shared mail inbox were preserved.
 
-## Diff / next action
+### Next action
 
-EUR-20: .gitignore (chỉ thêm .setup-drills/), composer.json, README.md, scripts/*.sh, scripts/verify-runtime.php, scripts/fixtures/compose.fresh.yml; cập nhật đoạn liên quan cheatsheet/checkpoint/operations.
-Giữ các dirty edits trước đó ở Nginx, docs/00_README.md, docs/01_PRODUCT_SCOPE.md, docs/03_DELIVERY_PLAN.md, docs/AI_WORKFLOW.md và phần cheatsheet khác. docs/04_DEVOPS_OPERATIONS.md vẫn ignored, không force-add.
+A second machine should clone the published source, run `bash scripts/verify-fresh-setup.sh --mode bootstrap` and attach sanitized evidence to EUR-20/EUR-5. Do not automatically mark Done/M1 complete. CI work belongs to EUR-26.
 
-Publication chỉ gồm .gitignore, README.md, composer.json, scripts/ và checkpoint này. Cheatsheet chưa tracked và các dirty edits khác giữ ngoài commit; operations vẫn ignored.
+## Shared contract correction (2026-10-06)
 
-Next: máy độc lập thứ hai checkout đúng commit của PR, chạy `bash scripts/verify-fresh-setup.sh --mode bootstrap` và gửi sanitized evidence vào EUR-20/EUR-5. Chờ review/required checks trước merge. Chưa Done/M1 complete; CI thuộc EUR-26.
+### Scope and boundaries
+
+- Requested change: English agent-facing files, IDE-neutral shared rules and private personal configuration.
+- Shared flow: root AGENTS -> AI_WORKFLOW -> issue checkpoint + current Git/Linear/source. Teammate setup reads only shared documentation and checked-in runtime code.
+- Entire `.agent/` and `.agent-reference/` directories and the personal operations notebook are ignored. Seven newly generated IDE-specific adapter files were removed; the original upstream cache was not deleted or modified.
+- README keeps clone -> cd -> one bootstrap command and the existing operational/test commands. No React/runtime/domain/stack changes.
+- Shared structural checks require 11 public files, verify routing/privacy boundaries and reject tracked private configuration. They do not read personal configuration or enforce model behavior.
+- Product/architecture/delivery content and pre-existing Nginx/learning-note edits are preserved. This is an agent-contract correction, not a translation of every existing project document.
+- Allowed edits for review: AGENTS.md, .gitignore, README.md, docs/00_README.md, docs/AI_WORKFLOW.md, this checkpoint, both agent-contract scripts and the single existing setup preflight call.
+- No real-repository staging, commit, push, PR creation, merge or Linear mutation is authorized. Temporary regression fixtures stage synthetic files only.
+
+### Verification
+
+- Corrected-version Bash syntax and structural check PASS: 11 shared files, no private-file prerequisites.
+- Agent-contract regression: 12 PASS, including a private-free synthetic checkout, missing/ignored shared files, broken routing, removed privacy ignores, strict index checks and rejection of force-staged synthetic private content.
+- Setup guard regressions: 19 PASS; no Docker/data changes in those regression fixtures.
+- Local Verify on HEAD `b9c8e5a481984da7359bb86530e3c2032c30b7e2` plus this dirty follow-up: exit 0 in 55 seconds. Composer validate --strict, Pint 57 files, 52 tests / 215 assertions (live Mailpit SMTP included) and Vite build 59 modules PASS.
+- Real queue marker `EUR20-smoke-c1ca2f3d-e51b-4fb8-884c-96d545233a78`: pending=0, failed=0, handler=1.
+- Shared agent-facing files contain English/ASCII text and no IDE-specific adapters. Local Markdown links and `git diff --check` PASS.
+- Entire personal folders/notebook are ignored and absent from the Git index. Upstream cache remains clean. Existing Nginx/Product/Delivery diffs are unchanged; the real Git index is empty.
+- `--require-tracked` intentionally rejects the newly added, unstaged checker. Publication must include both shared checker scripts and the preflight call together.
+- This is local dirty-source verification, not CI, fresh-bootstrap proof for this revision or independent-host evidence. English wording/checkpoint edits do not claim model compliance.
+
+### Remaining limits and next action
+
+Verify the shared entrypoint in a fresh session of each teammate's IDE agent; Markdown and structural checks cannot guarantee discovery or compliance.
+Review this bounded diff before separately authorizing publication. Independent-host setup evidence and CI remain open.

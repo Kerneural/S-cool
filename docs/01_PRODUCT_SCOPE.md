@@ -485,3 +485,51 @@ Một lần demo MVP thành công phải thể hiện được:
 | Hosting | `DEFERRED`: chỉ chọn sau local readiness gate | `04_DEVOPS_OPERATIONS.md` |
 
 Nếu mentor thay đổi một quyết định làm ảnh hưởng Must scope, nhóm cập nhật tài liệu này trước khi thay đổi backlog hoặc database design.
+
+## 19. Handoff tham khảo demo mentor — 05/10/2026
+
+### Quyết định của Hoàng
+
+- `ACCEPTED`: Hoàn thành MVP đã chốt trước; không mở rộng scope hay thay lịch chỉ từ khảo sát demo.
+- `ACCEPTED`: Giữ Laravel + MySQL + Blade + Tailwind + Alpine + Vite. Hoàng không yêu cầu chuyển sang React.
+- `ACCEPTED`: Demo mentor là tham khảo feature/workflow, không phải chuẩn UI bắt buộc. Hoàng không yêu cầu giao diện giống demo mentor; yêu cầu tham chiếu Skool vừa phải trước đó vẫn giữ.
+- `ACCEPTED`: Feature cần đúng nghiệp vụ và có chất lượng tốt hơn ở các tình huống lỗi, phân quyền, consistency và khả năng vận hành; không hiểu là phải có nhiều feature hơn demo.
+- `DEFERRED`: Sau MVP đọc lại handoff này, đối chiếu kết quả thực tế rồi chọn cải tiến với Hoàng. Các đề xuất bên dưới không tự trở thành AC, issue mới hoặc quyết định kiến trúc.
+
+### Nguồn và phạm vi khảo sát
+
+- Nguồn: [demo mentor](https://skool.phung.vn/), do mentor giới thiệu là bản React SPA để học tập/nghiên cứu, không thương mại.
+- Codex đã đăng nhập bằng hai tài khoản demo Member/Admin do Hoàng cung cấp và xem UI ngày 05/10/2026. Không lưu credentials trong tài liệu này.
+- Chỉ quan sát và chuyển trang/community; không tạo/sửa/xóa nội dung, tham gia/mua khóa học hay thanh toán. Đã đăng xuất khi kết thúc.
+- Không đọc source/backend hoặc kiểm thử bảo mật demo. Những quan sát UI không chứng minh tenant isolation, payment hay tính đúng đắn backend.
+- Endpoint `/api/health` không truy cập được qua công cụ; JSON trạng thái do Hoàng cung cấp chưa được xác minh độc lập.
+
+### Những gì đã quan sát trực tiếp
+
+| Khu vực | Quan sát | Ý nghĩa tham khảo |
+|---|---|---|
+| Community switcher | Dropdown Digital HUB / AI Master; chọn AI Master làm header và feed đổi theo | Đây vẫn là multi-community với một community context đang chọn, không đối lập với multi-community |
+| Navigation | Community, Classroom, Calendar, Members, Leaderboard, About | Dùng để hiểu cách nhóm chức năng; không đưa tất cả tabs vào MVP |
+| Classroom | `/classroom`, tên community đang chọn, card course và nút mua riêng | Tham khảo hành trình học; mua course riêng chưa thuộc scope |
+| Calendar | `/calendar`, tháng/lịch và nút list view | Tham khảo cách xem event; chỉ quan sát view, chưa kiểm chứng nghiệp vụ event |
+| Discovery | `/discover` hiển thị hai community, một có giá theo tháng, một miễn phí | Khác scope private invite-only; không sao chép discovery/self-join hoặc recurring payment |
+| Member account | Profile/settings, affiliate, help; không thấy menu quản lý như Admin | Chỉ xác nhận khác biệt UI giữa hai tài khoản, không chứng minh server authorization |
+| Admin | `/admin` ghi “Đang quản lý cộng đồng: AI Master”; menu LMS, members, orders, affiliate, content/reports, statistics/settings | Có management workspace theo community; không suy ra quyền Admin này tương đương Platform Admin của S-cool |
+| Admin overview | Các thẻ doanh thu, học viên, bài đăng, tỷ lệ hoàn thành và biểu đồ | Tham khảo tương lai; số liệu hiển thị không được audit và analytics lớn chưa thuộc MVP |
+
+Ảnh Hoàng gửi cũng cho thấy feed chính, sidebar thông tin community và onboarding card. Đây là visual reference từ ảnh, không phải yêu cầu sao chép UI hay chức năng.
+
+### Đề xuất để đọc lại khi phát triển community và sau MVP
+
+- `PROPOSED`: Phân biệt My Communities (các community được phép), community workspace (Feed/Classroom/Calendar/Members), Creator management và Platform Admin. Không bổ sung actor community admin trợ lý.
+- `PROPOSED`: Switcher chỉ liệt kê community user sở hữu hoặc có membership hợp lệ; empty state rõ khi chưa có community. Chuyển community không được mang dữ liệu/quyền của community trước sang community sau.
+- `PROPOSED`: Community context nằm rõ trong URL, ví dụ `/communities/{community}/classroom`; `/dashboard` cho My Communities. Laravel authorize từng request; Alpine chỉ điều khiển tương tác UI. Chốt routing trong Domain & Architecture trước triển khai, không coi route SPA của demo là bắt buộc.
+- Kiểm tra mở hai community ở hai tab, reload/back/direct link, slug/ID trái quyền và membership bị thu hồi. Dropdown hay `current_community_id` ở client/session không thay thế server authorization.
+- Có thể đối chiếu EUR-21 (schema/ownership), EUR-22 (private dashboard/routes) và EUR-25 (isolation) khi tới M2; không tự đổi backlog hoặc AC từ handoff này.
+- Chat, affiliate, leaderboard/gamification phức tạp, recurring payment, mua course riêng và analytics lớn vẫn ngoài scope. Chỉ xem xét sau MVP bằng quyết định riêng.
+
+### Cách tiếp tục
+
+1. Tiếp tục issue hiện tại và hoàn thành golden flow MVP với quality/security gates đã chốt.
+2. Khi làm M2, dùng handoff này để thảo luận điều hướng và tenant boundary, đọc AC Linear hiện tại trước.
+3. Sau nghiệm thu MVP, so sánh từng feature với demo, ưu tiên cải tiến có vấn đề cụ thể và acceptance criteria; Hoàng duyệt trước khi thêm scope.

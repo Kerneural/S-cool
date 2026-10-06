@@ -62,7 +62,7 @@ Milestone là outcome gate, không phải danh sách việc đã dự định l�
 
 | Mốc | Hạn chót | Owner chính | Outcome demo được | Exit criteria |
 |---|---|---|---|---|
-| M1 — Foundation ready | 03/10/2026 | Hoàng; Tiến review | Compose, Laravel, MySQL, auth và production asset build chạy | Fresh setup chạy trên ít nhất hai máy; migrations/tests/build đạt |
+| M1 — Foundation ready | 03/10/2026 | Hoàng; Tiến review | Compose, Laravel, MySQL, auth, production asset build và CI baseline chạy | Fresh setup chạy trên ít nhất hai máy; migrations/tests/build và CI EUR-26 có evidence |
 | M2 — Private core ready | 04/10/2026 | Hoàng; Khoa review | Creator tạo private community và email invitation; user ngoài nhóm bị chặn | Ownership, invitation/membership states, policies và isolation tests đạt |
 | M3 — Core features ready | 05–06/10/2026 | Tiến + Khoa; Hoàng tích hợp | Feed, Classroom, lesson progress và Calendar chạy ở mức tối thiểu | CRUD/publish/progress/timezone rules và tests chính đạt |
 | M4 — Payment & security ready | 07/10/2026 | Hoàng + Khoa; Tiến hỗ trợ UI | SePay Sandbox, member control và threats trọng yếu được test | IPN transaction/idempotency, state transitions và security checks đạt |
@@ -227,16 +227,32 @@ Không cần tạo Cycle riêng sáu ngày. Tại thời điểm setup 03/10/202
 | EUR-5 | VS-01 Identity & Local Bootstrap | M1 | Hoàng | Tiến | In Progress |
 | EUR-6 | VS-02 Creator Creates Private Community | M2 | Hoàng | Khoa | Todo |
 | EUR-7 | VS-03 Invitation & Tenant Isolation | M2 | Hoàng | Khoa | Backlog |
-| EUR-8 | VS-04 Community Feed | M3 | Chờ mời Tiến vào workspace | Khoa | Backlog |
-| EUR-10 | VS-05 Classroom Publishing | M3 | Chờ mời Khoa vào workspace | Tiến | Backlog |
-| EUR-9 | VS-06 Lesson Progress | M3 | Chờ mời Khoa vào workspace | Hoàng | Backlog |
-| EUR-11 | VS-07 Community Events | M3 | Chờ mời Tiến vào workspace | Khoa | Backlog |
+| EUR-8 | VS-04 Community Feed | M3 | Tiến | Khoa | Backlog |
+| EUR-10 | VS-05 Classroom Publishing | M3 | Khoa | Tiến | Backlog |
+| EUR-9 | VS-06 Lesson Progress | M3 | Khoa | Hoàng | Backlog |
+| EUR-11 | VS-07 Community Events | M3 | Tiến | Khoa | Backlog |
 | EUR-12 | VS-08 SePay Sandbox Access | M4 | Hoàng | Khoa | Backlog |
 | EUR-13 | VS-09 Creator Member Management | M4 | Hoàng | Tiến | Backlog |
-| EUR-14 | VS-10 Platform Administration | M4 | Chờ mời Khoa vào workspace | Hoàng | Backlog |
-| EUR-15 | VS-11 Hardening & Local Demo | M5 | Chờ đủ team | Cross-review | Backlog |
+| EUR-14 | VS-10 Platform Administration | M4 | Khoa | Hoàng | Backlog |
+| EUR-15 | VS-11 Hardening & Local Demo | M5 | Hoàng (điều phối tích hợp) | Cross-review | Backlog |
 
-Tiến và Khoa chưa xuất hiện trong workspace Linear tại thời điểm setup, vì vậy các issue dự kiến giao cho họ đang để unassigned; intended owner/reviewer đã được ghi trong issue description và project comment.
+Ngày 05/10/2026 đã xác minh tài khoản và assign trực tiếp trên Linear theo bảng: Tiến (`2224802010556`), Khoa (`hadangkhoasss`). Các trạng thái ở bảng là baseline khởi tạo; đọc Linear để biết trạng thái hiện tại. Không ghi phân công vào description kỹ thuật.
+
+#### Triển khai song song sau private core
+
+| Luồng | Assignee | Thứ tự ưu tiên | Dependency kỹ thuật |
+|---|---|---|---|
+| Content & Events | Tiến | EUR-8 → EUR-11 | Cả hai chỉ chờ EUR-7; Events không chờ Feed |
+| Learning & Platform | Khoa | EUR-10 → EUR-9 → EUR-14 | Progress chờ Classroom; Admin chỉ chờ EUR-6 |
+| Billing & Member control | Hoàng | EUR-12 → EUR-13 | Cả hai chờ EUR-7; Member control không chờ Payment |
+| Integration & Demo | Hoàng điều phối; cả team xử lý module tương ứng | EUR-15 | Nghiệm thu toàn bộ sau các slice; chuẩn bị smoke/evidence từ sớm |
+
+- Mũi tên trong cột thứ tự là lịch sử dụng nhân lực, không tạo `blocked by` giả. Có thể chọn issue đủ điều kiện khác trong cùng luồng khi issue ưu tiên đang block.
+- Mỗi người tối đa một issue đang code; không chia một feature thành backend/UI do hai người làm rồi phải chờ nhau. Một slice chịu trách nhiệm migrations, backend, UI, authorization và tests trong đúng scope.
+- EUR-7 bàn giao baseline M2 đã merge: community routes, ownership, membership/community state access, policies, factories/fixtures hai tenant; layout/navigation tái sử dụng từ EUR-6. Không mở feature bằng cách bypass authorization hoặc giả vờ M2 đã hoàn thành.
+- Shared schema/policy/layout không được tự thay đổi ngoài scope; cần ghi impact và thống nhất trước. Thay đổi routes/shared files phải tối thiểu, không sửa migration đã merge. PR nhỏ gắn đúng issue và có evidence.
+- Review diễn ra theo PR, không chờ hoàn thành module của reviewer. Nếu reviewer đang block lịch nghiệm thu, dùng backup phù hợp trong ownership matrix; không tự bỏ review hoặc security gates.
+- Không đợi hết M3 mới mở M4 nếu dependency kỹ thuật đã đạt; milestone là outcome gate, không phải dependency tự động. Trong lúc chờ M2 có thể setup local, đọc AC và review foundation, chưa triển khai feature trên contract chưa chốt.
 
 Chỉ tạo sub-issue khi phần việc có owner hoặc acceptance độc lập. Trước mắt chỉ phân rã VS-01 và VS-02; không nhập hàng chục sub-issue cho M3–M5 khi dependency chưa sẵn sàng.
 
@@ -249,6 +265,7 @@ VS-01:
 - Tạo Docker Compose cho app/nginx/MySQL/Mailpit/worker theo architecture đã chốt.
 - Configure database queue, `.env.example`, migrations và seed baseline.
 - Thêm test/build command và kiểm tra fresh setup trên hai máy.
+- [EUR-26 — CI baseline: GitHub Actions, quality gates & failure evidence](https://linear.app/eurusdevsec/issue/EUR-26/ci-baseline-github-actions-quality-gates-and-failure-evidence): thuộc EUR-5/M1, bổ sung ngày 05/10/2026. Triển khai sau EUR-19, related EUR-20; CI không thay thế fresh setup hai máy. Ngày mục tiêu 05/10; các mốc milestone khác giữ nguyên. Assignee, AC và status quản lý trên Linear. CD deployment deferred tới sau local readiness và quyết định hosting.
 
 VS-02/VS-03:
 
@@ -286,9 +303,9 @@ VS-02/VS-03:
 - Pull request:
 - Test result:
 - Screenshot/demo:
-
-## Reviewer
 ```
+
+Mô tả dùng văn phong khách quan; không thêm mục Owner/Reviewer hoặc tên cá nhân/agent. Phân công giữ ở metadata Linear và bảng ownership; review vẫn là điều kiện nghiệm thu.
 
 #### Nhịp cập nhật hằng ngày
 
