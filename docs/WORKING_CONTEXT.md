@@ -1,110 +1,51 @@
 # Working context — S-cool
 
-> Checkpoint tiếp tục công việc, không thay thế tiến độ trên Linear. Cập nhật khi save/handoff/chuyển issue; xác minh lại Git và code khi resume.
+> Checkpoint không thay thế Linear/Git/runtime evidence. Đọc lại HEAD/status/code khi resume.
 
-## Issue hiện tại
+## Issue hiện tại — 06/10/2026
 
-- Updated: 05/10/2026.
-- Milestone: M1 — Foundation ready, target 03/10/2026 - 08/10/2026.
-- Parent: EUR-5 — Identity & Local Bootstrap.
-- Issue: [EUR-17 — Frontend scaffolding with Blade, Alpine, Tailwind, Vite](https://linear.app/eurusdevsec/issue/EUR-17/frontend-scaffolding-with-blade-alpine-tailwind-vite).
-- Owner: Hoàng; reviewer: Tiến; Auditor: Codex.
-- Checkpoint thực tế: Đã tận dụng frontend scaffold có sẵn từ Laravel Breeze, không cài lại hoặc redesign UI. Đã hoàn tất kiểm chứng 5/5 Acceptance Criteria (AC), bổ sung Feature tests tự động cho frontend layout và tương tác Alpine.
-- Git HEAD khi bắt đầu EUR-17: `56ca500`; verify on resume.
-- Stack runtime Docker: 4 services đang chạy ổn định (`scool_app` PHP 8.2-FPM, `scool_nginx` port 8080, `scool_mysql` port 3306, `scool_mailpit` port 8025/1025). Healthcheck `/up` trả về HTTP 200.
-- Database: MySQL 8.0 (`scool` cho dev data và `scool_test` cho isolated test suite).
-- Frontend assets: Vite production build sẵn sàng trong `public/build` (manifest, CSS 53.43 kB, JS 107.37 kB).
-- Tests & Code style:
-  - `docker compose exec app php artisan test`: **PASS 42/42 tests (148 assertions)** trên `scool_test`.
-  - `docker compose exec app ./vendor/bin/pint --test`: **PASS 51 files** chuẩn PSR-12 / Laravel style.
-  - `npm run build`: Exit code 0, build thành công 59 modules trong 11.77s.
-- Boundaries: Tuân thủ nghiêm ngặt (không cài đặt thêm package ngoài scope, không đổi thiết kế Blade/Alpine sang framework SPA).
+- [EUR-20](https://linear.app/eurusdevsec/issue/EUR-20/add-testbuild-commands-and-verify-fresh-setup-on-two-machines), parent EUR-5, M1. Đọc live cuối: **In Review**; không tự ghi Done.
+- Nhánh publication `codex/eur-20-fresh-setup`, tạo từ main `661d878ca323af5b164e0d9d703e51eb15714738` (EUR-19 đã merge). Base tree giống HEAD đã dùng cho fresh drill; URL PR/commit evidence cập nhật trên Linear.
+- Đã cho phép commit, push, tạo PR và comment EUR-20. Không merge/Done, đổi dependency/dates hoặc triển khai CI EUR-26.
+- Code + local Verify + fresh isolated Bootstrap đã đạt; **AC hai máy độc lập vẫn còn mở**.
 
----
+## Implementation / flow
 
-## Bằng chứng kiểm chứng chi tiết theo từng AC (Acceptance Criteria)
+- Bash entrypoint `scripts/verify-fresh-setup.sh`: --mode bootstrap|verify, mặc định verify. Helpers `setup-verification.sh`; regression `test-setup-verification.sh`.
+- Script cũ được thay thế, README/DEVOPS_CHEATSHEET chuyển lệnh sang Bash. PHP helper giữ Laravel configuration/DB/seed/queue guards; không chuyển business checks sang shell.
+- Bootstrap: guard checkout/resources → env/key/image/lockfile install → production build → MySQL ready → actual empty local DB guard → migrate → seed/rerun preservation → worker/stack ready → exact service/checkout/HTTP/queue → Composer validate/style/full tests.
+- Verify không migrate/seed dev; tests chỉ scool_test, safety guard trước RefreshDatabase. Real queue smoke chỉ ghi log với UUID marker.
+- Native failure/nonzero, thiếu service/health/checkout mismatch hoặc timeout đều fail-closed; không SkipTests/stale manifest false green; không automatic reset/flush/volume deletion.
+- Isolated --project scool-eur20-NAME reuse Compose base với fixtures/compose.fresh.yml, chỉ đổi names/loopback ports và volume namespace. !override thay port list, Compose >= 2.24.4. Git Bash path normalization/MSYS Docker paths/native curl đã kiểm chứng.
+- Composer contracts test/pint/pint:test/verify; bỏ boilerplate SQLite. Lockfiles/package versions không đổi.
 
-### AC 1: Blade layout render đúng
-- **Mục tiêu:** Layout khách (`layouts.guest`) và layout ứng dụng (`layouts.app`) render đúng cấu trúc semantic HTML, meta CSRF token, thẻ tiêu đề trang và nhúng đúng assets Vite.
-- **Lệnh thực thi & Kiểm chứng:**
-  - Viết bài test tự động: `tests/Feature/FrontendScaffoldTest.php` kiểm tra:
-    + `test_guest_layout_renders_correctly_with_vite_production_assets`: Kiểm tra trang `/login` trả về HTTP 200, có thẻ `<meta name="csrf-token">`, `<title>S-cool</title>`, container căn giữa Tailwind, thẻ form, input email/password, và link production assets `/build/assets/app-*`.
-    + `test_app_layout_renders_correctly_with_navigation_and_header`: Đăng nhập user và kiểm tra `/dashboard` trả về HTTP 200, có thanh navigation, header slot, main slot, tên người dùng đăng nhập, và assets Vite.
-  - Lệnh chạy: `docker compose exec app php artisan test tests/Feature/FrontendScaffoldTest.php`
-  - **Kết quả:** PASS (4 tests, 32 assertions).
+## Evidence tự chạy
 
-### AC 2: Alpine có tương tác thực tế hoạt động
-- **Mục tiêu:** Alpine.js được nạp vào browser (`Alpine.start()`), khởi tạo thành công và xử lý được các tương tác thực tế: mở/đóng dropdown menu, click outside để đóng menu, và mở/đóng modal component.
-- **Kiểm chứng qua Chrome DevTools & Real Browser DOM Execution:**
-  - Khởi tạo session browser tới `http://127.0.0.1:8080/login`, đăng nhập bằng tài khoản dev `devops-demo@scool.local`.
-  - Kiểm tra môi trường runtime:
-    ```json
-    { "hasAlpine": true, "alpineVersion": "3.17.4" }
-    ```
-  - **Kiểm chứng Dropdown Navigation:**
-    1. Trạng thái ban đầu: `panelDisplay: "none"`, `panelVisible: false`.
-    2. Click vào trigger button (chứa tên "Hoang DevOps"): `panelDisplay: "block"`, `panelVisible: true`, hiển thị danh sách liên kết `["Profile", "Log Out"]`.
-    3. Click ra ngoài vùng dropdown (`@click.outside="open = false"`): `panelDisplay: "none"`, `panelVisible: false`.
-    - Kết quả: `success: true`.
-  - **Kiểm chứng Alpine Modal Component (`/profile`):**
-    1. Trạng thái ban đầu: `computedDisplay: "none"`.
-    2. Dispatch event `open-modal` (hoặc click nút "Delete Account"): `computedDisplay: "block"`, modal hiện lên với tiêu đề "Are you sure you want to delete your account?".
-    3. Dispatch event `close-modal` (hoặc click nút "Cancel"): `computedDisplay: "none"`.
-    - Kết quả: `success: true`.
+- Git Bash 5.2.26; Docker Engine 29.7.2, Compose 5.3.1; Node 22.23.2/npm 10.9.8; Vite 6.4.3.
+- Bash syntax + **19 regression checks PASS**; Bootstrap trên checkout đang dùng bị chặn trước ghi vì .env có sẵn.
+- Bash Verify stack dev exit 0: Composer validate --strict PASS, Pint **57 files PASS**, **52 tests / 215 assertions PASS**; live Mailpit SMTP integration không skip; production build và daemon smoke PASS.
+- **Fresh Bootstrap thật PASS** trên local clone HEAD + exact EUR-20 script patch. Ban đầu không env/vendor/node_modules/build; new volume, không reuse dev data.
+- Fresh clone: `R:/_Projects/Eurus_Workspace/scool/.setup-drills/eur20-87d60d2c` (gitignored). Project `scool-eur20-audit`, volume `scool-eur20-audit_scool_mysql_data`.
+- PHP image build, 112 Composer packages install, npm ci, key, empty DB guard, 3 migrations, 5 personas + unchanged rerun, đủ 5 healthy services/ownership, HTTP /up đều đạt.
+- Fresh queue marker `EUR20-smoke-df2beafc-657f-4240-9604-bc2a18c45da8`: pending=0, failed=0, handler=1.
+- Fresh full tests **52 PASS / 215 assertions**, Pint **57 PASS**, production build PASS; bootstrap exit 0, 239s (không cam kết thời gian cố định).
+- Entry script SHA256 `7A95B3CB2973432414B8EE1A349167A99CD20AAE0796FEACC69B2D654ADD6FFA`; source dirty, không phải immutable commit/CI.
+- Evidence comments: EUR-20 `4aca27fa-d9f0-464b-8782-e1684f202dc5`; parent EUR-5 `db013a37-76d3-4e65-8dff-80cf24bb1113`. AC setup/tests/build/parent evidence tick; AC hai máy giữ unchecked.
 
-### AC 3: Tailwind compile và hiển thị đúng
-- **Mục tiêu:** Tailwind CSS biên dịch các utility classes được sử dụng trong Blade views thành CSS bundle tối ưu trong `public/build/assets/`.
-- **Lệnh thực thi & Kiểm chứng:**
-  - Kiểm tra file bundle `public/build/assets/app-B4kXAv0R.css` (kích thước 53.43 kB):
-    + Chứa đầy đủ các lớp tiện ích được dùng: `.min-h-screen`, `.bg-gray-100`, `.max-w-7xl`, `.shadow-md`, `.flex`, `.text-gray-900`, `.font-sans`...
-  - Nginx phục vụ file CSS với đúng MIME type:
-    ```
-    HTTP/1.1 200 OK
-    Content-Type: text/css
-    Content-Length: 53434
-    ```
-  - Giao diện render trên browser hiển thị chuẩn typography (Figtree), màu sắc Tailwind, căn giữa responsive và đổ bóng đẹp mắt (đã chụp screenshot kiểm chứng).
+## Security / limits
 
-### AC 4: Vite dev chạy được, production build đạt
-- **Mục tiêu:** Lệnh build production hoàn thành không lỗi; lệnh dev server khởi động được và tạo cờ hot reload.
-- **Lệnh thực thi & Bằng chứng:**
-  - **Production Build:**
-    ```powershell
-    npm run build
-    ```
-    - Output:
-      ```
-      vite v6.4.3 building for production...
-      ✓ 59 modules transformed.
-      public/build/manifest.json              0.27 kB │ gzip:  0.15 kB
-      public/build/assets/app-B4kXAv0R.css   53.43 kB │ gzip:  9.11 kB
-      public/build/assets/app-D99hXOC0.js   107.37 kB │ gzip: 38.86 kB
-      ✓ built in 11.77s
-      ```
-      Exit code: 0.
-  - **Vite Dev Server:**
-    ```powershell
-    npm run dev
-    ```
-    - Khởi động thành công trong 350ms tại `http://localhost:5173/`.
-    - Tự động tạo file `public/hot` chứa `http://[::1]:5173` để Laravel chuyển sang chế độ Hot Module Replacement (HMR).
-    - Sau khi dừng dev server, file `public/hot` được dọn dẹp sạch sẽ, port 5173 giải phóng.
+- Full npm audit exit 1: **5 high + 2 moderate**, dependency tree Tailwind (braces/chokidar/fast-glob/micromatch/tailwindcss; postcss-nested/selector-parser). Major-upgrade remediation chưa áp dụng; không audit fix --force.
+- Đã ghi vào EUR-26 comment `712baa0d-628a-4468-9948-dcc2c6ba3ce7`; phải sửa hoặc approved exception trước security gate. Omit-dev audit = 0 không chứng minh compiled frontend an toàn.
+- **Một host**, dù có clean clone/isolated stack. Không gọi là máy thứ hai. Cần thêm host độc lập chạy đúng source + sanitized evidence: OS/tools, SHA/dirty, initial state, migration/seed/queue/test/build.
+- Runtime queue single-file log probe không phải guarantee exactly-once delivery chung. Timeout giữ job để chẩn đoán, không clear queue.
+- Git Bash đã chạy thực tế; Linux/WSL chưa có runtime evidence. Không tự cài thêm runtime/scanner.
+- Isolated stack được dừng bằng đúng project/files, giữ checkout/volume/images để tra cứu; dev stack giữ nguyên. Không down -v hoặc xóa shared inbox.
 
-### AC 5: Bản production build chạy qua Nginx không cần Vite dev server
-- **Mục tiêu:** Ứng dụng chạy hoàn toàn độc lập qua Nginx (port 8080) với các static assets đã được build sẵn, không cần tiến trình Node.js / Vite dev server nào chạy ngầm.
-- **Lệnh thực thi & Bằng chứng:**
-  - Kiểm tra port 5173: `Get-NetTCPConnection -LocalPort 5173` trả về null (không có process nào lắng nghe).
-  - Kiểm tra file `public/hot`: Đã bị xóa (chế độ production thuần túy).
-  - Gửi request đến Nginx:
-    + `curl.exe -i http://127.0.0.1:8080/login`: Trả về HTTP 200 OK, nhúng trực tiếp thẻ `<link rel="stylesheet" href="http://127.0.0.1:8080/build/assets/app-B4kXAv0R.css">` và `<script type="module" src="http://127.0.0.1:8080/build/assets/app-D99hXOC0.js">`.
-    + `curl.exe -I http://127.0.0.1:8080/build/assets/app-B4kXAv0R.css`: Trả về `HTTP/1.1 200 OK`, `Content-Type: text/css`.
-    + `curl.exe -I http://127.0.0.1:8080/build/assets/app-D99hXOC0.js`: Trả về `HTTP/1.1 200 OK`, `Content-Type: application/javascript`.
+## Diff / next action
 
----
+EUR-20: .gitignore (chỉ thêm .setup-drills/), composer.json, README.md, scripts/*.sh, scripts/verify-runtime.php, scripts/fixtures/compose.fresh.yml; cập nhật đoạn liên quan cheatsheet/checkpoint/operations.
+Giữ các dirty edits trước đó ở Nginx, docs/00_README.md, docs/01_PRODUCT_SCOPE.md, docs/03_DELIVERY_PLAN.md, docs/AI_WORKFLOW.md và phần cheatsheet khác. docs/04_DEVOPS_OPERATIONS.md vẫn ignored, không force-add.
 
-## Evidence và next action
+Publication chỉ gồm .gitignore, README.md, composer.json, scripts/ và checkpoint này. Cheatsheet chưa tracked và các dirty edits khác giữ ngoài commit; operations vẫn ignored.
 
-- **Test Suite:** Toàn bộ 42 tests (148 assertions) PASS trên `scool_test`.
-- **Code Style:** Pint PASS 51 files.
-- **Git status:** Các thay đổi cho EUR-17 chỉ bao gồm thêm test frontend `tests/Feature/FrontendScaffoldTest.php` và cập nhật `docs/WORKING_CONTEXT.md`. Không sửa đổi cấu trúc UI scaffold có sẵn, không refactor ngoài scope.
-- **Bàn giao:** Sẵn sàng để Owner (Hoàng) chuyển cho **Codex** tiến hành Audit chi tiết cho EUR-17. Tuyệt đối không tự tiện commit/push hoặc chuyển trạng thái Done theo đúng `AGENTS.md`.
+Next: máy độc lập thứ hai checkout đúng commit của PR, chạy `bash scripts/verify-fresh-setup.sh --mode bootstrap` và gửi sanitized evidence vào EUR-20/EUR-5. Chờ review/required checks trước merge. Chưa Done/M1 complete; CI thuộc EUR-26.

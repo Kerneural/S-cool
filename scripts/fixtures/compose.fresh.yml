@@ -1,0 +1,20 @@
+# Only a clean local drill; reuse the base Dockerfiles/healthchecks/init/queue.
+# !override requires Compose >= 2.24.4; never append base dev ports accidentally.
+services:
+  app:
+    container_name: ${COMPOSE_PROJECT_NAME}_app
+  queue:
+    container_name: ${COMPOSE_PROJECT_NAME}_queue
+  nginx:
+    container_name: ${COMPOSE_PROJECT_NAME}_nginx
+    ports: !override
+      - "127.0.0.1:18080:80"
+  mysql:
+    container_name: ${COMPOSE_PROJECT_NAME}_mysql
+    ports: !override
+      - "127.0.0.1:13306:3306"
+  mailpit:
+    container_name: ${COMPOSE_PROJECT_NAME}_mailpit
+    ports: !override
+      - "127.0.0.1:18025:8025"
+      - "127.0.0.1:11025:1025"

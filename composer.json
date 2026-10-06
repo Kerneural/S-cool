@@ -45,8 +45,20 @@
         ],
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi",
-            "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
             "@php artisan migrate --graceful --ansi"
+        ],
+        "test": [
+            "@php artisan test"
+        ],
+        "pint": [
+            "@php vendor/bin/pint"
+        ],
+        "pint:test": [
+            "@php vendor/bin/pint --test"
+        ],
+        "verify": [
+            "@composer run pint:test",
+            "@composer run test"
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
