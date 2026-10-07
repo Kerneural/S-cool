@@ -51,6 +51,22 @@ sed 's@docs/AI_WORKFLOW.md@docs/nonexistent.md@g' "$repo_root/AGENTS.md" > "$fix
 reject
 cp -- "$repo_root/AGENTS.md" "$fixture/AGENTS.md"
 
+sed 's@docs/03_DELIVERY_PLAN.md@docs/nonexistent.md@g' "$repo_root/AGENTS.md" > "$fixture/AGENTS.md"
+reject
+cp -- "$repo_root/AGENTS.md" "$fixture/AGENTS.md"
+
+sed 's/Issue description template/Removed issue template/g' "$repo_root/docs/AI_WORKFLOW.md" > "$fixture/docs/AI_WORKFLOW.md"
+reject
+cp -- "$repo_root/docs/AI_WORKFLOW.md" "$fixture/docs/AI_WORKFLOW.md"
+
+sed 's/Issue quality gate/Removed issue gate/g' "$repo_root/docs/03_DELIVERY_PLAN.md" > "$fixture/docs/03_DELIVERY_PLAN.md"
+reject
+cp -- "$repo_root/docs/03_DELIVERY_PLAN.md" "$fixture/docs/03_DELIVERY_PLAN.md"
+
+sed 's/## Verification plan/## Removed verification plan/g' "$repo_root/docs/03_DELIVERY_PLAN.md" > "$fixture/docs/03_DELIVERY_PLAN.md"
+reject
+cp -- "$repo_root/docs/03_DELIVERY_PLAN.md" "$fixture/docs/03_DELIVERY_PLAN.md"
+
 for pattern in '/.agent/' '/.agent-reference/' '/docs/04_DEVOPS_OPERATIONS.md'; do
     # Remove one exact ignore line, without treating the pattern as a regex.
     awk -v target="$pattern" '{ line=$0; sub(/\r$/, "", line); if (line != target) print $0 }' "$repo_root/.gitignore" > "$fixture/.gitignore"

@@ -42,6 +42,14 @@ has docs/AI_WORKFLOW.md 'scool_test'
 for doc in 01_PRODUCT_SCOPE 02_DOMAIN_ARCHITECTURE 03_DELIVERY_PLAN; do
     has docs/AI_WORKFLOW.md "docs/$doc.md"
 done
+has AGENTS.md 'docs/03_DELIVERY_PLAN.md'
+has docs/AI_WORKFLOW.md 'Issue description template'
+has docs/AI_WORKFLOW.md 'Issue quality gate'
+has docs/03_DELIVERY_PLAN.md '#### Issue description template'
+has docs/03_DELIVERY_PLAN.md '#### Issue quality gate'
+for section in 'Outcome' 'Scope' 'Workflow and contracts' 'Acceptance criteria' 'Dependencies' 'Security and failure cases' 'Verification plan' 'Evidence'; do
+    has docs/03_DELIVERY_PLAN.md "## $section"
+done
 
 # Check ignore rules without reading/copying private content. Files need not exist.
 for path in .agent/local-note.md .agent-reference/local-note.md docs/04_DEVOPS_OPERATIONS.md; do

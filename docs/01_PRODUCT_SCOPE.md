@@ -352,14 +352,17 @@ Kết quả: nền tảng có cơ chế kiểm soát tối thiểu mà không ca
 - Course chứa nhiều section/module; section/module chứa nhiều lesson.
 - Creator quản lý thứ tự bằng trường order rõ ràng.
 - Lesson hỗ trợ văn bản và external URL/video embed.
-- Chỉ nội dung published hiển thị cho member.
-- Progress chỉ được ghi cho member active và lesson published mà họ được phép xem.
+- `CONFIRMED (2026-10-07)`: An active member can view a lesson only when both its course and the lesson are `PUBLISHED`, inside an `ACTIVE` community. Creator draft preview remains restricted to the owning creator.
+- `CONFIRMED (2026-10-07)`: Unpublishing a course or lesson blocks member reads and progress writes without deleting existing progress. Republishing restores visibility of that retained progress to its owner when access is valid again.
+- `CONFIRMED (2026-10-07)`: MVP video embeds accept only validated YouTube/Vimeo HTTPS URLs. Raw iframe/HTML input, arbitrary embed providers and server-side fetching/proxying are excluded.
 
 ### Events
 
 - Event có tiêu đề, mô tả, thời gian bắt đầu/kết thúc, timezone, external URL và trạng thái.
 - Creator tạo, cập nhật hoặc hủy event.
 - Member xem event của community; đăng ký RSVP riêng không thuộc Must scope.
+- `CONFIRMED (2026-10-07)`: Calendar displays times in each event's stored IANA timezone, with an explicit timezone label; browser timezone must not silently change the displayed time.
+- `CONFIRMED (2026-10-07)`: A cancelled event remains visible with a cancellation label, but its meeting link is not delivered to members in HTML or member-facing data responses. Cancellation is not hard deletion.
 
 ### Invitation
 
