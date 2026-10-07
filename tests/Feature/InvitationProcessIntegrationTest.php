@@ -97,6 +97,7 @@ class InvitationProcessIntegrationTest extends TestCase
         $db = DB::connection()->getConfig();
         $process = new Process([PHP_BINARY, base_path('tests/Fixtures/invitation-process.php')], base_path(), [
             'APP_ENV' => 'testing', 'APP_DEBUG' => 'false', 'APP_KEY' => config('app.key'),
+            'APP_URL' => 'http://127.0.0.1:8080',
             'DB_CONNECTION' => 'mysql', 'DB_URL' => '', 'DATABASE_URL' => '',
             'DB_HOST' => $db['host'], 'DB_PORT' => (string) $db['port'], 'DB_DATABASE' => 'scool_test',
             'DB_USERNAME' => $db['username'], 'DB_PASSWORD' => $db['password'],
@@ -178,7 +179,10 @@ class InvitationProcessIntegrationTest extends TestCase
         $messages = Http::timeout(5)->get($base.'/api/v1/search', ['query' => 'to:'.$user->email])->json('messages');
         $this->assertCount(1, $messages);
         $detail = Http::timeout(5)->get($base.'/api/v1/message/'.$messages[0]['ID'])->json();
-        preg_match('/#token=([a-f0-9]{64})/', ($detail['Text'] ?? '').' '.($detail['HTML'] ?? ''), $matches);
+        $body = ($detail['Text'] ?? '').' '.($detail['HTML'] ?? '');
+        // Assert the origin without including the private message/token in failure output.
+        $this->assertSame(1, preg_match('~http://127\.0\.0\.1:8080/invitations/'.$invite->id.'#token=[a-f0-9]{64}~', $body), 'Worker invitation must use the configured IPv4 origin.');
+        preg_match('/#token=([a-f0-9]{64})/', $body, $matches);
         $this->assertCount(2, $matches, 'Expected an invitation fragment token in the locally captured message.');
         $this->assertTrue($invite->matchesToken($matches[1]));
         $this->actingAs($user)->post('/invitations/'.$invite->id.'/accept', ['token' => $matches[1]])->assertRedirect();

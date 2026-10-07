@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Jobs\TestQueueJob;
+use Dotenv\Dotenv;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -11,6 +12,15 @@ use Tests\TestCase;
 class DockerEnvironmentTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_local_url_template_uses_ipv4_without_replacing_container_service_names(): void
+    {
+        $defaults = Dotenv::parse(file_get_contents(base_path('.env.example')));
+
+        $this->assertSame('http://127.0.0.1:8080', $defaults['APP_URL']);
+        $this->assertSame('mysql', $defaults['DB_HOST']);
+        $this->assertSame('mailpit', $defaults['MAIL_HOST']);
+    }
 
     public function test_application_healthcheck_endpoint_returns_200_ok(): void
     {

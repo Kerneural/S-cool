@@ -292,3 +292,38 @@ Independent reviewer confirmation, required CI/publication and formal milestone 
 - Default-daemon queue marker `EUR20-smoke-7f8d8fb0-1294-4ce2-bccc-92c3f6455f88`: pending=0, failed=0, handler=1. Tests used guarded MySQL scool_test and UUID mail recipients; no development reset/migration, volume deletion, inbox deletion or queue flush occurred.
 - `git diff --check` and a scoped high-confidence secret-pattern scan of the allowlist passed. These are bounded checks, not a full history/secret audit. Only this evidence checkpoint changed after the test run.
 - No CI workflow exists in the current checkout; local success is not a CI result. Deferred EUR-26, dependency-security decisions and independent-host setup proof remain open. The source commit and PR evidence will be linked in Linear; acceptance still requires review and merge.
+
+## Local IPv4 URL consistency correction (2026-10-07)
+
+- Contract: restore the agreed local browser/email origin `http://127.0.0.1:8080`. The earlier README change followed the stale `.env.example` localhost default instead of correcting it; those historical localhost recommendations are superseded by this section.
+- Start: clean `eur-23-m2-private-core`, HEAD `215c9919a777506616dcd33764462bc8988cafa4`. This is a bounded runtime/documentation correction, not a new Linear issue or M2 status change.
+- Shared scope: `.env.example`, application/SMTP-domain URL fallbacks, README, a default-template regression and the real invitation-worker URL assertion. Compose IPv4 bindings and existing HTTP probes already match; no changes are needed there.
+- Explicit follow-up authorization covers only APP_URL in the private local `.env`, config cache clear and queue restart. A patch attempt reported a missing old line; reinspection found APP_URL already at the target value. The pre/post fingerprint of all other environment entries is identical. No overwrite/replacement was performed to resolve the mismatch; preserve all other keys/settings/data. The private file remains ignored and must not be staged.
+- Browser/login/email links must use one host; cookies from localhost do not authenticate the IPv4 host. Previously delivered invitation links retain their previous host. Reopen/login on the canonical host and revoke/reissue pending invitations where needed; never rewrite persisted tokens or grant access during migration.
+- Keep `DB_HOST=mysql` and `MAIL_HOST=mailpit`. Service-to-service traffic uses Compose names; 127.0.0.1 inside an app container is not the MySQL/Mailpit service.
+- Rationale: a literal IPv4 entrypoint avoids hostname/address-family selection and matches the configured loopback listener. No benchmark in this correction establishes DNS/IPv6 as the cause of PHP slowness or proves a speed-up. APP_URL supplies generated absolute URLs; it does not choose the PHP-FPM or database transport.
+- Verification plan: confirm private config preservation, reload/restarted worker settings, built-asset HTTP reachability, scoped tests and full local Verify. No database/volume reset, publication or Done authorization.
+
+### Correction verification
+
+- Private APP_URL is confirmed as `http://127.0.0.1:8080`; the pre/post fingerprint of every other environment entry matches. The private file is ignored and absent from the index; no key regeneration or environment replacement.
+- `php artisan config:clear` and `docker compose -p scool restart queue` completed. Sanitized fresh boot checks in app/queue both report the IPv4 app URL, DB host mysql and SMTP host mailpit. The IPv4 login endpoint returns HTTP 200.
+- Scoped Pint PASS (four files); `php artisan test --compact --filter='DockerEnvironmentTest|InvitationProcessIntegrationTest'` PASS: 8 tests / 48 assertions, 25.73 seconds, including real SMTP delivery with the IPv4 invitation origin asserted without exposing the token in failure output.
+- Setup guard regressions: 19 PASS. Shared agent structural contract: 11 files PASS. Active template, URL fallbacks and README contain no old localhost:8080 origin. Historical checkpoint statements are retained but superseded above.
+- Full `bash scripts/verify-fresh-setup.sh --mode verify`: exit 0 in 139 seconds on HEAD `215c9919a777506616dcd33764462bc8988cafa4` plus this dirty correction; **122 tests / 824 assertions PASS**, test duration 93.30 seconds, Pint 82 files, Composer validation, Vite build 59 modules, runtime/HTTP and live queue/Mailpit PASS. Queue marker `EUR20-smoke-90d2819c-7600-4b67-8004-975c1542ea95`: pending=0, failed=0, handler=1. Only this evidence checkpoint was edited after the run; final diff whitespace check passed.
+- No staging, commit, push, PR, merge or Linear mutation was performed. Seven shared files remain modified; `.env` stays private. No development DB reset/migration, queue flush, inbox deletion or volume deletion. These checks are not a performance benchmark, CI result or production-readiness claim.
+
+### Acceptance clarification (2026-10-07)
+
+- The local browser/email origin is confirmed as `http://127.0.0.1:8080`. Preserve the existing IPv4 correction; internal DB/SMTP hosts remain `mysql` and `mailpit`.
+- User-reported manual evidence: the community cover is now visible after the upload. This confirms the reported display symptom is resolved; it does not independently reverify member/non-member authorization.
+- Cover upload and metadata updates are separate forms: `Upload cover` persists the image; `Save Changes` persists only the name/description. Selecting a file alone is not a completed upload.
+- This confirmation does not authorize commit, push, PR, merge or Linear Done. Publish the reviewed IPv4 correction and reconcile M2 acceptance metadata only after explicit authorization. No tests were rerun for this checkpoint-only clarification.
+
+### IPv4 publication preflight (2026-10-07)
+
+- Subsequent explicit authorization covers commit, push and a focused PR for the seven-file IPv4 correction. Merge and Linear status changes remain unauthorized.
+- Fetched `origin/main` is `c229e74331ada9b40f7a134d25093dc4d0e3a780` (merged M2 PR #9), with a source tree identical to the previous `215c991` baseline. The preserved correction now sits on `eur-22-local-ipv4-origin`, based on that main revision; no unrelated files are included.
+- Fresh scoped verification: `docker compose -p scool exec -T app php artisan test --compact --filter='DockerEnvironmentTest|InvitationProcessIntegrationTest'` PASS: 8 tests / 48 assertions, 17.17 seconds, including the worker invitation's IPv4 origin. Tests use guarded MySQL `scool_test` and unique Mailpit recipients; no shared inbox or development data was deleted.
+- `bash scripts/verify-agent-contract.sh --require-tracked` PASS: 11 shared files. Diff whitespace check PASS; private `.env` remains ignored and untracked. The earlier 122-test full Verify is historical evidence for the same application/test diff, not a new full-suite or CI run.
+- GitHub CLI authentication reports an invalid token. Normal Git push and the existing GitHub connector will be attempted without extracting, copying or exposing credentials; report any publication step that remains unavailable.
