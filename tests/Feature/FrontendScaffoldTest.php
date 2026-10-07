@@ -36,8 +36,8 @@ class FrontendScaffoldTest extends TestCase
     public function test_app_layout_renders_correctly_with_navigation_and_header(): void
     {
         $user = User::factory()->create([
-            'name' => 'Hoang DevOps Lead',
-            'email' => 'hoang-lead@scool.local',
+            'name' => 'Demo User',
+            'email' => 'layout-demo@scool.local',
         ]);
 
         $response = $this->actingAs($user)->get('/dashboard');
@@ -49,10 +49,10 @@ class FrontendScaffoldTest extends TestCase
         $response->assertSee('<title>S-cool</title>', false);
         $response->assertSee('min-h-screen bg-gray-100', false);
         $response->assertSee('<main>', false);
-        $response->assertSee('logged in!', false);
+        $response->assertSee('My Communities', false);
 
         // Verify user profile binding in navigation
-        $response->assertSee('Hoang DevOps Lead', false);
+        $response->assertSee('Demo User', false);
 
         // Verify Vite production assets
         $response->assertSee('/build/assets/app-', false);

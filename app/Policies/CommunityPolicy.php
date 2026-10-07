@@ -13,7 +13,8 @@ class CommunityPolicy
      */
     public function view(User $user, Community $community): Response
     {
-        return $community->isActive() && $community->isCreator($user)
+        return $community->isActive() && ($community->isCreator($user)
+            || $community->memberships()->where('user_id', $user->id)->where('status', 'ACTIVE')->exists())
             ? Response::allow()
             : Response::denyAsNotFound();
     }
@@ -31,7 +32,9 @@ class CommunityPolicy
      */
     public function update(User $user, Community $community): Response
     {
-        return $this->view($user, $community);
+        return $community->isActive() && $community->isCreator($user)
+            ? Response::allow()
+            : Response::denyAsNotFound();
     }
 
     /**

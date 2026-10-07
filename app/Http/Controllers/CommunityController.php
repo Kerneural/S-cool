@@ -18,7 +18,7 @@ class CommunityController extends Controller
      */
     public function index(Request $request): View
     {
-        $communities = $request->user()->createdCommunities()->orderByDesc('id')->paginate(12);
+        $communities = Community::query()->accessibleTo($request->user())->orderByDesc('id')->paginate(12);
 
         return view('communities.index', [
             'communities' => $communities,

@@ -19,9 +19,11 @@ Setup checks the shared repository contract, creates `.env`/key, installs locked
 builds assets, migrates/seeds, starts five services and verifies the environment.
 Wait for `[PASS] bootstrap on this host`. No extra installation command or Vite dev server is needed.
 
-- [Application](http://127.0.0.1:8080/login): register a new account.
-- [Mailpit](http://127.0.0.1:8025): inspect local test mail; it does not deliver to real inboxes.
+- [Application](http://localhost:8080/login): register a new account.
+- [Mailpit](http://localhost:8025): inspect local test mail; it does not deliver to real inboxes.
 - MySQL: `127.0.0.1:3306`; the application connects internally using hostname `mysql`.
+
+Use the application host configured in `APP_URL` (default `http://localhost:8080`). Session cookies are host-scoped, not port-scoped: a login on `127.0.0.1` does not authenticate links on `localhost`.
 
 Bootstrap requires a fresh checkout without `.env`, dependencies or an existing S-cool stack/volume.
 Ports 8080, 3306, 8025 and 1025 must be free.
@@ -29,7 +31,7 @@ On failure, investigate the failed step; do not delete `.env` or volumes to bypa
 
 ## Local demo accounts
 
-Bootstrap seeds these accounts automatically. Open [Login](http://127.0.0.1:8080/login)
+Bootstrap seeds these accounts automatically. Open [Login](http://localhost:8080/login)
 and use any email below with password `password`.
 
 | Display name | Email |
@@ -44,6 +46,25 @@ These are synthetic local-only credentials, never for staging or production.
 Persona names do not grant Creator/Member/Admin permissions. Re-running the seed
 preserves existing accounts and passwords; it does not reset them to `password`.
 You can also register a new account.
+
+## M2 private-community flow
+
+The dashboard lists communities you own or actively belong to (open [Dashboard](http://localhost:8080/dashboard)). Create a private community,
+open **Invitations**, and invite an email. Check [Mailpit](http://localhost:8025), sign in at `http://localhost:8080/login` with that email,
+verify it if needed, then reopen the email link and click **Accept invitation**.
+Use the host configured in `APP_URL` (default `http://localhost:8080`) for both login and invitation links so the browser sends the same session cookie.
+The link is single-use and expires after seven days. Members can view but not edit
+settings, covers or invitations. Upload covers from **Edit Settings** (JPEG/PNG/WebP,
+2 MB, maximum 4096 pixels per side). Paid checkout is not implemented yet.
+
+After pulling new migrations into an existing installation, run the forward upgrade
+below, then the normal Verify command. Bootstrap already applies them on fresh setup.
+
+```bash
+docker compose -p scool exec -T app php artisan migrate --no-interaction
+docker compose -p scool restart queue
+npm run build
+```
 
 ## Daily operations
 

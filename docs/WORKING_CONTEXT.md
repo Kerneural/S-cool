@@ -125,7 +125,9 @@ Review this bounded diff before separately authorizing publication. Independent-
 - `git diff --check` and a scoped high-confidence secret-pattern scan of the 19 publication files passed. Personal directories/notebook remain ignored and absent from the index; this is not a full repository-history secret audit.
 - Results above were obtained on the parent HEAD plus the pending reviewed diff. The final immutable commit/PR and remote check evidence must be recorded in Linear/GitHub after creation. No CI success, second independent host, full M2 isolation, owner acceptance or merge is implied.
 
-## EUR-23 - implementation handoff (2026-10-07; not started)
+## EUR-23 - historical implementation handoff (2026-10-07)
+
+Historical planning only. The current implementation and receiving-agent handoff are in the M2 run section at the end of this file.
 
 ### Contract and readiness
 
@@ -152,7 +154,9 @@ Create the domain foundation for invitation-based free/paid access, without expo
 - Run focused tests, then `bash scripts/verify-fresh-setup.sh --mode verify` with Vite stopped and the stack running. Verify does not apply new migrations to development; report a separate guarded migration step if local manual testing needs it. Never reset development data or edit an applied migration to recover a failure.
 - Return the exact branch/HEAD/diff, AC mapping, schema/transition decisions, commands/results and limits in this section. Do not commit, push, create/merge a PR or change Linear state. Publication and independent audit remain separate actions.
 
-## EUR-22 - implementation handoff (2026-10-07; not started)
+## EUR-22 - historical implementation handoff (2026-10-07)
+
+Historical planning only. The current implementation and receiving-agent handoff are in the M2 run section at the end of this file.
 
 ### Contract and readiness
 
@@ -180,3 +184,111 @@ An authenticated user can find and open only the private communities they own or
 - Verify state changes take effect on subsequent requests and selected-community switches do not carry permission/data across two tabs or direct URLs. Keep UI/manual checks distinct from automated evidence.
 - Run focused tests, full local Verify and manual desktop/mobile navigation/upload checks. Report exact results/revision; passing previous EUR-21 tests is not current evidence and is not CI.
 - Update only this issue checkpoint with changed files, flow, policy/storage trade-offs, AC evidence and unverified cases. Stop for audit; no autonomous commit/push/PR/merge, Linear Done or new dependencies.
+
+## M2 implementation run - EUR-23 / EUR-22 / EUR-24 / EUR-25 (2026-10-07)
+
+- Current request authorizes implementing the remaining M2 slices, fixing findings and reporting results. It does not authorize publication, merge or Linear state changes. The older single-issue handoffs above remain historical.
+- Live AC read for EUR-6/7 and EUR-22 through EUR-25; their Linear review/acceptance gates remain open. Start: clean `eur-23-m2-private-core`, HEAD `c50a8169e029254b6bfd18396f7cdd0c70955fca` (merged EUR-21). No existing EUR-23 source or unrelated dirty edits.
+- Plan: forward membership/invitation/cover migrations; guarded models/factories/state primitives; server policies and paginated permitted-community dashboard; private cover upload/delivery; creator invitation create/revoke and verified-email acceptance; ID-only email job; complete boundary tests. No new packages or M3 features.
+- Retention: restrictive foreign keys preserve membership/invitation records; extend profile deletion feedback rather than silently cascading community records. Read rights never grant creator writes.
+- Email delivery: queue only invitation ID; generate the random token inside the worker, store only its hash and send via SMTP. Raw tokens are confined to the recipient's email and the in-memory acceptance form; they are not persisted in job payloads/models, flashed to sessions, documented or logged. Successful delivery is recorded; failures leave a retryable invitation without granting access.
+- Paid access remains fail-closed until billing exists. Acceptance requires verified email and a live FREE invitation. Replayed tokens cannot restore or duplicate membership. LEFT rejoin needs a new invitation; SUSPENDED/REMOVED cannot be reactivated through acceptance.
+- Verification uses guarded scool_test only, fake private disks and unique Mailpit recipients. Current results and remaining gates are recorded below. No development reset, volume deletion, shared inbox cleanup or queue flush.
+
+### Receiving-agent handoff - finish verification, do not rebuild (2026-10-07)
+
+The latest request stops implementation here and transfers the remaining work for a later independent audit. Preserve the existing diff; EUR-22 through EUR-25 already have implementation. Do not start M3 or replace the stack/UI framework.
+
+**Current checkout**
+
+- Branch: `eur-23-m2-private-core`; current HEAD: `ccd05376bc69894b04fd08207b3de9295b3954b1`; all M2 implementation remains uncommitted, including untracked files.
+- HEAD changed during this run from `c50a8169e029254b6bfd18396f7cdd0c70955fca` to `ccd0537` (`update md file`). That intervening commit changes only `docs/00_PROJECT_OVERVIEW.md` and `docs/03_DELIVERY_PLAN.md`; preserve it. It was not created by this implementation run.
+- Re-read root AGENTS/AI_WORKFLOW, this active section, Git status/diff and live Linear AC before editing. Older "not started" statements above describe historical snapshots, not current source.
+
+**Implemented AC mapping**
+
+| Issue | Current implementation | Main evidence |
+|---|---|---|
+| EUR-23 | Membership/invitation forward migrations, guarded models, factories/relations, restrictive FK/unique/enum constraints, locked state primitive | `MembershipInvitationSchemaTest` |
+| EUR-22 | Paginated owned/ACTIVE-joined dashboard, separate creator writes/member reads, private cover upload/replacement/delivery | `PrivateCommunityAccessTest`, real desktop/mobile UI |
+| EUR-24 | Creator create/revoke, seven-day email-bound invitation, verified-email single-use free acceptance, ID-only SMTP job | `CommunityInvitationFlowTest`, real MySQL queue/Mailpit integration, browser acceptance |
+| EUR-25 | Community policy, accessible query scope, nested invitation scoped binding, transaction locks, cross-tenant/state/replay/race tests | All four new M2 test classes; real browser 404 isolation |
+
+**Diff inventory**
+
+- New: `app/Actions/Communities/{CreateInvitation,AcceptInvitation,RevokeInvitation}.php`; invitation/cover controllers; membership/invitation models and factories; `SendCommunityInvitation`; `CommunityInvitationMail`; three `2026_10_07_02000*` migrations; invitation management/acceptance/mail views; four M2 feature-test classes and `tests/Fixtures/invitation-process.php`.
+- Modified: Community/User models, CommunityPolicy, CommunityController, ProfileController, routes, filesystem config, bootstrap, community/profile Blade views, FrontendScaffoldTest, README, architecture and this checkpoint. The frontend regression now checks the real My Communities dashboard instead of the removed starter greeting.
+- No new dependency or lockfile change; no React, public discovery, shared invite links, membership-management UI, M3 feature CRUD or payment activation.
+
+**Flow and decisions to retain**
+
+- Creator creates private FREE community -> invitation queued by ID -> worker generates token, stores SHA-256 hash and sends SMTP -> verified matching email explicitly POSTs acceptance -> membership ACTIVE and invitation ACCEPTED commit together -> dashboard/workspace access.
+- Other tenants, non-ACTIVE memberships and inactive communities cannot open internal routes. ACTIVE members cannot edit settings, upload covers or create/revoke invitations. Ownership comes from server records; selected session tenant and persona names are not permission grants.
+- Invitation fragment keeps raw token out of access logs; Alpine removes it from the address bar after reading it. Validation does not flash `token`. Bootstrap enables `zend.exception_ignore_args` because the inspected PHP default was off; mail failures suppress sensitive chained exceptions. Do not undo these protections.
+- Cover disk is `storage/app/community-media`, outside both public and the default signed-local-storage root. JPEG/PNG/WebP only, max 2 MB and 4096 pixels per side. Generated tenant-scoped paths, authorized no-store/nosniff response, rollback cleanup and safe old-file replacement are implemented.
+- SMTP inside the locked delivery transaction is a bounded trade-off, not exactly-once delivery/outbox. A commit failure after sending can cause a replacement email on retry. Terminal records are never reopened. Pending delivery enqueue failures need explicit retry/revoke-and-reissue; do not silently grant access.
+- PAID remains fail-closed until Billing. LEFT can rejoin only with a new invitation; SUSPENDED/REMOVED/PENDING_PAYMENT cannot bypass controls via acceptance. Member-management endpoints are a later issue.
+
+**Verified evidence**
+
+- Latest `bash scripts/verify-fresh-setup.sh --mode verify`: exit 0, 113 seconds, HEAD `ccd05376bc69894b04fd08207b3de9295b3954b1` plus dirty M2 diff; **117 tests / 786 assertions PASS**, Pint 82 files PASS, Composer validation and Vite production build (59 modules) PASS. No skipped integration was counted as success. This is local evidence, not CI or a published revision.
+- Real default-daemon queue probe: `EUR20-smoke-a0de1797-f89d-4358-832d-1596bbcf8b70`: pending=0, failed=0, handler=1.
+- Setup guard regressions: `bash scripts/test-setup-verification.sh` -> 19 PASS.
+- Agent contract verification: `bash scripts/verify-agent-contract.sh` -> 11 shared files PASS.
+- Test concurrency and teardown fixes in `InvitationProcessIntegrationTest`:
+  - Replaced `DatabaseMigrations` with `RefreshDatabase` and empty `$connectionsToTransact = []` so fixtures commit and remain visible to child processes without per-test schema rollback. This is a test-isolation choice, not proof of a Laravel migration bug: the inspected `DatabaseMigrations` teardown also resets `RefreshDatabaseState::$migrated`. The initially added broad table cleanup was unsafe and is superseded by the scoped cleanup recorded in the audit below.
+  - Added stdout buffer flushing (`@ob_flush(); flush();`) in `tests/Fixtures/invitation-process.php` after `echo "READY\n"`.
+  - The initial readiness fix checked cumulative stdout before calling `waitUntil(...)`; this narrowed but did not eliminate the window in which output could be drained before callback registration. It is superseded by bounded cumulative-output polling recorded below.
+- Negative tests include duplicate/FK/enum constraints, stale state, wrong/unverified email, expired/revoked/replayed tokens, paid fail-closed/no token flashing, cross-tenant nested IDs, revoked access, throttling, atomic acceptance rollback, cover MIME/size/dimension rejection, DB/storage failure preservation and cross-tenant cleanup protection.
+- Local configuration guard passed; only the three pending forward migrations were applied to development. Existing users/data were not reset. Worker was restarted, then gracefully reloaded after the bootstrap security change.
+- Browser checks passed: create private community; default worker delivery; member login, email-fragment removal and explicit acceptance; creator cover upload with a loaded 1280x720 JPEG; ACTIVE member cover view; member creator-settings URL 404; second unjoined tenant URL 404; member dashboard omits that second tenant; mobile 390x844 navigation opens and no horizontal overflow. Temporary viewport override was reset.
+- Two synthetic local communities remain for inspection: `m2-private-demo-20261007` (demo member accepted) and `m2-other-tenant-20261007` (not joined by that member). Their cover is a generated synthetic UI screenshot, not a personal upload. No existing account/password was overwritten; no inbox was deleted.
+- Token-free screenshot artifacts are local-only under `C:/Users/ACER/.codex/visualizations/2026/09/23/01a0cbfd-4dd5-7251-97aa-e2bea2a13152/` (`m2-private-core-member.jpg`, `m2-private-core-mobile.jpg`). They are not repository/publication prerequisites.
+
+**Completed bounded work & audit status**
+
+1. Reconciled full dirty/untracked diff against Linear EUR-22/23/24/25 and parent EUR-6/7 AC. Verified security, authorization, failure paths, and tenant isolation; no M3 scope or new packages added.
+2. README origin clarified: harmonized application and login references to `http://localhost:8080` (matching `APP_URL`). Explicitly documented browser cookie isolation between `localhost` and `127.0.0.1` so Mailpit invitation link acceptance retains active login sessions.
+3. `CreateInvitation` and `AcceptInvitation` normalize email using `strtolower(trim($email))`. ASCII trimming and case-insensitive matching are tested. This is not an enforced ASCII-only validation contract or evidence of internationalized-email support; Unicode/IDN normalization remains unverified and no identity-contract expansion was made in this audit.
+4. Full verification rerun with Vite stopped: Pint 82 files PASS, 117 tests / 786 assertions PASS, Vite production build PASS, real queue smoke PASS, 19 setup guard checks PASS.
+5. All changed/untracked files preserved and prepared for independent audit. No autonomous commit, push, PR creation/merge, or Linear status change performed.
+
+Independent reviewer confirmation, required CI/publication and formal milestone acceptance remain open. M1's deferred EUR-26 CI work and independent-host setup evidence are not completed by this local M2 run. Do not mark M2 Done from the test count alone.
+
+### Independent audit and bounded fixes (2026-10-07)
+
+**Readiness and authority**
+
+- Outcome: audit the existing EUR-22/23/24/25 diff and repair confirmed findings; preserve implementation rather than rebuilding it. No publication or Linear mutation is authorized in this audit.
+- Current branch/HEAD: `eur-23-m2-private-core` / `ccd05376bc69894b04fd08207b3de9295b3954b1`, plus the uncommitted M2 files. The intervening overview/delivery commit and unrelated local files are preserved.
+- Live Linear AC and relations were read for EUR-22/23/24/25 and parents EUR-6/7. At this check EUR-23 was In Progress, EUR-22/24/25 Backlog, EUR-6 Todo and EUR-7 Backlog. These are observed metadata, not acceptance decisions or status updates.
+- Review covered scoped queries/policies, invitation create/delivery/accept/revoke, private cover storage/delivery, retention, actual MySQL constraints and test isolation. No new dependencies, payment activation or M3 features were added.
+
+**Confirmed findings and repairs**
+
+1. Process-test teardown deleted entire tables after opting out of connection transactions. Replace it with cleanup of owned community/user IDs and UUID queue names, on a captured connection guarded by configured and actual MySQL `scool_test`. Stop tracked child processes before cleanup; always invoke parent teardown. A regression verifies unrelated memberships, invitations, communities, users and queue jobs survive this cleanup. This does not make parallel full-suite runs against one shared test database safe.
+2. The output check before `waitUntil` still left a readiness race. Use bounded polling of cumulative stdout with process liveness/timeout checks, retaining child stdout flushing. Regressions cover already-buffered and late output; the real two-process acceptance test still requires exactly one success and one rejection.
+3. README used origin-scoped cookie wording and linked Dashboard to `/communities`. Correct the cookie host boundary, use `/dashboard`, and instruct users to log in on the configured `APP_URL` host. This changes documentation, not the private local environment.
+4. Earlier checkpoint text overstated the migration root cause and ASCII-only email enforcement. Correct those claims. Add regressions for trimmed/mixed-case ASCII duplicate invitations and fresh locked user email/verification after a stale authenticated model. Internationalized-email normalization remains unverified rather than advertised as supported or rejected.
+
+**Verification and remaining gates**
+
+- Focused command: `docker compose -p scool exec -T app php artisan test --compact --filter='InvitationProcessIntegrationTest|CommunityInvitationFlowTest'` -> 18 tests / 296 assertions PASS, 37 seconds. Scoped Pint fixes applied only to the two edited test files.
+- Setup guard regression command: `bash scripts/test-setup-verification.sh` -> 19 PASS; no Docker/data changes from these synthetic fixtures.
+- Full command: `bash scripts/verify-fresh-setup.sh --mode verify` -> exit 0, 120 seconds on the HEAD above plus dirty M2 source; **121 tests / 820 assertions PASS** (test duration 91.81 seconds), Pint 82 files, Composer validation, Vite production build 59 modules, runtime/HTTP and the 11-file shared agent contract PASS. No integration skip was counted as success. Documentation-only evidence edits followed this run; `git diff --check` passed. This is local verification, not CI or fresh-bootstrap/independent-host proof.
+- Default-daemon queue marker `EUR20-smoke-9f79e6fd-4bec-4a4b-94f5-66e6e32bc11c`: pending=0, failed=0, handler=1. Previously recorded 117-test results and browser checks are historical; browser behavior was not manually re-run in this follow-up audit.
+- No development reset/migration, queue flush, shared inbox deletion or volume deletion was performed in this audit. Tests retain the pre-RefreshDatabase guard, fake cover disks and unique Mailpit recipients.
+- An unrelated untracked local script contains a hardcoded external credential. It was not executed, edited or staged and is excluded from the M2 publication allowlist. Owner credential revocation/rotation is required; no repository-history secret-cleanliness claim is made.
+- Paid access stays fail-closed. SMTP delivery remains at-least-once, not an outbox/exactly-once guarantee. Deferred dependency-security findings, EUR-26 CI and independent-host setup evidence remain open.
+- Next action: review the bounded fixes and evidence, then request publication separately if appropriate. Merge/reviewer confirmation and current AC still gate issue/milestone acceptance and the M3 baseline.
+
+### M2 publication preflight (2026-10-07)
+
+- Explicit current authorization covers commit, push, a new PR and evidence comments. Merge, issue status changes and Done are not authorized.
+- Branch: `eur-23-m2-private-core`; pre-commit HEAD: `ccd05376bc69894b04fd08207b3de9295b3954b1`. Fetched `origin/main` is `e9000b06c4c8414f58538dcb43daad9cc6b7341e`, with an identical source tree at preflight. PR #8 merged only the overview/delivery documentation; the M2 implementation still requires a new PR.
+- Live EUR-22/23/24/25 and parent EUR-6/7 contracts were re-read. Publication covers their existing private-core implementation; review/acceptance gates remain open.
+- Publication allowlist: 38 M2 source, migration, view, test and shared-documentation files. No private configuration, environment file, credential script, generated asset or lockfile is included. The unrelated local script was deleted by its owner and its absence was verified; deletion does not prove external credential revocation, which remains unverified.
+- Final `bash scripts/verify-fresh-setup.sh --mode verify`: exit 0 in 113 seconds on the pre-commit HEAD plus this reviewed diff. **121 tests / 820 assertions PASS** (85.01 seconds); Pint 82 files, Composer validation, Vite production build 59 modules, runtime/HTTP and the 11-file shared contract PASS.
+- Default-daemon queue marker `EUR20-smoke-7f8d8fb0-1294-4ce2-bccc-92c3f6455f88`: pending=0, failed=0, handler=1. Tests used guarded MySQL scool_test and UUID mail recipients; no development reset/migration, volume deletion, inbox deletion or queue flush occurred.
+- `git diff --check` and a scoped high-confidence secret-pattern scan of the allowlist passed. These are bounded checks, not a full history/secret audit. Only this evidence checkpoint changed after the test run.
+- No CI workflow exists in the current checkout; local success is not a CI result. Deferred EUR-26, dependency-security decisions and independent-host setup proof remain open. The source commit and PR evidence will be linked in Linear; acceptance still requires review and merge.
