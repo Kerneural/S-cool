@@ -264,7 +264,7 @@ ERD trên chỉ thể hiện quan hệ chính, không thay thế migration desig
 7. User không có invitation hợp lệ hoặc membership ACTIVE không được biết metadata/nội dung community.
 8. Invitation gắn với email normalized, token hash, expiry và community; raw token không lưu/log.
 9. Một user có tối đa một LessonProgress cho mỗi lesson.
-10. Chỉ lesson PUBLISHED mới nhận progress mới từ member.
+10. Member reads and progress writes require both course and lesson PUBLISHED, ACTIVE community and ACTIVE membership. Unpublishing blocks access/writes but retains existing progress.
 11. Success redirect không kích hoạt membership.
 12. Một SePay transaction/order event chỉ được xử lý một lần.
 13. Payment SUCCEEDED và membership activation được commit trong cùng transaction.
@@ -472,6 +472,18 @@ Invalid authentication/reference/amount/currency returns an error, changes no me
   rather than being deleted; this slice does not implement a separate audit-history
   event table, member-management UI or account anonymization.
 
+### M3 confirmed behavior and integration boundaries (2026-10-07)
+
+- These are implementation contracts, not evidence that M3 code exists. Linear EUR-8/10/9/11 owns their current AC and acceptance state.
+- Reuse `Community::isActive()`, `Community::isCreator()` and the membership/tenant checks demonstrated by `CommunityPolicy`. `accessibleTo()` selects list entries; it does not authorize individual content actions. Nested post/comment and course/section/lesson IDs must match every parent in the authorized community.
+- Member lesson reads and progress writes require an ACTIVE membership and community, with both course and lesson PUBLISHED. Owning creators may manage/preview drafts; draft preview does not grant member progress rights. Unpublishing retains progress without exposing it or allowing member writes; republishing restores access only after current authorization checks.
+- Lesson video input is a YouTube/Vimeo HTTPS URL, never raw iframe/HTML. Parse the URL, validate an exact provider hostname and supported video path/ID, then generate an embed URL from validated parts. Reject deceptive host suffixes, credentials and unsafe schemes. Do not fetch/proxy the submitted URL; do not accept an arbitrary submitted iframe source.
+- Event storage uses UTC instants plus a validated IANA timezone. Interpret creator-entered wall time in that selected timezone; display the event's timezone explicitly rather than switching silently to the browser timezone. Invalid timezone and end-not-after-start fail without persisting an event. Ambiguous/nonexistent DST wall times require an explicit offset choice or validation rejection, never a silent guess.
+- Cancelled events retain their record and visible cancellation label. Member-facing HTML/data omits the meeting URL after cancellation; hiding only a clickable button is insufficient. External meeting URLs are validated HTTP(S) links, not iframe content or server-fetch targets.
+- Each issue owns its module end-to-end: forward migrations, models/factories, validation/actions/controllers/policies, Blade/Alpine UI and tests. EUR-8 owns Post/Comment; EUR-10 owns Course/CourseSection/Lesson; EUR-9 adds LessonProgress on the merged EUR-10 contract; EUR-11 owns Event. No applied migration rewrites or unrelated module refactors.
+- Keep existing community metadata, cover, edit and invitation routes working under `/communities/{community:slug}`. Reuse `<x-app-layout>`; add module-specific views/partials. Agree names/parameters for any shared community navigation before editing it, merge only the small coordinated change, and never render links to routes absent from that branch. A module must run against M2 without requiring another unmerged M3 feature.
+- Feed, Classroom and Events can use the merged M2 baseline independently. Only Progress requires the merged Classroom hierarchy/access contract. Implementation order and WIP limits do not create additional technical blockers.
+
 ### Transaction boundaries
 
 - Free invitation acceptance: validate/mark invitation + create/activate membership trong một transaction.
@@ -528,7 +540,7 @@ Invalid authentication/reference/amount/currency returns an error, changes no me
 
 - Lưu datetime ở UTC.
 - Event có timezone IANA do Creator chọn để hiển thị đúng cho member.
-- UI chuyển đổi timezone ở presentation layer; database không lưu nhiều bản cùng một thời điểm.
+- Calendar renders the stored UTC instant in the event's IANA timezone with a visible label. Cancelled events remain labelled but expose no member-facing meeting link. Database storage does not duplicate an instant for different display zones.
 
 ## 10. File và media
 
@@ -537,7 +549,7 @@ Invalid authentication/reference/amount/currency returns an error, changes no me
 - Server kiểm tra MIME thực và kích thước, không chỉ extension.
 - Server tạo tên file; không dùng trực tiếp tên do user cung cấp.
 - Vì community là private, cover không được lộ qua đường dẫn public cố định. MVP phục vụ ảnh qua route đã authorize hoặc signed temporary URL; không đặt cover vào public disk không kiểm soát.
-- Lesson video dùng allowlisted HTTP(S) URL/embed; không upload hoặc proxy media.
+- Lesson video uses only validated YouTube/Vimeo HTTPS URLs with server-generated provider embeds; raw iframe/HTML input and arbitrary providers are rejected. No media upload, fetch or proxy.
 - PDF, MP3, MP4, ZIP và lesson attachment nằm ngoài MVP.
 - Khi cover được thay thế, file cũ được cleanup sau khi database update thành công; lỗi cleanup được log để xử lý sau.
 

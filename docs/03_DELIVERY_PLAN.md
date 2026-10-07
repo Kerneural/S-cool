@@ -284,28 +284,69 @@ VS-02/VS-03:
 ```markdown
 ## Outcome
 
+<Actor + observable result + resource/context; explain how completion is demonstrated.>
+
 ## Scope
-- Bao gồm:
-- Không bao gồm:
+
+- Includes: <end-to-end slice: data, backend, UI and tests as applicable.>
+- Excludes: <explicit adjacent features and non-goals.>
+
+## Workflow and contracts
+
+- Entry point -> permitted action -> persisted state -> visible result.
+- Existing contracts/docs: <link, section and actual class/action/policy where available.>
+- Resource hierarchy, role/state rules, fields and validation behavior.
+- UI: required screens, navigation, empty/error states and responsive behavior.
+- Shared-file/module boundaries and coordination needed before edits.
+- Decisions: <CONFIRMED / PROPOSED / OPEN; who or what decision is required, not invented approval.>
 
 ## Acceptance criteria
-- [ ] Luồng thành công hoạt động
-- [ ] Validation và failure state hoạt động
-- [ ] Authorization và tenant boundary đúng
-- [ ] Automated tests đạt
-- [ ] Reviewer xác nhận
+
+- [ ] AC-01: Given <actor/state>, when <action>, then <observable result>.
+- [ ] AC-02: Invalid input <specific case> produces <feedback> without <unwanted mutation>.
+- [ ] AC-03: Wrong role/tenant/state <specific cases> cannot read or mutate the resource.
+- [ ] AC-04: Refresh/repeated/concurrent request <as relevant> preserves <invariant>.
+- [ ] AC-05: Required UI states and relevant regression/negative tests are demonstrated.
+- [ ] Review and applicable acceptance checks are evidenced; exceptions need explicit scoped authorization.
 
 ## Dependencies
-- Depends on:
-- Blocks:
+
+- Blocked by: <actual required issue/merged contract, or None.>
+- Blocks: <downstream consumer and exact handoff needed, or None.>
+- Related: <coordination only; not a false blocking dependency.>
+
+## Security and failure cases
+
+- Authorization/tenant boundary, ownership, untrusted input and sensitive data.
+- Invalid/terminal state, rollback/retry/concurrency and retention behavior as relevant.
+- Migration/shared-contract impact and explicit implementation boundary.
+
+## Verification plan
+
+- Automated: <exact command once test names exist; before that, cases to add, not fictional existing tests.>
+- Manual: <happy path, negative case, responsive/direct-link checks and expected results.>
+- Integration/build: <applicable checks and isolated runtime requirements.>
 
 ## Evidence
-- Pull request:
-- Test result:
-- Screenshot/demo:
+
+- Commit / PR: Pending.
+- Automated result: Pending; record exact command, exit/result, revision and environment.
+- Manual result / sanitized screenshot: Pending.
+- Review / CI: Pending, or N/A with a reason. Local success is not CI success.
+- Unverified items / blockers / exceptions: <explicit, or None after verification.>
 ```
 
-Mô tả dùng văn phong khách quan; không thêm mục Owner/Reviewer hoặc tên cá nhân/agent. Phân công giữ ở metadata Linear và bảng ownership; review vẫn là điều kiện nghiệm thu.
+#### Issue quality gate
+
+- Use this template for every new issue/sub-issue and material scope change. Small bugs/chores may keep sections short and use `N/A` with a reason, but must still define outcome, scope, testable AC and evidence.
+- Write technical issue prose in English and objectively. No personal names, agent identities or Owner/Reviewer narratives; assignments belong in metadata.
+- Before Ready, verify Linear metadata: correct project/milestone, assignee, priority, estimate, labels and actual dependency relations; set a due date for time-bound work and a cycle only when the team uses one. Resolve missing or conflicting values instead of guessing or silently rescheduling.
+- Replace placeholders before Ready. Record unapproved behavior as `PROPOSED`/`OPEN`; it is not an accepted requirement. If it affects implementation or acceptance, resolve it before coding that part. Do not invent evidence or pre-check AC.
+- AC must specify an actor/state, action and result. Separate product decisions from implementation choices; name concrete negative cases instead of saying only "authorization works".
+- Preserve unrelated description content and metadata. Relations must match the Dependencies section; execution order/WIP is not a technical dependency.
+- Evidence records the exact tested revision/environment and remaining gaps. Review/CI/build requirements are explicit; a previous acceptance exception does not apply automatically.
+- At handoff, link the merged contract needed by downstream work. Only create sub-issues with independent ownership or acceptance; do not split backend/UI purely to create more tickets.
+- `AGENTS.md` and `AI_WORKFLOW.md` route all participants here. This Markdown contract is a required workflow, not proof that a human or IDE agent complied. Native Linear form templates are optional; keep this section canonical rather than creating another roadmap.
 
 #### Nhịp cập nhật hằng ngày
 
