@@ -35,13 +35,13 @@ Hosting không phải điều kiện của giai đoạn này. Build pass đơn t
 
 ## 3. Team profile và nguyên tắc phân công
 
-| Thành viên | Thông tin hiện có | Vai trò đề xuất | Không nên trở thành điểm nghẽn duy nhất |
+| Thành viên | Năng lực và chuyên môn chính | Vai trò đề xuất | Không nên trở thành điểm nghẽn duy nhất |
 |---|---|---|---|
-| Hoàng | Chốt product/architecture, điều phối và theo dõi các module trọng yếu; muốn phát triển DevOps | Trực tiếp làm M1 Foundation và M2 Private Core; sau đó phụ trách Billing, local/CI và integration control | M1/M2 vẫn phải có reviewer; payment và setup phải có backup |
-| Tiến | Chuyên fullstack | Hỗ trợ review M1; sau M2 phụ trách Community Feed, Events, Blade/Alpine UI và responsive integration | Không một mình sở hữu toàn bộ frontend |
-| Khoa | Chuyên cyber, làm fullstack được; tư duy nhạy theo đánh giá của Hoàng | Learning/Events, Platform Admin, threat review và security tests | Security không chỉ review cuối dự án |
+| Hoàng | Kiến trúc hệ thống, backend Laravel, điều phối kỹ thuật và DevOps | Phụ trách M1 Foundation và M2 Private Core; sau đó phụ trách Billing, local/CI và kiểm soát tích hợp | M1/M2 vẫn cần có reviewer; payment và setup môi trường cần có backup |
+| Tiến | Phát triển fullstack (web application, Blade/Alpine UI, CSS) | Hỗ trợ review M1; sau M2 phụ trách Community Feed, Events, UI tương tác và responsive integration | Không một mình sở hữu toàn bộ frontend |
+| Khoa | An toàn thông tin (cybersecurity), rà soát lỗ hổng và phát triển fullstack | Learning/Events, Platform Admin, threat review và security tests | Rà soát bảo mật tiến hành liên tục, không dồn vào cuối dự án |
 
-Hoàng là người giữ quyền quyết định cuối cùng về scope, architecture, thứ tự ưu tiên và readiness; đồng thời là driver trực tiếp của M1 và M2. Quyền quyết định không thay thế review kỹ thuật: Tiến review foundation, Khoa review multi-tenancy/authorization; owner của slice vẫn chịu trách nhiệm end-to-end gồm migration, policy, backend, UI và test.
+Hoàng điều phối phạm vi kỹ thuật, kiến trúc và thứ tự ưu tiên; trực tiếp triển khai M1 Foundation và M2 Private Core. Mọi quyết định kỹ thuật đều tuân thủ quy trình review chéo: Tiến review foundation, Khoa review multi-tenancy/authorization và an toàn hệ thống; thành viên phụ trách mỗi vertical slice chịu trách nhiệm toàn diện từ migration, policy, backend, UI đến kiểm thử tự động.
 
 ## 4. Delivery principles
 
@@ -115,7 +115,7 @@ Milestone là outcome gate, không phải danh sách việc đã dự định l�
 
 | Area | Driver | Required reviewer | Backup | Rủi ro chính |
 |---|---|---|---|---|
-| Product scope/architecture | Hoàng | Khoa và Tiến | Khoa | Decision chỉ nằm trong đầu Hoàng |
+| Product scope/architecture | Hoàng | Khoa và Tiến | Khoa | Quyết định kiến trúc thiếu tài liệu hóa (rủi ro bus factor) |
 | Identity/Foundation | Hoàng | Tiến | Khoa | Auth/session regression hoặc local setup chỉ chạy trên một máy |
 | Multi-tenancy/RBAC | Hoàng | Khoa | Tiến | Cross-community data leak |
 | Community Feed/UI | Tiến | Khoa | Hoàng | Authorization và XSS |
@@ -123,7 +123,7 @@ Milestone là outcome gate, không phải danh sách việc đã dự định l�
 | Events | Tiến | Khoa | Hoàng | Timezone và invalid URL |
 | SePay Sandbox | Hoàng | Khoa bắt buộc | Tiến | IPN spoof/replay/duplicate và tunnel config |
 | Platform Administration | Khoa | Hoàng | Tiến | Privilege escalation |
-| Local/CI/operations | Hoàng | Tiến | Tiến | Chỉ chạy trên máy Hoàng |
+| Local/CI/operations | Hoàng | Tiến | Tiến | Sai lệch môi trường (chỉ chạy trên một máy cục bộ) |
 | Demo/stabilization | Cả team | Cross-review | Cả team | Lỗi tích hợp muộn |
 
 ## 9. Definition of Ready
