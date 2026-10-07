@@ -10,3 +10,4 @@
 8. Tests use only MySQL `scool_test`, guarded before RefreshDatabase. Use unique Mailpit recipients; never delete the shared inbox. Do not reset data, delete volumes or expose secrets.
 9. Write shared agent instructions and technical checkpoints in English. Keep personal IDE settings, credentials, `.agent/`, `.agent-reference/` and local notebooks private and ignored; they are not setup prerequisites.
 10. `bash scripts/verify-agent-contract.sh` checks shared files and privacy boundaries; `--require-tracked` additionally checks the Git index. Neither proves agent compliance, publication or test coverage.
+11. Use neutral issue branches such as `eur-21-community-baseline`; never include tool/agent branding in branch names. Do not rename/delete remote or unrelated historical branches without authorization.
