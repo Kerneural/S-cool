@@ -457,11 +457,21 @@ Invalid authentication/reference/amount/currency returns an error, changes no me
 ### Delete và retention
 
 - Community dùng state ARCHIVED; không hard delete trong MVP.
+- EUR-21 retention safeguard: `creator_id` is non-null with a restrictive foreign key, not a cascading delete. Profile deletion is refused while a user owns any community, including suspended/archived communities. This prevents account deletion from erasing tenant data; ownership transfer/account anonymization remains outside this slice.
 - Membership giữ state history; không xóa khi leave/remove.
 - Post/comment dùng soft delete nếu cần creator moderation/history.
 - Course/lesson ưu tiên unpublish; soft delete chỉ khi UI cần.
 - Payment và processed webhook event không bị sửa/xóa qua UI.
 - Demo/local data có thể reset bằng migration/seed command được kiểm soát.
+
+### EUR-21 implementation baseline (2026-10-07)
+
+- Community visibility is fixed to `PRIVATE` at both model/database defaults; the schema does not permit public visibility. Access mode defaults to `FREE`; the schema reserves `PAID` for later explicit configuration/payment work, not entitlement activation.
+- Known visibility/access/state values use MySQL enums. This keeps the baseline constrained without a new package; adding a value requires a forward migration. No configurable public directory is introduced.
+- Creator ownership is assigned through `User::createdCommunities()`, never request input. Ownership, visibility, access mode and lifecycle state are excluded from model mass assignment.
+- Slugs are lowercase ASCII letters/numbers/dashes/underscores, globally unique; `create` is reserved for the form route. Normalize before validation; convert duplicate-insert races into validation feedback. Global slug availability checks are not proof of complete enumeration resistance.
+- Creator-only routes return 404 for unauthorized/inactive access. The owned-community list is paginated; it is not a public directory or a member switcher. Membership-derived access, protected media and complete M2 isolation remain EUR-22 through EUR-25 work.
+- The initial migration was uncommitted and pending on the local development DB before audit, so its schema was corrected before application. It has now been applied locally; all subsequent schema changes require forward migrations, not edits to this migration.
 
 ### Audit/history
 

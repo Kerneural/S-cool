@@ -55,7 +55,7 @@ Repeated failures require a changed hypothesis and investigation, not blind retr
 
 ## Checkpoints and handoff
 
-Use one short-lived branch and focused PR per issue. Keep issue sections in `WORKING_CONTEXT.md`; update only the active section without overwriting another issue's checkpoint.
+Use one short-lived branch and focused PR per issue. Name branches `eur-<issue-number>-<short-topic>` without tool/agent branding. Keep issue sections in `WORKING_CONTEXT.md`; update only the active section without overwriting another issue's checkpoint.
 
 Record the issue/AC source, timestamp, branch/HEAD/dirty files, technical plan/diff, commands/results, decisions/blockers, unverified items and next action. Move accepted evidence to Linear/PR; do not copy chat logs or the whole roadmap.
 
