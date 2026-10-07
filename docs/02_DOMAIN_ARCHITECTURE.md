@@ -428,6 +428,50 @@ Invalid authentication/reference/amount/currency returns an error, changes no me
 
 ## 9. Data, transactions và consistency
 
+### M2 implemented contracts (2026-10-07)
+
+- Tables: `community_memberships` has a restrictive community/user FK, state enum,
+  unique `(community_id, user_id)` and user/state index. `community_invitations`
+  retains creator/accepted-user references, normalized email, state and timestamps;
+  `token_hash` is nullable until delivery, then unique SHA-256. Existing applied
+  community migrations are unchanged; three forward migrations add this slice.
+- HTTP controllers use `CreateInvitation`, `AcceptInvitation`, `RevokeInvitation`.
+  Creation/revocation lock the community before the invitation. Acceptance locks
+  the fresh user, community and invitation, then commits membership and acceptance
+  together. Validity includes verified matching email, live expiry and ACTIVE tenant.
+  A used token returns 404 without another membership or restoring revoked access.
+  LEFT rejoin requires a new invitation; SUSPENDED/REMOVED/PENDING_PAYMENT cannot
+  bypass their state through free acceptance. PAID remains fail-closed until Billing.
+- `Community::accessibleTo()` is a paginated list scope, not a blanket authorization
+  grant. Owners can see their inactive status; internal view/media require ACTIVE
+  tenant plus ownership or ACTIVE membership. Creator-only writes are separate from
+  member reads. Nested invitations use scoped route binding and action rechecks.
+  Future content/learning/event policies must scope nested resources the same way;
+  M2 tests do not certify modules that do not exist yet.
+- `SendCommunityInvitation` queues only the record ID, generates a 256-bit token
+  in the worker and sends through SMTP. The email link uses a URL fragment;
+  Alpine reads it into the POST form in memory and removes it from the address bar.
+  GET never grants membership. Raw tokens are not persisted in jobs/models, flashed
+  to sessions or included in exception arguments. PHP argument traces are disabled
+  at application bootstrap; mail failures are rethrown without sensitive causes.
+- Delivery is at-least-once, not exactly-once SMTP. Sending and recording the hash
+  occur inside a short locked transaction (SMTP timeout 15 seconds). A delivered
+  message followed by a DB commit failure can be followed by a replacement email
+  on retry; only the committed hash works. Queue enqueue failure after creation
+  leaves a pending record; revoke/reissue or retry a failed job, never reopen a
+  terminal record. There is no transactional outbox or automated orphan cleanup.
+- Covers use `community_media` at `storage/app/community-media`, outside the default
+  local disk root and public web root. It has no signed/public serving route.
+  Authorized delivery is private/no-store with nosniff; upload validation checks
+  raster MIME, allowed extension, size and dimensions. Generated paths are scoped
+  to the tenant. Failed DB writes clean the new file; replacement cleans the old
+  file only after commit and rejects foreign references. Failed cleanup is logged
+  by tenant ID; filesystem and DB writes cannot be made one atomic transaction.
+- Retained membership/invitation references restrict deletion. Profile deletion
+  rejects ownership/membership records with clear feedback. State records remain
+  rather than being deleted; this slice does not implement a separate audit-history
+  event table, member-management UI or account anonymization.
+
 ### Transaction boundaries
 
 - Free invitation acceptance: validate/mark invitation + create/activate membership trong một transaction.

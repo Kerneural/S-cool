@@ -11,6 +11,7 @@
             </div>
             <div class="flex items-center space-x-2">
                 @can('update', $community)
+                    <a class="underline text-sm" href="{{ route('communities.invitations.index', $community) }}">Invitations</a>
                     <a href="{{ route('communities.edit', $community) }}" class="inline-flex items-center px-3 py-1.5 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                         {{ __('Edit Settings') }}
                     </a>
@@ -24,6 +25,7 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            @if ($community->cover_path)<img src="{{ route('communities.cover.show', $community) }}" alt="Community cover" class="w-full max-h-64 object-cover rounded-lg">@endif
             @if (session('status'))
                 <div class="p-4 font-medium text-sm text-green-700 bg-green-50 rounded-lg">
                     {{ session('status') }}
@@ -70,7 +72,7 @@
                                     </div>
                                     <div class="flex items-center">
                                         <span class="h-2 w-2 rounded-full bg-indigo-400 mr-2"></span>
-                                        <span>{{ __('Creator Ownership Verified') }}</span>
+                                        <span>{{ $community->isCreator(auth()->user()) ? __('Creator access') : __('Active member access') }}</span>
                                     </div>
                                 </div>
                             </div>

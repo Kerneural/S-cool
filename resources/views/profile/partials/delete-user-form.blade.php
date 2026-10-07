@@ -5,7 +5,7 @@
         </h2>
 
         <p class="mt-1 text-sm text-gray-600">
-            {{ __('Account deletion is permanent. Accounts that own communities cannot be deleted; community retention must be resolved first.') }}
+            {{ __('Account deletion is permanent. Accounts with community ownership or membership records cannot be deleted; retention must be resolved first.') }}
         </p>
     </header>
 

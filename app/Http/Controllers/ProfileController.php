@@ -53,9 +53,9 @@ class ProfileController extends Controller
             // Lock the referenced user while checking ownership and deleting it.
             $user = User::query()->whereKey($request->user()->id)->lockForUpdate()->firstOrFail();
 
-            if ($user->createdCommunities()->exists()) {
+            if ($user->createdCommunities()->exists() || $user->memberships()->exists()) {
                 throw ValidationException::withMessages([
-                    'password' => 'Accounts that own communities cannot be deleted. Community retention must be resolved first.',
+                    'password' => 'Accounts with community ownership or membership records cannot be deleted. Retention must be resolved first.',
                 ])->errorBag('userDeletion');
             }
 

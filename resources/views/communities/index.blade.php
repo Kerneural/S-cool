@@ -20,11 +20,11 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('My Created Communities') }}</h3>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('My Communities') }}</h3>
 
                     @if ($communities->isEmpty())
                         <div class="text-center py-8">
-                            <p class="text-gray-500 mb-4">{{ __('You have not created any communities yet.') }}</p>
+                            <p class="text-gray-500 mb-4">{{ __('You have no accessible communities yet. Create one or accept an invitation sent to your email.') }}</p>
                             <a href="{{ route('communities.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                                 {{ __('Get Started — Create a Community') }}
                             </a>
@@ -35,11 +35,11 @@
                                 <div class="border rounded-lg p-5 hover:shadow-md transition">
                                     <div class="flex justify-between items-start mb-2">
                                         <h4 class="font-bold text-lg text-gray-900">
-                                            @can('view', $community)
+                                            @if ($community->isActive())
                                                 <a href="{{ route('communities.show', $community) }}" class="hover:underline text-indigo-600">{{ $community->name }}</a>
                                             @else
                                                 {{ $community->name }}
-                                            @endcan
+                                            @endif
                                         </h4>
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $community->isActive() ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
                                             {{ $community->status }}
@@ -50,12 +50,12 @@
                                         {{ $community->description ?: __('No description provided.') }}
                                     </p>
                                     <div class="flex justify-between items-center text-xs text-gray-500 pt-2 border-t">
-                                        <span>{{ __('Role: Creator') }}</span>
-                                        @can('view', $community)
+                                        <span>{{ $community->isCreator(auth()->user()) ? __('Role: Creator') : __('Role: Member') }}</span>
+                                        @if ($community->isActive())
                                             <a href="{{ route('communities.show', $community) }}" class="font-semibold text-indigo-600 hover:text-indigo-800">{{ __('Open Dashboard') }} &rarr;</a>
                                         @else
                                             <span>{{ __('Access unavailable') }}</span>
-                                        @endcan
+                                        @endif
                                     </div>
                                 </div>
                             @endforeach

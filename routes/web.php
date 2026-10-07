@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\CommunityController;
+use App\Http\Controllers\CommunityCoverController;
+use App\Http\Controllers\CommunityInvitationController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -8,9 +10,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [CommunityController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('/invitations/{invitation}', [CommunityInvitationController::class, 'show'])->whereNumber('invitation')->name('invitations.show');
+Route::post('/invitations/{invitation}/accept', [CommunityInvitationController::class, 'accept'])
+    ->whereNumber('invitation')->middleware(['auth', 'verified', 'throttle:10,1'])->name('invitations.accept');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -23,6 +27,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/communities/{community:slug}', [CommunityController::class, 'show'])->name('communities.show');
     Route::get('/communities/{community:slug}/edit', [CommunityController::class, 'edit'])->name('communities.edit');
     Route::put('/communities/{community:slug}', [CommunityController::class, 'update'])->name('communities.update');
+    Route::get('/communities/{community:slug}/cover', [CommunityCoverController::class, 'show'])->name('communities.cover.show');
+    Route::post('/communities/{community:slug}/cover', [CommunityCoverController::class, 'store'])->name('communities.cover.store');
+    Route::scopeBindings()->group(function () {
+        Route::get('/communities/{community:slug}/invitations', [CommunityInvitationController::class, 'index'])->name('communities.invitations.index');
+        Route::post('/communities/{community:slug}/invitations', [CommunityInvitationController::class, 'store'])->middleware('throttle:10,1')->name('communities.invitations.store');
+        Route::delete('/communities/{community:slug}/invitations/{invitation}', [CommunityInvitationController::class, 'revoke'])->name('communities.invitations.revoke');
+    });
 });
 
 require __DIR__.'/auth.php';

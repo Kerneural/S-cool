@@ -9,6 +9,16 @@
         <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
+                    @if (session('status'))<p class="mb-4 text-green-700">{{ session('status') }}</p>@endif
+                    <form method="POST" enctype="multipart/form-data" action="{{ route('communities.cover.store', $community) }}" class="mb-8 space-y-4 border-b pb-6">
+                        @csrf
+                        <x-input-label for="cover" value="Private community cover" />
+                        @if ($community->cover_path)<img src="{{ route('communities.cover.show', $community) }}" alt="Community cover" class="w-full max-h-48 object-cover rounded-lg">@endif
+                        <input id="cover" name="cover" type="file" accept="image/jpeg,image/png,image/webp" required class="block w-full text-sm">
+                        <p class="text-xs text-gray-500">JPEG, PNG or WebP. Maximum 2 MB and 4096 pixels per side. Visible only to authorized community users.</p>
+                        <x-input-error :messages="$errors->get('cover')" />
+                        <x-primary-button>Upload cover</x-primary-button>
+                    </form>
                     <form method="POST" action="{{ route('communities.update', $community) }}" class="space-y-6">
                         @csrf
                         @method('PUT')

@@ -30,6 +30,15 @@ return [
 
     'disks' => [
 
+        'community_media' => [
+            'driver' => 'local',
+            // Outside the default local disk root: its signed route must never serve covers.
+            'root' => storage_path('app/community-media'),
+            'visibility' => 'private',
+            'serve' => false,
+            'throw' => true,
+        ],
+
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
