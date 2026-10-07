@@ -344,13 +344,13 @@ Những công nghệ trên chỉ có ý nghĩa khi một yêu cầu cụ thể b
 
 Team có ba người:
 
-| Thành viên | Thông tin hiện có | Nội dung còn phải tự đánh giá |
+| Thành viên | Năng lực và chuyên môn chính | Trọng tâm kiểm chứng và hoàn thiện |
 |---|---|---|
-| Hoàng | Chốt quyết định product/architecture, điều phối và theo dõi các module trọng yếu; muốn phát triển năng lực DevOps để phục vụ xin việc | Laravel, frontend, database, thời gian cam kết và mức kinh nghiệm DevOps hiện tại |
-| Tiến | Chuyên fullstack | Công nghệ đã dùng, feature từng làm, khả năng test/review và thời gian tham gia |
-| Khoa | Chuyên cyber, vẫn làm fullstack được; theo đánh giá của lead có tư duy nhạy hơn Tiến | Bằng chứng năng lực, mảng cyber mạnh nhất, kinh nghiệm application security và thời gian tham gia |
+| Hoàng | Kiến trúc hệ thống, backend Laravel, điều phối kỹ thuật và DevOps | Hoàn thiện quy trình CI/CD, chuẩn hóa môi trường triển khai và tích hợp hệ thống |
+| Tiến | Phát triển fullstack (Blade, Alpine.js, Tailwind CSS, Laravel) | Kinh nghiệm triển khai UI/UX, tối ưu hóa giao diện tương tác và kiểm thử thành phần |
+| Khoa | An toàn thông tin (cybersecurity), kiểm thử bảo mật và phát triển fullstack | Rà soát lỗ hổng phân quyền, bảo vệ ranh giới đa người thuê (tenant isolation) và kiểm thử an toàn |
 
-Phân công chi tiết nằm trong `03_DELIVERY_PLAN.md`. Hoàng giữ quyền quyết định cuối về scope, architecture và ưu tiên; việc phân công vẫn dựa trên timebox hai tuần, mục tiêu học, bằng chứng năng lực và bus factor, không chỉ dựa trên nhận xét ai mạnh hơn.
+Phân công chi tiết nằm trong `03_DELIVERY_PLAN.md`. Hoàng điều phối phạm vi, kiến trúc và thứ tự ưu tiên; việc phân công dựa trên tiến độ timebox hai tuần, năng lực chuyên môn phù hợp và nguyên tắc giảm thiểu rủi ro phụ thuộc cá nhân (bus factor), bảo đảm mọi module đều có kiểm thử và review chéo độc lập.
 
 ## 15. Phạm vi định hướng
 
@@ -448,7 +448,7 @@ Các câu trả lời và quyết định phải được ghi trong tài liệu 
 - Domain model và quy tắc tenant đã có; physical schema/migrations chưa được triển khai.
 - Danh sách Must scope, actors, golden/failure flows và readiness gate đã được chốt trong bốn tài liệu sống.
 - Đã chốt multi-community private/invite-only, MySQL duy nhất, Docker Compose local, database queue, Redis sau MVP, SePay Sandbox và local-first.
-- Timebox implementation là hai tuần; Hoàng là người chốt quyết định và theo dõi các module trọng yếu.
+- Timebox implementation là hai tuần; Hoàng điều phối kỹ thuật và theo dõi các module trọng yếu.
 - Đã rút gọn bộ tài liệu thành bốn tài liệu sống: Product Scope, Domain & Architecture, Delivery Plan và DevOps & Operations.
 - Bước tiếp theo là review tài liệu với team, chốt ngày bắt đầu/capacity, khởi tạo repository/backlog và triển khai vertical slice đầu tiên.
 
