@@ -338,3 +338,24 @@ Independent reviewer confirmation, required CI/publication and formal milestone 
 - Diff: shared entrypoint, workflow, Product Scope, Domain Architecture, Delivery Plan, this checkpoint, and the two existing agent-contract scripts. No application, dependency, runtime, environment or data changes. The draft sync-local script is outside this task and was neither changed nor executed.
 - Verification: `bash scripts/verify-agent-contract.sh --require-tracked` PASS (11 shared files); `bash scripts/test-agent-contract.sh` PASS (16 disposable-fixture cases), including missing issue-template routing/gate/verification sections. `git diff --check` PASS before this checkpoint; repeat after its edit. Structural checks do not prove issue quality, agent compliance, publication or application behavior.
 - Evidence limits/next step: M3 code, module tests, browser flows, integration and CI remain unverified/Pending, not completed. M3 target date remains 2026-10-06 and issue due dates 2026-10-07; description changes do not resolve the schedule risk. Review/publish these bounded shared-contract edits only after explicit authorization so other clones receive the rules. Before implementation, verify merged baseline and agree the narrow shared navigation/route names and concrete field/provider validation limits in the active issue checkpoint.
+
+## EUR-8 - Community Feed baseline implementation (2026-10-07)
+
+- Outcome: Implement end-to-end Community Feed (VS-04): post and comment CRUD, authorship policy, creator moderation, scoped route binding, pagination, soft deletes, and XSS protection.
+- Branch: `eur-8-community-feed`, branched from HEAD `e2f55503eb5897aaf73f7055734a73c91e6876dd`.
+- Implemented files:
+  - Migrations: `2026_10_07_030001_create_posts_table.php`, `2026_10_07_030002_create_comments_table.php` (restrictive foreign keys, indexes, soft deletes).
+  - Models: `Post`, `Comment`, updated `Community` and `User` with relationships.
+  - Factories: `PostFactory`, `CommentFactory`.
+  - Policies: `PostPolicy`, `CommentPolicy` (active member and creator access, author-only update, author/creator delete, denyAsNotFound privacy).
+  - Controllers: `PostController`, `CommentController` (eager loading to prevent N+1, pagination of 15 per page).
+  - Views: `resources/views/communities/posts/{index,show,edit}.blade.php`, updated `communities/show.blade.php`.
+  - Routes: Scoped nested routes under `/communities/{community:slug}/posts/...`.
+  - Feature tests: `tests/Feature/CommunityFeedTest.php` (14 tests, 53 assertions).
+- Verification:
+  - `docker compose -p scool exec -T app php artisan test --compact --filter=CommunityFeedTest`: 14 passed (53 assertions).
+  - `docker compose -p scool exec -T app vendor/bin/pint`: 93 files PASS.
+  - Full test suite: `docker compose -p scool exec -T app php artisan test --compact`: 136 passed (877 assertions).
+- Status & Authority:
+  - Implementation completed and verified locally on `scool_test`.
+  - No commit, push, PR creation, merge, or Linear mutation performed. Awaiting review and authorization.
