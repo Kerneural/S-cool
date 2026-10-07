@@ -4,6 +4,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\CommunityCoverController;
 use App\Http\Controllers\CommunityInvitationController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -45,6 +46,14 @@ Route::middleware('auth')->group(function () {
 
         Route::post('/communities/{community:slug}/posts/{post}/comments', [CommentController::class, 'store'])->name('communities.posts.comments.store');
         Route::delete('/communities/{community:slug}/posts/{post}/comments/{comment}', [CommentController::class, 'destroy'])->name('communities.posts.comments.destroy');
+
+        Route::get('/communities/{community:slug}/events', [EventController::class, 'index'])->name('communities.events.index');
+        Route::get('/communities/{community:slug}/events/create', [EventController::class, 'create'])->name('communities.events.create');
+        Route::post('/communities/{community:slug}/events', [EventController::class, 'store'])->name('communities.events.store');
+        Route::get('/communities/{community:slug}/events/{event}', [EventController::class, 'show'])->name('communities.events.show');
+        Route::get('/communities/{community:slug}/events/{event}/edit', [EventController::class, 'edit'])->name('communities.events.edit');
+        Route::put('/communities/{community:slug}/events/{event}', [EventController::class, 'update'])->name('communities.events.update');
+        Route::post('/communities/{community:slug}/events/{event}/cancel', [EventController::class, 'cancel'])->name('communities.events.cancel');
     });
 });
 

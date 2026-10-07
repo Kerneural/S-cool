@@ -359,3 +359,24 @@ Independent reviewer confirmation, required CI/publication and formal milestone 
 - Status & Authority:
   - Implementation completed and verified locally on `scool_test`.
   - No commit, push, PR creation, merge, or Linear mutation performed. Awaiting review and authorization.
+
+## EUR-11 - Community Events baseline implementation (2026-10-07)
+
+- Outcome: Implement end-to-end Community Events (VS-07): event scheduling, update, idempotent cancellation, UTC storage with IANA timezone presentation, URL safety validation, and meeting link omission on cancelled events.
+- Branch: `eur-11-community-events`, branched from `eur-8-community-feed` (`11c8420410b2ba39969251a83ba0e9c858a66ca2`).
+- Implemented files:
+  - Migration: `2026_10_07_040001_create_events_table.php` (restrictive foreign keys, UTC timestamps, IANA timezone string, status enum).
+  - Model: `Event` with timezone conversion helpers (`localStartsAt`, `localEndsAt`) and status helpers; updated `Community` and `User` relationships.
+  - Factory: `EventFactory` with scheduled and cancelled states.
+  - Policy: `EventPolicy` (creator manage, active member view, denyAsNotFound privacy).
+  - Controller: `EventController` (parses local wall time with IANA timezone, converts to UTC, validates end > start, enforces idempotent cancellation and rejects updating cancelled events).
+  - Views: `resources/views/communities/events/{index,create,edit,show}.blade.php`, updated `communities/show.blade.php` and `communities/posts/index.blade.php` with Events navigation.
+  - Routes: Scoped nested routes under `/communities/{community:slug}/events/...`.
+  - Feature tests: `tests/Feature/CommunityEventTest.php` (10 tests, 67 assertions).
+- Verification:
+  - `docker compose -p scool exec -T app php artisan test --compact --filter=CommunityEventTest`: 10 passed (67 assertions).
+  - `docker compose -p scool exec -T app vendor/bin/pint`: 99 files PASS.
+  - Full test suite: `docker compose -p scool exec -T app php artisan test --compact`: 146 passed (944 assertions).
+- Status & Authority:
+  - Implementation completed and verified locally on `scool_test`.
+  - No commit, push, PR creation, merge, or Linear mutation performed. Awaiting review and authorization.
