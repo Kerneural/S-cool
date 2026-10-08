@@ -249,7 +249,13 @@ class CommunityInvitationFlowTest extends TestCase
         try {
             $throw('synthetic-secret');
         } catch (\RuntimeException $exception) {
+            $this->assertStringNotContainsString('synthetic-secret', json_encode($exception->getTrace(), JSON_THROW_ON_ERROR));
             foreach ($exception->getTrace() as $frame) {
+                // PHP retains include/require filenames even with argument capture disabled.
+                // These language frames are not function arguments; check all callable frames.
+                if (in_array($frame['function'] ?? '', ['include', 'include_once', 'require', 'require_once'], true)) {
+                    continue;
+                }
                 $this->assertArrayNotHasKey('args', $frame);
             }
         }
