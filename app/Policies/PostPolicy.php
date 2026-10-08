@@ -24,7 +24,7 @@ class PostPolicy
      */
     public function view(User $user, Post $post): Response
     {
-        return $this->canAccessCommunity($user, $post->community)
+        return ! $post->trashed() && $this->canAccessCommunity($user, $post->community)
             ? Response::allow()
             : Response::denyAsNotFound();
     }
@@ -44,7 +44,8 @@ class PostPolicy
      */
     public function update(User $user, Post $post): Response
     {
-        return $post->community->isActive() && (int) $post->user_id === (int) $user->id
+        return ! $post->trashed() && $this->canAccessCommunity($user, $post->community)
+            && (int) $post->user_id === (int) $user->id
             ? Response::allow()
             : Response::denyAsNotFound();
     }
@@ -54,7 +55,7 @@ class PostPolicy
      */
     public function delete(User $user, Post $post): Response
     {
-        $canDelete = $post->community->isActive()
+        $canDelete = ! $post->trashed() && $this->canAccessCommunity($user, $post->community)
             && ((int) $post->user_id === (int) $user->id || $post->community->isCreator($user));
 
         return $canDelete

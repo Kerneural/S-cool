@@ -73,7 +73,7 @@
             <!-- Comments Section -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-100 p-6 space-y-6">
                 <h3 class="text-lg font-bold text-gray-900">
-                    {{ __('Comments') }} ({{ $post->comments->count() }})
+                    {{ __('Comments') }} ({{ $comments->total() }})
                 </h3>
 
                 <!-- Add Comment Form -->
@@ -92,7 +92,7 @@
 
                 <!-- Comments List -->
                 <div class="space-y-4 pt-4 border-t border-gray-100">
-                    @forelse ($post->comments as $comment)
+                    @forelse ($comments as $comment)
                         <div class="flex space-x-3 p-3 rounded-lg bg-gray-50 border border-gray-100">
                             <div class="w-8 h-8 rounded-full bg-gray-200 text-gray-700 font-semibold flex items-center justify-center text-xs flex-shrink-0">
                                 {{ strtoupper(substr($comment->author->name ?? 'U', 0, 1)) }}
@@ -106,6 +106,9 @@
                                         @endif
                                         <span class="text-xs text-gray-400">{{ $comment->created_at->diffForHumans() }}</span>
                                     </div>
+                                    @can('update', $comment)
+                                        <a href="{{ route('communities.posts.comments.edit', [$community, $post, $comment]) }}" class="text-xs text-indigo-600 hover:text-indigo-800">{{ __('Edit') }}</a>
+                                    @endcan
                                     @can('delete', $comment)
                                         <form method="POST" action="{{ route('communities.posts.comments.destroy', [$community, $post, $comment]) }}" onsubmit="return confirm('Delete comment?');">
                                             @csrf
@@ -125,6 +128,7 @@
                         <p class="text-sm text-gray-400 text-center py-4">{{ __('No comments yet. Start the conversation!') }}</p>
                     @endforelse
                 </div>
+                {{ $comments->links() }}
             </div>
         </div>
     </div>

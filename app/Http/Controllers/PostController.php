@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\CommunityContent\FeedMutation;
 use App\Models\Community;
 use App\Models\Post;
 use Illuminate\Http\RedirectResponse;
@@ -19,14 +20,10 @@ class PostController extends Controller
         Gate::authorize('viewAny', [Post::class, $community]);
 
         $posts = $community->posts()
-            ->with([
-                'author:id,name',
-                'comments' => function ($query): void {
-                    $query->with('author:id,name')->orderBy('created_at', 'asc');
-                },
-            ])
+            ->with('author:id,name')
             ->withCount('comments')
             ->orderByDesc('created_at')
+            ->orderByDesc('id')
             ->paginate(15);
 
         return view('communities.posts.index', [
@@ -47,11 +44,10 @@ class PostController extends Controller
             'body' => ['required', 'string', 'max:10000'],
         ]);
 
-        $community->posts()->create([
-            'user_id' => $request->user()->id,
-            'title' => $validated['title'],
-            'body' => $validated['body'],
-        ]);
+        app(FeedMutation::class)->run($request->user(), $community, null, null, function (Community $current) use ($request, $validated): void {
+            Gate::authorize('create', [Post::class, $current]);
+            $current->posts()->create(['user_id' => $request->user()->id, ...$validated]);
+        });
 
         return redirect()->route('communities.posts.index', $community)->with('status', 'post-created');
     }
@@ -63,16 +59,14 @@ class PostController extends Controller
     {
         Gate::authorize('view', $post);
 
-        $post->load([
-            'author:id,name',
-            'comments' => function ($query): void {
-                $query->with('author:id,name')->orderBy('created_at', 'asc');
-            },
-        ]);
+        $post->load('author:id,name');
+        $comments = $post->comments()->with('author:id,name')->orderBy('created_at')->orderBy('id')->paginate(20);
+        $comments->each(fn ($comment) => $comment->setRelation('post', $post));
 
         return view('communities.posts.show', [
             'community' => $community,
             'post' => $post,
+            'comments' => $comments,
         ]);
     }
 
@@ -101,7 +95,10 @@ class PostController extends Controller
             'body' => ['required', 'string', 'max:10000'],
         ]);
 
-        $post->update($validated);
+        app(FeedMutation::class)->run($request->user(), $community, $post->id, null, function (Community $current, Post $currentPost) use ($validated): void {
+            Gate::authorize('update', $currentPost);
+            $currentPost->update($validated);
+        });
 
         return redirect()->route('communities.posts.index', $community)->with('status', 'post-updated');
     }
@@ -109,11 +106,14 @@ class PostController extends Controller
     /**
      * Remove the specified post from storage (soft delete).
      */
-    public function destroy(Community $community, Post $post): RedirectResponse
+    public function destroy(Request $request, Community $community, Post $post): RedirectResponse
     {
         Gate::authorize('delete', $post);
 
-        $post->delete();
+        app(FeedMutation::class)->run($request->user(), $community, $post->id, null, function (Community $current, Post $currentPost): void {
+            Gate::authorize('delete', $currentPost);
+            $currentPost->delete();
+        });
 
         return redirect()->route('communities.posts.index', $community)->with('status', 'post-deleted');
     }
