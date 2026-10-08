@@ -10,6 +10,9 @@
                 </span>
             </div>
             <div class="flex items-center space-x-2">
+                <a href="{{ route('communities.posts.index', $community) }}" class="inline-flex items-center px-3 py-1.5 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 transition">
+                    {{ __('Community Feed') }}
+                </a>
                 @can('update', $community)
                     <a class="underline text-sm" href="{{ route('communities.invitations.index', $community) }}">Invitations</a>
                     <a href="{{ route('communities.edit', $community) }}" class="inline-flex items-center px-3 py-1.5 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
