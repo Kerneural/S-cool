@@ -406,3 +406,71 @@ Independent reviewer confirmation, required CI/publication and formal milestone 
 - Status & Authority:
   - Implementation completed and verified locally on `scool_test`.
   - No commit, push, PR creation, merge, or Linear mutation performed. Awaiting review and authorization.
+
+## EUR-10 - Classroom publishing implementation (2026-10-08)
+
+The submitted implementation and results below are historical author-reported evidence. The independent remediation checkpoint at the end of this section supersedes them for the current local diff; it does not establish publication or acceptance.
+
+### Outcome and scope
+- Outcome: Owning creator creates, edits, orders, previews drafts, and publishes courses, sections and lessons in an active private community. Active members can view courses and read lessons only when both the course and lesson are PUBLISHED. Unpublishing blocks member reads and progress mutations without deleting retained data.
+- Scope:
+  - Database: forward migrations, models, relations, factories for Course, CourseSection, Lesson.
+  - Video Embeds: strict validation of HTTPS YouTube and Vimeo URLs only; secure server-side embed URL generation. Rejection of raw iframe, javascript/data schemes, and lookalike domains.
+  - Reordering: transactional sibling reorder for courses, sections, and lessons.
+  - Security/Authorization: Creator-only writes/preview; active member access predicate (`community->isActive()` && `membership->isActive()` && `course->isPublished()` && `lesson->isPublished()`). Strict server-side ancestry resolution (`community` -> `course` -> `section` -> `lesson`). Deny unauthorized or draft access with 404 (`denyAsNotFound`).
+  - UI: Blade/Tailwind/Alpine views for classroom index, course outline, lesson view with responsive embed, and creator management forms/modals.
+  - Tests: comprehensive feature test suite covering AC-01 through AC-08 on MySQL `scool_test`.
+
+### Verification and results
+- Branch: `eur-10-classroom-publishing`, based on `main` HEAD `e2f55503eb5897aaf73f7055734a73c91e6876dd`.
+- Scoped Feature Tests: `php artisan test --filter=ClassroomPublishingTest` -> **8 tests / 106 assertions PASS** (15.18s).
+  - AC-01: Creator course/section/lesson CRUD, draft preview, and persistence.
+  - AC-02: Member read matrix (Course Draft + Lesson Published -> 404, Course Published + Lesson Draft -> 404, Both Published -> 200).
+  - AC-03: Unpublish blocks access without data purge; republish restores access immediately.
+  - AC-04: Negative authorization, outsider cross-tenant 404, ID tampering 404, and inactive community 404.
+  - AC-05: Sibling reordering transactions with strict validation of foreign/duplicate IDs.
+  - AC-06: Strict HTTPS YouTube/Vimeo validation, secure embed URL generation, rejection of XSS/iframe/schemes, and escaped text.
+  - AC-07: Member count excludes draft lessons, zero metadata leak, and empty state rendering.
+- Full Suite Verification: `php artisan test` -> **130 tests / 930 assertions PASS** (140.90s), zero failures or regressions.
+- Code Style: Laravel Pint passed clean across all files (100 files checked).
+- Agent Contract: `bash scripts/verify-agent-contract.sh` (PASS) and `bash scripts/test-agent-contract.sh` (16 PASS).
+
+### Handoff contract for EUR-9 (Lesson Progress)
+- Models & Relationships: `Course`, `CourseSection`, `Lesson` ready with forward migrations and factories.
+- Access Predicate: Available on policies and models (`$course->isPublished() && $lesson->isPublished() && $community->isActive() && $membership->isActive()`).
+- Nested Routes: Scoped under `/communities/{community:slug}/courses/{course}/lessons/{lesson}`.
+
+### PR #17 independent audit and local remediation (2026-10-08)
+
+- Authority/outcome: audit live EUR-10 AC and PR #17, fix bounded Classroom defects, and prepare for owner review. Commit, push, merge, external comments and Linear status changes are not authorized in this checkpoint.
+- Start: clean `main`, HEAD `c8c280c38f06f1485d149b29f3f48313a06b025b`. Local branch `eur-10-classroom-audit` applies PR head `6f86a94aeb99e866f00995dd93a6887e974c56f0` without a commit. Five integration conflicts were resolved while preserving the merged Feed/Events routes, models, navigation and shared workflow contract. This local branch is based on main, not on the PR head; publishing to the existing PR requires a history-preserving integration, not a force push.
+- Findings/remediation:
+  - Creator UI lacked section edit and sibling reorder controls. All three reorder levels and section editing are now exposed. Native disclosure forms retain the relevant form, inputs and publication status after errors; malformed flashed arrays no longer crash the retry page.
+  - Lesson validation allowed 500-character URLs while storage allowed 255. An additional forward migration extends storage to 500; existing migrations remain unchanged. Rollback refuses truncation of retained long URLs.
+  - Hard-delete actions and cascade foreign keys could purge retained content. Permanent purge is explicitly excluded by EUR-10: delete actions now deny, delete controls are removed, and the forward migration changes hierarchy foreign keys to RESTRICT. Use unpublish to hide content; no progress implementation or actual progress-row retention test is claimed here.
+  - Creator mutations now lock/reload community -> course -> section -> lesson and reauthorize the active owning creator inside the transaction. Reorder validates the exact locked current sibling set; invalid or stale submissions leave ordering unchanged. Coarse per-community serialization favors correctness over write throughput; hook-based state-change regressions are not independent-process concurrency or load proof.
+  - URL validation rejects credential presence, invalid ports, non-string video IDs and unsupported providers; embeds remain generated HTTPS URLs with no server fetch. Empty lessons fail validation, text length is bounded, and valid plaintext `0` is preserved. No package or frontend-stack change.
+  - Classroom lists paginate 12 courses, count only eligible lessons for members, and avoid eager-loading all lesson bodies on the listing page. Existing published/draft and tenant privacy rules remain enforced.
+- Automated verification on the baseline HEAD plus this reviewed dirty diff:
+  - `bash scripts/verify-fresh-setup.sh --mode verify`: exit 0, 139 seconds; **180 tests / 1480 assertions PASS**, test duration 110.67 seconds. This includes 8 original Classroom tests and 10 additional regressions, plus merged Feed/Events/M2 tests.
+  - Whole-tree Pint: 126 files PASS; Composer validation PASS; Vite production build: 59 modules PASS; shared structural contract: 11 files PASS.
+  - Real queue marker `EUR20-smoke-0d61977b-1cc8-4055-9d43-6ea566afa0a8`: pending=0, failed=0, handler=1. Live Mailpit/password-reset and invitation-worker integration passed with isolated recipients.
+  - `bash scripts/test-agent-contract.sh`: 16 regression cases PASS. An initial sandboxed attempt returned no usable diagnostic; the same existing script passed with permitted access to its synthetic temporary Git fixture.
+- Browser verification used synthetic users/content in guarded MySQL `scool_test` through a disposable loopback preview, not the development database. Section rename, section reorder, invalid-provider validation with retained input/status, successful retry and lesson navigation were verified. Narrow-screen lesson content showed no horizontal overflow at the measured 355px viewport; Alpine video toggle hides the iframe while keeping its provider fallback visible. Provider playback was unavailable for the synthetic video; successful playback is not claimed. Temporary viewport and preview were cleaned up without volume deletion. An initial preview environment-forwarding issue was corrected using `artisan serve --no-reload` before functional write checks.
+- Privacy/safety: no development migration/reset, environment replacement, volume deletion, queue flush or shared inbox deletion. Preview fixtures remain ignored and are not publication prerequisites. Existing non-Classroom checkpoint sections are preserved.
+- Pending: remote PR #17 still reports conflicts and head `6f86a94`; these local fixes have not been published. No current-head CI, independent machine, production performance or actual EUR-9 progress evidence is claimed. Review the final diff, authorize a normal history-preserving PR update, then verify the resulting immutable head before approval/merge. EUR-9 should use the accepted merged Classroom baseline; EUR-10 is not declared Done here.
+
+### Provider fallback acceptance correction (2026-10-08)
+
+- Owner-reported manual acceptance passed creator draft preview, member publication gating, unpublish/republish retention, invalid-provider validation, management/reordering, outsider denial and responsive controls. The provider fallback remained failing with YouTube error 153; these reports are manual evidence, not independently rerun browser proof.
+- Source confirmed the fallback incorrectly linked to the iframe's `/embed/` URL with `rel=noreferrer`. YouTube documents error 153 as missing HTTP Referer or equivalent client identification: https://developers.google.com/youtube/iframe_api_reference#onError. A separate server-generated provider URL now maps validated IDs to the normal YouTube watch page or Vimeo video page. The iframe URL, provider allowlist, ancestry/publication gates and `noopener noreferrer` protection are unchanged; arbitrary submitted query parameters are not copied to the link.
+- Red/green evidence: the new fallback regression first failed (1 test / 2 assertions) because the watch-page href was absent. After the bounded service/model/Blade fix, `php artisan test --compact --filter=Classroom` passed **19 tests / 296 assertions** (14.36 seconds), including five valid URL variants and rejected lookalike-host handling. Scoped Pint passed 3 files; working-tree diff whitespace check passed. All tests used guarded MySQL `scool_test`.
+- The previous 180-test full Verify predates this correction; it is not current full-suite proof. No new browser playback, full-suite, CI or publication is claimed. Refresh the lesson and retry Open on provider to verify the normal watch page. Branch/HEAD remain `eur-10-classroom-audit` / `c8c280c38f06f1485d149b29f3f48313a06b025b` plus the retained dirty audit diff; no development data or configuration was changed.
+
+### PR #17 publication preparation (2026-10-08)
+
+- Subsequent explicit authorization covers final verification, commit and normal push to the existing PR #17 head branch. It does not authorize PR merge, external comments or Linear status changes.
+- Fresh sources: Linear EUR-10 remains In Review; PR #17 remains open at `6f86a94aeb99e866f00995dd93a6887e974c56f0`; fetched main is `c8c280c38f06f1485d149b29f3f48313a06b025b`. No unexpected tracked or non-ignored work outside this audit was found.
+- Owner-reported retest of Open on provider succeeded after the watch-page fix. This completes the reported manual checks; it does not replace automated tests or prove production provider availability.
+- Publish only the explicit Classroom/source/test/checkpoint allowlist. Preserve private environment files, ignored fixtures and the main workflow contract. Retain the original PR commit through a normal merge and verify that integration does not change the reviewed source tree. No force push or direct main push.
+- Final integrated-head Verify and publication results are pending in this preparation checkpoint. Existing PHP/data-safety contracts and the canonical IPv4 origin remain unchanged.
