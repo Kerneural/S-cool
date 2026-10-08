@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <div class="flex items-center space-x-3">
+        <div class="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
+            <div class="flex flex-wrap items-center gap-3 min-w-0">
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                     {{ $community->name }} — {{ __('Community Feed') }}
                 </h2>
@@ -9,7 +9,7 @@
                     {{ $community->status }}
                 </span>
             </div>
-            <div class="flex items-center space-x-2">
+            <div class="flex flex-wrap items-center gap-2">
                 <a href="{{ route('communities.events.index', $community) }}" class="inline-flex items-center px-3 py-1.5 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 transition">
                     {{ __('Events') }}
                 </a>
