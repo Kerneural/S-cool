@@ -31,6 +31,8 @@ Read the relevant sections in full: Product Scope for scope/UI flows; Domain & A
 
 ## One issue, one controlled loop
 
+Issue creation and material updates must follow the canonical **Issue description template** and **Issue quality gate** in `docs/03_DELIVERY_PLAN.md`, for humans and agents alike. Fill the contract before implementation; generic phrases such as "CRUD works", "secure", "validate URL" or "tests pass" are not standalone AC. Label proposals and unresolved decisions explicitly. Keep assignee, priority, estimate, due date, project, milestone, cycle and relations in Linear metadata; do not silently change them while editing descriptions. The M2 cross-review waiver was a scoped acceptance exception, not a default waiver for subsequent work.
+
 1. **Contract:** confirm outcome, includes/excludes, AC, dependencies and negative cases. Do not weaken requirements to make tests pass.
 2. **Plan:** record target files, trade-offs, shared-contract impact, security and verification commands in the issue checkpoint. Use an ADR only for a significant architecture decision.
 3. **Build:** make a bounded diff within the assigned module. Avoid unrelated refactors or repository-wide formatting.
