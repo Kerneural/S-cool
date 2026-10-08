@@ -2,6 +2,30 @@
 
 A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
+## Local team sync hardening (2026-10-08)
+
+- Requested outcome: one safe Bash command updates an existing teammate installation after merged changes, without replacing private configuration or resetting local data.
+- Branch `local-sync-safety`, base HEAD `c1e781b4e139f60c7ec6d761c5e2507084985223` from fetched `origin/main`; initial working tree clean. PR #17 was verified merged before this work. This is a separate follow-up, not an addition to that PR.
+- Changed files: `scripts/sync-local.sh`, `scripts/test-sync-local.sh`, README and this checkpoint. No application/domain changes, new dependencies or Linear mutations.
+- Commit, push, PR creation and merge are not authorized for this follow-up. The edited script is not yet available to teammates through main.
+
+### Flow and safety boundaries
+
+- Clean main and existing ignored `.env` -> checkout/container/volume guards -> fetch and fast-forward only -> reload updated script -> locked dependencies/images -> local database and URL/SMTP guards -> pending forward migrations -> stack readiness -> integrated Verify -> unchanged environment/revision/branch checks.
+- Web and worker stop before code/dependency/schema updates. The restarted worker loads the updated code. Verify builds assets and checks runtime, queue, style and guarded MySQL tests.
+- Refuses dirty/feature/detached branches, unpublished main commits, active Git operations, Vite hot files, missing installations, foreign checkout ownership and container-name collisions. An owned Git lock prevents concurrent sync operations in the same checkout.
+- No automatic stash/reset, `.env` overwrite, key regeneration, seed, development-data reset, volume deletion, queue flush or shared inbox deletion. Each machine retains its own database contents.
+- Forward migrations change schema and may change data by design: review them before merging. Sync is fail-fast, not atomic, a backup or automatic rollback. Failure after runtime changes may leave services stopped or partially updated; resolve the reported step and rerun.
+
+### Verification and remaining evidence
+
+- Bash syntax and `git diff --check`: PASS.
+- Mocked sync regression: 37 PASS, including rejection guards, failure ordering, configuration/source tampering and successful running/stopped-stack pipelines. Fixtures use synthetic configuration and mocked CLIs, not real upgrades.
+- Existing setup regression: 19 PASS. Shared agent contract with `--require-tracked`: 11 shared files PASS; this structural check does not prove agent compliance or publication.
+- Real feature-branch invocation correctly stopped before runtime writes. Read-only Compose validation, runtime database guard and canonical URL/local SMTP guard passed; all five existing services remained running/healthy.
+- No full live sync, migrations, configuration reload or dependency/runtime update was performed on this unpublished feature branch. Full application tests were not rerun for this Bash/documentation-only change. Independent-host, Linux/WSL and CI execution remain unverified.
+- Next: review and publish a focused follow-up PR when authorized. Teammates receive the script once with a fast-forward pull, then use `git switch main` followed by `bash scripts/sync-local.sh` for later updates; only the final sync PASS marker confirms a completed run.
+
 ## EUR-20 - setup verification checkpoint (2026-10-06)
 
 - [EUR-20](https://linear.app/eurusdevsec/issue/EUR-20/add-testbuild-commands-and-verify-fresh-setup-on-two-machines), parent EUR-5, M1. Last recorded Linear status: In Review; not refreshed for this documentation change.

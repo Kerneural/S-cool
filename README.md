@@ -6,16 +6,12 @@ The current environment is local development, not a production deployment.
 ## Existing installation: sync before starting work
 
 > [!IMPORTANT]
-> Already installed an older version? Update the existing checkout; **do not rerun Bootstrap**.
-> Commit your work first, use a clean `main` branch, start Docker and stop Vite.
-> Keep `APP_URL=http://127.0.0.1:8080` in your existing `.env`; do not replace it or regenerate the key.
+> **After a PR is merged, sync before starting your next issue.**
+> Keep your work committed, start Docker, stop Vite and use a clean `main`.
+> Keep your existing `.env`/key and `APP_URL=http://127.0.0.1:8080`.
+> This is for an existing installation, not Bootstrap.
 
-> [!WARNING]
-> `scripts/sync-local.sh` is currently a draft: its pull option must be corrected
-> from `-ff-only` to `--ff-only`, and fail-fast/safety checks must be added and verified.
-> **Do not run it until these issues are resolved.**
-
-After the script is corrected and verified, receive it and sync from the repository root:
+Receive this version of the script once, from the repository root:
 
 ```bash
 git switch main
@@ -23,10 +19,26 @@ git pull --ff-only origin main
 bash scripts/sync-local.sh
 ```
 
-For subsequent updates on a clean `main`, run `bash scripts/sync-local.sh`.
-The intended flow updates dependencies and containers, applies pending migrations,
-builds frontend assets and runs verification. Continue only after `[PASS] verify on this host`.
-Sync does not merge feature branches or copy another member's database; Git conflicts still require review.
+**Every later update needs only:**
+
+```bash
+git switch main
+bash scripts/sync-local.sh
+```
+
+The script fetches and fast-forwards main, stops web/worker, rebuilds PHP images,
+installs locked dependencies, validates the local databases, applies pending migrations,
+restarts the stack and runs Verify (including `npm run build` and tests).
+Wait for **`[PASS] Local sync complete`**, then create your next issue branch from main.
+
+Sync refuses dirty/feature branches, unpublished main commits, Vite's hot file,
+missing installations and stacks owned by another checkout. It never stashes/resets work,
+replaces `.env`, regenerates keys, seeds/resets data or deletes volumes.
+Each machine keeps its own data; this synchronizes code/schema/runtime, not databases.
+Review migrations before merging: sync applies them, but is not a backup or automatic rollback.
+On failure the stack may stay stopped/partially updated. Fix the reported step and rerun;
+do not rerun Bootstrap or delete data. An interrupted run may leave an empty
+`.git/scool-sync.lock` directory: remove it only after confirming no sync is still running.
 
 ## First-time setup
 
