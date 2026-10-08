@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <div class="flex items-center space-x-3">
+        <div class="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
+            <div class="flex flex-wrap items-center gap-3 min-w-0">
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                     {{ $community->name }} — {{ __('Events Calendar') }}
                 </h2>
@@ -9,7 +9,7 @@
                     {{ $community->status }}
                 </span>
             </div>
-            <div class="flex items-center space-x-2">
+            <div class="flex flex-wrap items-center gap-2">
                 <a href="{{ route('communities.posts.index', $community) }}" class="inline-flex items-center px-3 py-1.5 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 transition">
                     {{ __('Community Feed') }}
                 </a>
@@ -44,9 +44,9 @@
             <div class="space-y-4">
                 @forelse ($events as $event)
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border {{ $event->isCancelled() ? 'border-red-200 bg-red-50/20' : 'border-gray-100' }} p-6">
-                        <div class="flex justify-between items-start mb-3">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start mb-3">
                             <div>
-                                <div class="flex items-center space-x-2 mb-1">
+                                <div class="flex flex-wrap items-center gap-2 mb-1">
                                     @if ($event->isCancelled())
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-800">
                                             {{ __('CANCELLED') }}
@@ -67,7 +67,7 @@
                                 </a>
                             </div>
 
-                            <div class="text-right">
+                            <div class="text-left sm:text-right">
                                 <div class="text-sm font-bold text-gray-900">
                                     {{ $event->localStartsAt()->format('M d, Y') }}
                                 </div>
@@ -83,12 +83,12 @@
                             </p>
                         @endif
 
-                        <div class="flex justify-between items-center pt-3 border-t border-gray-100 text-xs text-gray-500">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center pt-3 border-t border-gray-100 text-xs text-gray-500">
                             <div>
                                 {{ __('Organized by:') }} <span class="font-medium text-gray-700">{{ $event->creator->name ?? __('Creator') }}</span>
                             </div>
 
-                            <div class="flex items-center space-x-3">
+                            <div class="flex flex-wrap items-center gap-3">
                                 <a href="{{ route('communities.events.show', [$community, $event]) }}" class="text-indigo-600 hover:text-indigo-800 font-medium">
                                     {{ __('View Details &rarr;') }}
                                 </a>

@@ -1,12 +1,12 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
+        <div class="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
             <div class="flex items-center space-x-3">
                 <a href="{{ route('communities.events.index', $community) }}" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
                     &larr; {{ __('Back to Calendar') }}
                 </a>
             </div>
-            <div class="flex items-center space-x-2">
+            <div class="flex flex-wrap items-center gap-2">
                 @can('update', $event)
                     @if (! $event->isCancelled())
                         <a href="{{ route('communities.events.edit', [$community, $event]) }}" class="inline-flex items-center px-3 py-1.5 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 transition">
@@ -51,7 +51,7 @@
                 @endif
 
                 <div>
-                    <div class="flex items-center space-x-2 mb-2">
+                    <div class="flex flex-wrap items-center gap-2 mb-2">
                         @if ($event->isCancelled())
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold bg-red-100 text-red-800">
                                 {{ __('CANCELLED') }}
@@ -98,7 +98,7 @@
                 <!-- Meeting Link (only when not cancelled) -->
                 @if (! $event->isCancelled())
                     @if ($event->meeting_url)
-                        <div class="p-4 bg-indigo-50 border border-indigo-100 rounded-lg flex items-center justify-between">
+                        <div class="p-4 bg-indigo-50 border border-indigo-100 rounded-lg flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <h4 class="text-sm font-semibold text-indigo-900">{{ __('Online Meeting Link') }}</h4>
                                 <p class="text-xs text-indigo-700 mt-0.5">{{ __('Click below to join the call when the session begins.') }}</p>
