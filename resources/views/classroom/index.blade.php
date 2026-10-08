@@ -84,6 +84,20 @@
                                 <p class="text-sm text-gray-600 line-clamp-3 mb-4">
                                     {{ $course->description ?: __('No course description provided.') }}
                                 </p>
+                                @if (!empty($isActiveMember) && $course->isPublished())
+                                    @php
+                                        $coursePercent = $course->progressPercentageFor(auth()->user());
+                                    @endphp
+                                    <div class="mt-4 pt-3 border-t border-gray-100">
+                                        <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
+                                            <span>{{ __('Progress') }}</span>
+                                            <span class="font-semibold text-indigo-600">{{ $coursePercent }}%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                                            <div class="bg-indigo-600 h-1.5 rounded-full" style="width: {{ $coursePercent }}%"></div>
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
                             <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
                                 <span>{{ $lessonCount }} {{ $lessonCount === 1 ? __('lesson') : __('lessons') }}</span>

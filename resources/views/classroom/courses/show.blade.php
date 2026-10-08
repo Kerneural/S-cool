@@ -54,6 +54,24 @@
                 @endif
             </div>
 
+            <!-- Member Course Progress Card -->
+            @if (!empty($isActiveMember) && $course->isPublished())
+                @php
+                    $publishedCount = $course->publishedLessonsCount();
+                    $completedCount = $course->completedLessonsCountFor(auth()->user());
+                    $percent = $course->progressPercentageFor(auth()->user());
+                @endphp
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border border-gray-100">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-semibold text-gray-700">{{ __('Your Progress') }}</span>
+                        <span class="text-sm font-bold text-indigo-600">{{ $completedCount }} {{ __('of') }} {{ $publishedCount }} {{ __('completed') }} ({{ $percent }}%)</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                        <div class="bg-indigo-600 h-2.5 rounded-full transition-all duration-300" style="width: {{ $percent }}%"></div>
+                    </div>
+                </div>
+            @endif
+
             <!-- Sections & Lessons List -->
             @if ($course->sections->isEmpty())
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-12 text-center border border-gray-100">
@@ -101,14 +119,26 @@
                                     @foreach ($section->lessons as $lesson)
                                         <li class="p-4 hover:bg-gray-50 flex items-center justify-between transition">
                                             <div class="flex items-center space-x-3">
-                                                <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    @if ($lesson->video_url)
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                @if (!empty($isActiveMember) && $course->isPublished() && $lesson->isPublished())
+                                                    @if ($lesson->isCompletedBy(auth()->user()))
+                                                        <svg class="w-5 h-5 text-green-600 shrink-0" width="20" height="20" style="width: 20px; height: 20px; min-width: 20px; min-height: 20px;" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                                        </svg>
                                                     @else
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                        <svg class="w-5 h-5 text-gray-300 shrink-0" width="20" height="20" style="width: 20px; height: 20px; min-width: 20px; min-height: 20px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                            <circle cx="12" cy="12" r="9" />
+                                                        </svg>
                                                     @endif
-                                                </svg>
+                                                @else
+                                                    <svg class="w-5 h-5 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        @if ($lesson->video_url)
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        @else
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                        @endif
+                                                    </svg>
+                                                @endif
                                                 <a href="{{ route('communities.lessons.show', [$community, $course, $lesson]) }}" class="text-sm font-medium text-gray-900 hover:text-indigo-600">
                                                     {{ $lesson->title }}
                                                 </a>

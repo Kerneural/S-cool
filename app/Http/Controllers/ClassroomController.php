@@ -15,6 +15,7 @@ class ClassroomController extends Controller
 
         $user = $request->user();
         $isCreator = $community->isCreator($user);
+        $isActiveMember = $community->memberships()->where('user_id', $user->id)->where('status', 'ACTIVE')->exists();
 
         $coursesQuery = $community->courses()->ordered();
 
@@ -29,14 +30,17 @@ class ClassroomController extends Controller
                     $query->whereHas('lessons', fn ($q) => $q->published());
                 }
             },
-            'sections.lessons' => function ($query) use ($isCreator) {
+            'sections.lessons' => function ($query) use ($isCreator, $user) {
                 $query->ordered();
                 if (! $isCreator) {
                     $query->published();
                 }
+                $query->with(['progresses' => function ($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                }]);
             },
         ])->get();
 
-        return view('classroom.index', compact('community', 'courses', 'isCreator'));
+        return view('classroom.index', compact('community', 'courses', 'isCreator', 'isActiveMember'));
     }
 }

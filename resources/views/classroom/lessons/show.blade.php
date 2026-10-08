@@ -20,12 +20,34 @@
                 @endif
             </div>
             <div class="flex items-center space-x-2">
+                @if (!empty($isActiveMember) && $course->isPublished() && $lesson->isPublished())
+                    <form method="POST" action="{{ route('communities.lessons.progress.update', [$community, $course, $lesson]) }}" class="inline">
+                        @csrf
+                        @if ($lesson->isCompletedBy(auth()->user()))
+                            <input type="hidden" name="completed" value="0">
+                            <button type="submit" class="inline-flex items-center min-h-[44px] px-3.5 py-1.5 bg-green-50 border border-green-300 rounded-md font-semibold text-xs text-green-700 uppercase tracking-wider shadow-sm hover:bg-green-100 transition" aria-label="{{ __('Mark as incomplete') }}">
+                                <svg class="w-4 h-4 mr-1.5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                {{ __('Completed') }}
+                            </button>
+                        @else
+                            <input type="hidden" name="completed" value="1">
+                            <button type="submit" class="inline-flex items-center min-h-[44px] px-3.5 py-1.5 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-wider shadow-sm hover:bg-indigo-700 transition" aria-label="{{ __('Mark as complete') }}">
+                                <svg class="w-4 h-4 mr-1.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="9" stroke-width="2" />
+                                </svg>
+                                {{ __('Mark Complete') }}
+                            </button>
+                        @endif
+                    </form>
+                @endif
                 @if ($isCreator)
-                    <button type="button" onclick="document.getElementById('edit-lesson-modal').classList.remove('hidden')" class="inline-flex items-center px-3 py-1.5 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50">
+                    <button type="button" onclick="document.getElementById('edit-lesson-modal').classList.remove('hidden')" class="inline-flex items-center min-h-[44px] px-3 py-1.5 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50">
                         {{ __('Edit Lesson') }}
                     </button>
                 @endif
-                <a href="{{ route('communities.courses.show', [$community, $course]) }}" class="inline-flex items-center px-3 py-1.5 bg-gray-100 border border-transparent rounded-md font-semibold text-xs text-gray-600 uppercase tracking-widest hover:bg-gray-200">
+                <a href="{{ route('communities.courses.show', [$community, $course]) }}" class="inline-flex items-center min-h-[44px] px-3 py-1.5 bg-gray-100 border border-transparent rounded-md font-semibold text-xs text-gray-600 uppercase tracking-widest hover:bg-gray-200">
                     {{ __('Outline') }}
                 </a>
             </div>
@@ -78,23 +100,48 @@
                             </div>
                         @endif
 
-                        <!-- Bottom Navigation: Prev / Next Lesson -->
-                        <div class="mt-8 pt-6 border-t border-gray-100 flex items-center justify-between">
-                            @if ($prevLesson)
-                                <a href="{{ route('communities.lessons.show', [$community, $course, $prevLesson]) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                                    &larr; {{ __('Previous: ') }} {{ \Illuminate\Support\Str::limit($prevLesson->title, 25) }}
-                                </a>
-                            @else
-                                <div></div>
+                        <!-- Bottom Navigation: Prev / Complete / Next Lesson -->
+                        <div class="mt-8 pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <div>
+                                @if ($prevLesson)
+                                    <a href="{{ route('communities.lessons.show', [$community, $course, $prevLesson]) }}" class="inline-flex items-center min-h-[44px] px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                                        &larr; {{ __('Previous: ') }} {{ \Illuminate\Support\Str::limit($prevLesson->title, 20) }}
+                                    </a>
+                                @endif
+                            </div>
+
+                            @if (!empty($isActiveMember) && $course->isPublished() && $lesson->isPublished())
+                                <div>
+                                    <form method="POST" action="{{ route('communities.lessons.progress.update', [$community, $course, $lesson]) }}">
+                                        @csrf
+                                        @if ($lesson->isCompletedBy(auth()->user()))
+                                            <input type="hidden" name="completed" value="0">
+                                            <button type="submit" class="inline-flex items-center min-h-[44px] px-5 py-2.5 bg-green-50 border border-green-300 rounded-md font-semibold text-sm text-green-700 uppercase tracking-wider shadow-sm hover:bg-green-100 transition" aria-label="{{ __('Mark as incomplete') }}">
+                                                <svg class="w-5 h-5 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                                </svg>
+                                                {{ __('Completed') }}
+                                            </button>
+                                        @else
+                                            <input type="hidden" name="completed" value="1">
+                                            <button type="submit" class="inline-flex items-center min-h-[44px] px-5 py-2.5 bg-indigo-600 border border-transparent rounded-md font-semibold text-sm text-white uppercase tracking-wider shadow-sm hover:bg-indigo-700 transition" aria-label="{{ __('Mark as complete') }}">
+                                                <svg class="w-5 h-5 mr-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <circle cx="12" cy="12" r="9" stroke-width="2" />
+                                                </svg>
+                                                {{ __('Mark as Complete') }}
+                                            </button>
+                                        @endif
+                                    </form>
+                                </div>
                             @endif
 
-                            @if ($nextLesson)
-                                <a href="{{ route('communities.lessons.show', [$community, $course, $nextLesson]) }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-indigo-700">
-                                    {{ __('Next: ') }} {{ \Illuminate\Support\Str::limit($nextLesson->title, 25) }} &rarr;
-                                </a>
-                            @else
-                                <div></div>
-                            @endif
+                            <div>
+                                @if ($nextLesson)
+                                    <a href="{{ route('communities.lessons.show', [$community, $course, $nextLesson]) }}" class="inline-flex items-center min-h-[44px] px-4 py-2 bg-indigo-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-indigo-700">
+                                        {{ __('Next: ') }} {{ \Illuminate\Support\Str::limit($nextLesson->title, 20) }} &rarr;
+                                    </a>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -114,11 +161,26 @@
                                         @foreach ($section->lessons as $secLesson)
                                             <li>
                                                 <a href="{{ route('communities.lessons.show', [$community, $course, $secLesson]) }}"
-                                                   class="block px-2.5 py-1.5 rounded-md text-xs font-medium transition {{ $secLesson->id === $lesson->id ? 'bg-indigo-50 text-indigo-700 font-semibold border-l-2 border-indigo-600' : 'text-gray-700 hover:bg-gray-50' }}">
-                                                    {{ $secLesson->title }}
-                                                    @if ($isCreator && $secLesson->isDraft())
-                                                        <span class="text-[10px] text-gray-400">({{ __('draft') }})</span>
-                                                    @endif
+                                                   class="flex items-center justify-between gap-3 px-3 py-2 rounded-md text-sm transition {{ $secLesson->id === $lesson->id ? 'bg-indigo-50 text-indigo-700 font-semibold border-l-4 border-indigo-600' : 'text-gray-700 hover:bg-gray-50' }}">
+                                                    <span class="truncate flex-1 font-medium">{{ $secLesson->title }}</span>
+
+                                                    <div class="shrink-0 flex items-center gap-1.5">
+                                                        @if ($isCreator && $secLesson->isDraft())
+                                                            <span class="text-[10px] text-gray-400 font-normal">({{ __('draft') }})</span>
+                                                        @endif
+
+                                                        @if (!empty($isActiveMember) && $course->isPublished() && $secLesson->isPublished())
+                                                            @if ($secLesson->isCompletedBy(auth()->user()))
+                                                                <svg class="w-4 h-4 text-green-600 shrink-0" width="16" height="16" style="width: 16px; height: 16px; min-width: 16px; min-height: 16px;" fill="currentColor" viewBox="0 0 20 20" title="{{ __('Completed') }}">
+                                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                                                </svg>
+                                                            @else
+                                                                <svg class="w-4 h-4 text-gray-300 shrink-0" width="16" height="16" style="width: 16px; height: 16px; min-width: 16px; min-height: 16px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" title="{{ __('Incomplete') }}">
+                                                                    <circle cx="12" cy="12" r="9" />
+                                                                </svg>
+                                                            @endif
+                                                        @endif
+                                                    </div>
                                                 </a>
                                             </li>
                                         @endforeach

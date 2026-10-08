@@ -369,3 +369,31 @@ Independent reviewer confirmation, required CI/publication and formal milestone 
 - Models & Relationships: `Course`, `CourseSection`, `Lesson` ready with forward migrations and factories.
 - Access Predicate: Available on policies and models (`$course->isPublished() && $lesson->isPublished() && $community->isActive() && $membership->isActive()`).
 - Nested Routes: Scoped under `/communities/{community:slug}/courses/{course}/lessons/{lesson}`.
+
+## EUR-9 - Lesson progress implementation (2026-10-08)
+
+### Outcome and scope
+- Outcome: An active member marks an authorized published lesson complete or incomplete and sees the same personal completion state after refresh/re-login, without altering other members' progress or creating duplicate records.
+- Scope:
+  - Database: forward migration `2026_10_08_040001_create_lesson_progresses_table.php` with unique index `(user_id, lesson_id)`, model `LessonProgress` (`$table = 'lesson_progresses'`), factory `LessonProgressFactory`.
+  - Mutation & Idempotency: endpoint `POST /communities/{community:slug}/courses/{course}/lessons/{lesson}/progress` (`communities.lessons.progress.update`) validates explicit boolean `completed`, resolves actor strictly via `$request->user()`, atomic update/upsert handling concurrent writes without duplicate-key error.
+  - Security/Authorization: `LessonPolicy::updateProgress` enforces multi-tenant boundary, strict ancestry, active community, active membership, published course, and published lesson. Denies non-active memberships (`PENDING_PAYMENT`, `SUSPENDED`, `REMOVED`, `LEFT`) and draft states with 404 (`denyAsNotFound`). Creator role alone does not grant progress tracking without active membership context.
+  - Retention & Restore: unpublishing retains rows in DB but excludes them from access and calculations; republishing immediately restores member progress.
+  - Calculation: `Course::publishedLessonsCount()`, `Course::completedLessonsCountFor($user)`, and `Course::progressPercentageFor($user)` with safe zero division (0/0 = 0%).
+  - UI: responsive completion toggle buttons (min 44x44px touch target) in header and bottom navigation of lesson view, curriculum sidebar status checkmarks, personal progress bar on course outline, and progress percentage on classroom course cards.
+  - Tests: comprehensive feature test suite `tests/Feature/LessonProgressTest.php` covering AC-01 through AC-07 on MySQL `scool_test`.
+
+### Verification and results
+- Branch: `eur-9-lesson-progress`, branched from `eur-10-classroom-publishing` (HEAD `6f86a94aeb99e866f00995dd93a6887e974c56f0`).
+- Scoped Feature Tests: `docker compose -p scool exec -T app php artisan test --filter=LessonProgressTest` -> **11 tests / 55 assertions PASS** (13.90s).
+  - AC-01: Explicit mark complete/incomplete, timestamp persistence, fresh session/re-login persistence.
+  - AC-02: Idempotent repeat requests, atomic writes, JSON response format.
+  - AC-03: Member progress isolation, spoofed user_id in payload safely ignored.
+  - AC-04: Negative authorization matrix: non-members and non-active membership statuses (`PENDING_PAYMENT`, `SUSPENDED`, `REMOVED`, `LEFT`) denied with 404. Creator without active membership denied with 404; active member creator allowed.
+  - AC-05: Unpublish retains database rows; calculation excludes draft; republishing restores retained progress.
+  - AC-06: Published-only lesson calculation; zero-division safety on 0 published lessons.
+  - AC-07: Lesson show and course show UI controls, mobile accessibility touch target, sidebar checkmark rendering.
+- Full Suite Verification: `docker compose -p scool exec -T app php artisan test` -> **141 tests / 985 assertions PASS** (148.12s), zero failures or regressions across all test suites.
+- Code Style: `docker compose -p scool exec -T app vendor/bin/pint --test` -> **PASS** (105 files checked, 0 style issues).
+- Agent Contract: `bash scripts/verify-agent-contract.sh` -> **PASS** (11 shared files).
+- Preserved Working Tree: `scripts/sync-local.sh` preserved unstaged in working directory.

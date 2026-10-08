@@ -7,6 +7,7 @@ use App\Http\Controllers\CommunityInvitationController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\CourseSectionController;
 use App\Http\Controllers\LessonController;
+use App\Http\Controllers\LessonProgressController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -52,6 +53,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/communities/{community:slug}/courses/{course}/sections/reorder', [CourseSectionController::class, 'reorder'])->name('communities.courses.sections.reorder');
 
         Route::get('/communities/{community:slug}/courses/{course}/lessons/{lesson}', [LessonController::class, 'show'])->name('communities.lessons.show');
+        Route::post('/communities/{community:slug}/courses/{course}/lessons/{lesson}/progress', [LessonProgressController::class, 'update'])->name('communities.lessons.progress.update');
         Route::post('/communities/{community:slug}/courses/{course}/sections/{section}/lessons', [LessonController::class, 'store'])->name('communities.lessons.store');
         Route::put('/communities/{community:slug}/courses/{course}/sections/{section}/lessons/{lesson}', [LessonController::class, 'update'])->name('communities.lessons.update');
         Route::delete('/communities/{community:slug}/courses/{course}/sections/{section}/lessons/{lesson}', [LessonController::class, 'destroy'])->name('communities.lessons.destroy');

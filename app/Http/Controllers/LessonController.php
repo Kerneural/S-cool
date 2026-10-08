@@ -29,11 +29,17 @@ class LessonController extends Controller
 
         $user = $request->user();
         $isCreator = $community->isCreator($user);
+        $isActiveMember = $community->memberships()->where('user_id', $user->id)->where('status', 'ACTIVE')->exists();
 
         // Non-creators cannot view if either course or lesson is DRAFT
         if (! $isCreator && (! $course->isPublished() || ! $lesson->isPublished())) {
             abort(404);
         }
+
+        // Load progress for current lesson
+        $lesson->load(['progresses' => function ($q) use ($user) {
+            $q->where('user_id', $user->id);
+        }]);
 
         // Load all course sections and lessons for navigation sidebar
         $course->load([
@@ -43,11 +49,14 @@ class LessonController extends Controller
                     $query->whereHas('lessons', fn ($q) => $q->published());
                 }
             },
-            'sections.lessons' => function ($query) use ($isCreator) {
+            'sections.lessons' => function ($query) use ($isCreator, $user) {
                 $query->ordered();
                 if (! $isCreator) {
                     $query->published();
                 }
+                $query->with(['progresses' => function ($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                }]);
             },
         ]);
 
@@ -57,7 +66,7 @@ class LessonController extends Controller
         $prevLesson = $currentIndex > 0 ? $allLessons->get($currentIndex - 1) : null;
         $nextLesson = $currentIndex !== false && $currentIndex < $allLessons->count() - 1 ? $allLessons->get($currentIndex + 1) : null;
 
-        return view('classroom.lessons.show', compact('community', 'course', 'lesson', 'isCreator', 'prevLesson', 'nextLesson'));
+        return view('classroom.lessons.show', compact('community', 'course', 'lesson', 'isCreator', 'isActiveMember', 'prevLesson', 'nextLesson'));
     }
 
     public function store(Request $request, Community $community, Course $course, CourseSection $section): RedirectResponse

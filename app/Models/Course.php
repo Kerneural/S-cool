@@ -58,6 +58,44 @@ class Course extends Model
         return $this->status === 'DRAFT';
     }
 
+    public function publishedLessons(): HasManyThrough
+    {
+        return $this->lessons()->where('lessons.status', 'PUBLISHED');
+    }
+
+    public function publishedLessonsCount(): int
+    {
+        return $this->lessons()
+            ->where('lessons.status', 'PUBLISHED')
+            ->count();
+    }
+
+    public function completedLessonsCountFor(?User $user): int
+    {
+        if (! $user) {
+            return 0;
+        }
+
+        return $this->lessons()
+            ->where('lessons.status', 'PUBLISHED')
+            ->whereHas('progresses', function (Builder $query) use ($user) {
+                $query->where('user_id', $user->id)->where('completed', true);
+            })
+            ->count();
+    }
+
+    public function progressPercentageFor(?User $user): int
+    {
+        $total = $this->publishedLessonsCount();
+        if ($total === 0) {
+            return 0;
+        }
+
+        $completed = $this->completedLessonsCountFor($user);
+
+        return (int) round(($completed / $total) * 100);
+    }
+
     public function scopePublished(Builder $query): Builder
     {
         return $query->where('status', 'PUBLISHED');
