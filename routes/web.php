@@ -45,6 +45,8 @@ Route::middleware('auth')->group(function () {
         Route::delete('/communities/{community:slug}/posts/{post}', [PostController::class, 'destroy'])->name('communities.posts.destroy');
 
         Route::post('/communities/{community:slug}/posts/{post}/comments', [CommentController::class, 'store'])->name('communities.posts.comments.store');
+        Route::get('/communities/{community:slug}/posts/{post}/comments/{comment}/edit', [CommentController::class, 'edit'])->name('communities.posts.comments.edit');
+        Route::put('/communities/{community:slug}/posts/{post}/comments/{comment}', [CommentController::class, 'update'])->name('communities.posts.comments.update');
         Route::delete('/communities/{community:slug}/posts/{post}/comments/{comment}', [CommentController::class, 'destroy'])->name('communities.posts.comments.destroy');
 
         Route::get('/communities/{community:slug}/events', [EventController::class, 'index'])->name('communities.events.index');

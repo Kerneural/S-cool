@@ -24,7 +24,8 @@ class CommentPolicy
      */
     public function update(User $user, Comment $comment): Response
     {
-        return $comment->post->community->isActive() && (int) $comment->user_id === (int) $user->id
+        return ! $comment->trashed() && $comment->post && $this->canAccessPost($user, $comment->post)
+            && (int) $comment->user_id === (int) $user->id
             ? Response::allow()
             : Response::denyAsNotFound();
     }
@@ -34,7 +35,7 @@ class CommentPolicy
      */
     public function delete(User $user, Comment $comment): Response
     {
-        $canDelete = $comment->post->community->isActive()
+        $canDelete = ! $comment->trashed() && $comment->post && $this->canAccessPost($user, $comment->post)
             && ((int) $comment->user_id === (int) $user->id || $comment->post->community->isCreator($user));
 
         return $canDelete
@@ -49,7 +50,7 @@ class CommentPolicy
     {
         $community = $post->community;
 
-        if (! $community || ! $community->isActive()) {
+        if ($post->trashed() || ! $community || ! $community->isActive()) {
             return false;
         }
 

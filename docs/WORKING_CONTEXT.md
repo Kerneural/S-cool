@@ -328,6 +328,17 @@ Independent reviewer confirmation, required CI/publication and formal milestone 
 - `bash scripts/verify-agent-contract.sh --require-tracked` PASS: 11 shared files. Diff whitespace check PASS; private `.env` remains ignored and untracked. The earlier 122-test full Verify is historical evidence for the same application/test diff, not a new full-suite or CI run.
 - GitHub CLI authentication reports an invalid token. Normal Git push and the existing GitHub connector will be attempted without extracting, copying or exposing credentials; report any publication step that remains unavailable.
 
+## EUR-8 PR #14 remediation (2026-10-08)
+
+- Authority/outcome: remediate the posted Feed findings and publish updates to the existing PR; live Linear EUR-8 is the AC source. Required approval still gates merge and Done.
+- Baseline: `11c8420410b2ba39969251a83ba0e9c858a66ca2`, isolated branch `eur-8-feed-fixes`. The original checkout and its unrelated workflow edit remain untouched.
+- Changes: current access is required before author/moderation permissions; author-only comment edit route/form/action; comments paginate 20/page and feed posts 15/page with timestamp/ID ties; authors are eager-loaded and feed threads are not loaded.
+- Mutations lock community -> actor membership -> post -> comment, re-read retained/live state and reauthorize inside the transaction. This coarse per-community lock favors correctness over concurrent write throughput in the bounded MVP; no package/schema changes.
+- Regression evidence: isolated PHP 8.2.34/PHPUnit 11.5.56, guarded MySQL `scool_test`; `php vendor/bin/phpunit --filter CommunityFeed --display-warnings` PASS, 23 tests/203 assertions. Includes inactive-author direct requests, edit ownership/validation, pagination, state change after preliminary authorization, and independent-connection lock-timeout probes for post/membership rows. The lock probe is not a production load/stress test.
+- Quality/build: focused Pint PASS (8 files); whole-tree `pint --test` PASS (96 files); `npm run build` PASS (59 modules). No development DB reset, volume deletion or shared Mailpit inbox deletion.
+- Full-suite first attempt: 145 tests/1013 assertions, three failures. Two require the missing runner `APP_NAME=S-cool`; one identifies the existing PHP exception-argument configuration (`zend.exception_ignore_args=0`). A shared-image configuration fix requires explicit scope approval; do not hide this failure or weaken the security assertion.
+- Pending: final configured full-suite evidence, manual/narrow-screen browser acceptance, PR review/approval and CI. Remediation publication does not establish Done.
+
 ## M3 issue contract standardization (2026-10-07)
 
 - Outcome/authority: clarify the existing EUR-8/10/9/11 descriptions and M3 exit criteria; establish one reusable issue contract for all participants. Authorization does not include application implementation, status changes, commit, push, PR or merge.
