@@ -342,6 +342,18 @@ Independent reviewer confirmation, required CI/publication and formal milestone 
 - Browser acceptance against an isolated loopback preview with synthetic `scool_test` data verified author comment editing and 20-plus-1 comment pagination. Narrow-screen post detail had no horizontal overflow; Feed navigation now stacks/wraps on small screens without importing Events routes into the standalone Feed branch. Shared navigation was also verified in the combined Events preview.
 - Pending: PR review/approval and current-head CI. Browser acceptance is bounded, not an exhaustive device matrix; remediation publication does not establish Done.
 
+## EUR-11 PR #15 remediation (2026-10-08)
+
+- Authority/outcome: remediate the posted Events findings in the existing PR. Live Linear EUR-11 is the AC source; required approval still gates merge and Done.
+- Baseline: `b86632a60251e8dce778e80fa5916bcb2fd62bb4`, isolated branch `eur-11-events-fixes`. Updated Feed commits are integrated without rewriting the existing PR history.
+- Changes: an explicit UTC datetime cast keeps persistence/reload stable when the application timezone is not UTC. Strict local wall-time parsing rejects invalid dates, timezone gaps and ambiguous folds, including half-hour transitions; the UI requires another unambiguous time instead of silently selecting an offset.
+- Meeting links accept only validated HTTP(S) URLs without userinfo; validation stops before URL parsing on non-string input. Create/update/cancel lock and reauthorize current community/event state; update rechecks cancellation after the lock, and cancel remains idempotent. No schema or dependency changes.
+- Responsive changes stack/wrap Calendar headers, cards, meeting controls and Feed navigation at narrow widths. Browser acceptance against an isolated loopback preview using synthetic `scool_test` data verified author comment edit, 20-plus-1 comment pagination, event detail/timezone display, DST field errors without partial saves and no horizontal overflow at a 354px measured viewport. The normal browser viewport was restored.
+- Browser limitation: the automation confirmation-dialog API timed out during synthetic cancellation; no successful browser cancellation is claimed. Automated cancellation/link-omission and race regression tests cover the server behavior. The disposable preview container was stopped without touching the development stack or volumes.
+- Regression coverage: 7 additional Events tests cover create/update DST gaps/folds, strict input, credential/non-string URLs, UTC stability across application timezones, cast normalization and cancellation between preliminary authorization and locked update. Existing Events/Feed tests remain enabled.
+- Verification environment: isolated rebuilt `scool-pr-review-fixed` PHP 8.2.34 image, sample application identity/key, guarded MySQL `scool_test`, shared Mailpit with unique test recipients. Whole-tree Pint PASS (105 files); full PHPUnit PASS (162 tests/1206 assertions); `npm run build` PASS (59 modules). No development database reset or shared inbox deletion.
+- Evidence limits: this is bounded functional/regression verification, not production load testing or a fresh-machine setup proof. GitHub approval and current-head CI must be checked separately. Existing runtime containers need the updated image after an approved merge.
+
 ## M3 issue contract standardization (2026-10-07)
 
 - Outcome/authority: clarify the existing EUR-8/10/9/11 descriptions and M3 exit criteria; establish one reusable issue contract for all participants. Authorization does not include application implementation, status changes, commit, push, PR or merge.
@@ -370,6 +382,27 @@ Independent reviewer confirmation, required CI/publication and formal milestone 
   - `docker compose -p scool exec -T app php artisan test --compact --filter=CommunityFeedTest`: 14 passed (53 assertions).
   - `docker compose -p scool exec -T app vendor/bin/pint`: 93 files PASS.
   - Full test suite: `docker compose -p scool exec -T app php artisan test --compact`: 136 passed (877 assertions).
+- Status & Authority:
+  - Implementation completed and verified locally on `scool_test`.
+  - No commit, push, PR creation, merge, or Linear mutation performed. Awaiting review and authorization.
+
+## EUR-11 - Community Events baseline implementation (2026-10-07)
+
+- Outcome: Implement end-to-end Community Events (VS-07): event scheduling, update, idempotent cancellation, UTC storage with IANA timezone presentation, URL safety validation, and meeting link omission on cancelled events.
+- Branch: `eur-11-community-events`, branched from `eur-8-community-feed` (`11c8420410b2ba39969251a83ba0e9c858a66ca2`).
+- Implemented files:
+  - Migration: `2026_10_07_040001_create_events_table.php` (restrictive foreign keys, UTC timestamps, IANA timezone string, status enum).
+  - Model: `Event` with timezone conversion helpers (`localStartsAt`, `localEndsAt`) and status helpers; updated `Community` and `User` relationships.
+  - Factory: `EventFactory` with scheduled and cancelled states.
+  - Policy: `EventPolicy` (creator manage, active member view, denyAsNotFound privacy).
+  - Controller: `EventController` (parses local wall time with IANA timezone, converts to UTC, validates end > start, enforces idempotent cancellation and rejects updating cancelled events).
+  - Views: `resources/views/communities/events/{index,create,edit,show}.blade.php`, updated `communities/show.blade.php` and `communities/posts/index.blade.php` with Events navigation.
+  - Routes: Scoped nested routes under `/communities/{community:slug}/events/...`.
+  - Feature tests: `tests/Feature/CommunityEventTest.php` (10 tests, 67 assertions).
+- Verification:
+  - `docker compose -p scool exec -T app php artisan test --compact --filter=CommunityEventTest`: 10 passed (67 assertions).
+  - `docker compose -p scool exec -T app vendor/bin/pint`: 99 files PASS.
+  - Full test suite: `docker compose -p scool exec -T app php artisan test --compact`: 146 passed (944 assertions).
 - Status & Authority:
   - Implementation completed and verified locally on `scool_test`.
   - No commit, push, PR creation, merge, or Linear mutation performed. Awaiting review and authorization.

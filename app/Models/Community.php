@@ -67,6 +67,11 @@ class Community extends Model
         return $this->hasMany(Post::class);
     }
 
+    public function events(): HasMany
+    {
+        return $this->hasMany(Event::class);
+    }
+
     public function scopeAccessibleTo(Builder $query, User $user): Builder
     {
         return $query->where(function (Builder $query) use ($user): void {
