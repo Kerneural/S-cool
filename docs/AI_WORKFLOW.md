@@ -31,7 +31,7 @@ Read the relevant sections in full: Product Scope for scope/UI flows; Domain & A
 
 ## One issue, one controlled loop
 
-1. **Contract:** confirm outcome, includes/excludes, AC, dependencies and negative cases. Do not weaken requirements to make tests pass.
+1. **Contract:** confirm outcome, includes/excludes, AC, dependencies and negative cases. Before creating or changing an issue, use the Issue description template and Issue quality gate in `docs/03_DELIVERY_PLAN.md`. Do not weaken requirements to make tests pass.
 2. **Plan:** record target files, trade-offs, shared-contract impact, security and verification commands in the issue checkpoint. Use an ADR only for a significant architecture decision.
 3. **Build:** make a bounded diff within the assigned module. Avoid unrelated refactors or repository-wide formatting.
 4. **Test/review:** inspect the diff, AC, happy path and failure cases. Record exact commands, results and revision. Use targeted checks during iteration and proportionate full verification before acceptance.

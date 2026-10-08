@@ -62,6 +62,11 @@ class Community extends Model
         return $this->hasMany(CommunityInvitation::class);
     }
 
+    public function courses(): HasMany
+    {
+        return $this->hasMany(Course::class)->orderBy('order')->orderBy('id');
+    }
+
     public function scopeAccessibleTo(Builder $query, User $user): Builder
     {
         return $query->where(function (Builder $query) use ($user): void {

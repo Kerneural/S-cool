@@ -338,3 +338,34 @@ Independent reviewer confirmation, required CI/publication and formal milestone 
 - Diff: shared entrypoint, workflow, Product Scope, Domain Architecture, Delivery Plan, this checkpoint, and the two existing agent-contract scripts. No application, dependency, runtime, environment or data changes. The draft sync-local script is outside this task and was neither changed nor executed.
 - Verification: `bash scripts/verify-agent-contract.sh --require-tracked` PASS (11 shared files); `bash scripts/test-agent-contract.sh` PASS (16 disposable-fixture cases), including missing issue-template routing/gate/verification sections. `git diff --check` PASS before this checkpoint; repeat after its edit. Structural checks do not prove issue quality, agent compliance, publication or application behavior.
 - Evidence limits/next step: M3 code, module tests, browser flows, integration and CI remain unverified/Pending, not completed. M3 target date remains 2026-10-06 and issue due dates 2026-10-07; description changes do not resolve the schedule risk. Review/publish these bounded shared-contract edits only after explicit authorization so other clones receive the rules. Before implementation, verify merged baseline and agree the narrow shared navigation/route names and concrete field/provider validation limits in the active issue checkpoint.
+
+## EUR-10 - Classroom publishing implementation (2026-10-08)
+
+### Outcome and scope
+- Outcome: Owning creator creates, edits, orders, previews drafts, and publishes courses, sections and lessons in an active private community. Active members can view courses and read lessons only when both the course and lesson are PUBLISHED. Unpublishing blocks member reads and progress mutations without deleting retained data.
+- Scope:
+  - Database: forward migrations, models, relations, factories for Course, CourseSection, Lesson.
+  - Video Embeds: strict validation of HTTPS YouTube and Vimeo URLs only; secure server-side embed URL generation. Rejection of raw iframe, javascript/data schemes, and lookalike domains.
+  - Reordering: transactional sibling reorder for courses, sections, and lessons.
+  - Security/Authorization: Creator-only writes/preview; active member access predicate (`community->isActive()` && `membership->isActive()` && `course->isPublished()` && `lesson->isPublished()`). Strict server-side ancestry resolution (`community` -> `course` -> `section` -> `lesson`). Deny unauthorized or draft access with 404 (`denyAsNotFound`).
+  - UI: Blade/Tailwind/Alpine views for classroom index, course outline, lesson view with responsive embed, and creator management forms/modals.
+  - Tests: comprehensive feature test suite covering AC-01 through AC-08 on MySQL `scool_test`.
+
+### Verification and results
+- Branch: `eur-10-classroom-publishing`, based on `main` HEAD `e2f55503eb5897aaf73f7055734a73c91e6876dd`.
+- Scoped Feature Tests: `php artisan test --filter=ClassroomPublishingTest` -> **8 tests / 106 assertions PASS** (15.18s).
+  - AC-01: Creator course/section/lesson CRUD, draft preview, and persistence.
+  - AC-02: Member read matrix (Course Draft + Lesson Published -> 404, Course Published + Lesson Draft -> 404, Both Published -> 200).
+  - AC-03: Unpublish blocks access without data purge; republish restores access immediately.
+  - AC-04: Negative authorization, outsider cross-tenant 404, ID tampering 404, and inactive community 404.
+  - AC-05: Sibling reordering transactions with strict validation of foreign/duplicate IDs.
+  - AC-06: Strict HTTPS YouTube/Vimeo validation, secure embed URL generation, rejection of XSS/iframe/schemes, and escaped text.
+  - AC-07: Member count excludes draft lessons, zero metadata leak, and empty state rendering.
+- Full Suite Verification: `php artisan test` -> **130 tests / 930 assertions PASS** (140.90s), zero failures or regressions.
+- Code Style: Laravel Pint passed clean across all files (100 files checked).
+- Agent Contract: `bash scripts/verify-agent-contract.sh` (PASS) and `bash scripts/test-agent-contract.sh` (16 PASS).
+
+### Handoff contract for EUR-9 (Lesson Progress)
+- Models & Relationships: `Course`, `CourseSection`, `Lesson` ready with forward migrations and factories.
+- Access Predicate: Available on policies and models (`$course->isPublished() && $lesson->isPublished() && $community->isActive() && $membership->isActive()`).
+- Nested Routes: Scoped under `/communities/{community:slug}/courses/{course}/lessons/{lesson}`.
