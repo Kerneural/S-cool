@@ -2,6 +2,30 @@
 
 A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
+## Local team sync hardening (2026-10-08)
+
+- Requested outcome: one safe Bash command updates an existing teammate installation after merged changes, without replacing private configuration or resetting local data.
+- Branch `local-sync-safety`, base HEAD `c1e781b4e139f60c7ec6d761c5e2507084985223` from fetched `origin/main`; initial working tree clean. PR #17 was verified merged before this work. This is a separate follow-up, not an addition to that PR.
+- Changed files: `scripts/sync-local.sh`, `scripts/test-sync-local.sh`, README and this checkpoint. No application/domain changes, new dependencies or Linear mutations.
+- Commit, push, PR creation and merge are not authorized for this follow-up. The edited script is not yet available to teammates through main.
+
+### Flow and safety boundaries
+
+- Clean main and existing ignored `.env` -> checkout/container/volume guards -> fetch and fast-forward only -> reload updated script -> locked dependencies/images -> local database and URL/SMTP guards -> pending forward migrations -> stack readiness -> integrated Verify -> unchanged environment/revision/branch checks.
+- Web and worker stop before code/dependency/schema updates. The restarted worker loads the updated code. Verify builds assets and checks runtime, queue, style and guarded MySQL tests.
+- Refuses dirty/feature/detached branches, unpublished main commits, active Git operations, Vite hot files, missing installations, foreign checkout ownership and container-name collisions. An owned Git lock prevents concurrent sync operations in the same checkout.
+- No automatic stash/reset, `.env` overwrite, key regeneration, seed, development-data reset, volume deletion, queue flush or shared inbox deletion. Each machine retains its own database contents.
+- Forward migrations change schema and may change data by design: review them before merging. Sync is fail-fast, not atomic, a backup or automatic rollback. Failure after runtime changes may leave services stopped or partially updated; resolve the reported step and rerun.
+
+### Verification and remaining evidence
+
+- Bash syntax and `git diff --check`: PASS.
+- Mocked sync regression: 37 PASS, including rejection guards, failure ordering, configuration/source tampering and successful running/stopped-stack pipelines. Fixtures use synthetic configuration and mocked CLIs, not real upgrades.
+- Existing setup regression: 19 PASS. Shared agent contract with `--require-tracked`: 11 shared files PASS; this structural check does not prove agent compliance or publication.
+- Real feature-branch invocation correctly stopped before runtime writes. Read-only Compose validation, runtime database guard and canonical URL/local SMTP guard passed; all five existing services remained running/healthy.
+- No full live sync, migrations, configuration reload or dependency/runtime update was performed on this unpublished feature branch. Full application tests were not rerun for this Bash/documentation-only change. Independent-host, Linux/WSL and CI execution remain unverified.
+- Next: review and publish a focused follow-up PR when authorized. Teammates receive the script once with a fast-forward pull, then use `git switch main` followed by `bash scripts/sync-local.sh` for later updates; only the final sync PASS marker confirms a completed run.
+
 ## EUR-20 - setup verification checkpoint (2026-10-06)
 
 - [EUR-20](https://linear.app/eurusdevsec/issue/EUR-20/add-testbuild-commands-and-verify-fresh-setup-on-two-machines), parent EUR-5, M1. Last recorded Linear status: In Review; not refreshed for this documentation change.
@@ -328,6 +352,32 @@ Independent reviewer confirmation, required CI/publication and formal milestone 
 - `bash scripts/verify-agent-contract.sh --require-tracked` PASS: 11 shared files. Diff whitespace check PASS; private `.env` remains ignored and untracked. The earlier 122-test full Verify is historical evidence for the same application/test diff, not a new full-suite or CI run.
 - GitHub CLI authentication reports an invalid token. Normal Git push and the existing GitHub connector will be attempted without extracting, copying or exposing credentials; report any publication step that remains unavailable.
 
+## EUR-8 PR #14 remediation (2026-10-08)
+
+- Authority/outcome: remediate the posted Feed findings and publish updates to the existing PR; live Linear EUR-8 is the AC source. Required approval still gates merge and Done.
+- Baseline: `11c8420410b2ba39969251a83ba0e9c858a66ca2`, isolated branch `eur-8-feed-fixes`. The original checkout and its unrelated workflow edit remain untouched.
+- Changes: current access is required before author/moderation permissions; author-only comment edit route/form/action; comments paginate 20/page and feed posts 15/page with timestamp/ID ties; authors are eager-loaded and feed threads are not loaded.
+- Mutations lock community -> actor membership -> post -> comment, re-read retained/live state and reauthorize inside the transaction. This coarse per-community lock favors correctness over concurrent write throughput in the bounded MVP; no package/schema changes.
+- Regression evidence: isolated PHP 8.2.34/PHPUnit 11.5.56, guarded MySQL `scool_test`; `php vendor/bin/phpunit --filter CommunityFeed --display-warnings` PASS, 23 tests/203 assertions. Includes inactive-author direct requests, edit ownership/validation, pagination, state change after preliminary authorization, and independent-connection lock-timeout probes for post/membership rows. The lock probe is not a production load/stress test.
+- Quality/build: focused Pint PASS (8 files); whole-tree `pint --test` PASS (96 files); `npm run build` PASS (59 modules). No development DB reset, volume deletion or shared Mailpit inbox deletion.
+- Full-suite first attempt: 145 tests/1013 assertions, three failures. Two require the missing runner `APP_NAME=S-cool`; one identifies the existing PHP exception-argument configuration (`zend.exception_ignore_args=0`). Explicit approval was obtained to add `docker/php/security.ini` to the shared image. Verify a newly built image; do not weaken the security assertion. Existing running containers are unchanged until rebuilt after merge.
+- Follow-up security probe: the rebuilt image reports `zend.exception_ignore_args=1`; callable frames contain no arguments and no synthetic secret is retained. PHP still records include/require filenames. The security test now checks all callable frames and absence of the synthetic secret across the entire trace, rather than rejecting PHP's language-frame filename behavior.
+- Final Feed verification on `scool-pr-review-fixed` (security.ini built into the image), synthetic key and sample `APP_NAME=S-cool`: whole-tree Pint PASS (96 files), `php vendor/bin/phpunit --display-warnings` PASS (145 tests/1028 assertions, exit 0). Agent contract PASS (11 tracked shared files); contract regressions PASS (16 cases); setup guards PASS (18 cases). Explicit approval covered publishing the missing workflow routing paragraph; the original checkout's edit remains untouched.
+- Browser acceptance against an isolated loopback preview with synthetic `scool_test` data verified author comment editing and 20-plus-1 comment pagination. Narrow-screen post detail had no horizontal overflow; Feed navigation now stacks/wraps on small screens without importing Events routes into the standalone Feed branch. Shared navigation was also verified in the combined Events preview.
+- Pending: PR review/approval and current-head CI. Browser acceptance is bounded, not an exhaustive device matrix; remediation publication does not establish Done.
+
+## EUR-11 PR #15 remediation (2026-10-08)
+
+- Authority/outcome: remediate the posted Events findings in the existing PR. Live Linear EUR-11 is the AC source; required approval still gates merge and Done.
+- Baseline: `b86632a60251e8dce778e80fa5916bcb2fd62bb4`, isolated branch `eur-11-events-fixes`. Updated Feed commits are integrated without rewriting the existing PR history.
+- Changes: an explicit UTC datetime cast keeps persistence/reload stable when the application timezone is not UTC. Strict local wall-time parsing rejects invalid dates, timezone gaps and ambiguous folds, including half-hour transitions; the UI requires another unambiguous time instead of silently selecting an offset.
+- Meeting links accept only validated HTTP(S) URLs without userinfo; validation stops before URL parsing on non-string input. Create/update/cancel lock and reauthorize current community/event state; update rechecks cancellation after the lock, and cancel remains idempotent. No schema or dependency changes.
+- Responsive changes stack/wrap Calendar headers, cards, meeting controls and Feed navigation at narrow widths. Browser acceptance against an isolated loopback preview using synthetic `scool_test` data verified author comment edit, 20-plus-1 comment pagination, event detail/timezone display, DST field errors without partial saves and no horizontal overflow at a 354px measured viewport. The normal browser viewport was restored.
+- Browser limitation: the automation confirmation-dialog API timed out during synthetic cancellation; no successful browser cancellation is claimed. Automated cancellation/link-omission and race regression tests cover the server behavior. The disposable preview container was stopped without touching the development stack or volumes.
+- Regression coverage: 7 additional Events tests cover create/update DST gaps/folds, strict input, credential/non-string URLs, UTC stability across application timezones, cast normalization and cancellation between preliminary authorization and locked update. Existing Events/Feed tests remain enabled.
+- Verification environment: isolated rebuilt `scool-pr-review-fixed` PHP 8.2.34 image, sample application identity/key, guarded MySQL `scool_test`, shared Mailpit with unique test recipients. Whole-tree Pint PASS (105 files); full PHPUnit PASS (162 tests/1206 assertions); `npm run build` PASS (59 modules). No development database reset or shared inbox deletion.
+- Evidence limits: this is bounded functional/regression verification, not production load testing or a fresh-machine setup proof. GitHub approval and current-head CI must be checked separately. Existing runtime containers need the updated image after an approved merge.
+
 ## M3 issue contract standardization (2026-10-07)
 
 - Outcome/authority: clarify the existing EUR-8/10/9/11 descriptions and M3 exit criteria; establish one reusable issue contract for all participants. Authorization does not include application implementation, status changes, commit, push, PR or merge.
@@ -339,7 +389,51 @@ Independent reviewer confirmation, required CI/publication and formal milestone 
 - Verification: `bash scripts/verify-agent-contract.sh --require-tracked` PASS (11 shared files); `bash scripts/test-agent-contract.sh` PASS (16 disposable-fixture cases), including missing issue-template routing/gate/verification sections. `git diff --check` PASS before this checkpoint; repeat after its edit. Structural checks do not prove issue quality, agent compliance, publication or application behavior.
 - Evidence limits/next step: M3 code, module tests, browser flows, integration and CI remain unverified/Pending, not completed. M3 target date remains 2026-10-06 and issue due dates 2026-10-07; description changes do not resolve the schedule risk. Review/publish these bounded shared-contract edits only after explicit authorization so other clones receive the rules. Before implementation, verify merged baseline and agree the narrow shared navigation/route names and concrete field/provider validation limits in the active issue checkpoint.
 
+## EUR-8 - Community Feed baseline implementation (2026-10-07)
+
+- Outcome: Implement end-to-end Community Feed (VS-04): post and comment CRUD, authorship policy, creator moderation, scoped route binding, pagination, soft deletes, and XSS protection.
+- Branch: `eur-8-community-feed`, branched from HEAD `e2f55503eb5897aaf73f7055734a73c91e6876dd`.
+- Implemented files:
+  - Migrations: `2026_10_07_030001_create_posts_table.php`, `2026_10_07_030002_create_comments_table.php` (restrictive foreign keys, indexes, soft deletes).
+  - Models: `Post`, `Comment`, updated `Community` and `User` with relationships.
+  - Factories: `PostFactory`, `CommentFactory`.
+  - Policies: `PostPolicy`, `CommentPolicy` (active member and creator access, author-only update, author/creator delete, denyAsNotFound privacy).
+  - Controllers: `PostController`, `CommentController` (eager loading to prevent N+1, pagination of 15 per page).
+  - Views: `resources/views/communities/posts/{index,show,edit}.blade.php`, updated `communities/show.blade.php`.
+  - Routes: Scoped nested routes under `/communities/{community:slug}/posts/...`.
+  - Feature tests: `tests/Feature/CommunityFeedTest.php` (14 tests, 53 assertions).
+- Verification:
+  - `docker compose -p scool exec -T app php artisan test --compact --filter=CommunityFeedTest`: 14 passed (53 assertions).
+  - `docker compose -p scool exec -T app vendor/bin/pint`: 93 files PASS.
+  - Full test suite: `docker compose -p scool exec -T app php artisan test --compact`: 136 passed (877 assertions).
+- Status & Authority:
+  - Implementation completed and verified locally on `scool_test`.
+  - No commit, push, PR creation, merge, or Linear mutation performed. Awaiting review and authorization.
+
+## EUR-11 - Community Events baseline implementation (2026-10-07)
+
+- Outcome: Implement end-to-end Community Events (VS-07): event scheduling, update, idempotent cancellation, UTC storage with IANA timezone presentation, URL safety validation, and meeting link omission on cancelled events.
+- Branch: `eur-11-community-events`, branched from `eur-8-community-feed` (`11c8420410b2ba39969251a83ba0e9c858a66ca2`).
+- Implemented files:
+  - Migration: `2026_10_07_040001_create_events_table.php` (restrictive foreign keys, UTC timestamps, IANA timezone string, status enum).
+  - Model: `Event` with timezone conversion helpers (`localStartsAt`, `localEndsAt`) and status helpers; updated `Community` and `User` relationships.
+  - Factory: `EventFactory` with scheduled and cancelled states.
+  - Policy: `EventPolicy` (creator manage, active member view, denyAsNotFound privacy).
+  - Controller: `EventController` (parses local wall time with IANA timezone, converts to UTC, validates end > start, enforces idempotent cancellation and rejects updating cancelled events).
+  - Views: `resources/views/communities/events/{index,create,edit,show}.blade.php`, updated `communities/show.blade.php` and `communities/posts/index.blade.php` with Events navigation.
+  - Routes: Scoped nested routes under `/communities/{community:slug}/events/...`.
+  - Feature tests: `tests/Feature/CommunityEventTest.php` (10 tests, 67 assertions).
+- Verification:
+  - `docker compose -p scool exec -T app php artisan test --compact --filter=CommunityEventTest`: 10 passed (67 assertions).
+  - `docker compose -p scool exec -T app vendor/bin/pint`: 99 files PASS.
+  - Full test suite: `docker compose -p scool exec -T app php artisan test --compact`: 146 passed (944 assertions).
+- Status & Authority:
+  - Implementation completed and verified locally on `scool_test`.
+  - No commit, push, PR creation, merge, or Linear mutation performed. Awaiting review and authorization.
+
 ## EUR-10 - Classroom publishing implementation (2026-10-08)
+
+The submitted implementation and results below are historical author-reported evidence. The independent remediation checkpoint at the end of this section supersedes them for the current local diff; it does not establish publication or acceptance.
 
 ### Outcome and scope
 - Outcome: Owning creator creates, edits, orders, previews drafts, and publishes courses, sections and lessons in an active private community. Active members can view courses and read lessons only when both the course and lesson are PUBLISHED. Unpublishing blocks member reads and progress mutations without deleting retained data.
@@ -370,7 +464,53 @@ Independent reviewer confirmation, required CI/publication and formal milestone 
 - Access Predicate: Available on policies and models (`$course->isPublished() && $lesson->isPublished() && $community->isActive() && $membership->isActive()`).
 - Nested Routes: Scoped under `/communities/{community:slug}/courses/{course}/lessons/{lesson}`.
 
+### PR #17 independent audit and local remediation (2026-10-08)
+
+- Authority/outcome: audit live EUR-10 AC and PR #17, fix bounded Classroom defects, and prepare for owner review. Commit, push, merge, external comments and Linear status changes are not authorized in this checkpoint.
+- Start: clean `main`, HEAD `c8c280c38f06f1485d149b29f3f48313a06b025b`. Local branch `eur-10-classroom-audit` applies PR head `6f86a94aeb99e866f00995dd93a6887e974c56f0` without a commit. Five integration conflicts were resolved while preserving the merged Feed/Events routes, models, navigation and shared workflow contract. This local branch is based on main, not on the PR head; publishing to the existing PR requires a history-preserving integration, not a force push.
+- Findings/remediation:
+  - Creator UI lacked section edit and sibling reorder controls. All three reorder levels and section editing are now exposed. Native disclosure forms retain the relevant form, inputs and publication status after errors; malformed flashed arrays no longer crash the retry page.
+  - Lesson validation allowed 500-character URLs while storage allowed 255. An additional forward migration extends storage to 500; existing migrations remain unchanged. Rollback refuses truncation of retained long URLs.
+  - Hard-delete actions and cascade foreign keys could purge retained content. Permanent purge is explicitly excluded by EUR-10: delete actions now deny, delete controls are removed, and the forward migration changes hierarchy foreign keys to RESTRICT. Use unpublish to hide content; no progress implementation or actual progress-row retention test is claimed here.
+  - Creator mutations now lock/reload community -> course -> section -> lesson and reauthorize the active owning creator inside the transaction. Reorder validates the exact locked current sibling set; invalid or stale submissions leave ordering unchanged. Coarse per-community serialization favors correctness over write throughput; hook-based state-change regressions are not independent-process concurrency or load proof.
+  - URL validation rejects credential presence, invalid ports, non-string video IDs and unsupported providers; embeds remain generated HTTPS URLs with no server fetch. Empty lessons fail validation, text length is bounded, and valid plaintext `0` is preserved. No package or frontend-stack change.
+  - Classroom lists paginate 12 courses, count only eligible lessons for members, and avoid eager-loading all lesson bodies on the listing page. Existing published/draft and tenant privacy rules remain enforced.
+- Automated verification on the baseline HEAD plus this reviewed dirty diff:
+  - `bash scripts/verify-fresh-setup.sh --mode verify`: exit 0, 139 seconds; **180 tests / 1480 assertions PASS**, test duration 110.67 seconds. This includes 8 original Classroom tests and 10 additional regressions, plus merged Feed/Events/M2 tests.
+  - Whole-tree Pint: 126 files PASS; Composer validation PASS; Vite production build: 59 modules PASS; shared structural contract: 11 files PASS.
+  - Real queue marker `EUR20-smoke-0d61977b-1cc8-4055-9d43-6ea566afa0a8`: pending=0, failed=0, handler=1. Live Mailpit/password-reset and invitation-worker integration passed with isolated recipients.
+  - `bash scripts/test-agent-contract.sh`: 16 regression cases PASS. An initial sandboxed attempt returned no usable diagnostic; the same existing script passed with permitted access to its synthetic temporary Git fixture.
+- Browser verification used synthetic users/content in guarded MySQL `scool_test` through a disposable loopback preview, not the development database. Section rename, section reorder, invalid-provider validation with retained input/status, successful retry and lesson navigation were verified. Narrow-screen lesson content showed no horizontal overflow at the measured 355px viewport; Alpine video toggle hides the iframe while keeping its provider fallback visible. Provider playback was unavailable for the synthetic video; successful playback is not claimed. Temporary viewport and preview were cleaned up without volume deletion. An initial preview environment-forwarding issue was corrected using `artisan serve --no-reload` before functional write checks.
+- Privacy/safety: no development migration/reset, environment replacement, volume deletion, queue flush or shared inbox deletion. Preview fixtures remain ignored and are not publication prerequisites. Existing non-Classroom checkpoint sections are preserved.
+- Pending: remote PR #17 still reports conflicts and head `6f86a94`; these local fixes have not been published. No current-head CI, independent machine, production performance or actual EUR-9 progress evidence is claimed. Review the final diff, authorize a normal history-preserving PR update, then verify the resulting immutable head before approval/merge. EUR-9 should use the accepted merged Classroom baseline; EUR-10 is not declared Done here.
+
+### Provider fallback acceptance correction (2026-10-08)
+
+- Owner-reported manual acceptance passed creator draft preview, member publication gating, unpublish/republish retention, invalid-provider validation, management/reordering, outsider denial and responsive controls. The provider fallback remained failing with YouTube error 153; these reports are manual evidence, not independently rerun browser proof.
+- Source confirmed the fallback incorrectly linked to the iframe's `/embed/` URL with `rel=noreferrer`. YouTube documents error 153 as missing HTTP Referer or equivalent client identification: https://developers.google.com/youtube/iframe_api_reference#onError. A separate server-generated provider URL now maps validated IDs to the normal YouTube watch page or Vimeo video page. The iframe URL, provider allowlist, ancestry/publication gates and `noopener noreferrer` protection are unchanged; arbitrary submitted query parameters are not copied to the link.
+- Red/green evidence: the new fallback regression first failed (1 test / 2 assertions) because the watch-page href was absent. After the bounded service/model/Blade fix, `php artisan test --compact --filter=Classroom` passed **19 tests / 296 assertions** (14.36 seconds), including five valid URL variants and rejected lookalike-host handling. Scoped Pint passed 3 files; working-tree diff whitespace check passed. All tests used guarded MySQL `scool_test`.
+- The previous 180-test full Verify predates this correction; it is not current full-suite proof. No new browser playback, full-suite, CI or publication is claimed. Refresh the lesson and retry Open on provider to verify the normal watch page. Branch/HEAD remain `eur-10-classroom-audit` / `c8c280c38f06f1485d149b29f3f48313a06b025b` plus the retained dirty audit diff; no development data or configuration was changed.
+
+### PR #17 publication preparation (2026-10-08)
+
+- Subsequent explicit authorization covers final verification, commit and normal push to the existing PR #17 head branch. It does not authorize PR merge, external comments or Linear status changes.
+- Fresh sources: Linear EUR-10 remains In Review; PR #17 remains open at `6f86a94aeb99e866f00995dd93a6887e974c56f0`; fetched main is `c8c280c38f06f1485d149b29f3f48313a06b025b`. No unexpected tracked or non-ignored work outside this audit was found.
+- Owner-reported retest of Open on provider succeeded after the watch-page fix. This completes the reported manual checks; it does not replace automated tests or prove production provider availability.
+- Publish only the explicit Classroom/source/test/checkpoint allowlist. Preserve private environment files, ignored fixtures and the main workflow contract. Retain the original PR commit through a normal merge and verify that integration does not change the reviewed source tree. No force push or direct main push.
+- Final integrated-head Verify and publication results are pending in this preparation checkpoint. Existing PHP/data-safety contracts and the canonical IPv4 origin remain unchanged.
+
+### Final integrated verification for PR #17 (2026-10-08)
+
+- Reviewed implementation commit: `abc00980f8f12f2fed8981d1df7df8fd81eaa4d0`. History-preserving integration commit: `2ba10eaaec41a00d26ba55d99e4b1e3c271a2404`; both the original PR head `6f86a94` and fetched main `c8c280c` are ancestors. Exact tree equality with the reviewed implementation was verified after resolving conflicts; merged Feed/Events and the shared workflow were preserved.
+- `bash scripts/verify-fresh-setup.sh --mode verify` passed on clean integration HEAD `2ba10eaaec41a00d26ba55d99e4b1e3c271a2404`: exit 0, 147 seconds; **181 tests / 1502 assertions PASS**, test duration 115.22 seconds. This supersedes the earlier pre-fallback full-suite result and includes the 19-test Classroom suite.
+- Whole-tree Pint: 126 files PASS; Composer validation PASS; Vite production build: 59 modules PASS; runtime/HTTP checks PASS. Real queue marker `EUR20-smoke-2918208e-85d6-45fe-a78f-8b40b5818d6f`: pending=0, failed=0, handler=1. Live Mailpit/password-reset and invitation-worker tests passed using isolated recipients.
+- Tracked shared agent contract: 11 files PASS. Working/index whitespace and bounded high-confidence source secret-pattern checks passed; no private environment, IDE/agent directory or ignored preview fixture enters the publication diff. This is not a full Git-history secret audit.
+- Only this evidence checkpoint changes after the clean-head run. Verify application/test/runtime file equality with `2ba10ea` before the normal push to `eur-10-classroom-publishing`. No development migration/reset, environment replacement, volume deletion, queue flush or shared inbox deletion occurred during publication.
+- Local functional evidence is ready for review. Remote-head confirmation, GitHub approval/required checks and merge remain separate; no CI success, production-readiness or EUR-9 progress completion is claimed. Linear remains In Review; no external comment or status change is authorized by this publication step.
+
 ## EUR-9 - Lesson progress implementation (2026-10-08)
+
+Historical implementation checkpoint below: reported before integration with accepted main. The sequential request tests did not independently prove competing writes or authorization changes during a waiting mutation; UI markup alone did not prove mobile behavior. Current audit evidence is recorded separately below.
 
 ### Outcome and scope
 - Outcome: An active member marks an authorized published lesson complete or incomplete and sees the same personal completion state after refresh/re-login, without altering other members' progress or creating duplicate records.
@@ -397,3 +537,26 @@ Independent reviewer confirmation, required CI/publication and formal milestone 
 - Code Style: `docker compose -p scool exec -T app vendor/bin/pint --test` -> **PASS** (105 files checked, 0 style issues).
 - Agent Contract: `bash scripts/verify-agent-contract.sh` -> **PASS** (11 shared files).
 - Preserved Working Tree: `scripts/sync-local.sh` preserved unstaged in working directory.
+
+### Integrated audit and verification (2026-10-09)
+
+- Contract: live Linear EUR-9 AC-01 through AC-07. Authorized: bounded fixes, a normal commit/push to the existing PR #19 branch after tests pass, and GitHub/Linear comments. Merge and Done are not authorized.
+- Pinned review: original PR head `156fe15768ebfe6773d3a0766bcac6ead7520d29`, main `38c5aba3b2e51e3b83eb12c7e68eb7bf472f99ac`, merge-base `6f86a94aeb99e866f00995dd93a6887e974c56f0`. Work was isolated from the original checkout and its five unrelated local GitNexus setup edits.
+- Integration: resolved eight conflicts by retaining accepted Classroom management/reorder forms, provider watch-page fallback, retention controls, paginated cards, Feed/Events routes and shared workflow. The publication keeps the original PR and main as merge parents; no history rewriting is needed. The final PR-only delta against main is limited to progress source/UI/schema/tests and this checkpoint.
+- Findings fixed:
+  - The original endpoint authorized route-bound state before an unlocked write. `LessonProgressMutation` now reloads/locks community -> course -> section -> lesson -> membership, validates ancestry and current access inside the transaction, and writes only the authenticated user's explicit completion state.
+  - Repeated complete requests previously changed `completed_at`. Replays now preserve completion/update timestamps; incomplete clears completion time. The unique user/lesson constraint remains the final database guard.
+  - Progress counters now use one personal published-only aggregate for the outline/JSON response and bounded subquery counts for paginated cards. Existing management controls and lesson navigation remain available.
+  - Added independent PHP-process regressions for competing first writes and committed lesson/course unpublish, community archive and membership suspension while a request waits on the community lock. Added CSRF enforcement, validation feedback, actual unique-constraint rejection, stale-snapshot denial, retention/republish, personal summaries and query-bound regressions.
+- Trade-off: reuse the existing coarse per-community creator lock order for correctness and simple serialization. This is not throughput/load proof and does not promise arrival ordering for opposing concurrent completion values. No package, stack, schema-retention or platform-admin contract change; admin authorization integration remains a future cross-module check once that role exists.
+- Verification:
+  - Scoped `docker exec scool-eur20-pr19_app php artisan test --filter=LessonProgress`: **25 tests / 190 assertions PASS**, 36.35 seconds.
+  - `bash scripts/verify-fresh-setup.sh --mode verify --project scool-eur20-pr19`: **206 tests / 1692 assertions PASS**, test duration 197.94 seconds, integrated Verify 229 seconds, exit 0. Whole-tree Pint: 135 files PASS; Composer manifest/lock validation, Vite production build (59 modules), five-service health and HTTP `/up` PASS.
+  - Real daemon queue marker `EUR20-smoke-7406ec56-5f05-474c-82dc-f147fcf78121`: pending=0, failed=0, handler=1. Mailpit password-reset and invitation process integration passed with isolated recipients.
+  - Tracked shared contract: 11 files PASS; existing agent-contract regression script: 16 cases PASS. Whitespace and bounded high-confidence source secret-pattern checks passed; these are not full history secret scanning or agent-compliance proof.
+  - The full run used original HEAD plus the integrated dirty candidate, captured as Git tree `96ef26085ceb0ea58f2cddb4f4b932142bf2a616`. Only this evidence checkpoint changes after the run; publication must verify all other tracked paths are identical to that tested tree.
+- An initial full run failed due to an incorrect membership helper assumption and a guarded test-fixture assignment. Both were corrected using the existing status/transition contract; the scoped and full passing runs above supersede that failed attempt.
+- Graph limits: GitNexus indexed the integrated working candidate, not a clean original PR graph. Its pending-merge change map includes incoming main changes; source diff against pinned main determines actual PR scope. Dynamic PHP call resolution can undercount callers; PHP PDG/taint coverage was skipped because it is unsupported by the installed analyzer. Raw source and MySQL/runtime tests supply the independent checks; graph risk labels are not an approval verdict.
+- Dependency baseline: unchanged npm lockfile reports nine development/build advisories (2 moderate, 5 high, 2 critical); `npm audit --omit=dev` reports zero at this check. No automatic dependency upgrade or production-safety claim.
+- Review environment: dedicated Compose project `scool-eur20-pr19`, application `http://127.0.0.1:18080`, Mailpit `http://127.0.0.1:18025`, separate database volume and session cookie. Its new private environment was configured for that preview only; the original checkout remains on `http://127.0.0.1:8080`. No original development migration/reset, key replacement, volume deletion, queue flush or shared inbox deletion.
+- Pending: browser/manual acceptance on the published revision, GitHub approval/required checks and merge. CI, independent-machine evidence and production load are not verified here. Keep Linear In Review; this checkpoint does not complete M3.

@@ -59,6 +59,16 @@ class Lesson extends Model
         return VideoEmbedService::getEmbedUrl($this->video_url);
     }
 
+    public function getProviderUrlAttribute(): ?string
+    {
+        return VideoEmbedService::getProviderUrl($this->video_url);
+    }
+
+    public function scopePublished(Builder $query): Builder
+    {
+        return $query->where('status', 'PUBLISHED');
+    }
+
     public function progresses(): HasMany
     {
         return $this->hasMany(LessonProgress::class);
@@ -75,11 +85,6 @@ class Lesson extends Model
         }
 
         return $this->progresses()->where('user_id', $user->id)->where('completed', true)->exists();
-    }
-
-    public function scopePublished(Builder $query): Builder
-    {
-        return $query->where('status', 'PUBLISHED');
     }
 
     public function scopeOrdered(Builder $query): Builder

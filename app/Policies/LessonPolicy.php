@@ -65,11 +65,7 @@ class LessonPolicy
      */
     public function delete(User $user, Lesson $lesson): Response
     {
-        $community = $lesson->section?->course?->community;
-
-        return $community && $community->isActive() && $community->isCreator($user)
-            ? Response::allow()
-            : Response::denyAsNotFound();
+        return Response::denyAsNotFound();
     }
 
     /**

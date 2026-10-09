@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Community;
 use App\Models\Course;
+use App\Services\ClassroomMutation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
@@ -43,7 +43,9 @@ class CourseController extends Controller
             },
         ]);
 
-        return view('classroom.courses.show', compact('community', 'course', 'isCreator', 'isActiveMember'));
+        $progressSummary = $isActiveMember ? $course->progressSummaryFor($user) : null;
+
+        return view('classroom.courses.show', compact('community', 'course', 'isCreator', 'isActiveMember', 'progressSummary'));
     }
 
     public function store(Request $request, Community $community): RedirectResponse
@@ -56,10 +58,9 @@ class CourseController extends Controller
             'status' => ['required', 'in:DRAFT,PUBLISHED'],
         ]);
 
-        $maxOrder = (int) $community->courses()->max('order');
-        $validated['order'] = $maxOrder + 1;
-
-        $community->courses()->create($validated);
+        ClassroomMutation::run($community, null, null, null, function ($community) use ($validated) {
+            $community->courses()->create($validated + ['order' => (int) $community->courses()->max('order') + 1]);
+        });
 
         return redirect()->route('communities.classroom.index', $community)
             ->with('status', 'Course created successfully.');
@@ -79,7 +80,7 @@ class CourseController extends Controller
             'status' => ['required', 'in:DRAFT,PUBLISHED'],
         ]);
 
-        $course->update($validated);
+        ClassroomMutation::run($community, $course, null, null, fn ($community, $course) => $course->update($validated));
 
         return back()->with('status', 'Course updated successfully.');
     }
@@ -92,10 +93,7 @@ class CourseController extends Controller
 
         Gate::authorize('delete', $course);
 
-        $course->delete();
-
-        return redirect()->route('communities.classroom.index', $community)
-            ->with('status', 'Course deleted successfully.');
+        abort(404); // Permanent content purge is outside this issue.
     }
 
     public function reorder(Request $request, Community $community): RedirectResponse
@@ -107,26 +105,7 @@ class CourseController extends Controller
             'order.*' => ['required', 'integer'],
         ]);
 
-        $existingIds = $community->courses()->pluck('id')->map(fn ($id) => (int) $id)->all();
-        $submittedIds = array_map('intval', $validated['order']);
-
-        // Check for duplicate submitted IDs
-        if (count($submittedIds) !== count(array_unique($submittedIds))) {
-            return back()->withErrors(['order' => 'Duplicate sibling IDs in reorder payload.']);
-        }
-
-        // Must match exact set of existing course IDs
-        if (count($submittedIds) !== count($existingIds)
-            || array_diff($submittedIds, $existingIds) !== []
-            || array_diff($existingIds, $submittedIds) !== []) {
-            return back()->withErrors(['order' => 'Invalid or foreign sibling IDs in reorder payload.']);
-        }
-
-        DB::transaction(function () use ($submittedIds, $community) {
-            foreach ($submittedIds as $index => $id) {
-                $community->courses()->where('id', $id)->update(['order' => $index + 1]);
-            }
-        });
+        ClassroomMutation::run($community, null, null, null, fn ($community) => ClassroomMutation::reorder($community->courses(), $validated['order']));
 
         return back()->with('status', 'Courses reordered successfully.');
     }

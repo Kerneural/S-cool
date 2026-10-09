@@ -60,10 +60,6 @@ class CoursePolicy
      */
     public function delete(User $user, Course $course): Response
     {
-        $community = $course->community;
-
-        return $community && $community->isActive() && $community->isCreator($user)
-            ? Response::allow()
-            : Response::denyAsNotFound();
+        return Response::denyAsNotFound();
     }
 }

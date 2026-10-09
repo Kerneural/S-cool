@@ -29,10 +29,6 @@ class CourseSectionPolicy
 
     public function delete(User $user, CourseSection $section): Response
     {
-        $community = $section->course?->community;
-
-        return $community && $community->isActive() && $community->isCreator($user)
-            ? Response::allow()
-            : Response::denyAsNotFound();
+        return Response::denyAsNotFound();
     }
 }

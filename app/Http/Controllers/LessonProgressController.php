@@ -5,8 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Community;
 use App\Models\Course;
 use App\Models\Lesson;
-use App\Models\LessonProgress;
-use Illuminate\Database\UniqueConstraintViolationException;
+use App\Services\LessonProgressMutation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -34,31 +33,22 @@ class LessonProgressController extends Controller
 
         $user = $request->user();
         $isCompleted = (bool) $validated['completed'];
-        $completedAt = $isCompleted ? now() : null;
-
-        try {
-            $progress = LessonProgress::updateOrCreate(
-                ['user_id' => $user->id, 'lesson_id' => $lesson->id],
-                ['completed' => $isCompleted, 'completed_at' => $completedAt]
-            );
-        } catch (UniqueConstraintViolationException) {
-            $progress = LessonProgress::updateOrCreate(
-                ['user_id' => $user->id, 'lesson_id' => $lesson->id],
-                ['completed' => $isCompleted, 'completed_at' => $completedAt]
-            );
-        }
+        $result = LessonProgressMutation::run($user, $community, $course, $lesson, $isCompleted);
+        $progress = $result['progress'];
+        $summary = $result['summary'];
 
         if ($request->expectsJson() || $request->wantsJson()) {
             return response()->json([
                 'lesson_id' => $lesson->id,
                 'completed' => (bool) $progress->completed,
                 'completed_at' => $progress->completed_at?->toIso8601String(),
-                'course_progress_percentage' => $course->progressPercentageFor($user),
-                'course_completed_lessons_count' => $course->completedLessonsCountFor($user),
-                'course_published_lessons_count' => $course->publishedLessonsCount(),
+                'course_progress_percentage' => $summary['percentage'],
+                'course_completed_lessons_count' => $summary['completed'],
+                'course_published_lessons_count' => $summary['total'],
             ]);
         }
 
-        return back()->with('status', $isCompleted ? __('Lesson marked as completed.') : __('Lesson marked as incomplete.'));
+        return redirect()->route('communities.lessons.show', [$community, $course, $lesson])
+            ->with('status', $isCompleted ? __('Lesson marked as completed.') : __('Lesson marked as incomplete.'));
     }
 }

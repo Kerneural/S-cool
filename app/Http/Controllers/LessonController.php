@@ -6,10 +6,10 @@ use App\Models\Community;
 use App\Models\Course;
 use App\Models\CourseSection;
 use App\Models\Lesson;
+use App\Services\ClassroomMutation;
 use App\Services\VideoEmbedService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -79,21 +79,20 @@ class LessonController extends Controller
 
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
-            'content' => ['nullable', 'string'],
+            'content' => ['required_without:video_url', 'nullable', 'string', 'max:50000'],
             'video_url' => ['nullable', 'string', 'max:500'],
             'status' => ['required', 'in:DRAFT,PUBLISHED'],
         ]);
 
-        if (! empty($validated['video_url']) && ! VideoEmbedService::isValid($validated['video_url'])) {
+        if (($validated['video_url'] ?? null) !== null && ! VideoEmbedService::isValid($validated['video_url'])) {
             throw ValidationException::withMessages([
                 'video_url' => 'The video URL must be a valid HTTPS link from YouTube or Vimeo.',
             ]);
         }
 
-        $maxOrder = (int) $section->lessons()->max('order');
-        $validated['order'] = $maxOrder + 1;
-
-        $section->lessons()->create($validated);
+        ClassroomMutation::run($community, $course, $section, null, function ($community, $course, $section) use ($validated) {
+            $section->lessons()->create($validated + ['order' => (int) $section->lessons()->max('order') + 1]);
+        });
 
         return back()->with('status', 'Lesson created successfully.');
     }
@@ -110,18 +109,18 @@ class LessonController extends Controller
 
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
-            'content' => ['nullable', 'string'],
+            'content' => ['required_without:video_url', 'nullable', 'string', 'max:50000'],
             'video_url' => ['nullable', 'string', 'max:500'],
             'status' => ['required', 'in:DRAFT,PUBLISHED'],
         ]);
 
-        if (! empty($validated['video_url']) && ! VideoEmbedService::isValid($validated['video_url'])) {
+        if (($validated['video_url'] ?? null) !== null && ! VideoEmbedService::isValid($validated['video_url'])) {
             throw ValidationException::withMessages([
                 'video_url' => 'The video URL must be a valid HTTPS link from YouTube or Vimeo.',
             ]);
         }
 
-        $lesson->update($validated);
+        ClassroomMutation::run($community, $course, $section, $lesson, fn ($community, $course, $section, $lesson) => $lesson->update($validated));
 
         return back()->with('status', 'Lesson updated successfully.');
     }
@@ -134,12 +133,9 @@ class LessonController extends Controller
             abort(404);
         }
 
-        Gate::authorize('update', $course);
+        Gate::authorize('delete', $lesson);
 
-        $lesson->delete();
-
-        return redirect()->route('communities.courses.show', [$community, $course])
-            ->with('status', 'Lesson deleted successfully.');
+        abort(404); // Use unpublish; content/progress must be retained.
     }
 
     public function reorder(Request $request, Community $community, Course $course, CourseSection $section): RedirectResponse
@@ -155,24 +151,7 @@ class LessonController extends Controller
             'order.*' => ['required', 'integer'],
         ]);
 
-        $existingIds = $section->lessons()->pluck('id')->map(fn ($id) => (int) $id)->all();
-        $submittedIds = array_map('intval', $validated['order']);
-
-        if (count($submittedIds) !== count(array_unique($submittedIds))) {
-            return back()->withErrors(['order' => 'Duplicate sibling IDs in reorder payload.']);
-        }
-
-        if (count($submittedIds) !== count($existingIds)
-            || array_diff($submittedIds, $existingIds) !== []
-            || array_diff($existingIds, $submittedIds) !== []) {
-            return back()->withErrors(['order' => 'Invalid or foreign sibling IDs in reorder payload.']);
-        }
-
-        DB::transaction(function () use ($submittedIds, $section) {
-            foreach ($submittedIds as $index => $id) {
-                $section->lessons()->where('id', $id)->update(['order' => $index + 1]);
-            }
-        });
+        ClassroomMutation::run($community, $course, $section, null, fn ($community, $course, $section) => ClassroomMutation::reorder($section->lessons(), $validated['order']));
 
         return back()->with('status', 'Lessons reordered successfully.');
     }

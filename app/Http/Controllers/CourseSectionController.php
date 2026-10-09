@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Community;
 use App\Models\Course;
 use App\Models\CourseSection;
+use App\Services\ClassroomMutation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 class CourseSectionController extends Controller
@@ -24,10 +24,9 @@ class CourseSectionController extends Controller
             'title' => ['required', 'string', 'max:255'],
         ]);
 
-        $maxOrder = (int) $course->sections()->max('order');
-        $validated['order'] = $maxOrder + 1;
-
-        $course->sections()->create($validated);
+        ClassroomMutation::run($community, $course, null, null, function ($community, $course) use ($validated) {
+            $course->sections()->create($validated + ['order' => (int) $course->sections()->max('order') + 1]);
+        });
 
         return back()->with('status', 'Section created successfully.');
     }
@@ -44,7 +43,7 @@ class CourseSectionController extends Controller
             'title' => ['required', 'string', 'max:255'],
         ]);
 
-        $section->update($validated);
+        ClassroomMutation::run($community, $course, $section, null, fn ($community, $course, $section) => $section->update($validated));
 
         return back()->with('status', 'Section updated successfully.');
     }
@@ -55,9 +54,9 @@ class CourseSectionController extends Controller
             abort(404);
         }
 
-        Gate::authorize('update', $course);
+        Gate::authorize('delete', $section);
 
-        $section->delete();
+        abort(404); // Permanent content purge is outside this issue.
 
         return back()->with('status', 'Section deleted successfully.');
     }
@@ -75,24 +74,7 @@ class CourseSectionController extends Controller
             'order.*' => ['required', 'integer'],
         ]);
 
-        $existingIds = $course->sections()->pluck('id')->map(fn ($id) => (int) $id)->all();
-        $submittedIds = array_map('intval', $validated['order']);
-
-        if (count($submittedIds) !== count(array_unique($submittedIds))) {
-            return back()->withErrors(['order' => 'Duplicate sibling IDs in reorder payload.']);
-        }
-
-        if (count($submittedIds) !== count($existingIds)
-            || array_diff($submittedIds, $existingIds) !== []
-            || array_diff($existingIds, $submittedIds) !== []) {
-            return back()->withErrors(['order' => 'Invalid or foreign sibling IDs in reorder payload.']);
-        }
-
-        DB::transaction(function () use ($submittedIds, $course) {
-            foreach ($submittedIds as $index => $id) {
-                $course->sections()->where('id', $id)->update(['order' => $index + 1]);
-            }
-        });
+        ClassroomMutation::run($community, $course, null, null, fn ($community, $course) => ClassroomMutation::reorder($course->sections(), $validated['order']));
 
         return back()->with('status', 'Sections reordered successfully.');
     }

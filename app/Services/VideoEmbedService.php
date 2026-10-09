@@ -35,7 +35,9 @@ class VideoEmbedService
         }
 
         // Reject credential-bearing URLs (user or pass)
-        if (! empty($parsed['user']) || ! empty($parsed['pass'])) {
+        if (array_key_exists('user', $parsed) || array_key_exists('pass', $parsed)
+            || (isset($parsed['port']) && $parsed['port'] !== 443)
+            || preg_match('/[\x00-\x20\x7f]/', $url)) {
             return null;
         }
 
@@ -119,5 +121,21 @@ class VideoEmbedService
         $res = self::parse($url);
 
         return $res ? $res['embed_url'] : null;
+    }
+
+    public static function getProviderUrl(?string $url): ?string
+    {
+        $video = self::parse($url);
+
+        if ($video === null) {
+            return null;
+        }
+
+        // Generate a normal watch page from validated IDs, never echo the input URL.
+        return match ($video['provider']) {
+            'youtube' => 'https://www.youtube.com/watch?v='.$video['video_id'],
+            'vimeo' => 'https://vimeo.com/'.$video['video_id'],
+            default => null,
+        };
     }
 }

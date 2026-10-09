@@ -62,6 +62,16 @@ class Community extends Model
         return $this->hasMany(CommunityInvitation::class);
     }
 
+    public function posts(): HasMany
+    {
+        return $this->hasMany(Post::class);
+    }
+
+    public function events(): HasMany
+    {
+        return $this->hasMany(Event::class);
+    }
+
     public function courses(): HasMany
     {
         return $this->hasMany(Course::class)->orderBy('order')->orderBy('id');
