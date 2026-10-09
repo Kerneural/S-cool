@@ -5,6 +5,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\CommunityCoverController;
 use App\Http\Controllers\CommunityInvitationController;
+use App\Http\Controllers\CommunityMemberController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\CourseSectionController;
 use App\Http\Controllers\EventController;
@@ -40,6 +41,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/communities/{community:slug}/invitations', [CommunityInvitationController::class, 'index'])->name('communities.invitations.index');
         Route::post('/communities/{community:slug}/invitations', [CommunityInvitationController::class, 'store'])->middleware('throttle:10,1')->name('communities.invitations.store');
         Route::delete('/communities/{community:slug}/invitations/{invitation}', [CommunityInvitationController::class, 'revoke'])->name('communities.invitations.revoke');
+
+        Route::get('/communities/{community:slug}/members', [CommunityMemberController::class, 'index'])->name('communities.members.index');
+        Route::post('/communities/{community:slug}/members/{membership}/suspend', [CommunityMemberController::class, 'suspend'])->name('communities.members.suspend');
+        Route::post('/communities/{community:slug}/members/{membership}/reactivate', [CommunityMemberController::class, 'reactivate'])->name('communities.members.reactivate');
+        Route::post('/communities/{community:slug}/members/{membership}/remove', [CommunityMemberController::class, 'remove'])->name('communities.members.remove');
 
         Route::get('/communities/{community:slug}/posts', [PostController::class, 'index'])->name('communities.posts.index');
         Route::post('/communities/{community:slug}/posts', [PostController::class, 'store'])->name('communities.posts.store');
