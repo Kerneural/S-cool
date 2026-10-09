@@ -21,6 +21,7 @@
                 </a>
                 @can('update', $community)
                     <a class="underline text-sm" href="{{ route('communities.invitations.index', $community) }}">Invitations</a>
+                    <a class="underline text-sm" href="{{ route('communities.members.index', $community) }}">Members</a>
                     <a href="{{ route('communities.edit', $community) }}" class="inline-flex items-center px-3 py-1.5 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                         {{ __('Edit Settings') }}
                     </a>

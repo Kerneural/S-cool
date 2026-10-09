@@ -507,3 +507,20 @@ The submitted implementation and results below are historical author-reported ev
 - Tracked shared agent contract: 11 files PASS. Working/index whitespace and bounded high-confidence source secret-pattern checks passed; no private environment, IDE/agent directory or ignored preview fixture enters the publication diff. This is not a full Git-history secret audit.
 - Only this evidence checkpoint changes after the clean-head run. Verify application/test/runtime file equality with `2ba10ea` before the normal push to `eur-10-classroom-publishing`. No development migration/reset, environment replacement, volume deletion, queue flush or shared inbox deletion occurred during publication.
 - Local functional evidence is ready for review. Remote-head confirmation, GitHub approval/required checks and merge remain separate; no CI success, production-readiness or EUR-9 progress completion is claimed. Linear remains In Review; no external comment or status change is authorized by this publication step.
+
+## EUR-13 - Creator Member Management baseline implementation (2026-10-09)
+
+- Outcome: Implement end-to-end Creator Member Management (VS-09): paginated member listing for owning creators with status metrics, domain state transitions (suspend, reactivate, remove), access blocking for non-active members, and anti-enumeration authorization.
+- Branch: `eur-13-creator-member-management`, branched from `origin/main` (`38c5aba`).
+- Implemented files:
+  - Controller: `CommunityMemberController` handling `index`, `suspend`, `reactivate`, and `remove` with creator authorization, scope bindings, reason validation, and domain state transitions.
+  - Views: `resources/views/communities/members/index.blade.php` (summary cards, member table with status badges and action forms), updated `resources/views/communities/show.blade.php` with Members navigation link.
+  - Routes: Registered scoped routes under `/communities/{community:slug}/members` (`index`, `suspend`, `reactivate`, `remove`) in `routes/web.php`.
+  - Feature tests: `tests/Feature/CommunityMemberManagementTest.php` (8 tests, 33 assertions covering AC-01 to AC-05).
+- Verification:
+  - `docker compose -p scool exec -T app php artisan test --filter=CommunityMemberManagementTest`: **8 passed (33 assertions)** in 9.96s.
+  - Full test suite: `docker compose -p scool exec -T app php artisan test --compact`: **189 passed (1535 assertions)** in 134.16s.
+  - Code Style: `docker compose -p scool exec -T app vendor/bin/pint --test`: **128 files PASS**.
+- Status & Authority:
+  - Implementation completed and verified locally on `scool_test`.
+  - Pushed to `origin/eur-13-creator-member-management` with pull request prepared. Awaiting review and PR merge authorization.
