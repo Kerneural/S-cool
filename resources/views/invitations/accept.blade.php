@@ -14,7 +14,13 @@
                 @csrf
                 <input type="hidden" name="token" :value="token">
                 <x-input-error :messages="$errors->get('invitation')" class="mb-4" />
-                <x-primary-button x-bind:disabled="!token">Accept invitation</x-primary-button>
+                <div class="flex items-center space-x-3">
+                    <x-primary-button x-bind:disabled="!token">Accept invitation</x-primary-button>
+                    <button type="submit" formaction="{{ route('invitations.checkout', $invitationId) }}" x-bind:disabled="!token"
+                            class="inline-flex items-center px-4 py-2 bg-emerald-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-emerald-700">
+                        Paid Checkout (SePay)
+                    </button>
+                </div>
                 <p class="mt-4 text-xs text-gray-500" x-show="!token">Open the complete invitation link from your email.</p>
             </form>
         @endif

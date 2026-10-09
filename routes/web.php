@@ -9,6 +9,8 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\CourseSectionController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\LessonController;
+use App\Http\Controllers\Payment\PaymentController;
+use App\Http\Controllers\Payment\SePayWebhookController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -19,14 +21,24 @@ Route::get('/', function () {
 
 Route::get('/dashboard', [CommunityController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
+// SePay Sandbox IPN Webhook
+Route::post('/webhooks/sepay', [SePayWebhookController::class, 'handle'])
+    ->middleware('throttle:60,1')
+    ->name('webhooks.sepay');
+
 Route::get('/invitations/{invitation}', [CommunityInvitationController::class, 'show'])->whereNumber('invitation')->name('invitations.show');
 Route::post('/invitations/{invitation}/accept', [CommunityInvitationController::class, 'accept'])
     ->whereNumber('invitation')->middleware(['auth', 'verified', 'throttle:10,1'])->name('invitations.accept');
+Route::post('/invitations/{invitation}/checkout', [PaymentController::class, 'initiate'])
+    ->whereNumber('invitation')->middleware(['auth', 'verified', 'throttle:10,1'])->name('invitations.checkout');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/payments/{reference}/checkout', [PaymentController::class, 'checkout'])->name('payments.checkout');
+    Route::get('/payments/{reference}/status', [PaymentController::class, 'status'])->name('payments.status');
 
     Route::get('/communities', [CommunityController::class, 'index'])->name('communities.index');
     Route::get('/communities/create', [CommunityController::class, 'create'])->name('communities.create');

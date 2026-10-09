@@ -507,3 +507,24 @@ The submitted implementation and results below are historical author-reported ev
 - Tracked shared agent contract: 11 files PASS. Working/index whitespace and bounded high-confidence source secret-pattern checks passed; no private environment, IDE/agent directory or ignored preview fixture enters the publication diff. This is not a full Git-history secret audit.
 - Only this evidence checkpoint changes after the clean-head run. Verify application/test/runtime file equality with `2ba10ea` before the normal push to `eur-10-classroom-publishing`. No development migration/reset, environment replacement, volume deletion, queue flush or shared inbox deletion occurred during publication.
 - Local functional evidence is ready for review. Remote-head confirmation, GitHub approval/required checks and merge remain separate; no CI success, production-readiness or EUR-9 progress completion is claimed. Linear remains In Review; no external comment or status change is authorized by this publication step.
+
+## EUR-12 - SePay Sandbox Access baseline implementation (2026-10-09)
+
+- Outcome: Implement end-to-end SePay Sandbox paid community access (VS-08): paid invitation checkout initiation, checkout UI with QR/transfer details, IPN webhook with strict signature/amount/currency validation, idempotent replay protection, transactional membership activation, and read-only status checking.
+- Branch: `eur-12-sepay-sandbox-access`, branched from `origin/main` (`38c5aba`).
+- Implemented files:
+  - Migrations: `2026_10_09_040001_create_payments_table.php`, `2026_10_09_040002_create_processed_webhook_events_table.php` (restrictive FKs, UNIQUE provider/event constraints, payment status enum).
+  - Models: `Payment` (amount formatting, status helpers), `ProcessedWebhookEvent` (idempotency tracking), updated `Community` and `User` relationships.
+  - Gateway Adapter (ADR-005): `PaymentGateway` interface, `SePayGateway` (live/sandbox transfer info, QR URL, auth token validation, IPN parsing), `FakePaymentGateway` (test doubles). Registered in `AppServiceProvider`.
+  - Actions & Controllers: `InitiatePaidCheckout` (creates `PENDING_PAYMENT` membership and `Payment` attempt), `SePayWebhookController` (verifies IPN auth, enforces idempotency, pessimistic locks `Payment` row, verifies amount/VND, activates membership and accepts invitation transactionally), `PaymentController` (checkout page, read-only status endpoint).
+  - Views: `resources/views/payments/checkout.blade.php` (QR code, bank details, auto-polling), `resources/views/payments/status.blade.php` (read-only state rendering), updated `resources/views/invitations/accept.blade.php`.
+  - Configuration & Middleware: Added `sepay` configuration in `config/services.php`, exempted `webhooks/*` from CSRF in `bootstrap/app.php`.
+  - Routes: Registered `POST /webhooks/sepay`, `POST /invitations/{id}/checkout`, `GET /payments/{ref}/checkout`, `GET /payments/{ref}/status` in `routes/web.php`.
+- Verification:
+  - `docker compose -p scool exec -T app php artisan test --filter=SePayPaymentTest`: **8 passed (41 assertions)** in 11.14s.
+  - `docker compose -p scool exec -T app php artisan test --filter=CommunityInvitationFlowTest`: **14 passed (263 assertions)** in 32.43s (zero regressions).
+  - Full test suite: `docker compose -p scool exec -T app php artisan test --compact`: **189 passed (1543 assertions)** in 124.28s.
+  - Code Style: `docker compose -p scool exec -T app vendor/bin/pint --test`: **138 files PASS**.
+- Status & Authority:
+  - Implementation completed and verified locally on `scool_test`.
+  - No commit, push, PR creation, merge, or Linear mutation performed. Awaiting review and authorization.
