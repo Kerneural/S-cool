@@ -526,5 +526,5 @@ The submitted implementation and results below are historical author-reported ev
   - Full test suite: `docker compose -p scool exec -T app php artisan test --compact`: **189 passed (1543 assertions)** in 124.28s.
   - Code Style: `docker compose -p scool exec -T app vendor/bin/pint --test`: **138 files PASS**.
 - Status & Authority:
-  - Implementation completed and verified locally on `scool_test`.
-  - No commit, push, PR creation, merge, or Linear mutation performed. Awaiting review and authorization.
+  - Implementation completed, verified locally on `scool_test`, and committed under `7c891c9`.
+  - Pushed to `origin/eur-12-sepay-sandbox-access`. Linear EUR-12 updated with evidence comment. Awaiting review and PR merge authorization.
