@@ -3,6 +3,7 @@ archive/
 # Personal agent configuration, upstream cache and operations notebook.
 /.agent/
 /.agent-reference/
+/.gitnexus/
 /docs/04_DEVOPS_OPERATIONS.md
 .setup-drills/
 

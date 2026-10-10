@@ -2,6 +2,17 @@
 
 A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
+## GitNexus local navigation setup (2026-10-09)
+
+- Requested scope: enable graph navigation for this checkout before resuming PR #19 review. That audit, fixes, GitHub/Linear comments and publication remain pending; no PR acceptance is implied.
+- Starting branch `local-sync-safety`, HEAD `e7e612265974bcf20fbb4a6125745e6e5fbc7aef`, working tree clean. Existing GitNexus CLI `1.6.11` and MCP were reused without reinstalling/upgrading or changing global/editor configuration.
+- `.gitnexusrc` enables index-only mode, no embeddings and two workers. `.gitnexusignore` excludes private configuration, runtime storage, uploaded content and dependencies; `.gitignore` excludes the generated index. The optional workflow section routes graph discovery without replacing AGENTS or canonical issue/source evidence.
+- Scanner verification admitted 207 files (54 app, 3 routes, 29 tests, 50 views) and no selected private/runtime paths. Initial analysis succeeded: 1,372 nodes, 2,451 edges, 68 clusters and 56 flows, registered in MCP as `S-cool`.
+- MCP overview, bounded query and `ClassroomController` context succeeded. Source was indexed on this branch, not PR #19. Dynamic Laravel dispatch and UI behavior still require actual source/diff and runtime checks.
+- Agent contract `--require-tracked`: 11 shared files PASS; application/package files and AGENTS unchanged. No Docker/database operations, embeddings, wiki generation, graph publication or Git/Linear writes.
+- A documentation edit made the first index stale; refresh after the setup/checkpoint edits before handoff. Windows sandbox denied a Node/NVM realpath during status; the read-only check worked outside the sandbox. Other hosts remain unverified.
+- Modified files are limited to `.gitignore`, `.gitnexusrc`, `.gitnexusignore`, `docs/AI_WORKFLOW.md` and this checkpoint. No authorization to commit/push these setup changes. Next: confirm fresh status and MCP access, then refresh on the PR revision when the PR #19 audit resumes.
+
 ## Local team sync hardening (2026-10-08)
 
 - Requested outcome: one safe Bash command updates an existing teammate installation after merged changes, without replacing private configuration or resetting local data.
@@ -25,6 +36,17 @@ A checkpoint is historical context, not current Linear/Git/runtime evidence. Ver
 - Real feature-branch invocation correctly stopped before runtime writes. Read-only Compose validation, runtime database guard and canonical URL/local SMTP guard passed; all five existing services remained running/healthy.
 - No full live sync, migrations, configuration reload or dependency/runtime update was performed on this unpublished feature branch. Full application tests were not rerun for this Bash/documentation-only change. Independent-host, Linux/WSL and CI execution remain unverified.
 - Next: review and publish a focused follow-up PR when authorized. Teammates receive the script once with a fast-forward pull, then use `git switch main` followed by `bash scripts/sync-local.sh` for later updates; only the final sync PASS marker confirms a completed run.
+
+### GitHub #20 - container identity regression follow-up (2026-10-10)
+
+- Contract: [GitHub issue #20](https://github.com/Kerneural/S-cool/issues/20) and explicit approval to fix container identity comparison and its regression tests. An owned existing stack must not be rejected because Compose returns 64-character IDs while `docker ps -q` returns 12-character IDs. True name collisions, foreign checkout ownership and inventory failures must still stop before runtime/database changes.
+- Starting checkout: `local-sync-safety`, HEAD `e7e612265974bcf20fbb4a6125745e6e5fbc7aef`. Preserve existing `.gitignore`, `AGENTS.md`, `docs/AI_WORKFLOW.md`, the GitNexus checkpoint in this file and untracked `.gitnexusignore`/`.gitnexusrc` edits. No branch switch, dependency addition, UI change or environment rewrite is planned.
+- Bounded plan: request full Docker IDs using `--no-trunc`; preserve exact equality, checkout ownership and all existing sync safety gates. Make mocked IDs realistic, include an owned-stack success regression and a foreign ID sharing the same 12-character prefix, and cover missing/duplicate/failing inventories. Record evidence here only; do not create a parallel plan.
+- Regression-first evidence: `bash scripts/test-sync-local.sh` with the new mock/test and original sync script exited 1: owned-stack success was rejected with the exact issue #20 message at line 76. The test distinguishes the defect; the old 37-case mock returned identical fake ID formats and missed it.
+- Verification plan: Bash syntax, local-sync regressions, shared setup regressions, structural agent contract, diff check and read-only ID comparison for all five existing services. GitNexus has no Bash execution flow for these scripts; use source/test evidence, not a graph safety claim.
+- Post-fix verification: separate `bash -n` checks for both scripts PASS; a completed `bash -x scripts/test-sync-local.sh` rerun exited 0 with 42 mocked regression cases PASS. An earlier post-fix run was interrupted and is not counted as passing evidence. `bash scripts/test-setup-verification.sh`: 19 PASS; `bash scripts/verify-agent-contract.sh`: 11 shared files PASS; `git diff --check`: PASS. Structural checks do not prove agent compliance or publication.
+- Read-only Docker comparison: all five existing `scool` services returned matching 64-character IDs from Compose and `docker ps -aq --no-trunc`. No live sync or application suite was run; application/domain/UI code is unchanged. Source review confirms exact ID equality and checkout ownership are retained, with no automatic cleanup/adoption or weakened data guards.
+- Pending: publication and independent execution on the reporting host. No development database mutation, container stop/recreation, `.env` rewrite, commit/push/PR, external comment or issue closure occurred. This bounded fix does not guarantee every local setup can be repaired automatically or complete an end-to-end upgrade on another host.
 
 ## EUR-20 - setup verification checkpoint (2026-10-06)
 
