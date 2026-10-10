@@ -1,0 +1,6 @@
+{
+  "indexOnly": true,
+  "embeddings": false,
+  "workers": 2,
+  "defaultBranch": "main"
+}

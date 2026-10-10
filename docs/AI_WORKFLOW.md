@@ -55,6 +55,16 @@ Repeated failures require a changed hypothesis and investigation, not blind retr
 - Issue/PR prose must be objective: outcome, scope, AC, trade-offs and evidence. Keep assignments in metadata; omit personal names, agent identities and implementer/reviewer narrative.
 - Write shared agent-facing files and technical checkpoints in English. Conversations may use the user's preferred language.
 
+## UI scope and conflict resolution
+
+These rules apply equally to implementation, audits and authorized fixes.
+
+- UI work is in scope when required by the issue outcome/AC or a reported UI defect: necessary controls, state indicators, validation/error feedback and usable responsive behavior. Use existing layouts, components and styling conventions; a functional issue is not blanket permission to redesign its screens.
+- Preserve unrelated appearance, navigation and interactions. Cosmetic polish, new design systems, broad layout changes and shared-component redesign require explicit approval before editing; propose a separate issue when appropriate. If the boundary is unclear, pause the affected change and ask while continuing unaffected in-scope work.
+- Before resolving a view conflict, compare the base, incoming implementation and accepted baseline. Merge the required functional/security corrections while preserving unrelated UI. Do not replace an entire view with either side, remove controls or simplify the design merely to resolve a conflict faster without explicit approval for that broader change.
+- If a required correction cannot preserve the existing UI, explain the defect, minimum necessary visual/interaction change and trade-off, then obtain approval before making that change. An instruction to audit and fix defects does not authorize unrelated redesign.
+- Review UI diffs as well as backend behavior. Handoff must list changed screens/controls, explain why each change is in scope, and attach sanitized before/after screenshots at a comparable role, viewport and state, tied to the tested revision; otherwise mark visual verification as pending. Keep functional test results and visual acceptance separate: passing tests does not prove visual parity.
+
 ## Checkpoints and handoff
 
 Use one short-lived branch and focused PR per issue. Name branches `eur-<issue-number>-<short-topic>` without tool/agent branding. Keep issue sections in `WORKING_CONTEXT.md`; update only the active section without overwriting another issue's checkpoint.
@@ -66,6 +76,15 @@ Handoff must identify the exact revision/PR, touched files and changed contracts
 `save` updates the checkpoint using existing evidence only. It does not authorize tests, staging, commits, pushes, PR creation or status changes.
 `ship` prepares handoff, evidence, teach-back and a proposed commit/PR description only.
 Publication approval does not carry over from previous issues or turns. Tests passing or the word "finished" is not authorization.
+
+## Optional code navigation: GitNexus
+
+- GitNexus is a local navigation aid, not a runtime/setup prerequisite or a source of acceptance evidence.
+- With GitNexus installed, run `gitnexus analyze` from the checkout root after switching branches or relevant source changes. Check `gitnexus status` before trusting graph results; an index of another revision is not evidence for a PR.
+- `.gitnexusrc` uses index-only mode and disables embeddings; do not override it to inject agent files, install hooks or self-commit. The index stays ignored and private/runtime paths are excluded by `.gitnexusignore`.
+- In MCP, read `gitnexus://repo/S-cool/context`, then use `query` to locate flows and `context`/`impact` for specific symbols. Pass `repo: S-cool` explicitly because the server can serve other projects; confirm the registered name with `list_repos` on another machine.
+- Prefer small result limits and omit full source unless needed; verify returned locations in actual source/diff. Laravel dynamic bindings, policies and Blade/Alpine behavior may not be fully represented. Authorization, security and runtime tests remain required.
+- Do not publish graphs, generate a paid wiki or enable external embeddings without separate approval. Keep editor/MCP configuration local; the shared `AGENTS.md` contract remains authoritative.
 
 ## Tool-neutral onboarding
 

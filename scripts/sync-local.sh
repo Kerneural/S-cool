@@ -71,7 +71,8 @@ volume=$(run 'Existing local database volume' docker volume inspect scool_scool_
 for service in app nginx mysql mailpit queue; do
     id=$(run 'Existing service inventory' "${compose[@]}" ps --all -q "$service")
     id=${id//$'\r'/}
-    named=$(run 'Container name inventory' docker ps -aq --filter "name=^scool_${service}$")
+    # Compose returns full IDs; Docker ps truncates them unless explicitly disabled.
+    named=$(run 'Container name inventory' docker ps -aq --no-trunc --filter "name=^scool_${service}$")
     named=${named//$'\r'/}
     [[ "$named" == "$id" ]] || { fail "Container name conflict for $service; nothing was stopped."; exit 1; }
     if [[ -n "$id" ]]; then

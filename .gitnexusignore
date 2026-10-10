@@ -1,0 +1,25 @@
+# Private configuration, uploaded content and runtime artifacts are not source.
+.env
+.env.*
+.agent/
+.agent-reference/
+.codex/
+.gitnexus/
+.setup-drills/
+vendor/
+node_modules/
+storage/
+bootstrap/cache/
+public/build/
+public/storage/
+public/hot
+*.log
+*.sql
+*.sqlite
+*.sqlite3
+*.pem
+*.key
+
+# Keep test and CI source available for coverage and delivery analysis.
+!tests/
+!.github/
