@@ -2,6 +2,15 @@
 
 A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
+## Shared execution workflow checkpoint (2026-10-10)
+
+- Authorized scope: relocate durable execution lessons to `docs/AI_WORKFLOW.md`, section **Execution efficiency**, and correct entrypoint routing. No application, runtime, dependency, data or publication change is authorized.
+- Starting checkout: `local-sync-safety`, HEAD `1bc6077571273918cdd8ad4d30b48ce12f601876`; the existing edits in `AGENTS.md`, `docs/AI_WORKFLOW.md` and this file are retained/reorganized. All other issue sections are preserved.
+- Diff: workflow owns the detailed observed failures, recovery guidance, bounded execution loop, verification selection/reuse and receiving-agent checklist. `AGENTS.md` requires that workflow section; this context stores only the change checkpoint. Routine checkpoint maintenance cannot silently rewrite the shared contract.
+- Historical evidence from the initial documentation edit: `git diff --check` PASS and `bash scripts/verify-agent-contract.sh --require-tracked` PASS for 11 files through the approved execution route. The sandboxed Git Bash startup exited `-1073741502` without a usable diagnostic; the same denied route was not blindly retried. These results predate relocation and are not fresh verification of the final diff.
+- Verification of the relocation: `git diff --check` PASS; direct routing checks confirmed mandatory reading from `AGENTS.md`/workflow, all four durable subsections in the workflow, no obsolete context routing or duplicate rules, and unchanged remaining issue checkpoints against HEAD. `bash scripts/verify-agent-contract.sh --require-tracked` PASS for 11 shared files via the approved route, without retrying the known failed sandbox startup. Structural checks cannot prove agent compliance; no application suite, runtime operation, index refresh, staging or publication was performed. Only this evidence note changes after those checks.
+- Next: review the bounded documentation diff. Commit/push/PR/merge are not authorized; teammates receive the shared rules only after authorized publication and pull.
+
 ## GitNexus local navigation setup (2026-10-09)
 
 - Requested scope: enable graph navigation for this checkout before resuming PR #19 review. That audit, fixes, GitHub/Linear comments and publication remain pending; no PR acceptance is implied.

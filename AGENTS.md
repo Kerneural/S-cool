@@ -1,6 +1,6 @@
 # S-cool - shared agent entrypoint
 
-1. Before editing, read `docs/AI_WORKFLOW.md` and the relevant issue section in `docs/WORKING_CONTEXT.md`. Verify Git HEAD/status and actual source; checkpoints are not current evidence.
+1. Before editing, read `docs/AI_WORKFLOW.md` including `Execution efficiency`, and the relevant issue section in `docs/WORKING_CONTEXT.md`. Verify Git HEAD/status and actual source; checkpoints are not current evidence.
 2. Report readiness: outcome, AC source, branch/HEAD, existing edits to preserve, next step and unverified facts. Do not invent issue status or progress.
 3. Read only the relevant product, architecture and delivery sections using the routing in `docs/AI_WORKFLOW.md`. Runtime setup is documented in README and checked-in scripts.
 4. Linear owns status, assignee, dependencies, milestone and AC. Git/GitHub owns code, review and CI evidence. The working context owns issue-specific technical plans and checkpoints.
