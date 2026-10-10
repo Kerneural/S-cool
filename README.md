@@ -9,6 +9,7 @@ The current environment is local development, not a production deployment.
 > **After a PR is merged, sync before starting your next issue.**
 > Keep your work committed, start Docker, stop Vite and use a clean `main`.
 > Keep your existing `.env`/key and `APP_URL=http://127.0.0.1:8080`.
+> Local mail must use `MAIL_MAILER=smtp`, `MAIL_HOST=mailpit`, `MAIL_PORT=1025`.
 > This is for an existing installation, not Bootstrap.
 
 Receive this version of the script once, from the repository root:
@@ -26,10 +27,15 @@ git switch main
 bash scripts/sync-local.sh
 ```
 
-The script fetches and fast-forwards main, stops web/worker, rebuilds PHP images,
+The script checks fresh local URL/SMTP configuration before stopping services,
+then fetches main, stops web/worker, fast-forwards main and rebuilds PHP images,
 installs locked dependencies, validates the local databases, applies pending migrations,
 restarts the stack and runs Verify (including `npm run build` and tests).
 Wait for **`[PASS] Local sync complete`**, then create your next issue branch from main.
+
+A URL/SMTP preflight rejection names each incorrect setting without printing its value.
+Correct only those entries in your existing `.env` (or explicit environment overrides),
+then rerun sync. Pull never replaces `.env`; an old `localhost` value stays until corrected.
 
 Sync refuses dirty/feature branches, unpublished main commits, Vite's hot file,
 missing installations and stacks owned by another checkout. It never stashes/resets work,
@@ -103,6 +109,58 @@ docker compose -p scool exec -T app php artisan migrate --no-interaction
 docker compose -p scool restart queue
 npm run build
 ```
+
+## Review and fix a teammate's PR
+
+> [!IMPORTANT]
+> **Fix on the PR's source branch, test, then push to that same branch.**
+> This updates the existing PR; do not create a second PR for the same branch.
+> Record your current branch and commit or explicitly stash unfinished work first.
+> Switching branches changes working files, not your local database or dependencies.
+
+Example: PR source branch `eur-9-lesson-progress`. Replace it with the actual PR branch.
+
+```bash
+git status                         # Stop if there are uncommitted changes
+git branch --show-current          # Remember your return branch
+git fetch origin                   # Download remote commits; no integration yet
+git switch --track origin/eur-9-lesson-progress  # First local checkout only
+# If the local branch already exists, use instead:
+# git switch eur-9-lesson-progress
+git pull --ff-only origin eur-9-lesson-progress # Refuse divergent history
+```
+
+Confirm the branch/HEAD match the intended PR. Read its outcome, AC and diff;
+make only scoped fixes. If checkout or fast-forward fails, inspect the cause;
+do not reset, force-push or discard changes. If remote commits arrive during
+review, integrate them deliberately and rerun affected checks before pushing.
+
+Before running the branch, inspect dependency/configuration/migration changes.
+Install changed lockfiles and apply reviewed forward migrations if needed;
+never use Bootstrap, database resets or volume deletion on an existing installation.
+Use the daily operations below to start the stack/restart workers. Stop Vite,
+then verify the actual branch and manually test the PR's AC:
+
+```bash
+bash scripts/verify-fresh-setup.sh --mode verify
+git diff                           # Review the final changes
+git diff --check
+git status
+git add path/to/changed-file path/to/changed-test # Explicit paths only
+git diff --cached                  # Confirm exactly what will be committed
+git commit -m "fix: describe the reviewed correction"
+git push origin HEAD:eur-9-lesson-progress
+```
+
+Add the commit hash, test results and remaining gaps to the existing PR/issue.
+Merge only after acceptance and required checks. For your own new feature branch
+without an existing PR, create a PR after pushing; that is a different workflow.
+
+To return, ensure the review branch is clean, then run `git switch YOUR_PREVIOUS_BRANCH`.
+Committed files return to that branch's version; database migrations, installed
+dependencies and running workers do not roll back. Never run `sync-local.sh` on
+a review branch: it requires clean `main`. Use a separate worktree/runtime when
+incompatible changes require isolation; another complete stack is not mandatory.
 
 ## Daily operations
 

@@ -95,7 +95,9 @@ case "$1" in
             *' composer install '*) [[ "${MOCK_FAIL:-}" != composer ]] || exit 7 ;;
             *' php artisan config:clear') [[ "${MOCK_FAIL:-}" != cache ]] || exit 7 ;;
             *' php scripts/verify-runtime.php config') [[ "${MOCK_FAIL:-}" != database ]] || exit 7 ;;
-            *' php -r '*) [[ "${MOCK_FAIL:-}" != origin ]] || exit 7 ;;
+            *' php -r '*)
+                [[ " $args " == *' -e APP_CONFIG_CACHE=/dev/null/scool-sync-config.php '* ]] || exit 8
+                [[ "${MOCK_FAIL:-}" != origin && ! -e "$MOCK_ROOT/.git/config-changed" ]] || exit 7 ;;
             *' php artisan migrate --no-interaction') [[ "${MOCK_FAIL:-}" != migrate ]] || exit 7 ;;
             *) exit 8 ;;
         esac ;;
@@ -108,6 +110,7 @@ set -eu
 printf 'npm %s\n' "$*" >> "$TRACE"
 [[ "$*" == ci ]] || exit 8
 [[ "${MOCK_FAIL:-}" != npm ]] || exit 7
+if [[ "${MOCK_FAIL:-}" == late-origin ]]; then printf changed > "$MOCK_ROOT/.git/config-changed"; fi
 if [[ "${MOCK_MUTATE_ENV:-}" == npm ]]; then printf 'CHANGED=true\n' >> "$MOCK_ROOT/.env"; fi
 case "${MOCK_LATE_CHANGE:-}" in
     dirty) printf changed > "$MOCK_ROOT/.git/dirty" ;;
@@ -133,7 +136,7 @@ reset_case() {
     : > "$TRACE"
     printf 'APP_ENV=local\nAPP_KEY=synthetic-fixture-only\nAPP_URL=http://127.0.0.1:8080\n' > "$MOCK_ROOT/.env"
     printf 'before-sha\n' > "$MOCK_ROOT/.git/head"
-    rm -f -- "$MOCK_ROOT/public/hot" "$MOCK_ROOT/.git/MERGE_HEAD" "$MOCK_ROOT/.git/dirty" "$MOCK_ROOT/.git/branch-changed"
+    rm -f -- "$MOCK_ROOT/public/hot" "$MOCK_ROOT/.git/MERGE_HEAD" "$MOCK_ROOT/.git/dirty" "$MOCK_ROOT/.git/branch-changed" "$MOCK_ROOT/.git/config-changed"
     rmdir -- "$MOCK_ROOT/.git/scool-sync.lock" 2>/dev/null || :
 }
 reject() {
@@ -145,6 +148,11 @@ reject() {
     passed=$((passed+1))
 }
 reject_case() { reset_case; reject "$@"; }
+# Wrong local configuration must be rejected before any service is stopped.
+reject_case 'local URL/SMTP preflight' ' stop ' MOCK_FAIL=origin
+[[ "$(< "$fixture/output")" == *'Sync preflight stopped'* ]] || { printf '[FAIL] Configuration rejection was not classified as preflight.\n'; exit 1; }
+printf '[PASS] Invalid local configuration rejected before service stop.\n'
+# This is separate from the late guard that protects the update phase.
 # Reproduce real Docker formatting before other rejection cases can mask it.
 reset_case
 if ! "$BASH" "$MOCK_ROOT/scripts/sync-local.sh" > "$fixture/output" 2>&1; then
@@ -190,6 +198,8 @@ reject_case 'npm failure' 'config:clear' MOCK_FAIL=npm
 reject_case 'cache failure' 'verify-runtime.php' MOCK_FAIL=cache
 reject_case 'unsafe database' 'artisan migrate' MOCK_FAIL=database
 reject_case 'noncanonical origin' 'artisan migrate' MOCK_FAIL=origin
+reject_case 'configuration changes after preflight' 'artisan migrate' MOCK_FAIL=late-origin
+[[ "$(< "$fixture/output")" == *'Local sync stopped'* ]] || { printf '[FAIL] Late configuration mismatch was not classified as an update failure.\n'; exit 1; }
 reject_case 'migration failure' 'verify --mode' MOCK_FAIL=migrate
 reject_case 'stack readiness failure' 'verify --mode' MOCK_FAIL=health
 reject_case 'Verify failure' '' MOCK_FAIL=verify
@@ -211,7 +221,7 @@ for stack in up down; do
     [[ "$(< "$fixture/output")" == *'[PASS] Local sync complete; HEAD=after-sha;'* ]] || exit 1
     [[ "$(cksum "$MOCK_ROOT/.env")" == "$before" && ! -d "$MOCK_ROOT/.git/scool-sync.lock" ]] || exit 1
     trace="$(< "$TRACE")"
-    [[ "$trace" == *'git fetch origin main'*' stop nginx queue app'*'git merge --ff-only origin/main'*' build app queue'*'composer install'*'npm ci'*'config:clear'*'verify-runtime.php config'*'artisan migrate --no-interaction'*'verify --mode verify'* ]] || { printf '[FAIL] Incorrect sync ordering.\n'; exit 1; }
+    [[ "$trace" == *'-e APP_CONFIG_CACHE=/dev/null/scool-sync-config.php app php -r'*'git fetch origin main'*' stop nginx queue app'*'git merge --ff-only origin/main'*' build app queue'*'composer install'*'npm ci'*'config:clear'*'verify-runtime.php config'*'-e APP_CONFIG_CACHE=/dev/null/scool-sync-config.php app php -r'*'artisan migrate --no-interaction'*'verify --mode verify'* ]] || { printf '[FAIL] Incorrect sync ordering.\n'; exit 1; }
     [[ "$trace" != *'migrate:fresh'* && "$trace" != *'key:generate'* && "$trace" != *'db:seed'* && "$trace" != *' down '* && "$trace" != *'queue:flush'* ]] || exit 1
     passed=$((passed+1))
 done
