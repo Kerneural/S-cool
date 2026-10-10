@@ -77,6 +77,11 @@ class Community extends Model
         return $this->hasMany(Course::class)->orderBy('order')->orderBy('id');
     }
 
+    public function platformAdminActions(): HasMany
+    {
+        return $this->hasMany(PlatformAdminAction::class);
+    }
+
     public function scopeAccessibleTo(Builder $query, User $user): Builder
     {
         return $query->where(function (Builder $query) use ($user): void {
