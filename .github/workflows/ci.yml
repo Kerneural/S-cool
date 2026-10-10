@@ -8,7 +8,7 @@ on:
     workflow_dispatch:
 
 
-permissions: read
+permissions: read-all
 
 jobs:
     preflight:
@@ -18,7 +18,7 @@ jobs:
 
         steps:
             - name: Inspect runner tools
-                run: |
-                    uname -a
-                    docker version
-                    docker compose version
+              run: |
+                  uname -a
+                  docker version
+                  docker compose version
