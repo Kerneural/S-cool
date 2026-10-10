@@ -602,3 +602,41 @@ Historical implementation checkpoint below: reported before integration with acc
 - Dependency baseline: unchanged npm lockfile reports nine development/build advisories (2 moderate, 5 high, 2 critical); `npm audit --omit=dev` reports zero at this check. No automatic dependency upgrade or production-safety claim.
 - Review environment: dedicated Compose project `scool-eur20-pr19`, application `http://127.0.0.1:18080`, Mailpit `http://127.0.0.1:18025`, separate database volume and session cookie. Its new private environment was configured for that preview only; the original checkout remains on `http://127.0.0.1:8080`. No original development migration/reset, key replacement, volume deletion, queue flush or shared inbox deletion.
 - Pending: browser/manual acceptance on the published revision, GitHub approval/required checks and merge. CI, independent-machine evidence and production load are not verified here. Keep Linear In Review; this checkpoint does not complete M3.
+
+## EUR-14 - Platform administration implementation (2026-10-10)
+
+### Outcome and scope
+- Outcome: Platform Admin suspends and reactivates communities with required reason and minimal audit logging without modifying Creator content or granting blanket access to private modules.
+- Scope:
+  - Database:
+    - Forward migration adding `is_platform_admin` boolean flag (default `false`) on `users` table.
+    - Forward migration creating `platform_admin_actions` table (`id`, `admin_id`, `community_id`, `action`, `reason`, `created_at`).
+    - Model updates: `User` (`isPlatformAdmin(): bool`, guarded from mass-assignment), `PlatformAdminAction` model and relations.
+    - Seeder update: `UserSeeder` persona `admin@scool.local` initialized with `is_platform_admin = true`.
+  - Security & Authorization:
+    - Middleware `EnsureUserIsPlatformAdmin` (`platform-admin`) protecting all `/admin/*` routes.
+    - Deny-by-default (403 Forbidden / 404 Not Found) for visitors, members, and creators.
+    - Least privilege: Platform Admin role does not grant content edit permissions or blanket policy bypass for Creator actions.
+    - Anti-privilege escalation: `is_platform_admin` excluded from mass-assignment in `User::$fillable`.
+  - Controllers & Routing:
+    - Dedicated namespace `App\Http\Controllers\Admin\CommunityController`.
+    - Routes under prefix `/admin`, middleware `['auth', 'verified', 'platform-admin']`.
+    - `GET /admin/communities`: Minimal listing with pagination and status filters.
+    - `POST /admin/communities/{community}/suspend`: Validates non-empty reason, transitions state from `ACTIVE` to `SUSPENDED`, records audit log in transaction.
+    - `POST /admin/communities/{community}/reactivate`: Validates non-empty reason, transitions state from `SUSPENDED` to `ACTIVE`, records audit log in transaction.
+    - Terminal state protection: rejects mutations on `ARCHIVED` communities.
+  - UI:
+    - Independent new view `resources/views/admin/communities/index.blade.php`.
+    - Existing Creator and Member views remain 100% untouched.
+    - Conditional Admin link in shared navbar visible strictly when `Auth::user()->isPlatformAdmin()`.
+  - Tests:
+    - Comprehensive feature test suite `tests/Feature/PlatformAdministrationTest.php` on MySQL `scool_test`.
+
+### Verification evidence
+- Feature test execution: `docker compose -p scool exec -T app php artisan test --filter=PlatformAdministrationTest` -> 11 passed, 64 assertions, 0 failures.
+  - Covers schema columns/tables, access denial for unauthenticated/unverified/members/creators, platform admin listing and filtering, community suspension with mandatory reason and immutable audit log, reason validation, already suspended/archived terminal checks, denial of member/creator access across modules when suspended, community reactivation with audit log, reactivation validation, least privilege (no blanket bypass for creator actions), and anti-privilege escalation via register/profile.
+- Full regression suite execution: `docker compose -p scool exec -T app php artisan test` -> 217 passed, 1,756 assertions, 0 failures. Zero regressions across all modules.
+- Code style check: `docker compose -p scool exec -T app vendor/bin/pint` -> PASS (style issues formatted).
+- Agent contract check: `bash scripts/verify-agent-contract.sh` -> PASS (11 shared files verified; routing and privacy boundaries valid).
+- Local development database: migrations applied and seeded (`admin@scool.local` with `is_platform_admin = true`).
+
