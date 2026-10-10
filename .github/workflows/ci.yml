@@ -8,7 +8,8 @@ on:
     workflow_dispatch:
 
 
-permissions: read-all
+permissions:
+    contents: read
 
 jobs:
     preflight:
@@ -17,6 +18,18 @@ jobs:
         timeout-minutes: 5
 
         steps:
+            - name: Checkout repository
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+              with:
+                persist-credentials: false
+
+            - name: Verify repository files
+              run: |
+                    pwd
+                    git rev-parse HEAD
+                    test -f composer.json
+                    test -f docker-compose.yml
+                    echo "Repository files are present."
             - name: Inspect runner tools
               run: |
                   uname -a
