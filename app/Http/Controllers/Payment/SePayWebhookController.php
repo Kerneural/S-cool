@@ -46,24 +46,8 @@ class SePayWebhookController extends Controller
             ], 422);
         }
 
-        // 3. Idempotency & Replay Protection (AC-03)
-        try {
-            ProcessedWebhookEvent::create([
-                'provider' => Payment::PROVIDER_SEPAY_SANDBOX,
-                'provider_event_id' => $providerEventId,
-                'external_reference' => $reference,
-                'payload' => $payload,
-                'processed_at' => now(),
-            ]);
-        } catch (UniqueConstraintViolationException) {
-            // Already processed - return 200 safely without executing duplicate activation
-            return response()->json([
-                'message' => 'Webhook event has already been processed.',
-            ], 200);
-        }
-
-        // 4. Transactional Payment & Membership Activation (AC-01, AC-02, AC-05)
-        $result = DB::transaction(function () use ($reference, $amount, $currency, $parsed) {
+        // 3. Transactional Idempotency + Payment & Membership Activation (AC-01, AC-02, AC-03, AC-05)
+        $result = DB::transaction(function () use ($providerEventId, $reference, $amount, $currency, $parsed, $payload) {
             $payment = Payment::where('external_reference', $reference)
                 ->lockForUpdate()
                 ->first();
@@ -72,6 +56,31 @@ class SePayWebhookController extends Controller
                 return [
                     'status' => 404,
                     'body' => ['error' => 'Payment reference not found.'],
+                ];
+            }
+
+            // Idempotency & Replay Protection (AC-03)
+            try {
+                ProcessedWebhookEvent::create([
+                    'provider' => Payment::PROVIDER_SEPAY_SANDBOX,
+                    'provider_event_id' => $providerEventId,
+                    'external_reference' => $reference,
+                    'payload' => $payload,
+                    'processed_at' => now(),
+                ]);
+            } catch (UniqueConstraintViolationException) {
+                // Already processed - return 200 safely without executing duplicate activation
+                return [
+                    'status' => 200,
+                    'body' => ['message' => 'Webhook event has already been processed.'],
+                ];
+            }
+
+            // If already succeeded, return 200 idempotent
+            if ($payment->isSucceeded()) {
+                return [
+                    'status' => 200,
+                    'body' => ['message' => 'Payment was already completed.'],
                 ];
             }
 
@@ -89,14 +98,6 @@ class SePayWebhookController extends Controller
                 return [
                     'status' => 422,
                     'body' => ['error' => 'Payment amount or currency mismatch.'],
-                ];
-            }
-
-            // If already succeeded, return 200 idempotent
-            if ($payment->isSucceeded()) {
-                return [
-                    'status' => 200,
-                    'body' => ['message' => 'Payment was already completed.'],
                 ];
             }
 

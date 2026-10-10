@@ -188,6 +188,44 @@ class SePayPaymentTest extends TestCase
         $this->postJson('/webhooks/sepay', $fakeRefPayload, [
             'Authorization' => 'Apikey test-webhook-secret-token',
         ])->assertNotFound();
+
+        $this->assertDatabaseMissing('processed_webhook_events', [
+            'provider_event_id' => 'sepay-evt-tamper-2',
+        ]);
+    }
+
+    public function test_mismatched_webhook_after_successful_payment_does_not_downgrade_status(): void
+    {
+        $community = Community::factory()->create(['access_mode' => 'PAID']);
+        $user = User::factory()->create();
+
+        $payment = Payment::factory()->create([
+            'community_id' => $community->id,
+            'user_id' => $user->id,
+            'amount' => 100000,
+            'currency' => 'VND',
+            'status' => Payment::STATUS_SUCCEEDED,
+            'paid_at' => now(),
+        ]);
+
+        $this->createMembership($community, $user, 'ACTIVE');
+
+        $payload = [
+            'id' => 'sepay-evt-post-success-mismatch',
+            'referenceCode' => 'MB-FT-post-success-mismatch',
+            'content' => $payment->external_reference,
+            'transferAmount' => 50000,
+            'currency' => 'USD',
+        ];
+
+        $response = $this->postJson('/webhooks/sepay', $payload, [
+            'Authorization' => 'Apikey test-webhook-secret-token',
+        ]);
+
+        $response->assertOk();
+        $response->assertJson(['message' => 'Payment was already completed.']);
+        $this->assertSame(Payment::STATUS_SUCCEEDED, $payment->refresh()->status);
+        $this->assertSame('ACTIVE', CommunityMembership::where('user_id', $user->id)->value('status'));
     }
 
     public function test_invalid_webhook_secret_or_auth_header_is_rejected_with_401(): void
