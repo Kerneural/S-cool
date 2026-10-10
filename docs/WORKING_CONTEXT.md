@@ -507,3 +507,56 @@ The submitted implementation and results below are historical author-reported ev
 - Tracked shared agent contract: 11 files PASS. Working/index whitespace and bounded high-confidence source secret-pattern checks passed; no private environment, IDE/agent directory or ignored preview fixture enters the publication diff. This is not a full Git-history secret audit.
 - Only this evidence checkpoint changes after the clean-head run. Verify application/test/runtime file equality with `2ba10ea` before the normal push to `eur-10-classroom-publishing`. No development migration/reset, environment replacement, volume deletion, queue flush or shared inbox deletion occurred during publication.
 - Local functional evidence is ready for review. Remote-head confirmation, GitHub approval/required checks and merge remain separate; no CI success, production-readiness or EUR-9 progress completion is claimed. Linear remains In Review; no external comment or status change is authorized by this publication step.
+
+## EUR-9 - Lesson progress implementation (2026-10-08)
+
+Historical implementation checkpoint below: reported before integration with accepted main. The sequential request tests did not independently prove competing writes or authorization changes during a waiting mutation; UI markup alone did not prove mobile behavior. Current audit evidence is recorded separately below.
+
+### Outcome and scope
+- Outcome: An active member marks an authorized published lesson complete or incomplete and sees the same personal completion state after refresh/re-login, without altering other members' progress or creating duplicate records.
+- Scope:
+  - Database: forward migration `2026_10_08_040001_create_lesson_progresses_table.php` with unique index `(user_id, lesson_id)`, model `LessonProgress` (`$table = 'lesson_progresses'`), factory `LessonProgressFactory`.
+  - Mutation & Idempotency: endpoint `POST /communities/{community:slug}/courses/{course}/lessons/{lesson}/progress` (`communities.lessons.progress.update`) validates explicit boolean `completed`, resolves actor strictly via `$request->user()`, atomic update/upsert handling concurrent writes without duplicate-key error.
+  - Security/Authorization: `LessonPolicy::updateProgress` enforces multi-tenant boundary, strict ancestry, active community, active membership, published course, and published lesson. Denies non-active memberships (`PENDING_PAYMENT`, `SUSPENDED`, `REMOVED`, `LEFT`) and draft states with 404 (`denyAsNotFound`). Creator role alone does not grant progress tracking without active membership context.
+  - Retention & Restore: unpublishing retains rows in DB but excludes them from access and calculations; republishing immediately restores member progress.
+  - Calculation: `Course::publishedLessonsCount()`, `Course::completedLessonsCountFor($user)`, and `Course::progressPercentageFor($user)` with safe zero division (0/0 = 0%).
+  - UI: responsive completion toggle buttons (min 44x44px touch target) in header and bottom navigation of lesson view, curriculum sidebar status checkmarks, personal progress bar on course outline, and progress percentage on classroom course cards.
+  - Tests: comprehensive feature test suite `tests/Feature/LessonProgressTest.php` covering AC-01 through AC-07 on MySQL `scool_test`.
+
+### Verification and results
+- Branch: `eur-9-lesson-progress`, branched from `eur-10-classroom-publishing` (HEAD `6f86a94aeb99e866f00995dd93a6887e974c56f0`).
+- Scoped Feature Tests: `docker compose -p scool exec -T app php artisan test --filter=LessonProgressTest` -> **11 tests / 55 assertions PASS** (13.90s).
+  - AC-01: Explicit mark complete/incomplete, timestamp persistence, fresh session/re-login persistence.
+  - AC-02: Idempotent repeat requests, atomic writes, JSON response format.
+  - AC-03: Member progress isolation, spoofed user_id in payload safely ignored.
+  - AC-04: Negative authorization matrix: non-members and non-active membership statuses (`PENDING_PAYMENT`, `SUSPENDED`, `REMOVED`, `LEFT`) denied with 404. Creator without active membership denied with 404; active member creator allowed.
+  - AC-05: Unpublish retains database rows; calculation excludes draft; republishing restores retained progress.
+  - AC-06: Published-only lesson calculation; zero-division safety on 0 published lessons.
+  - AC-07: Lesson show and course show UI controls, mobile accessibility touch target, sidebar checkmark rendering.
+- Full Suite Verification: `docker compose -p scool exec -T app php artisan test` -> **141 tests / 985 assertions PASS** (148.12s), zero failures or regressions across all test suites.
+- Code Style: `docker compose -p scool exec -T app vendor/bin/pint --test` -> **PASS** (105 files checked, 0 style issues).
+- Agent Contract: `bash scripts/verify-agent-contract.sh` -> **PASS** (11 shared files).
+- Preserved Working Tree: `scripts/sync-local.sh` preserved unstaged in working directory.
+
+### Integrated audit and verification (2026-10-09)
+
+- Contract: live Linear EUR-9 AC-01 through AC-07. Authorized: bounded fixes, a normal commit/push to the existing PR #19 branch after tests pass, and GitHub/Linear comments. Merge and Done are not authorized.
+- Pinned review: original PR head `156fe15768ebfe6773d3a0766bcac6ead7520d29`, main `38c5aba3b2e51e3b83eb12c7e68eb7bf472f99ac`, merge-base `6f86a94aeb99e866f00995dd93a6887e974c56f0`. Work was isolated from the original checkout and its five unrelated local GitNexus setup edits.
+- Integration: resolved eight conflicts by retaining accepted Classroom management/reorder forms, provider watch-page fallback, retention controls, paginated cards, Feed/Events routes and shared workflow. The publication keeps the original PR and main as merge parents; no history rewriting is needed. The final PR-only delta against main is limited to progress source/UI/schema/tests and this checkpoint.
+- Findings fixed:
+  - The original endpoint authorized route-bound state before an unlocked write. `LessonProgressMutation` now reloads/locks community -> course -> section -> lesson -> membership, validates ancestry and current access inside the transaction, and writes only the authenticated user's explicit completion state.
+  - Repeated complete requests previously changed `completed_at`. Replays now preserve completion/update timestamps; incomplete clears completion time. The unique user/lesson constraint remains the final database guard.
+  - Progress counters now use one personal published-only aggregate for the outline/JSON response and bounded subquery counts for paginated cards. Existing management controls and lesson navigation remain available.
+  - Added independent PHP-process regressions for competing first writes and committed lesson/course unpublish, community archive and membership suspension while a request waits on the community lock. Added CSRF enforcement, validation feedback, actual unique-constraint rejection, stale-snapshot denial, retention/republish, personal summaries and query-bound regressions.
+- Trade-off: reuse the existing coarse per-community creator lock order for correctness and simple serialization. This is not throughput/load proof and does not promise arrival ordering for opposing concurrent completion values. No package, stack, schema-retention or platform-admin contract change; admin authorization integration remains a future cross-module check once that role exists.
+- Verification:
+  - Scoped `docker exec scool-eur20-pr19_app php artisan test --filter=LessonProgress`: **25 tests / 190 assertions PASS**, 36.35 seconds.
+  - `bash scripts/verify-fresh-setup.sh --mode verify --project scool-eur20-pr19`: **206 tests / 1692 assertions PASS**, test duration 197.94 seconds, integrated Verify 229 seconds, exit 0. Whole-tree Pint: 135 files PASS; Composer manifest/lock validation, Vite production build (59 modules), five-service health and HTTP `/up` PASS.
+  - Real daemon queue marker `EUR20-smoke-7406ec56-5f05-474c-82dc-f147fcf78121`: pending=0, failed=0, handler=1. Mailpit password-reset and invitation process integration passed with isolated recipients.
+  - Tracked shared contract: 11 files PASS; existing agent-contract regression script: 16 cases PASS. Whitespace and bounded high-confidence source secret-pattern checks passed; these are not full history secret scanning or agent-compliance proof.
+  - The full run used original HEAD plus the integrated dirty candidate, captured as Git tree `96ef26085ceb0ea58f2cddb4f4b932142bf2a616`. Only this evidence checkpoint changes after the run; publication must verify all other tracked paths are identical to that tested tree.
+- An initial full run failed due to an incorrect membership helper assumption and a guarded test-fixture assignment. Both were corrected using the existing status/transition contract; the scoped and full passing runs above supersede that failed attempt.
+- Graph limits: GitNexus indexed the integrated working candidate, not a clean original PR graph. Its pending-merge change map includes incoming main changes; source diff against pinned main determines actual PR scope. Dynamic PHP call resolution can undercount callers; PHP PDG/taint coverage was skipped because it is unsupported by the installed analyzer. Raw source and MySQL/runtime tests supply the independent checks; graph risk labels are not an approval verdict.
+- Dependency baseline: unchanged npm lockfile reports nine development/build advisories (2 moderate, 5 high, 2 critical); `npm audit --omit=dev` reports zero at this check. No automatic dependency upgrade or production-safety claim.
+- Review environment: dedicated Compose project `scool-eur20-pr19`, application `http://127.0.0.1:18080`, Mailpit `http://127.0.0.1:18025`, separate database volume and session cookie. Its new private environment was configured for that preview only; the original checkout remains on `http://127.0.0.1:8080`. No original development migration/reset, key replacement, volume deletion, queue flush or shared inbox deletion.
+- Pending: browser/manual acceptance on the published revision, GitHub approval/required checks and merge. CI, independent-machine evidence and production load are not verified here. Keep Linear In Review; this checkpoint does not complete M3.

@@ -67,4 +67,31 @@ class LessonPolicy
     {
         return Response::denyAsNotFound();
     }
+
+    /**
+     * Determine whether the user can track progress on the lesson.
+     */
+    public function updateProgress(User $user, Lesson $lesson): Response
+    {
+        $section = $lesson->section;
+        $course = $section?->course;
+        $community = $course?->community;
+
+        if (! $community || ! $community->isActive()) {
+            return Response::denyAsNotFound();
+        }
+
+        if (! $course->isPublished() || ! $lesson->isPublished()) {
+            return Response::denyAsNotFound();
+        }
+
+        $isActiveMember = $community->memberships()
+            ->where('user_id', $user->id)
+            ->where('status', 'ACTIVE')
+            ->exists();
+
+        return $isActiveMember
+            ? Response::allow()
+            : Response::denyAsNotFound();
+    }
 }

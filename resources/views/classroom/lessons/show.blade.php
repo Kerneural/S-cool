@@ -11,6 +11,9 @@
             <article class="min-w-0 space-y-6 rounded-lg bg-white p-6 shadow-sm lg:col-span-3">
                 <h1 class="break-words text-2xl font-bold">{{ $lesson->title }}</h1>
                 @if ($isCreator)<span class="text-xs text-gray-500">{{ $lesson->status }}</span>@endif
+                @if ($isActiveMember && $course->isPublished() && $lesson->isPublished())
+                    <x-lesson-progress :community="$community" :course="$course" :lesson="$lesson" />
+                @endif
                 @if ($lesson->embed_url)
                     <div x-data="{ showVideo: true }" class="space-y-3">
                         <div x-show="showVideo" class="aspect-video overflow-hidden rounded bg-black">
@@ -21,6 +24,9 @@
                     </div>
                 @endif
                 <p class="whitespace-pre-line break-words text-gray-800">{{ $lesson->content ?? __('No text notes for this lesson.') }}</p>
+                @if ($isActiveMember && $course->isPublished() && $lesson->isPublished())
+                    <x-lesson-progress :community="$community" :course="$course" :lesson="$lesson" />
+                @endif
                 <nav aria-label="Lesson navigation" class="flex flex-wrap justify-between gap-3 border-t pt-4">
                     @if ($prevLesson)<a class="break-words text-sm text-indigo-700" href="{{ route('communities.lessons.show', [$community, $course, $prevLesson]) }}">&larr; {{ __('Previous: ') }} {{ $prevLesson->title }}</a>@endif
                     @if ($nextLesson)<a class="break-words text-sm text-indigo-700" href="{{ route('communities.lessons.show', [$community, $course, $nextLesson]) }}">{{ __('Next: ') }} {{ $nextLesson->title }} &rarr;</a>@endif
@@ -33,6 +39,9 @@
                     <ul class="space-y-2">
                         @foreach ($section->lessons as $item)
                             <li><a href="{{ route('communities.lessons.show', [$community, $course, $item]) }}" class="block break-words text-sm {{ $item->id === $lesson->id ? 'font-bold text-indigo-700' : 'text-gray-600' }}">{{ $item->title }} @if ($isCreator && $item->isDraft()) ({{ __('draft') }}) @endif</a></li>
+                            @if ($isActiveMember && $course->isPublished() && $item->isPublished())
+                                <li class="text-xs {{ $item->isCompletedBy(auth()->user()) ? 'text-green-700' : 'text-gray-500' }}">@if ($item->isCompletedBy(auth()->user()))<span aria-hidden="true">&#10003;</span> @endif{{ $item->isCompletedBy(auth()->user()) ? __('Completed') : __('Incomplete') }}</li>
+                            @endif
                         @endforeach
                     </ul>
                 @endforeach

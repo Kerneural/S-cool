@@ -7,6 +7,13 @@
     </x-slot>
     <div class="mx-auto max-w-5xl space-y-6 px-4 py-8 sm:px-6">
         <x-classroom-feedback />
+        @if ($isActiveMember && $course->isPublished())
+            <section aria-label="{{ __('Your Progress') }}" class="space-y-3 rounded-lg bg-white p-6 shadow-sm">
+                <h2 class="font-semibold">{{ __('Your Progress') }}</h2>
+                <p class="break-words text-sm">{{ $progressSummary['completed'] }} {{ __('of') }} {{ $progressSummary['total'] }} {{ __('completed') }} ({{ $progressSummary['percentage'] }}%)</p>
+                <progress class="block h-3 w-full" max="100" value="{{ $progressSummary['percentage'] }}" aria-label="{{ __('Course completion percentage') }}">{{ $progressSummary['percentage'] }}%</progress>
+            </section>
+        @endif
         <div class="space-y-3 rounded-lg bg-white p-6 shadow-sm">
             <h1 class="break-words text-2xl font-bold">{{ $course->title }}</h1>
             <p class="whitespace-pre-line break-words text-gray-700">{{ $course->description }}</p>
@@ -62,6 +69,9 @@
                     @forelse ($section->lessons as $lesson)
                         <li class="space-y-2 border-t pt-3">
                             <a href="{{ route('communities.lessons.show', [$community, $course, $lesson]) }}" class="block break-words text-sm font-medium text-indigo-700">{{ $lesson->title }}</a>
+                            @if ($isActiveMember && $course->isPublished() && $lesson->isPublished())
+                                <span class="text-xs {{ $lesson->isCompletedBy(auth()->user()) ? 'text-green-700' : 'text-gray-500' }}">{{ $lesson->isCompletedBy(auth()->user()) ? __('Completed') : __('Incomplete') }}</span>
+                            @endif
                             @if ($isCreator)
                                 <span class="text-xs text-gray-500">{{ $lesson->status }}</span>
                                 <x-classroom-reorder :ids="$section->lessons->modelKeys()" :id="$lesson->id" :action="route('communities.lessons.reorder', [$community, $course, $section])" />
