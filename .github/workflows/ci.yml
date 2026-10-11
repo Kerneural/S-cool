@@ -58,3 +58,10 @@ jobs:
             composer install --no-interaction --prefer-dist
 
           test -f vendor/autoload.php
+
+      - name: Check PHP formatting
+        run: |
+          docker run --rm \
+          -v "$PWD:/var/www/html" \
+          scool-php:ci \
+          composer run pint:test
