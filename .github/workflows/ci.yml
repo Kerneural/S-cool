@@ -65,3 +65,11 @@ jobs:
           -v "$PWD:/var/www/html" \
           scool-php:ci \
           composer run pint:test
+
+      - name: Start test services
+        run: |
+          docker compose -p scool up -d \
+            --wait --wait-timeout 120 \
+            mysql mailpit
+
+          docker compose -p scool ps
