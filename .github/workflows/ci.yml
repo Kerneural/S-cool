@@ -15,7 +15,7 @@ jobs:
     preflight:
         name: CI/ Runner Preflight
         runs-on: ubuntu-24.04
-        timeout-minutes: 5
+        timeout-minutes: 20
 
         steps:
             - name: Checkout repository
@@ -35,3 +35,10 @@ jobs:
                   uname -a
                   docker version
                   docker compose version
+            
+            - name: Build PHP runtime image
+              run: |
+                    docker build --progress=plain \
+                     -f docker/php/Dockerfile \
+                      -t scool-php:ci .
+                    docker run --rm scool-php:ci php --version
