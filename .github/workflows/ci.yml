@@ -49,3 +49,12 @@ jobs:
           npm ci
           npm run build
           test -f public/build/manifest.json
+
+      - name: Install PHP dependencies
+        run: |
+          docker run --rm \
+            -v "$PWD:/var/www/html" \
+            scool-php:ci \
+            composer install --no-interaction --prefer-dist
+
+          test -f vendor/autoload.php
