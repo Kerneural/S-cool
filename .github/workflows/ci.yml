@@ -12,7 +12,7 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_naem == 'pull_request' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   preflight:
@@ -50,6 +50,19 @@ jobs:
               --log-opts="--all" \
               --redact \
               --no-banner
+
+      - name: Test PHP security scanner rules
+        run: |
+          docker run --rm \
+            -v "$PWD:/src:ro" \
+            -w /src \
+            semgrep/semgrep:1.180.0 \
+            semgrep scan \
+              --test \
+              --config .github/semgrep.yml \
+              --metrics=off \
+              --disable-version-check \
+              tests/semgrep/semgrep.php
 
       - name: Scan application PHP security patterns
         run: |
@@ -89,13 +102,20 @@ jobs:
                 --exit-code 1 \
                 --timeout 5m
 
-      - name: Setup Node and npm cache
+      - name: Setup Node
+        id: node
         uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
           node-version: "22"
           check-latest: true
-          cache: npm
-          cache-dependency-path: package-lock.json
+          package-manager-cache: false
+
+      - name: Cache npm downloads
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        with:
+          path: ~/.npm/_cacache
+          key: ${{ runner.os }}-${{ runner.arch }}-npm-node-${{ steps.node.outputs.node-version }}-${{ hashFiles('package-lock.json') }}
+
       - name: Install and build frontend
         run: |
           node --version
@@ -113,10 +133,20 @@ jobs:
             scool-php:ci \
             composer validate --strict --no-interaction
 
+      - name: Cache Composer downloads
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        with:
+          path: storage/framework/testing/composer-cache/files
+          key: ${{ runner.os }}-${{ runner.arch }}-composer-php82-${{ hashFiles('composer.lock', 'docker/php/Dockerfile', 'docker/php/security.ini') }}
+
       - name: Install PHP dependencies
         run: |
+          mkdir -p storage/framework/testing/composer-cache
+
           docker run --rm \
             -v "$PWD:/var/www/html" \
+            -v "$PWD/storage/framework/testing/composer-cache:/composer-cache" \
+            -e COMPOSER_CACHE_DIR=/composer-cache \
             scool-php:ci \
             composer install --no-interaction --prefer-dist
 
@@ -156,8 +186,23 @@ jobs:
           scool-php:ci \
           php artisan key:generate --no-interaction
 
+      - name: Analyse PHP code
+        run: |
+          docker run --rm \
+            --network scool_scool-network \
+            -v "$PWD:/var/www/html" \
+            -e APP_ENV=testing \
+            -e DB_DATABASE=scool_test \
+            scool-php:ci \
+            vendor/bin/phpstan analyse \
+              --configuration=phpstan.neon \
+              --memory-limit=512M \
+              --no-progress
+
       - name: Run application test
         run: |
+          mkdir -p storage/framework/testing
+
           docker run --rm \
             --network scool_scool-network \
             -v "$PWD:/var/www/html" \
@@ -167,6 +212,28 @@ jobs:
             php artisan test \
               --fail-on-skipped \
               --fail-on-empty-test-suite
+              --log-junit storage/framework/testing/junit.xml
+
+      - name: Prepare CI evidence
+        run: |
+          test -s storage/framework/testing/junit.xml
+          test -s public/build/manifest.json
+          test -d public/build/assets
+
+          git rev-parse HEAD > storage/framework/testing/tested-sha.txt
+
+      - name: Upload successful CI evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ci-evidence-${{ github.sha }}-${{ github.run_attempt }}
+          retention-days: 7
+          if-no-files-found: error
+          include-hidden-files: false
+          path: |
+            storage/framework/testing/junit.xml
+            storage/framework/testing/tested-sha.txt
+            public/build/manifest.json
+            public/build/assets/
 
       - name: Stop test services
         if: always()
