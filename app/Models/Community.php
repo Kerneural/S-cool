@@ -78,6 +78,11 @@ class Community extends Model
         return $this->hasMany(Course::class)->orderBy('order')->orderBy('id');
     }
 
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
     public function platformAdminActions(): HasMany
     {
         return $this->hasMany(PlatformAdminAction::class);

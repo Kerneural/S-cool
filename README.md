@@ -126,7 +126,31 @@ verify it if needed, then reopen the email link and click **Accept invitation**.
 Use the host configured in `APP_URL` (local default `http://127.0.0.1:8080`) for both login and invitation links so the browser sends the same session cookie. If upgrading from the earlier `localhost` default, change only `APP_URL` in your existing `.env`, then run `docker compose -p scool exec -T app php artisan config:clear` and `docker compose -p scool restart queue`. Do not replace `.env` or regenerate the key. Sign in again on `127.0.0.1`; previously delivered email links retain their old host, so revoke/reissue pending invitations if needed.
 The link is single-use and expires after seven days. Members can view but not edit
 settings, covers or invitations. Upload covers from **Edit Settings** (JPEG/PNG/WebP,
-2 MB, maximum 4096 pixels per side). Paid checkout is not implemented yet.
+2 MB, maximum 4096 pixels per side). Creators can select FREE/PAID and set one whole-VND price.
+
+### Paid access — SePay Test Mode only
+
+Enable Test Mode in SePay and configure a separate test account and API Key webhook.
+Set `SEPAY_TEST_MODE=true`, `SEPAY_ACCOUNT_NUMBER`, `SEPAY_BANK_NAME` and
+`SEPAY_WEBHOOK_TOKEN` in the local ignored `.env`; never commit credentials.
+Reload config with `docker compose -p scool exec -T app php artisan optimize:clear`.
+Configure a temporary HTTPS tunnel to expose **only POST `/webhooks/sepay`**.
+Do not expose the full app, Mailpit or MySQL. No tunnel is started by setup scripts.
+
+Creator sets PAID and a price → sends an invitation → matching verified invitee
+starts Paid Checkout → simulate an **incoming** transaction in SePay Test Mode,
+using the displayed reference and exact amount. Do not scan a real-bank QR or send real money.
+After login/email verification, reopen the original community invitation email link.
+The verification email and a typed `/invitations/{id}` URL do not carry the invitation
+token. The token is removed from browser history and kept only in the current page;
+refresh/back navigation requires reopening the original link. Missing-token buttons
+remain disabled, including when JavaScript cannot start.
+Only an authenticated matching webhook activates membership; refreshing/status URLs cannot.
+Cancel stops the pending attempt without access; reopen the original valid invitation to retry
+with a new attempt. Old attempts keep their original price after a Creator changes pricing.
+Changing FREE/PAID does not retroactively grant/revoke existing memberships.
+The `SEPAY_SANDBOX` database provider label is retained for compatibility; the
+active integration is bank webhooks in Test Mode, **not** Payment Gateway `ORDER_PAID`.
 
 After pulling new migrations into an existing installation, run the forward upgrade
 below, then the normal Verify command. Bootstrap already applies them on fresh setup.

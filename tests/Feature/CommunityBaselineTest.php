@@ -286,7 +286,6 @@ class CommunityBaselineTest extends TestCase
             'name' => 'Private by default',
             'slug' => 'private-default',
             'visibility' => 'PUBLIC',
-            'access_mode' => 'PAID',
             'status' => 'SUSPENDED',
         ])->assertRedirect('/communities/private-default');
 
@@ -434,7 +433,7 @@ class CommunityBaselineTest extends TestCase
         $this->assertCount(1, $second->items());
     }
 
-    public function test_update_payload_cannot_transfer_owner_or_change_access_state(): void
+    public function test_creator_pricing_update_cannot_transfer_owner_or_change_lifecycle_or_visibility(): void
     {
         $community = Community::factory()->create();
         $other = User::factory()->create();
@@ -446,6 +445,7 @@ class CommunityBaselineTest extends TestCase
             'status' => 'SUSPENDED',
             'visibility' => 'PUBLIC',
             'access_mode' => 'PAID',
+            'price_vnd' => 250000,
         ])->assertRedirect("/communities/{$community->slug}");
 
         $this->assertDatabaseHas('communities', [
@@ -454,7 +454,8 @@ class CommunityBaselineTest extends TestCase
             'slug' => $community->slug,
             'status' => 'ACTIVE',
             'visibility' => 'PRIVATE',
-            'access_mode' => 'FREE',
+            'access_mode' => 'PAID',
+            'price_vnd' => 250000,
         ]);
     }
 

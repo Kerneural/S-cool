@@ -137,6 +137,9 @@ jobs:
           npm run build
           test -f public/build/manifest.json
 
+      - name: Test frontend state helpers
+        run: node --test tests/js/*.test.mjs
+
       - name: Validate PHP dependency files
         run: |
           test -f composer.lock

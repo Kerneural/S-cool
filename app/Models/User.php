@@ -84,6 +84,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Event::class, 'creator_id');
     }
 
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
     public function isPlatformAdmin(): bool
     {
         return (bool) $this->is_platform_admin;
