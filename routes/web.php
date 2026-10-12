@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CommunityController as AdminCommunityController;
 use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CommunityController;
@@ -10,6 +11,9 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\CourseSectionController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\LessonController;
+use App\Http\Controllers\LessonProgressController;
+use App\Http\Controllers\Payment\PaymentController;
+use App\Http\Controllers\Payment\SePayWebhookController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -20,14 +24,25 @@ Route::get('/', function () {
 
 Route::get('/dashboard', [CommunityController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
+// SePay Sandbox IPN Webhook
+Route::post('/webhooks/sepay', [SePayWebhookController::class, 'handle'])
+    ->middleware('throttle:60,1')
+    ->name('webhooks.sepay');
+
 Route::get('/invitations/{invitation}', [CommunityInvitationController::class, 'show'])->whereNumber('invitation')->name('invitations.show');
 Route::post('/invitations/{invitation}/accept', [CommunityInvitationController::class, 'accept'])
     ->whereNumber('invitation')->middleware(['auth', 'verified', 'throttle:10,1'])->name('invitations.accept');
+Route::post('/invitations/{invitation}/checkout', [PaymentController::class, 'initiate'])
+    ->whereNumber('invitation')->middleware(['auth', 'verified', 'throttle:10,1'])->name('invitations.checkout');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/payments/{reference}/checkout', [PaymentController::class, 'checkout'])->middleware('verified')->name('payments.checkout');
+    Route::get('/payments/{reference}/status', [PaymentController::class, 'status'])->middleware('verified')->name('payments.status');
+    Route::post('/payments/{reference}/cancel', [PaymentController::class, 'cancel'])->middleware(['verified', 'throttle:10,1'])->name('payments.cancel');
 
     Route::get('/communities', [CommunityController::class, 'index'])->name('communities.index');
     Route::get('/communities/create', [CommunityController::class, 'create'])->name('communities.create');
@@ -81,11 +96,18 @@ Route::middleware('auth')->group(function () {
         Route::post('/communities/{community:slug}/courses/{course}/sections/reorder', [CourseSectionController::class, 'reorder'])->name('communities.courses.sections.reorder');
 
         Route::get('/communities/{community:slug}/courses/{course}/lessons/{lesson}', [LessonController::class, 'show'])->name('communities.lessons.show');
+        Route::post('/communities/{community:slug}/courses/{course}/lessons/{lesson}/progress', [LessonProgressController::class, 'update'])->name('communities.lessons.progress.update');
         Route::post('/communities/{community:slug}/courses/{course}/sections/{section}/lessons', [LessonController::class, 'store'])->name('communities.lessons.store');
         Route::put('/communities/{community:slug}/courses/{course}/sections/{section}/lessons/{lesson}', [LessonController::class, 'update'])->name('communities.lessons.update');
         Route::delete('/communities/{community:slug}/courses/{course}/sections/{section}/lessons/{lesson}', [LessonController::class, 'destroy'])->name('communities.lessons.destroy');
         Route::post('/communities/{community:slug}/courses/{course}/sections/{section}/lessons/reorder', [LessonController::class, 'reorder'])->name('communities.lessons.reorder');
     });
+});
+
+Route::middleware(['auth', 'verified', 'platform-admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/communities', [AdminCommunityController::class, 'index'])->name('communities.index');
+    Route::post('/communities/{community}/suspend', [AdminCommunityController::class, 'suspend'])->name('communities.suspend');
+    Route::post('/communities/{community}/reactivate', [AdminCommunityController::class, 'reactivate'])->name('communities.reactivate');
 });
 
 require __DIR__.'/auth.php';

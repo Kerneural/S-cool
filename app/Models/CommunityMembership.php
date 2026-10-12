@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -26,6 +28,16 @@ class CommunityMembership extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function actions(): HasMany
+    {
+        return $this->hasMany(CommunityMembershipAction::class, 'membership_id');
+    }
+
+    public function latestAction(): HasOne
+    {
+        return $this->hasOne(CommunityMembershipAction::class, 'membership_id')->latestOfMany();
     }
 
     // Trusted domain primitive; callers must authorize their actor separately.

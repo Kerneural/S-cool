@@ -50,15 +50,19 @@ class CommunityController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'slug' => ['bail', 'required', 'string', 'max:255', 'alpha_dash:ascii', Rule::notIn(['create']), 'unique:communities,slug'],
             'description' => ['nullable', 'string', 'max:1000'],
+            'access_mode' => ['sometimes', 'required', Rule::in(['FREE', 'PAID'])],
+            'price_vnd' => ['nullable', 'required_if:access_mode,PAID', 'integer', 'min:1', 'max:4294967295'],
         ]);
 
         try {
             /** @var Community $community */
-            $community = $request->user()->createdCommunities()->create([
+            $community = $request->user()->createdCommunities()->make([
                 'name' => $validated['name'],
                 'slug' => $validated['slug'],
                 'description' => $validated['description'] ?? null,
             ]);
+            $mode = $validated['access_mode'] ?? 'FREE';
+            $community->forceFill(['access_mode' => $mode, 'price_vnd' => $mode === 'PAID' ? $validated['price_vnd'] : null])->save();
         } catch (UniqueConstraintViolationException) {
             // The slug is the only client-controlled unique key on this insert.
             throw ValidationException::withMessages(['slug' => 'The slug is not available.']);
@@ -101,9 +105,17 @@ class CommunityController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
+            'access_mode' => ['sometimes', 'required', Rule::in(['FREE', 'PAID'])],
+            'price_vnd' => ['nullable', 'required_if:access_mode,PAID', 'integer', 'min:1', 'max:4294967295'],
         ]);
 
-        $community->update($validated);
+        $mode = $validated['access_mode'] ?? $community->access_mode;
+        $price = $mode === 'PAID' ? ($validated['price_vnd'] ?? $community->price_vnd) : null;
+        if ($mode === 'PAID' && ! $price) {
+            throw ValidationException::withMessages(['price_vnd' => 'Set a positive whole-VND price for paid access.']);
+        }
+        $community->fill(array_intersect_key($validated, array_flip(['name', 'description'])));
+        $community->forceFill(['access_mode' => $mode, 'price_vnd' => $price])->save();
 
         return redirect()->route('communities.show', $community)->with('status', 'community-updated');
     }

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Community;
 use App\Models\CommunityMembership;
+use App\Models\CommunityMembershipAction;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -44,6 +45,8 @@ class CommunityMemberManagementTest extends TestCase
         $response->assertSee('Alice Member');
         $response->assertSee('Bob Member');
         $response->assertSee('Danh sách thành viên');
+        $response->assertSee('Thay đổi gần nhất');
+        $response->assertSee('name="reason"', false);
     }
 
     public function test_non_creator_cannot_view_or_manage_member_list(): void
@@ -64,6 +67,12 @@ class CommunityMemberManagementTest extends TestCase
         // Outsider receives 404
         $this->actingAs($outsider)
             ->get('/communities/'.$community->slug.'/members')
+            ->assertNotFound();
+
+        $this->actingAs($activeMember)
+            ->post('/communities/'.$community->slug.'/members/'.$activeMember->memberships()->firstOrFail()->id.'/suspend', [
+                'reason' => 'Unauthorized state change',
+            ])
             ->assertNotFound();
     }
 
@@ -97,6 +106,20 @@ class CommunityMemberManagementTest extends TestCase
         $response->assertSessionHas('status', 'Member has been suspended.');
 
         $this->assertSame('SUSPENDED', $membership->refresh()->status);
+        $this->assertDatabaseHas('community_membership_actions', [
+            'actor_id' => $creator->id,
+            'community_id' => $community->id,
+            'membership_id' => $membership->id,
+            'action' => 'SUSPEND',
+            'previous_status' => 'ACTIVE',
+            'new_status' => 'SUSPENDED',
+            'reason' => 'Violation of community guidelines',
+        ]);
+        $this->actingAs($creator)
+            ->get('/communities/'.$community->slug.'/members')
+            ->assertOk()
+            ->assertSee('Violation of community guidelines')
+            ->assertSee('SUSPEND');
 
         // Member is immediately blocked from community access (receives 404)
         $this->actingAs($member)->get('/communities/'.$community->slug)->assertNotFound();
@@ -116,13 +139,21 @@ class CommunityMemberManagementTest extends TestCase
 
         // Creator reactivates member
         $response = $this->actingAs($creator)->post(
-            '/communities/'.$community->slug.'/members/'.$membership->id.'/reactivate'
+            '/communities/'.$community->slug.'/members/'.$membership->id.'/reactivate',
+            ['reason' => 'Appeal accepted']
         );
 
         $response->assertRedirect(route('communities.members.index', $community));
         $response->assertSessionHas('status', 'Member has been reactivated.');
 
         $this->assertSame('ACTIVE', $membership->refresh()->status);
+        $this->assertDatabaseHas('community_membership_actions', [
+            'membership_id' => $membership->id,
+            'action' => 'REACTIVATE',
+            'previous_status' => 'SUSPENDED',
+            'new_status' => 'ACTIVE',
+            'reason' => 'Appeal accepted',
+        ]);
 
         // Member access is fully restored
         $this->actingAs($member)->get('/communities/'.$community->slug)->assertOk();
@@ -138,7 +169,8 @@ class CommunityMemberManagementTest extends TestCase
 
         // Creator removes member
         $response = $this->actingAs($creator)->post(
-            '/communities/'.$community->slug.'/members/'.$membership->id.'/remove'
+            '/communities/'.$community->slug.'/members/'.$membership->id.'/remove',
+            ['reason' => 'Membership ended by creator']
         );
 
         $response->assertRedirect(route('communities.members.index', $community));
@@ -151,8 +183,19 @@ class CommunityMemberManagementTest extends TestCase
 
         // Attempting to reactivate a REMOVED member is rejected by domain transition
         $this->actingAs($creator)
-            ->post('/communities/'.$community->slug.'/members/'.$membership->id.'/reactivate')
+            ->post('/communities/'.$community->slug.'/members/'.$membership->id.'/reactivate', [
+                'reason' => 'Attempted invalid restoration',
+            ])
             ->assertSessionHasErrors('membership');
+
+        $this->assertDatabaseHas('community_membership_actions', [
+            'membership_id' => $membership->id,
+            'action' => 'REMOVE',
+            'previous_status' => 'ACTIVE',
+            'new_status' => 'REMOVED',
+            'reason' => 'Membership ended by creator',
+        ]);
+        $this->assertSame(1, CommunityMembershipAction::where('membership_id', $membership->id)->count());
     }
 
     public function test_cross_community_member_mutation_is_rejected(): void
@@ -168,10 +211,13 @@ class CommunityMemberManagementTest extends TestCase
 
         // Creator A tries to mutate member belonging to Community B via Community A URL
         $this->actingAs($creatorA)
-            ->post('/communities/'.$communityA->slug.'/members/'.$membershipB->id.'/suspend')
+            ->post('/communities/'.$communityA->slug.'/members/'.$membershipB->id.'/suspend', [
+                'reason' => 'Cross-community mutation',
+            ])
             ->assertNotFound();
 
         $this->assertSame('ACTIVE', $membershipB->refresh()->status);
+        $this->assertDatabaseCount('community_membership_actions', 0);
     }
 
     public function test_pending_payment_member_cannot_be_directly_activated_by_creator(): void
@@ -184,9 +230,61 @@ class CommunityMemberManagementTest extends TestCase
 
         // Creator attempts to reactivate member in PENDING_PAYMENT
         $this->actingAs($creator)
-            ->post('/communities/'.$community->slug.'/members/'.$membership->id.'/reactivate')
+            ->post('/communities/'.$community->slug.'/members/'.$membership->id.'/reactivate', [
+                'reason' => 'Do not bypass paid access',
+            ])
             ->assertSessionHasErrors('membership');
 
         $this->assertSame('PENDING_PAYMENT', $membership->refresh()->status);
+        $this->assertDatabaseCount('community_membership_actions', 0);
+    }
+
+    public function test_reason_is_required_and_blank_reason_does_not_change_state_or_create_audit(): void
+    {
+        $creator = User::factory()->create();
+        $community = Community::factory()->create(['creator_id' => $creator->id]);
+        $membership = $this->createMembership($community, User::factory()->create(), 'ACTIVE');
+
+        $this->actingAs($creator)
+            ->post('/communities/'.$community->slug.'/members/'.$membership->id.'/suspend', [
+                'reason' => '   ',
+            ])
+            ->assertSessionHasErrors('reason');
+
+        $this->assertSame('ACTIVE', $membership->refresh()->status);
+        $this->assertDatabaseCount('community_membership_actions', 0);
+    }
+
+    public function test_repeated_transition_is_rejected_without_duplicate_audit(): void
+    {
+        $creator = User::factory()->create();
+        $community = Community::factory()->create(['creator_id' => $creator->id]);
+        $membership = $this->createMembership($community, User::factory()->create(), 'ACTIVE');
+        $url = '/communities/'.$community->slug.'/members/'.$membership->id.'/suspend';
+
+        $this->actingAs($creator)->post($url, ['reason' => 'First valid suspension'])->assertRedirect();
+        $this->actingAs($creator)->post($url, ['reason' => 'Duplicate suspension'])->assertSessionHasErrors('membership');
+
+        $this->assertSame('SUSPENDED', $membership->refresh()->status);
+        $this->assertSame(1, CommunityMembershipAction::where('membership_id', $membership->id)->count());
+    }
+
+    public function test_inactive_community_rejects_transition_without_audit(): void
+    {
+        $creator = User::factory()->create();
+        $community = Community::factory()->create([
+            'creator_id' => $creator->id,
+            'status' => 'SUSPENDED',
+        ]);
+        $membership = $this->createMembership($community, User::factory()->create(), 'ACTIVE');
+
+        $this->actingAs($creator)
+            ->post('/communities/'.$community->slug.'/members/'.$membership->id.'/suspend', [
+                'reason' => 'Must not mutate inactive tenant',
+            ])
+            ->assertNotFound();
+
+        $this->assertSame('ACTIVE', $membership->refresh()->status);
+        $this->assertDatabaseCount('community_membership_actions', 0);
     }
 }

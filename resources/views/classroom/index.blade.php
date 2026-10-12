@@ -28,6 +28,11 @@
                         @if ($isCreator)<span class="rounded bg-gray-100 px-2 py-1 text-xs">{{ $course->status }}</span>@endif
                         <p class="break-words text-sm text-gray-600">{{ $course->description ?? __('No course description provided.') }}</p>
                         <p class="text-xs text-gray-500">{{ $course->visible_lessons_count }} {{ $course->visible_lessons_count === 1 ? __('lesson') : __('lessons') }}</p>
+                        @if ($isActiveMember && $course->isPublished())
+                            @php($percent = $course->progress_total ? (int) round(100 * $course->progress_completed / $course->progress_total) : 0)
+                            <p class="text-sm">{{ __('Your Progress') }}: {{ $percent }}%</p>
+                            <progress class="block h-3 w-full" max="100" value="{{ $percent }}" aria-label="{{ __('Course completion percentage') }}">{{ $percent }}%</progress>
+                        @endif
                         @if ($isCreator)
                             <x-classroom-reorder :ids="$courseOrder" :id="$course->id" :action="route('communities.courses.reorder', $community)" />
                         @endif

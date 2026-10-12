@@ -283,6 +283,7 @@ ERD trên chỉ thể hiện quan hệ chính, không thay thế migration desig
 ### Bảng/resource tenant-scoped
 
 - `community_memberships`
+- `community_membership_actions`
 - `community_invitations`
 - `posts`, `comments`
 - `courses`, `course_sections`, `lessons`, `lesson_progress`
@@ -489,7 +490,7 @@ Invalid authentication/reference/amount/currency returns an error, changes no me
 - Free invitation acceptance: validate/mark invitation + create/activate membership trong một transaction.
 - Paid invitation acceptance: validate/mark invitation + create PENDING_PAYMENT membership + payment trong một transaction.
 - Paid success: processed IPN + payment transition + membership activation trong một transaction.
-- Creator suspend/remove member: membership transition trong một transaction.
+- Creator suspend/reactivate/remove member: lock community then membership; persist the membership transition and immutable reason/action audit record in one transaction.
 - Community suspend: community state update và admin action log trong một transaction.
 
 ### Constraints
@@ -498,6 +499,7 @@ Invalid authentication/reference/amount/currency returns an error, changes no me
 - `community_invitations.token_hash` unique.
 - Index `community_invitations(community_id, normalized_email, status)` phục vụ lookup/revoke; rule invitation active được enforce trong action/transaction phù hợp với MySQL.
 - `community_memberships(community_id, user_id)` unique.
+- Index `community_membership_actions(community_id, created_at)` and `(membership_id, created_at)` for tenant/member audit lookup; restrictive foreign keys preserve history.
 - `lesson_progress(user_id, lesson_id)` unique.
 - `payments.external_reference` unique.
 - `processed_webhook_events(provider, provider_event_id)` unique; SePay order/transaction reference liên quan cũng phải unique theo semantics provider.
@@ -514,7 +516,7 @@ Invalid authentication/reference/amount/currency returns an error, changes no me
 
 - Community dùng state ARCHIVED; không hard delete trong MVP.
 - EUR-21 retention safeguard: `creator_id` is non-null with a restrictive foreign key, not a cascading delete. Profile deletion is refused while a user owns any community, including suspended/archived communities. This prevents account deletion from erasing tenant data; ownership transfer/account anonymization remains outside this slice.
-- Membership giữ state history; không xóa khi leave/remove.
+- Membership giữ state history; không xóa khi leave/remove. Creator state changes retain a separate reason/action audit record.
 - Post/comment dùng soft delete nếu cần creator moderation/history.
 - Course/lesson ưu tiên unpublish; soft delete chỉ khi UI cần.
 - Payment và processed webhook event không bị sửa/xóa qua UI.
@@ -646,6 +648,13 @@ Invalid authentication/reference/amount/currency returns an error, changes no me
 - Revisit: Khi có tier, subscription, private course hoặc bundle.
 
 ### ADR-005 — SePay Sandbox payment adapter
+
+- Update accepted on 2026-10-12: EUR-12 uses **bank-transfer webhooks in SePay Test Mode**, not Payment Gateway Sandbox checkout / `ORDER_PAID`. Earlier signed-checkout/order-IPN diagrams describe the superseded integration; do not implement both protocols.
+- Configure a separate Test Mode account and API Key webhook; require `SEPAY_TEST_MODE=true`. Accept only authenticated incoming (`transferType=in`) notifications for the configured account, an exact payment reference and positive whole-VND amount. Missing currency means VND under the bank-webhook contract; an explicit non-VND value is rejected.
+- Simulate transfers in SePay Test Mode. Never render a real-transfer QR or instruct users to pay through a banking app. `success:true` acknowledges accepted/idempotent notifications. Duplicate provider transaction IDs cannot activate another payment.
+- Local owner cancellation makes the pending attempt CANCELLED without granting access; bank-webhook notifications do not provide Payment Gateway failure/cancel events. Retry creates a new pending attempt. No real-money/production support is authorized.
+- A Test Mode dashboard flag and configured token/account are operational prerequisites, not proven merely by a local config flag or passing fake tests. Actual provider delivery via restricted HTTPS tunnel remains a separate acceptance gate.
+- Pricing amendment approved on 2026-10-12: Creator-only community forms may configure FREE/PAID and one positive whole-VND price. Pricing stays guarded against model mass assignment; authorized controller writes only these validated fields. Each payment snapshots its initiation price. Existing paid communities without a price fail checkout until configured; no migration guesses a historical price.
 
 - Status: Accepted
 - Decision: Billing phụ thuộc `PaymentGateway` contract; luồng demo dùng SePay Sandbox, automated tests dùng fake adapter. Membership chỉ active từ verified IPN.

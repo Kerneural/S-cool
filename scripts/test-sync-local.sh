@@ -51,20 +51,43 @@ cat > "$fixture/bin/docker" <<'MOCK'
 set -eu
 printf 'docker %s\n' "$*" >> "$TRACE"
 args="$*"
+mock_container_id() {
+    local prefix
+    case "$1" in
+        app) prefix=111111111111 ;;
+        nginx) prefix=222222222222 ;;
+        mysql) prefix=333333333333 ;;
+        mailpit) prefix=444444444444 ;;
+        queue) prefix=555555555555 ;;
+        *) exit 8 ;;
+    esac
+    printf '%s%052d' "$prefix" "${2:-0}"
+}
 case "$1" in
     info) [[ "${MOCK_FAIL:-}" != engine ]] || exit 7; printf 'mock-engine\n' ;;
     volume) [[ "${MOCK_FAIL:-}" != volume ]] || exit 7; printf 'scool_scool_mysql_data\n' ;;
     inspect)
         if [[ "${MOCK_FOREIGN_OWNER:-false}" == true ]]; then printf '%s/other\n' "$MOCK_ROOT"; else printf '%s\n' "$MOCK_ROOT"; fi ;;
     ps)
+        [[ "${MOCK_FAIL:-}" != name-inventory ]] || exit 7
         [[ "${MOCK_STACK:-up}" != down ]] || exit 0
         last="${!#}"
         service="${last#name=^scool_}"; service="${service%\$}"
-        if [[ "${MOCK_NAME_CONFLICT:-false}" == true ]]; then printf 'foreign-container\n'; else printf 'mock-%s\n' "$service"; fi ;;
+        suffix=0
+        # A foreign container deliberately shares the first 12 characters.
+        [[ "${MOCK_NAME_CONFLICT:-false}" != true ]] || suffix=1
+        id=$(mock_container_id "$service" "$suffix")
+        if [[ " $args " == *' --no-trunc '* ]]; then printf '%s\n' "$id"; else printf '%s\n' "${id:0:12}"; fi ;;
     compose)
         case "$args" in
             *' config --quiet') [[ "${MOCK_FAIL:-}" != compose ]] || exit 7 ;;
-            *' ps --all -q '*) [[ "${MOCK_STACK:-up}" != down ]] || exit 0; printf 'mock-%s\n' "${!#}" ;;
+            *' ps --all -q '*)
+                [[ "${MOCK_FAIL:-}" != service-inventory ]] || exit 7
+                [[ "${MOCK_STACK:-up}" != down ]] || exit 0
+                service="${!#}"
+                [[ "${MOCK_MISSING_SERVICE:-}" != "$service" ]] || exit 0
+                mock_container_id "$service"; printf '\n'
+                if [[ "${MOCK_DUPLICATE_SERVICE:-}" == "$service" ]]; then mock_container_id "$service" 1; printf '\n'; fi ;;
             *' stop '*) [[ "${MOCK_FAIL:-}" != stop ]] || exit 7 ;;
             *' build app queue') [[ "${MOCK_FAIL:-}" != build ]] || exit 7 ;;
             *' up -d --wait --wait-timeout 120 mysql') [[ "${MOCK_FAIL:-}" != mysql ]] || exit 7 ;;
@@ -72,7 +95,9 @@ case "$1" in
             *' composer install '*) [[ "${MOCK_FAIL:-}" != composer ]] || exit 7 ;;
             *' php artisan config:clear') [[ "${MOCK_FAIL:-}" != cache ]] || exit 7 ;;
             *' php scripts/verify-runtime.php config') [[ "${MOCK_FAIL:-}" != database ]] || exit 7 ;;
-            *' php -r '*) [[ "${MOCK_FAIL:-}" != origin ]] || exit 7 ;;
+            *' php -r '*)
+                [[ " $args " == *' -e APP_CONFIG_CACHE=/dev/null/scool-sync-config.php '* ]] || exit 8
+                [[ "${MOCK_FAIL:-}" != origin && ! -e "$MOCK_ROOT/.git/config-changed" ]] || exit 7 ;;
             *' php artisan migrate --no-interaction') [[ "${MOCK_FAIL:-}" != migrate ]] || exit 7 ;;
             *) exit 8 ;;
         esac ;;
@@ -85,6 +110,7 @@ set -eu
 printf 'npm %s\n' "$*" >> "$TRACE"
 [[ "$*" == ci ]] || exit 8
 [[ "${MOCK_FAIL:-}" != npm ]] || exit 7
+if [[ "${MOCK_FAIL:-}" == late-origin ]]; then printf changed > "$MOCK_ROOT/.git/config-changed"; fi
 if [[ "${MOCK_MUTATE_ENV:-}" == npm ]]; then printf 'CHANGED=true\n' >> "$MOCK_ROOT/.env"; fi
 case "${MOCK_LATE_CHANGE:-}" in
     dirty) printf changed > "$MOCK_ROOT/.git/dirty" ;;
@@ -110,7 +136,7 @@ reset_case() {
     : > "$TRACE"
     printf 'APP_ENV=local\nAPP_KEY=synthetic-fixture-only\nAPP_URL=http://127.0.0.1:8080\n' > "$MOCK_ROOT/.env"
     printf 'before-sha\n' > "$MOCK_ROOT/.git/head"
-    rm -f -- "$MOCK_ROOT/public/hot" "$MOCK_ROOT/.git/MERGE_HEAD" "$MOCK_ROOT/.git/dirty" "$MOCK_ROOT/.git/branch-changed"
+    rm -f -- "$MOCK_ROOT/public/hot" "$MOCK_ROOT/.git/MERGE_HEAD" "$MOCK_ROOT/.git/dirty" "$MOCK_ROOT/.git/branch-changed" "$MOCK_ROOT/.git/config-changed"
     rmdir -- "$MOCK_ROOT/.git/scool-sync.lock" 2>/dev/null || :
 }
 reject() {
@@ -122,6 +148,23 @@ reject() {
     passed=$((passed+1))
 }
 reject_case() { reset_case; reject "$@"; }
+# Wrong local configuration must be rejected before any service is stopped.
+reject_case 'local URL/SMTP preflight' ' stop ' MOCK_FAIL=origin
+[[ "$(< "$fixture/output")" == *'Sync preflight stopped'* ]] || { printf '[FAIL] Configuration rejection was not classified as preflight.\n'; exit 1; }
+printf '[PASS] Invalid local configuration rejected before service stop.\n'
+# This is separate from the late guard that protects the update phase.
+# Reproduce real Docker formatting before other rejection cases can mask it.
+reset_case
+if ! "$BASH" "$MOCK_ROOT/scripts/sync-local.sh" > "$fixture/output" 2>&1; then
+    printf '[FAIL] Owned stack with full Compose IDs and default short Docker IDs was rejected.\n'
+    printf '%s\n' "$(< "$fixture/output")"
+    exit 1
+fi
+[[ "$(< "$fixture/output")" == *'[PASS] Local sync complete; HEAD=after-sha;'* ]] || exit 1
+for service in app nginx mysql mailpit queue; do
+    grep -Fq -- "docker ps -aq --no-trunc --filter name=^scool_${service}\$" "$TRACE" || { printf '[FAIL] Full container identity was not requested for %s.\n' "$service"; exit 1; }
+done
+passed=$((passed+1))
 reject_case 'feature branch' 'docker ' MOCK_BRANCH=feature
 reject_case 'detached HEAD' 'docker ' MOCK_BRANCH=detached
 reject_case 'dirty worktree' 'docker ' MOCK_DIRTY=true
@@ -136,7 +179,13 @@ reject_case 'missing engine' 'git fetch' MOCK_FAIL=engine
 reject_case 'invalid Compose' 'git fetch' MOCK_FAIL=compose
 reject_case 'missing volume' 'git fetch' MOCK_FAIL=volume
 reject_case 'foreign checkout' 'git fetch' MOCK_FOREIGN_OWNER=true
+[[ "$(< "$fixture/output")" == *'Running stack belongs to another checkout.'* ]] || exit 1
 reject_case 'container name collision' 'git fetch' MOCK_NAME_CONFLICT=true
+[[ "$(< "$fixture/output")" == *'Container name conflict for app; nothing was stopped.'* ]] || exit 1
+reject_case 'missing Compose identity with an occupied name' 'git fetch' MOCK_MISSING_SERVICE=app
+reject_case 'duplicate Compose identities' 'git fetch' MOCK_DUPLICATE_SERVICE=app
+reject_case 'service inventory failure' 'git fetch' MOCK_FAIL=service-inventory
+reject_case 'name inventory failure' 'git fetch' MOCK_FAIL=name-inventory
 reject_case 'fetch failure' ' stop ' MOCK_FAIL=fetch
 reject_case 'unpublished main commits' ' stop ' MOCK_AHEAD=1
 reject_case 'remote tracks environment' ' stop ' MOCK_REMOTE_ENV=true
@@ -149,6 +198,8 @@ reject_case 'npm failure' 'config:clear' MOCK_FAIL=npm
 reject_case 'cache failure' 'verify-runtime.php' MOCK_FAIL=cache
 reject_case 'unsafe database' 'artisan migrate' MOCK_FAIL=database
 reject_case 'noncanonical origin' 'artisan migrate' MOCK_FAIL=origin
+reject_case 'configuration changes after preflight' 'artisan migrate' MOCK_FAIL=late-origin
+[[ "$(< "$fixture/output")" == *'Local sync stopped'* ]] || { printf '[FAIL] Late configuration mismatch was not classified as an update failure.\n'; exit 1; }
 reject_case 'migration failure' 'verify --mode' MOCK_FAIL=migrate
 reject_case 'stack readiness failure' 'verify --mode' MOCK_FAIL=health
 reject_case 'Verify failure' '' MOCK_FAIL=verify
@@ -170,7 +221,7 @@ for stack in up down; do
     [[ "$(< "$fixture/output")" == *'[PASS] Local sync complete; HEAD=after-sha;'* ]] || exit 1
     [[ "$(cksum "$MOCK_ROOT/.env")" == "$before" && ! -d "$MOCK_ROOT/.git/scool-sync.lock" ]] || exit 1
     trace="$(< "$TRACE")"
-    [[ "$trace" == *'git fetch origin main'*' stop nginx queue app'*'git merge --ff-only origin/main'*' build app queue'*'composer install'*'npm ci'*'config:clear'*'verify-runtime.php config'*'artisan migrate --no-interaction'*'verify --mode verify'* ]] || { printf '[FAIL] Incorrect sync ordering.\n'; exit 1; }
+    [[ "$trace" == *'-e APP_CONFIG_CACHE=/dev/null/scool-sync-config.php app php -r'*'git fetch origin main'*' stop nginx queue app'*'git merge --ff-only origin/main'*' build app queue'*'composer install'*'npm ci'*'config:clear'*'verify-runtime.php config'*'-e APP_CONFIG_CACHE=/dev/null/scool-sync-config.php app php -r'*'artisan migrate --no-interaction'*'verify --mode verify'* ]] || { printf '[FAIL] Incorrect sync ordering.\n'; exit 1; }
     [[ "$trace" != *'migrate:fresh'* && "$trace" != *'key:generate'* && "$trace" != *'db:seed'* && "$trace" != *' down '* && "$trace" != *'queue:flush'* ]] || exit 1
     passed=$((passed+1))
 done

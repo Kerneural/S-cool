@@ -24,6 +24,12 @@
                 </div>
             @endif
 
+            @if ($errors->has('reason'))
+                <div class="p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg text-sm">
+                    {{ $errors->first('reason') }}
+                </div>
+            @endif
+
             <!-- Summary Cards -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm text-center">
@@ -69,6 +75,7 @@
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Thành viên</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Trạng thái</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Ngày tham gia</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Thay đổi gần nhất</th>
                                     <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Hành động</th>
                                 </tr>
                             </thead>
@@ -112,33 +119,60 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-gray-500 text-xs">
                                             {{ $membership->created_at->format('d/m/Y H:i') }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-right space-x-2">
+                                        <td class="px-6 py-4 text-gray-600 text-xs max-w-xs">
+                                            @if ($membership->latestAction)
+                                                <p class="font-medium text-gray-800">{{ $membership->latestAction->action }}</p>
+                                                <p class="break-words">{{ $membership->latestAction->reason }}</p>
+                                                <p class="mt-1 text-gray-400">
+                                                    {{ $membership->latestAction->actor->name }} · {{ $membership->latestAction->created_at->format('d/m/Y H:i') }}
+                                                </p>
+                                            @else
+                                                <span class="text-gray-400 italic">Chưa có thay đổi</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4 text-right">
                                             @if ($membership->status === 'ACTIVE')
-                                                <form method="POST" action="{{ route('communities.members.suspend', [$community, $membership]) }}" class="inline-block"
+                                                <form method="POST" action="{{ route('communities.members.suspend', [$community, $membership]) }}" class="mb-2 flex items-center justify-end gap-2"
                                                       onsubmit="return confirm('Bạn có chắc chắn muốn tạm khóa thành viên này?');">
                                                     @csrf
-                                                    <button type="submit" class="text-amber-600 hover:text-amber-900 font-medium text-xs">
+                                                    <label for="suspend-reason-{{ $membership->id }}" class="sr-only">Lý do tạm khóa</label>
+                                                    <input id="suspend-reason-{{ $membership->id }}" name="reason" type="text" required minlength="3" maxlength="500"
+                                                           class="w-48 rounded-md border-gray-300 text-xs shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                           placeholder="Lý do tạm khóa">
+                                                    <button type="submit" class="whitespace-nowrap text-amber-600 hover:text-amber-900 font-medium text-xs">
                                                         Tạm khóa
                                                     </button>
                                                 </form>
-                                                <form method="POST" action="{{ route('communities.members.remove', [$community, $membership]) }}" class="inline-block"
+                                                <form method="POST" action="{{ route('communities.members.remove', [$community, $membership]) }}" class="flex items-center justify-end gap-2"
                                                       onsubmit="return confirm('Bạn có chắc chắn muốn xóa thành viên này khỏi cộng đồng?');">
                                                     @csrf
-                                                    <button type="submit" class="text-red-600 hover:text-red-900 font-medium text-xs">
+                                                    <label for="remove-reason-{{ $membership->id }}" class="sr-only">Lý do xóa</label>
+                                                    <input id="remove-reason-{{ $membership->id }}" name="reason" type="text" required minlength="3" maxlength="500"
+                                                           class="w-48 rounded-md border-gray-300 text-xs shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                           placeholder="Lý do xóa">
+                                                    <button type="submit" class="whitespace-nowrap text-red-600 hover:text-red-900 font-medium text-xs">
                                                         Xóa
                                                     </button>
                                                 </form>
                                             @elseif ($membership->status === 'SUSPENDED')
-                                                <form method="POST" action="{{ route('communities.members.reactivate', [$community, $membership]) }}" class="inline-block">
+                                                <form method="POST" action="{{ route('communities.members.reactivate', [$community, $membership]) }}" class="mb-2 flex items-center justify-end gap-2">
                                                     @csrf
-                                                    <button type="submit" class="text-emerald-600 hover:text-emerald-900 font-medium text-xs">
+                                                    <label for="reactivate-reason-{{ $membership->id }}" class="sr-only">Lý do mở khóa</label>
+                                                    <input id="reactivate-reason-{{ $membership->id }}" name="reason" type="text" required minlength="3" maxlength="500"
+                                                           class="w-48 rounded-md border-gray-300 text-xs shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                           placeholder="Lý do mở khóa">
+                                                    <button type="submit" class="whitespace-nowrap text-emerald-600 hover:text-emerald-900 font-medium text-xs">
                                                         Mở khóa
                                                     </button>
                                                 </form>
-                                                <form method="POST" action="{{ route('communities.members.remove', [$community, $membership]) }}" class="inline-block"
+                                                <form method="POST" action="{{ route('communities.members.remove', [$community, $membership]) }}" class="flex items-center justify-end gap-2"
                                                       onsubmit="return confirm('Bạn có chắc chắn muốn xóa thành viên này khỏi cộng đồng?');">
                                                     @csrf
-                                                    <button type="submit" class="text-red-600 hover:text-red-900 font-medium text-xs">
+                                                    <label for="remove-reason-{{ $membership->id }}" class="sr-only">Lý do xóa</label>
+                                                    <input id="remove-reason-{{ $membership->id }}" name="reason" type="text" required minlength="3" maxlength="500"
+                                                           class="w-48 rounded-md border-gray-300 text-xs shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                           placeholder="Lý do xóa">
+                                                    <button type="submit" class="whitespace-nowrap text-red-600 hover:text-red-900 font-medium text-xs">
                                                         Xóa
                                                     </button>
                                                 </form>

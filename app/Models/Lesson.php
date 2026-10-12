@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Lesson extends Model
 {
@@ -66,6 +67,24 @@ class Lesson extends Model
     public function scopePublished(Builder $query): Builder
     {
         return $query->where('status', 'PUBLISHED');
+    }
+
+    public function progresses(): HasMany
+    {
+        return $this->hasMany(LessonProgress::class);
+    }
+
+    public function isCompletedBy(?User $user): bool
+    {
+        if (! $user) {
+            return false;
+        }
+
+        if ($this->relationLoaded('progresses')) {
+            return (bool) $this->progresses->firstWhere('user_id', $user->id)?->completed;
+        }
+
+        return $this->progresses()->where('user_id', $user->id)->where('completed', true)->exists();
     }
 
     public function scopeOrdered(Builder $query): Builder

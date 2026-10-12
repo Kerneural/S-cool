@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Communities\TransitionCommunityMembership;
 use App\Models\Community;
 use App\Models\CommunityMembership;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class CommunityMemberController extends Controller
@@ -18,7 +21,7 @@ class CommunityMemberController extends Controller
         abort_unless($community->isActive() && $community->isCreator($request->user()), 404);
 
         $memberships = $community->memberships()
-            ->with('user')
+            ->with(['user', 'latestAction.actor'])
             ->orderByDesc('id')
             ->paginate(15);
 
@@ -37,17 +40,13 @@ class CommunityMemberController extends Controller
     /**
      * Suspend an active community member.
      */
-    public function suspend(Request $request, Community $community, CommunityMembership $membership): RedirectResponse
-    {
-        abort_unless($community->isActive() && $community->isCreator($request->user()), 404);
-        abort_unless($membership->community_id === $community->id, 404);
-        abort_if($membership->user_id === $community->creator_id, 403);
-
-        $request->validate([
-            'reason' => ['nullable', 'string', 'max:255'],
-        ]);
-
-        $membership->transitionTo('SUSPENDED');
+    public function suspend(
+        Request $request,
+        Community $community,
+        CommunityMembership $membership,
+        TransitionCommunityMembership $transition,
+    ): RedirectResponse {
+        $transition->handle($this->authenticatedUser($request), $community, $membership, 'SUSPENDED', $this->validatedReason($request));
 
         return redirect()
             ->route('communities.members.index', $community)
@@ -57,12 +56,13 @@ class CommunityMemberController extends Controller
     /**
      * Reactivate a suspended community member back to active.
      */
-    public function reactivate(Request $request, Community $community, CommunityMembership $membership): RedirectResponse
-    {
-        abort_unless($community->isActive() && $community->isCreator($request->user()), 404);
-        abort_unless($membership->community_id === $community->id, 404);
-
-        $membership->transitionTo('ACTIVE');
+    public function reactivate(
+        Request $request,
+        Community $community,
+        CommunityMembership $membership,
+        TransitionCommunityMembership $transition,
+    ): RedirectResponse {
+        $transition->handle($this->authenticatedUser($request), $community, $membership, 'ACTIVE', $this->validatedReason($request));
 
         return redirect()
             ->route('communities.members.index', $community)
@@ -72,16 +72,47 @@ class CommunityMemberController extends Controller
     /**
      * Remove a member from the community.
      */
-    public function remove(Request $request, Community $community, CommunityMembership $membership): RedirectResponse
-    {
-        abort_unless($community->isActive() && $community->isCreator($request->user()), 404);
-        abort_unless($membership->community_id === $community->id, 404);
-        abort_if($membership->user_id === $community->creator_id, 403);
-
-        $membership->transitionTo('REMOVED');
+    public function remove(
+        Request $request,
+        Community $community,
+        CommunityMembership $membership,
+        TransitionCommunityMembership $transition,
+    ): RedirectResponse {
+        $transition->handle($this->authenticatedUser($request), $community, $membership, 'REMOVED', $this->validatedReason($request));
 
         return redirect()
             ->route('communities.members.index', $community)
             ->with('status', 'Member has been removed from the community.');
+    }
+
+    private function validatedReason(Request $request): string
+    {
+        $validated = $request->validate([
+            'reason' => [
+                'required',
+                'string',
+                'max:500',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    if (! is_string($value) || mb_strlen(trim($value)) < 3) {
+                        $fail('The reason must contain at least 3 non-whitespace characters.');
+                    }
+                },
+            ],
+        ]);
+
+        if (! is_string($validated['reason'])) {
+            throw ValidationException::withMessages(['reason' => 'A valid reason is required.']);
+        }
+
+        return trim($validated['reason']);
+    }
+
+    private function authenticatedUser(Request $request): User
+    {
+        $user = $request->user();
+
+        abort_unless($user instanceof User, 403);
+
+        return $user;
     }
 }

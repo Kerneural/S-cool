@@ -45,6 +45,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_platform_admin' => 'boolean',
         ];
     }
 
@@ -68,6 +69,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Post::class);
     }
 
+    public function lessonProgresses(): HasMany
+    {
+        return $this->hasMany(LessonProgress::class);
+    }
+
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
@@ -76,5 +82,20 @@ class User extends Authenticatable implements MustVerifyEmail
     public function createdEvents(): HasMany
     {
         return $this->hasMany(Event::class, 'creator_id');
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function isPlatformAdmin(): bool
+    {
+        return (bool) $this->is_platform_admin;
+    }
+
+    public function platformAdminActions(): HasMany
+    {
+        return $this->hasMany(PlatformAdminAction::class, 'admin_id');
     }
 }
