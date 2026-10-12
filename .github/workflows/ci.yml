@@ -85,6 +85,13 @@ jobs:
                 --exit-code 1 \
                 --timeout 5m
 
+      - name: Setup Node and npm cache
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        with:
+          node-version: "22"
+          check-latest: true
+          cache: npm
+          cache-dependency-path: package-lock.json
       - name: Install and build frontend
         run: |
           node --version
