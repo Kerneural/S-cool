@@ -6,9 +6,11 @@ use App\Actions\Payments\InitiatePaidCheckout;
 use App\Contracts\PaymentGateway;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class PaymentController extends Controller
@@ -36,6 +38,10 @@ class PaymentController extends Controller
             ->firstOrFail();
 
         abort_unless($payment->user_id === $request->user()->id, 404);
+
+        if ($payment->isFailed() || $payment->isCancelled()) {
+            return redirect()->route('payments.status', $reference);
+        }
 
         if ($payment->isSucceeded()) {
             return redirect()
@@ -81,5 +87,19 @@ class PaymentController extends Controller
             'payment' => $payment,
             'community' => $payment->community,
         ]);
+    }
+
+    public function cancel(Request $request, string $reference): RedirectResponse
+    {
+        DB::transaction(function () use ($request, $reference): void {
+            User::query()->whereKey($request->user()->id)->lockForUpdate()->firstOrFail();
+            $payment = Payment::query()->where('external_reference', $reference)
+                ->where('user_id', $request->user()->id)->lockForUpdate()->firstOrFail();
+            if ($payment->isPending()) {
+                $payment->update(['status' => Payment::STATUS_CANCELLED]);
+            }
+        }, 3);
+
+        return redirect()->route('payments.status', $reference);
     }
 }

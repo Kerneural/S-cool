@@ -36,11 +36,11 @@ return [
     ],
 
     'sepay' => [
-        'api_key' => env('SEPAY_API_KEY'),
+        'test_mode' => (bool) env('SEPAY_TEST_MODE', false),
         'webhook_token' => env('SEPAY_WEBHOOK_TOKEN'),
-        'account_number' => env('SEPAY_ACCOUNT_NUMBER', '0123456789'),
-        'bank_name' => env('SEPAY_BANK_NAME', 'MBBank'),
-        'account_holder' => env('SEPAY_ACCOUNT_HOLDER', 'S-COOL EDUCATION'),
+        'account_number' => env('SEPAY_ACCOUNT_NUMBER', ''),
+        'bank_name' => env('SEPAY_BANK_NAME', ''),
+        'account_holder' => env('SEPAY_ACCOUNT_HOLDER', 'TEST MODE ONLY'),
     ],
 
 ];

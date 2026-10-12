@@ -50,6 +50,7 @@ class InitiatePaidCheckout
             // Lock or create membership in PENDING_PAYMENT state
             /** @var CommunityMembership|null $membership */
             $membership = $community->memberships()->where('user_id', $actor->id)->lockForUpdate()->first();
+            abort_if($membership && ! in_array($membership->status, ['PENDING_PAYMENT', 'ACTIVE', 'LEFT'], true), 404);
             if ($membership && $membership->status === 'ACTIVE') {
                 throw ValidationException::withMessages([
                     'invitation' => 'You are already an active member of this community.',
@@ -79,7 +80,10 @@ class InitiatePaidCheckout
 
             if (! $payment) {
                 $reference = 'INV-'.strtoupper(Str::random(10));
-                $amount = 100000; // Standard baseline 100.000 VND
+                $amount = (int) $community->price_vnd;
+                if ($amount <= 0) {
+                    throw ValidationException::withMessages(['invitation' => 'The creator must configure a paid access price before checkout.']);
+                }
 
                 $payment = Payment::create([
                     'external_reference' => $reference,

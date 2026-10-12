@@ -37,8 +37,9 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::get('/payments/{reference}/checkout', [PaymentController::class, 'checkout'])->name('payments.checkout');
-    Route::get('/payments/{reference}/status', [PaymentController::class, 'status'])->name('payments.status');
+    Route::get('/payments/{reference}/checkout', [PaymentController::class, 'checkout'])->middleware('verified')->name('payments.checkout');
+    Route::get('/payments/{reference}/status', [PaymentController::class, 'status'])->middleware('verified')->name('payments.status');
+    Route::post('/payments/{reference}/cancel', [PaymentController::class, 'cancel'])->middleware(['verified', 'throttle:10,1'])->name('payments.cancel');
 
     Route::get('/communities', [CommunityController::class, 'index'])->name('communities.index');
     Route::get('/communities/create', [CommunityController::class, 'create'])->name('communities.create');

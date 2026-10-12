@@ -4,6 +4,8 @@ namespace App\Services\Payment;
 
 use App\Contracts\PaymentGateway;
 use App\Models\Payment;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class SePayGateway implements PaymentGateway
 {
@@ -12,19 +14,16 @@ class SePayGateway implements PaymentGateway
      */
     public function generateCheckoutData(Payment $payment): array
     {
+        abort_unless(config('services.sepay.test_mode') === true, 503, 'SePay Test Mode must be explicitly configured.');
+        abort_unless(is_string(config('services.sepay.account_number')) && trim(config('services.sepay.account_number')) !== '', 503, 'Configure the SePay Test Mode account.');
         $bankName = config('services.sepay.bank_name', 'MBBank');
         $accountNumber = config('services.sepay.account_number', '0123456789');
         $accountHolder = config('services.sepay.account_holder', 'S-COOL EDUCATION');
         $paymentCode = $payment->external_reference;
         $amount = $payment->amount;
 
-        $qrUrl = sprintf(
-            'https://qr.sepay.vn/img?acc=%s&bank=%s&amount=%d&des=%s',
-            urlencode($accountNumber),
-            urlencode($bankName),
-            $amount,
-            urlencode($paymentCode)
-        );
+        // Test Mode transactions are simulated in SePay, never paid through a banking app.
+        $qrUrl = '';
 
         return [
             'bank_name' => $bankName,
@@ -42,6 +41,9 @@ class SePayGateway implements PaymentGateway
      */
     public function verifyWebhook(array $payload, array $headers): bool
     {
+        if (config('services.sepay.test_mode') !== true) {
+            return false;
+        }
         $expectedToken = config('services.sepay.webhook_token');
         if (! is_string($expectedToken) || trim($expectedToken) === '') {
             return false;
@@ -52,19 +54,10 @@ class SePayGateway implements PaymentGateway
             $authHeader = $authHeader[0] ?? '';
         }
 
-        if (is_string($authHeader) && preg_match('/^(?:Apikey|Bearer)\s+(.+)$/i', trim($authHeader), $matches)) {
+        if (is_string($authHeader) && preg_match('/^Apikey\s+(.+)$/i', trim($authHeader), $matches)) {
             if (hash_equals(trim($expectedToken), trim($matches[1]))) {
                 return true;
             }
-        }
-
-        $customHeader = $headers['x-sepay-token'][0] ?? $headers['x-sepay-token'] ?? '';
-        if (is_array($customHeader)) {
-            $customHeader = $customHeader[0] ?? '';
-        }
-
-        if (is_string($customHeader) && trim($customHeader) !== '') {
-            return hash_equals(trim($expectedToken), trim($customHeader));
         }
 
         return false;
@@ -75,21 +68,33 @@ class SePayGateway implements PaymentGateway
      */
     public function parseWebhook(array $payload): array
     {
-        $providerEventId = (string) ($payload['id'] ?? $payload['transaction_id'] ?? $payload['event_id'] ?? '');
+        Validator::make($payload, [
+            'id' => ['required', 'integer', 'min:1'],
+            'content' => ['required', 'string', 'max:2000'],
+            'transferType' => ['required', 'in:in'],
+            'transferAmount' => ['required', 'integer', 'min:1', 'max:4294967295'],
+            'currency' => ['sometimes', 'required', 'in:VND'],
+            'referenceCode' => ['required', 'string', 'max:128'],
+            'accountNumber' => ['required', 'string', 'max:128'],
+        ])->validate();
+        if ($payload['accountNumber'] !== config('services.sepay.account_number')) {
+            throw ValidationException::withMessages(['accountNumber' => 'Unexpected Test Mode destination account.']);
+        }
+        $providerEventId = (string) $payload['id'];
 
         // Extract reference code from content, description, order_code or reference
-        $rawContent = (string) ($payload['content'] ?? $payload['description'] ?? $payload['order_code'] ?? $payload['reference'] ?? '');
+        $rawContent = $payload['content'];
         $externalReference = '';
 
-        if (preg_match('/(INV-[A-Za-z0-9_-]+)/', $rawContent, $matches)) {
-            $externalReference = $matches[1];
+        if (preg_match_all('/(?<![A-Z0-9_-])(INV-[A-Z0-9]{10})(?![A-Z0-9_-])/', $rawContent, $matches) === 1) {
+            $externalReference = $matches[1][0];
         } else {
-            $externalReference = trim($rawContent);
+            throw ValidationException::withMessages(['content' => 'A single valid payment reference is required.']);
         }
 
-        $amount = (int) ($payload['transferAmount'] ?? $payload['amount'] ?? 0);
+        $amount = (int) $payload['transferAmount'];
         $currency = strtoupper((string) ($payload['currency'] ?? 'VND'));
-        $gatewayTransactionId = (string) ($payload['referenceCode'] ?? $payload['gateway_transaction_id'] ?? $payload['id'] ?? '');
+        $gatewayTransactionId = $payload['referenceCode'];
 
         return [
             'provider_event_id' => $providerEventId,

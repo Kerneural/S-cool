@@ -8,40 +8,49 @@
     <div class="py-12" x-data="{
         status: '{{ $payment->status }}',
         checking: false,
+        error: '',
         checkStatus() {
+            if (this.checking) return;
             this.checking = true;
+            this.error = '';
             fetch('{{ route('payments.status', $payment->external_reference) }}', {
                 headers: { 'Accept': 'application/json' }
             })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error('Status check failed');
+                return res.json();
+            })
             .then(data => {
                 this.status = data.status;
                 if (data.is_succeeded && data.redirect_url) {
                     window.location.href = data.redirect_url;
+                } else if (data.status === 'FAILED' || data.status === 'CANCELLED') {
+                    window.location.href = '{{ route('payments.status', $payment->external_reference) }}';
                 }
             })
+            .catch(() => { this.error = 'Unable to check payment status. Try again.'; })
             .finally(() => {
                 this.checking = false;
             });
         }
-    }" x-init="setInterval(() => checkStatus(), 4000)">
+    }" x-init="setInterval(() => { if (status === 'PENDING') checkStatus(); }, 4000)">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 sm:p-8">
                 <div class="text-center mb-6">
                     <span class="inline-block px-3 py-1 bg-amber-100 text-amber-800 text-xs font-semibold rounded-full uppercase tracking-wider mb-2">
-                        SePay Sandbox Demo
+                        SePay Test Mode
                     </span>
                     <h1 class="text-2xl font-bold text-gray-900">{{ $community->name }}</h1>
-                    <p class="text-sm text-gray-500 mt-1">Hoàn tất chuyển khoản để kích hoạt quyền thành viên ngay lập tức.</p>
+                    <p class="text-sm text-gray-500 mt-1">Chỉ giả lập giao dịch trong SePay Test Mode. Không chuyển tiền thật.</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-gray-50 rounded-xl p-6 border border-gray-100">
                     <!-- QR Code -->
                     <div class="flex flex-col items-center justify-center text-center">
                         <div class="p-3 bg-white rounded-xl shadow-sm border border-gray-200">
-                            <img src="{{ $checkoutData['qr_url'] }}" alt="SePay QR Code" class="w-56 h-56 object-contain rounded-lg">
+                            <div class="w-56 h-56 flex items-center justify-center text-sm text-gray-700 p-4">SePay Test Mode: use the transaction simulator with the reference and exact amount shown here.</div>
                         </div>
-                        <p class="text-xs text-gray-500 mt-3">Quét mã QR bằng ứng dụng ngân hàng bất kỳ</p>
+                        <p class="text-xs text-gray-500 mt-3">Không quét QR hay dùng ứng dụng ngân hàng thật.</p>
                     </div>
 
                     <!-- Transfer Details -->
@@ -73,6 +82,7 @@
 
                 <!-- Status & Action -->
                 <div class="mt-8 text-center">
+                    <p x-show="error" x-text="error" class="mb-4 text-sm text-red-700"></p>
                     <div class="inline-flex items-center space-x-2 text-sm text-gray-600 mb-4">
                         <svg class="animate-spin h-4 w-4 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -87,6 +97,10 @@
                             <span x-text="checking ? 'Đang kiểm tra...' : 'Kiểm tra trạng thái'"></span>
                         </button>
                     </div>
+                    <form method="POST" action="{{ route('payments.cancel', $payment->external_reference) }}" class="mt-4">
+                        @csrf
+                        <button type="submit" class="text-sm text-gray-600 underline">Cancel this test payment attempt</button>
+                    </form>
                 </div>
             </div>
         </div>

@@ -647,6 +647,13 @@ Invalid authentication/reference/amount/currency returns an error, changes no me
 
 ### ADR-005 — SePay Sandbox payment adapter
 
+- Update accepted on 2026-10-12: EUR-12 uses **bank-transfer webhooks in SePay Test Mode**, not Payment Gateway Sandbox checkout / `ORDER_PAID`. Earlier signed-checkout/order-IPN diagrams describe the superseded integration; do not implement both protocols.
+- Configure a separate Test Mode account and API Key webhook; require `SEPAY_TEST_MODE=true`. Accept only authenticated incoming (`transferType=in`) notifications for the configured account, an exact payment reference and positive whole-VND amount. Missing currency means VND under the bank-webhook contract; an explicit non-VND value is rejected.
+- Simulate transfers in SePay Test Mode. Never render a real-transfer QR or instruct users to pay through a banking app. `success:true` acknowledges accepted/idempotent notifications. Duplicate provider transaction IDs cannot activate another payment.
+- Local owner cancellation makes the pending attempt CANCELLED without granting access; bank-webhook notifications do not provide Payment Gateway failure/cancel events. Retry creates a new pending attempt. No real-money/production support is authorized.
+- A Test Mode dashboard flag and configured token/account are operational prerequisites, not proven merely by a local config flag or passing fake tests. Actual provider delivery via restricted HTTPS tunnel remains a separate acceptance gate.
+- Pricing amendment approved on 2026-10-12: Creator-only community forms may configure FREE/PAID and one positive whole-VND price. Pricing stays guarded against model mass assignment; authorized controller writes only these validated fields. Each payment snapshots its initiation price. Existing paid communities without a price fail checkout until configured; no migration guesses a historical price.
+
 - Status: Accepted
 - Decision: Billing phụ thuộc `PaymentGateway` contract; luồng demo dùng SePay Sandbox, automated tests dùng fake adapter. Membership chỉ active từ verified IPN.
 - Consequence: Có provider-specific integration mà không chạm tiền thật; local end-to-end cần HTTPS tunnel và sandbox credentials.

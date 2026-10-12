@@ -20,7 +20,7 @@ class SePayPaymentTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        config(['services.sepay.webhook_token' => 'test-webhook-secret-token']);
+        config(['services.sepay.webhook_token' => 'test-webhook-secret-token', 'services.sepay.test_mode' => true, 'services.sepay.account_number' => 'TEST-ACCOUNT-001']);
         $this->app->bind(PaymentGateway::class, SePayGateway::class);
     }
 
@@ -62,7 +62,7 @@ class SePayPaymentTest extends TestCase
 
     public function test_paid_invitation_initiates_pending_membership_and_checkout_redirect(): void
     {
-        $community = Community::factory()->create(['access_mode' => 'PAID']);
+        $community = Community::factory()->create(['access_mode' => 'PAID', 'price_vnd' => 100000]);
         $user = User::factory()->create();
         [$invitation, $token] = $this->createInvitation($community, $user);
 
@@ -110,7 +110,9 @@ class SePayPaymentTest extends TestCase
         $this->createMembership($community, $user, 'PENDING_PAYMENT');
 
         $ipnPayload = [
-            'id' => 'sepay-evt-1001',
+            'id' => 1001,
+            'transferType' => 'in',
+            'accountNumber' => 'TEST-ACCOUNT-001',
             'referenceCode' => 'MB-FT-998877',
             'content' => 'Thanh toan '.$payment->external_reference,
             'transferAmount' => 100000,
@@ -161,7 +163,9 @@ class SePayPaymentTest extends TestCase
 
         // 1. Amount mismatch (tampered amount 50.000 instead of 100.000)
         $tamperedAmountPayload = [
-            'id' => 'sepay-evt-tamper-1',
+            'id' => 1002,
+            'transferType' => 'in',
+            'accountNumber' => 'TEST-ACCOUNT-001',
             'referenceCode' => 'MB-FT-1111',
             'content' => $payment->external_reference,
             'transferAmount' => 50000,
@@ -178,9 +182,11 @@ class SePayPaymentTest extends TestCase
 
         // 2. Non-existent reference
         $fakeRefPayload = [
-            'id' => 'sepay-evt-tamper-2',
+            'id' => 1003,
+            'transferType' => 'in',
+            'accountNumber' => 'TEST-ACCOUNT-001',
             'referenceCode' => 'MB-FT-2222',
-            'content' => 'INV-DOESNOTEXIST',
+            'content' => 'INV-XXXXXXXXXX',
             'transferAmount' => 100000,
             'currency' => 'VND',
         ];
@@ -190,7 +196,7 @@ class SePayPaymentTest extends TestCase
         ])->assertNotFound();
 
         $this->assertDatabaseMissing('processed_webhook_events', [
-            'provider_event_id' => 'sepay-evt-tamper-2',
+            'provider_event_id' => '1003',
         ]);
     }
 
@@ -211,7 +217,9 @@ class SePayPaymentTest extends TestCase
         $this->createMembership($community, $user, 'ACTIVE');
 
         $payload = [
-            'id' => 'sepay-evt-post-success-mismatch',
+            'id' => 1004,
+            'transferType' => 'in',
+            'accountNumber' => 'TEST-ACCOUNT-001',
             'referenceCode' => 'MB-FT-post-success-mismatch',
             'content' => $payment->external_reference,
             'transferAmount' => 50000,
@@ -222,8 +230,7 @@ class SePayPaymentTest extends TestCase
             'Authorization' => 'Apikey test-webhook-secret-token',
         ]);
 
-        $response->assertOk();
-        $response->assertJson(['message' => 'Payment was already completed.']);
+        $response->assertStatus(422);
         $this->assertSame(Payment::STATUS_SUCCEEDED, $payment->refresh()->status);
         $this->assertSame('ACTIVE', CommunityMembership::where('user_id', $user->id)->value('status'));
     }
@@ -256,8 +263,9 @@ class SePayPaymentTest extends TestCase
     {
         $community = Community::factory()->create(['access_mode' => 'PAID']);
         $user = User::factory()->create();
+        [$invitation] = $this->createInvitation($community, $user);
 
-        $payment = Payment::factory()->create([
+        $payment = Payment::factory()->forInvitation($invitation)->create([
             'community_id' => $community->id,
             'user_id' => $user->id,
             'amount' => 100000,
@@ -267,7 +275,9 @@ class SePayPaymentTest extends TestCase
         $this->createMembership($community, $user, 'PENDING_PAYMENT');
 
         $payload = [
-            'id' => 'sepay-event-replay-101',
+            'id' => 1005,
+            'transferType' => 'in',
+            'accountNumber' => 'TEST-ACCOUNT-001',
             'referenceCode' => 'MB-FT-1234',
             'content' => $payment->external_reference,
             'transferAmount' => 100000,
@@ -280,7 +290,7 @@ class SePayPaymentTest extends TestCase
         ]);
         $res1->assertOk();
         $this->assertSame(Payment::STATUS_SUCCEEDED, $payment->refresh()->status);
-        $this->assertSame(1, ProcessedWebhookEvent::where('provider_event_id', 'sepay-event-replay-101')->count());
+        $this->assertSame(1, ProcessedWebhookEvent::where('provider_event_id', '1005')->count());
 
         // Second delivery (duplicate / replay): safe 200 with idempotent message
         $res2 = $this->postJson('/webhooks/sepay', $payload, [
@@ -290,7 +300,7 @@ class SePayPaymentTest extends TestCase
         $res2->assertJson(['message' => 'Webhook event has already been processed.']);
 
         // Processed event count remains exactly 1
-        $this->assertSame(1, ProcessedWebhookEvent::where('provider_event_id', 'sepay-event-replay-101')->count());
+        $this->assertSame(1, ProcessedWebhookEvent::where('provider_event_id', '1005')->count());
         $this->assertSame(Payment::STATUS_SUCCEEDED, $payment->refresh()->status);
     }
 
@@ -355,6 +365,7 @@ class SePayPaymentTest extends TestCase
         $response->assertOk();
         $response->assertSee($payment->external_reference);
         $response->assertSee('100.000 VND');
-        $response->assertSee('SePay Sandbox');
+        $response->assertSee('SePay Test Mode');
+        $response->assertDontSee('https://qr.sepay.vn');
     }
 }

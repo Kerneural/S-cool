@@ -4,15 +4,18 @@ namespace App\Http\Controllers\Payment;
 
 use App\Contracts\PaymentGateway;
 use App\Http\Controllers\Controller;
+use App\Models\Community;
 use App\Models\CommunityInvitation;
 use App\Models\CommunityMembership;
 use App\Models\Payment;
 use App\Models\ProcessedWebhookEvent;
+use App\Models\User;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class SePayWebhookController extends Controller
 {
@@ -34,7 +37,11 @@ class SePayWebhookController extends Controller
         }
 
         // 2. Parse normalized webhook fields (AC-02)
-        $parsed = $gateway->parseWebhook($payload);
+        try {
+            $parsed = $gateway->parseWebhook($payload);
+        } catch (ValidationException) {
+            return response()->json(['success' => false, 'error' => 'Invalid payment notification.'], 422);
+        }
         $providerEventId = $parsed['provider_event_id'] ?? '';
         $reference = $parsed['external_reference'] ?? '';
         $amount = (int) ($parsed['amount'] ?? 0);
@@ -47,7 +54,18 @@ class SePayWebhookController extends Controller
         }
 
         // 3. Transactional Idempotency + Payment & Membership Activation (AC-01, AC-02, AC-03, AC-05)
-        $result = DB::transaction(function () use ($providerEventId, $reference, $amount, $currency, $parsed, $payload) {
+        $snapshot = Payment::query()->where('external_reference', $reference)->first();
+        if (! $snapshot) {
+            return response()->json(['success' => false, 'error' => 'Payment reference not found.'], 404);
+        }
+
+        $result = DB::transaction(function () use ($providerEventId, $reference, $amount, $currency, $parsed, $snapshot) {
+            // Same lock order as checkout: actor -> tenant -> invite -> membership -> payment.
+            $actor = User::query()->whereKey($snapshot->user_id)->lockForUpdate()->first();
+            $community = Community::query()->whereKey($snapshot->community_id)->lockForUpdate()->first();
+            $invite = CommunityInvitation::query()->whereKey($snapshot->community_invitation_id)->lockForUpdate()->first();
+            $membership = CommunityMembership::where('community_id', $snapshot->community_id)
+                ->where('user_id', $snapshot->user_id)->lockForUpdate()->first();
             $payment = Payment::where('external_reference', $reference)
                 ->lockForUpdate()
                 ->first();
@@ -65,10 +83,16 @@ class SePayWebhookController extends Controller
                     'provider' => Payment::PROVIDER_SEPAY_SANDBOX,
                     'provider_event_id' => $providerEventId,
                     'external_reference' => $reference,
-                    'payload' => $payload,
+                    'payload' => $parsed,
                     'processed_at' => now(),
                 ]);
             } catch (UniqueConstraintViolationException) {
+                $event = ProcessedWebhookEvent::query()->where('provider', Payment::PROVIDER_SEPAY_SANDBOX)
+                    ->where('provider_event_id', $providerEventId)->first();
+                if (! $event || $event->external_reference !== $reference) {
+                    return ['status' => 422, 'body' => ['error' => 'Event is already bound to another payment.']];
+                }
+
                 // Already processed - return 200 safely without executing duplicate activation
                 return [
                     'status' => 200,
@@ -82,6 +106,10 @@ class SePayWebhookController extends Controller
                     'status' => 200,
                     'body' => ['message' => 'Payment was already completed.'],
                 ];
+            }
+
+            if (! $payment->isPending()) {
+                return ['status' => 409, 'body' => ['error' => 'Payment is already terminal. Start a new attempt.']];
             }
 
             // Strict amount and currency validation (AC-02)
@@ -101,6 +129,29 @@ class SePayWebhookController extends Controller
                 ];
             }
 
+            $resultStatus = $parsed['status'] ?? null;
+            if (! in_array($resultStatus, [Payment::STATUS_SUCCEEDED, Payment::STATUS_FAILED, Payment::STATUS_CANCELLED], true)) {
+                return ['status' => 422, 'body' => ['error' => 'Unsupported payment result.']];
+            }
+
+            if ($resultStatus !== Payment::STATUS_SUCCEEDED) {
+                $payment->update(['status' => $resultStatus]);
+
+                return ['status' => 200, 'body' => ['message' => 'Payment result recorded without granting access.']];
+            }
+
+            // A late IPN must not undo moderation or a member's departure.
+            if (! $community || ! $community->isActive() || $community->access_mode !== 'PAID'
+                || ! $actor || ! $actor->hasVerifiedEmail() || $community->isCreator($actor)
+                || ! $invite || ! $invite->isPending() || $invite->community_id !== $community->id
+                || $invite->normalized_email !== strtolower(trim($actor->email))) {
+                return ['status' => 409, 'body' => ['error' => 'Invitation is no longer eligible for activation.']];
+            }
+
+            if (! $membership || $membership->status !== 'PENDING_PAYMENT') {
+                return ['status' => 409, 'body' => ['error' => 'Membership is not awaiting this payment.']];
+            }
+
             // Transition payment to SUCCEEDED (AC-01)
             $payment->update([
                 'status' => Payment::STATUS_SUCCEEDED,
@@ -110,21 +161,7 @@ class SePayWebhookController extends Controller
             ]);
 
             // Activate matching membership transactionally (AC-01, AC-05)
-            $membership = CommunityMembership::where('community_id', $payment->community_id)
-                ->where('user_id', $payment->user_id)
-                ->lockForUpdate()
-                ->first();
-
-            if ($membership) {
-                $membership->forceFill(['status' => 'ACTIVE'])->save();
-            } else {
-                $membership = new CommunityMembership;
-                $membership->forceFill([
-                    'community_id' => $payment->community_id,
-                    'user_id' => $payment->user_id,
-                    'status' => 'ACTIVE',
-                ])->save();
-            }
+            $membership->forceFill(['status' => 'ACTIVE'])->save();
 
             // Complete invitation if linked
             if ($payment->community_invitation_id) {
@@ -148,6 +185,6 @@ class SePayWebhookController extends Controller
             ];
         }, 3);
 
-        return response()->json($result['body'], $result['status']);
+        return response()->json(['success' => $result['status'] === 200] + $result['body'], $result['status']);
     }
 }
