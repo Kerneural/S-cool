@@ -47,6 +47,20 @@ jobs:
               --redact \
               --no-banner
 
+      - name: Scan application PHP security patterns
+        run: |
+          docker run --rm \
+            -v "$PWD:/src:ro" \
+            -w /src \
+            semgrep/semgrep:1.180.0 \
+            semgrep scan \
+              --config .github/semgrep.yml \
+              --metrics=off \
+              --disable-version-check \
+              --strict \
+              --error \
+              app routes
+
       - name: Build PHP runtime image
         run: |
           docker build --progress=plain \
