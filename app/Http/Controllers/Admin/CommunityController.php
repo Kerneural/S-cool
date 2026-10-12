@@ -20,9 +20,15 @@ class CommunityController extends Controller
     {
         $statusFilter = $request->query('status');
 
+        // Query parameters may be arrays; never pass an invalid filter to Blade.
+        if (! is_string($statusFilter)
+            || ! in_array($statusFilter, ['ACTIVE', 'SUSPENDED', 'ARCHIVED'], true)) {
+            $statusFilter = null;
+        }
+
         $query = Community::query()->with(['creator', 'latestPlatformAdminAction.admin']);
 
-        if (in_array($statusFilter, ['ACTIVE', 'SUSPENDED', 'ARCHIVED'], true)) {
+        if ($statusFilter !== null) {
             $query->where('status', $statusFilter);
         }
 

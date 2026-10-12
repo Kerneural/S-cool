@@ -1,0 +1,12 @@
+rules:
+  - id: scool-php-review-eval
+    languages: [php]
+    severity: ERROR
+    message: Avoid eval; review the need for dynamic PHP execution.
+    pattern: eval(...)
+
+  - id: scool-php-review-unserialize
+    languages: [php]
+    severity: ERROR
+    message: Review unserialize input trust; prefer JSON for exchanged data.
+    pattern: unserialize(...)

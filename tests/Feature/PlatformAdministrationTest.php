@@ -106,6 +106,22 @@ class PlatformAdministrationTest extends TestCase
         $response->assertDontSee('Archived Comm');
     }
 
+    public function test_invalid_status_filters_fall_back_to_the_unfiltered_listing(): void
+    {
+        $admin = User::factory()->platformAdmin()->create();
+        Community::factory()->create(['name' => 'Synthetic active filter', 'status' => 'ACTIVE']);
+        Community::factory()->create(['name' => 'Synthetic suspended filter', 'status' => 'SUSPENDED']);
+
+        foreach ([['ACTIVE'], ['nested' => ['ACTIVE']], 'UNKNOWN', ''] as $status) {
+            $this->actingAs($admin)->get(route('admin.communities.index', ['status' => $status]))
+                ->assertOk()
+                ->assertViewHas('statusFilter', null)
+                ->assertSee('Synthetic active filter')
+                ->assertSee('Synthetic suspended filter');
+        }
+        $this->assertDatabaseCount('platform_admin_actions', 0);
+    }
+
     public function test_platform_admin_can_suspend_active_community_with_mandatory_reason(): void
     {
         $admin = User::factory()->platformAdmin()->create(['name' => 'Root Admin']);

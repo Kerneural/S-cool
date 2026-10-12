@@ -64,6 +64,30 @@ if command -v cygpath >/dev/null 2>&1; then
     export MSYS_NO_PATHCONV=1
 fi
 compose=(docker compose --project-directory "$docker_root" -f "$docker_root/docker-compose.yml" -p scool)
+check_local_config() {
+    # Read current .env/config without deleting the running application's cache.
+    # Both is_file() and file_exists() must be false. A path below the Linux
+    # null device cannot exist; the override is process-local and writes nothing.
+    run "$1" "${compose[@]}" run --rm --no-deps -e APP_CONFIG_CACHE=/dev/null/scool-sync-config.php app php -r '
+        require "vendor/autoload.php";
+        $app = require "bootstrap/app.php";
+        $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+        $checks = [
+            "APP_URL" => [config("app.url") === "http://127.0.0.1:8080", "http://127.0.0.1:8080"],
+            "MAIL_MAILER" => [config("mail.default") === "smtp", "smtp"],
+            "MAIL_HOST" => [config("mail.mailers.smtp.host") === "mailpit", "mailpit"],
+            "MAIL_PORT" => [(int) config("mail.mailers.smtp.port") === 1025, "1025"],
+        ];
+        $failed = false;
+        foreach ($checks as $name => [$matches, $expected]) {
+            if (! $matches) {
+                fwrite(STDERR, "[FAIL] ".$name." must be ".$expected."; correct this setting in your existing .env or environment overrides. Current value omitted.\n");
+                $failed = true;
+            }
+        }
+        exit($failed ? 1 : 0);
+    '
+}
 run 'Docker engine' docker info --format '{{.ServerVersion}}'
 run 'Compose configuration' "${compose[@]}" config --quiet
 volume=$(run 'Existing local database volume' docker volume inspect scool_scool_mysql_data --format '{{.Name}}')
@@ -81,6 +105,9 @@ for service in app nginx mysql mailpit queue; do
         assert_checkout_owner "$repo_root" "$owner"
     fi
 done
+# Fail before stopping services or updating source/dependencies, including reruns.
+check_local_config 'Local URL/SMTP preflight; no services have been stopped by this phase'
+assert_env_unchanged
 if [[ "$no_pull" == false ]]; then
     run 'Fetch main' git fetch origin main
     ahead=$(git rev-list --count origin/main..HEAD)
@@ -104,7 +131,7 @@ run 'Locked PHP dependencies' "${compose[@]}" run --rm --no-deps app composer in
 run 'Locked frontend dependencies' npm ci
 run 'Clear stale configuration' "${compose[@]}" run --rm --no-deps app php artisan config:clear
 run 'Validate local scool and isolated scool_test' "${compose[@]}" run --rm --no-deps app php scripts/verify-runtime.php config
-run 'Local URL/SMTP must use http://127.0.0.1:8080 and smtp/mailpit:1025; correct .env manually if needed' "${compose[@]}" run --rm --no-deps app php -r 'require "vendor/autoload.php"; $app = require "bootstrap/app.php"; $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap(); exit(config("app.url") === "http://127.0.0.1:8080" && config("mail.default") === "smtp" && config("mail.mailers.smtp.host") === "mailpit" && (int) config("mail.mailers.smtp.port") === 1025 ? 0 : 1);'
+check_local_config 'Local URL/SMTP recheck before migrations'
 assert_env_unchanged
 run 'Apply pending forward migrations' "${compose[@]}" run --rm --no-deps app php artisan migrate --no-interaction
 run 'Start updated stack' "${compose[@]}" up -d --wait --wait-timeout 120

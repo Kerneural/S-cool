@@ -9,6 +9,7 @@ The current environment is local development, not a production deployment.
 > **After a PR is merged, sync before starting your next issue.**
 > Keep your work committed, start Docker, stop Vite and use a clean `main`.
 > Keep your existing `.env`/key and `APP_URL=http://127.0.0.1:8080`.
+> Local mail must use `MAIL_MAILER=smtp`, `MAIL_HOST=mailpit`, `MAIL_PORT=1025`.
 > This is for an existing installation, not Bootstrap.
 
 Receive this version of the script once, from the repository root:
@@ -26,10 +27,15 @@ git switch main
 bash scripts/sync-local.sh
 ```
 
-The script fetches and fast-forwards main, stops web/worker, rebuilds PHP images,
+The script checks fresh local URL/SMTP configuration before stopping services,
+then fetches main, stops web/worker, fast-forwards main and rebuilds PHP images,
 installs locked dependencies, validates the local databases, applies pending migrations,
 restarts the stack and runs Verify (including `npm run build` and tests).
 Wait for **`[PASS] Local sync complete`**, then create your next issue branch from main.
+
+A URL/SMTP preflight rejection names each incorrect setting without printing its value.
+Correct only those entries in your existing `.env` (or explicit environment overrides),
+then rerun sync. Pull never replaces `.env`; an old `localhost` value stays until corrected.
 
 Sync refuses dirty/feature branches, unpublished main commits, Vite's hot file,
 missing installations and stacks owned by another checkout. It never stashes/resets work,
@@ -131,6 +137,58 @@ docker compose -p scool restart queue
 npm run build
 ```
 
+## Review and fix a teammate's PR
+
+> [!IMPORTANT]
+> **Fix on the PR's source branch, test, then push to that same branch.**
+> This updates the existing PR; do not create a second PR for the same branch.
+> Record your current branch and commit or explicitly stash unfinished work first.
+> Switching branches changes working files, not your local database or dependencies.
+
+Example: PR source branch `eur-9-lesson-progress`. Replace it with the actual PR branch.
+
+```bash
+git status                         # Stop if there are uncommitted changes
+git branch --show-current          # Remember your return branch
+git fetch origin                   # Download remote commits; no integration yet
+git switch --track origin/eur-9-lesson-progress  # First local checkout only
+# If the local branch already exists, use instead:
+# git switch eur-9-lesson-progress
+git pull --ff-only origin eur-9-lesson-progress # Refuse divergent history
+```
+
+Confirm the branch/HEAD match the intended PR. Read its outcome, AC and diff;
+make only scoped fixes. If checkout or fast-forward fails, inspect the cause;
+do not reset, force-push or discard changes. If remote commits arrive during
+review, integrate them deliberately and rerun affected checks before pushing.
+
+Before running the branch, inspect dependency/configuration/migration changes.
+Install changed lockfiles and apply reviewed forward migrations if needed;
+never use Bootstrap, database resets or volume deletion on an existing installation.
+Use the daily operations below to start the stack/restart workers. Stop Vite,
+then verify the actual branch and manually test the PR's AC:
+
+```bash
+bash scripts/verify-fresh-setup.sh --mode verify
+git diff                           # Review the final changes
+git diff --check
+git status
+git add path/to/changed-file path/to/changed-test # Explicit paths only
+git diff --cached                  # Confirm exactly what will be committed
+git commit -m "fix: describe the reviewed correction"
+git push origin HEAD:eur-9-lesson-progress
+```
+
+Add the commit hash, test results and remaining gaps to the existing PR/issue.
+Merge only after acceptance and required checks. For your own new feature branch
+without an existing PR, create a PR after pushing; that is a different workflow.
+
+To return, ensure the review branch is clean, then run `git switch YOUR_PREVIOUS_BRANCH`.
+Committed files return to that branch's version; database migrations, installed
+dependencies and running workers do not roll back. Never run `sync-local.sh` on
+a review branch: it requires clean `main`. Use a separate worktree/runtime when
+incompatible changes require isolation; another complete stack is not mandatory.
+
 ## Daily operations
 
 Run from the repository root. Always use project `scool` to keep the namespace independent of the folder name.
@@ -160,6 +218,46 @@ bash scripts/test-setup-verification.sh                # Setup guard regressions
 
 Verify requires the running stack with Vite stopped; it does not migrate/seed the development DB.
 If `public/hot` remains, confirm Vite has stopped before removing that file.
+
+## CI and merge gate
+
+`.github/workflows/ci.yml` runs on PRs targeting `main`, pushes to `main`, and manual dispatch.
+The required GitHub Actions check is **`CI/ Runner Preflight`**; normal merges need it green
+and the existing PR approval. Administrator bypass remains available: never use it to
+merge a failed check. Branch updates do not require automatic rebasing; rerun integration
+checks after changes that affect the tested base.
+
+The runner checks out the PR merge-ref (not just its head), installs locked dependencies,
+builds Vite assets and the shared PHP image, then runs dependency audits, redacted Gitleaks,
+Trivy, Semgrep, Pint, Larastan/PHPStan and the full MySQL `scool_test` suite with live Mailpit.
+Skipped or empty test suites fail. Larastan starts at level 0 over `app` and `routes` to add
+a small baseline without blanket ignores; it does not prove type correctness or cover every
+security risk. Semgrep currently checks only `eval` and `unserialize`, not all vulnerabilities.
+
+For local triage, use the Verification commands above, plus:
+
+```bash
+npm ci && npm run build
+npm audit --audit-level=high
+docker compose -p scool exec -T app composer validate --strict
+docker compose -p scool exec -T app composer audit --locked
+docker compose -p scool exec -T -e APP_ENV=testing -e DB_DATABASE=scool_test app vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M --no-progress
+```
+
+Open the first failed Actions step, reproduce its command, fix the cause and rerun CI.
+Do not suppress assertions, skipped integrations, scanner findings or exit codes to get green.
+Record both the PR head and the actual tested merge-ref SHA; after merge, confirm the `main`
+push run too. A green run is not proof of enforcement: use a separate harmless failing PR,
+record the required check red and normal-merge blocking, restore the original code, then
+record green. Never merge the experiment PR.
+
+Only npm/Composer downloads and PHP image layers are cached, not `.env`, database data or
+the application dependency directories. Buildx cache misses build normally; `pull: true`
+checks base images but cached package-install layers do not refresh packages automatically.
+The image is loaded into the runner, not pushed to a registry. Successful-run artifacts
+contain only JUnit, the tested SHA and built manifest/assets, with seven-day retention;
+inspect/sanitize reports before sharing. Failure logs remain in Actions. Cleanup stops only
+runner services without deleting volumes. This is CI, not production deployment/CD.
 
 ## Safety
 
