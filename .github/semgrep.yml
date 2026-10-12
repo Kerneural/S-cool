@@ -2,7 +2,7 @@ rules:
   - id: scool-php-review-eval
     languages: [php]
     severity: ERROR
-    message: Avoid eval; review the need for dynamic PHP executioni.
+    message: Avoid eval; review the need for dynamic PHP execution.
     pattern: eval(...)
 
   - id: scool-php-review-unserialize
