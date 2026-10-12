@@ -54,6 +54,23 @@ jobs:
             -t scool-php:ci .
           docker run --rm scool-php:ci php --version
 
+      - name: Scan PHP runtime image
+        run: |
+          docker image inspect scool-php:ci --format '{{.Id}}'
+
+          docker save scool-php:ci \
+            -o "$RUNNER_TEMP/scool-php-ci.tar"
+
+            docker run --rm \
+              -v "$RUNNER_TEMP/scool-php-ci.tar:/scan/image.tar:ro" \
+              aquasec/trivy:0.75.0 \
+              image \
+                --input /scan/image.tar \
+                --scanners vuln \
+                --severity HIGH,CRITICAL \
+                --exit-code 1 \
+                --timeout 5m
+
       - name: Install and build frontend
         run: |
           node --version
