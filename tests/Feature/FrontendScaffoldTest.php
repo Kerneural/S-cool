@@ -91,5 +91,9 @@ class FrontendScaffoldTest extends TestCase
         $response->assertSee('x-show="show"', false);
         $response->assertSee('x-on:close.stop="show = false"', false);
         $response->assertSee('x-on:keydown.escape.window="show = false"', false);
+
+        // The panel must sit above the fixed backdrop even without a transform.
+        // Browser hit-testing is still required to verify actual pointer behavior.
+        $response->assertSee('class="relative z-10 mb-6 bg-white', false);
     }
 }
