@@ -93,6 +93,15 @@ jobs:
           npm run build
           test -f public/build/manifest.json
 
+      - name: Validate PHP dependency files
+        run: |
+          test -f composer.lock
+
+          docker run --rm \
+            -v "$PWD:/var/www/html:ro" \
+            scool-php:ci \
+            composer validate --strict --no-interaction
+
       - name: Install PHP dependencies
         run: |
           docker run --rm \
