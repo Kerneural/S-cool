@@ -59,6 +59,15 @@ jobs:
 
           test -f vendor/autoload.php
 
+      - name: Check dependency security
+        run: |
+          npm audit --audit-level=high
+
+          docker run --rm \
+            -v "$PWD:/var/www/html" \
+            scool-php:ci \
+            composer audit --locked
+
       - name: Check PHP formatting
         run: |
           docker run --rm \
