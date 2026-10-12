@@ -1,24 +1,257 @@
 name: S-cool CI
 
 on:
-    pull_request:
-        branches: ["main"]
-    push:
-        branches: ["main"]
-    workflow_dispatch:
+  pull_request:
+    branches: ["main"]
+  push:
+    branches: ["main"]
+  workflow_dispatch:
 
+permissions:
+  contents: read
 
-permissions: read-all
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-    preflight:
-        name: CI/ Runner Preflight
-        runs-on: ubuntu-24.04
-        timeout-minutes: 5
+  preflight:
+    name: CI/ Runner Preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
 
-        steps:
-            - name: Inspect runner tools
-              run: |
-                  uname -a
-                  docker version
-                  docker compose version
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Verify repository files
+        run: |
+          pwd
+          git rev-parse HEAD
+          test -f composer.json
+          test -f docker-compose.yml
+          echo "Repository files are present."
+      - name: Inspect runner tools
+        run: |
+          uname -a
+          docker version
+          docker compose version
+
+      - name: Scan Git history for secrets
+        run: |
+          docker run --rm \
+            --user "$(id -u):$(id -g)" \
+            -v "$PWD:/repo:ro" \
+            ghcr.io/gitleaks/gitleaks:v8.30.1 \
+            git /repo \
+              --log-opts="--all" \
+              --redact \
+              --no-banner
+
+      - name: Test PHP security scanner rules
+        run: |
+          docker run --rm \
+            -v "$PWD:/src:ro" \
+            -w /src \
+            semgrep/semgrep:1.180.0 \
+            semgrep scan \
+              --test \
+              --config .github/semgrep.yml \
+              --metrics=off \
+              --disable-version-check \
+              tests/semgrep/semgrep.php
+
+      - name: Scan application PHP security patterns
+        run: |
+          docker run --rm \
+            -v "$PWD:/src:ro" \
+            -w /src \
+            semgrep/semgrep:1.180.0 \
+            semgrep scan \
+              --config .github/semgrep.yml \
+              --metrics=off \
+              --disable-version-check \
+              --strict \
+              --error \
+              app routes
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+
+      - name: Build PHP runtime image
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+        env:
+          DOCKER_BUILD_RECORD_UPLOAD: "false"
+        with:
+          context: .
+          file: docker/php/Dockerfile
+          tags: scool-php:ci
+          load: true
+          push: false
+          pull: true
+          cache-from: type=gha,scope=scool-php
+          cache-to: type=gha,scope=scool-php,mode=max
+
+      - name: Verify PHP runtime image
+        run: docker run --rm scool-php:ci php --version
+
+      - name: Scan PHP runtime image
+        run: |
+          docker image inspect scool-php:ci --format '{{.Id}}'
+
+          docker save scool-php:ci \
+            -o "$RUNNER_TEMP/scool-php-ci.tar"
+
+            docker run --rm \
+              -v "$RUNNER_TEMP/scool-php-ci.tar:/scan/image.tar:ro" \
+              aquasec/trivy:0.75.0 \
+              image \
+                --input /scan/image.tar \
+                --scanners vuln \
+                --severity HIGH,CRITICAL \
+                --exit-code 1 \
+                --timeout 5m
+
+      - name: Setup Node
+        id: node
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        with:
+          node-version: "22"
+          check-latest: true
+          package-manager-cache: false
+
+      - name: Cache npm downloads
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        with:
+          path: ~/.npm/_cacache
+          key: ${{ runner.os }}-${{ runner.arch }}-npm-node-${{ steps.node.outputs.node-version }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install and build frontend
+        run: |
+          node --version
+          npm --version
+          npm ci
+          npm run build
+          test -f public/build/manifest.json
+
+      - name: Validate PHP dependency files
+        run: |
+          test -f composer.lock
+
+          docker run --rm \
+            -v "$PWD:/var/www/html:ro" \
+            scool-php:ci \
+            composer validate --strict --no-interaction
+
+      - name: Cache Composer downloads
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        with:
+          path: storage/framework/testing/composer-cache/files
+          key: ${{ runner.os }}-${{ runner.arch }}-composer-php82-${{ hashFiles('composer.lock', 'docker/php/Dockerfile', 'docker/php/security.ini') }}
+
+      - name: Install PHP dependencies
+        run: |
+          mkdir -p storage/framework/testing/composer-cache
+
+          docker run --rm \
+            -v "$PWD:/var/www/html" \
+            -v "$PWD/storage/framework/testing/composer-cache:/composer-cache" \
+            -e COMPOSER_CACHE_DIR=/composer-cache \
+            scool-php:ci \
+            composer install --no-interaction --prefer-dist
+
+          test -f vendor/autoload.php
+          test -f vendor/bin/phpstan
+
+      - name: Check dependency security
+        run: |
+          npm audit --audit-level=high
+
+          docker run --rm \
+            -v "$PWD:/var/www/html" \
+            scool-php:ci \
+            composer audit --locked
+
+      - name: Check PHP formatting
+        run: |
+          docker run --rm \
+          -v "$PWD:/var/www/html" \
+          scool-php:ci \
+          composer run pint:test
+
+      - name: Start test services
+        run: |
+          docker compose -p scool up -d \
+            --wait --wait-timeout 120 \
+            mysql mailpit
+
+          docker compose -p scool ps
+
+      - name: Prepare Laravel environment
+        run: |
+          test ! -e .env
+          cp .env.example .env
+
+          docker run --rm \
+          -v "$PWD:/var/www/html" \
+          scool-php:ci \
+          php artisan key:generate --no-interaction
+
+      - name: Analyse PHP code
+        run: |
+          docker run --rm \
+            --network scool_scool-network \
+            -v "$PWD:/var/www/html" \
+            -e APP_ENV=testing \
+            -e DB_DATABASE=scool_test \
+            scool-php:ci \
+            vendor/bin/phpstan analyse \
+              --configuration=phpstan.neon \
+              --memory-limit=512M \
+              --no-progress
+
+      - name: Run application test
+        run: |
+          mkdir -p storage/framework/testing
+
+          docker run --rm \
+            --network scool_scool-network \
+            -v "$PWD:/var/www/html" \
+            -e APP_ENV=testing \
+            -e DB_DATABASE=scool_test \
+            scool-php:ci \
+            php artisan test \
+              --fail-on-skipped \
+              --fail-on-empty-test-suite \
+              --log-junit storage/framework/testing/junit.xml
+
+      - name: Prepare CI evidence
+        run: |
+          test -s storage/framework/testing/junit.xml
+          test -s public/build/manifest.json
+          test -d public/build/assets
+
+          git rev-parse HEAD > storage/framework/testing/tested-sha.txt
+
+      - name: Upload successful CI evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ci-evidence-${{ github.sha }}-${{ github.run_attempt }}
+          retention-days: 7
+          if-no-files-found: error
+          include-hidden-files: false
+          path: |
+            storage/framework/testing/junit.xml
+            storage/framework/testing/tested-sha.txt
+            public/build/manifest.json
+            public/build/assets/
+
+      - name: Stop test services
+        if: always()
+        run: |
+          docker compose -p scool down --remove-orphans
+
+# test comment

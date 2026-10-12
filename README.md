@@ -192,6 +192,46 @@ bash scripts/test-setup-verification.sh                # Setup guard regressions
 Verify requires the running stack with Vite stopped; it does not migrate/seed the development DB.
 If `public/hot` remains, confirm Vite has stopped before removing that file.
 
+## CI and merge gate
+
+`.github/workflows/ci.yml` runs on PRs targeting `main`, pushes to `main`, and manual dispatch.
+The required GitHub Actions check is **`CI/ Runner Preflight`**; normal merges need it green
+and the existing PR approval. Administrator bypass remains available: never use it to
+merge a failed check. Branch updates do not require automatic rebasing; rerun integration
+checks after changes that affect the tested base.
+
+The runner checks out the PR merge-ref (not just its head), installs locked dependencies,
+builds Vite assets and the shared PHP image, then runs dependency audits, redacted Gitleaks,
+Trivy, Semgrep, Pint, Larastan/PHPStan and the full MySQL `scool_test` suite with live Mailpit.
+Skipped or empty test suites fail. Larastan starts at level 0 over `app` and `routes` to add
+a small baseline without blanket ignores; it does not prove type correctness or cover every
+security risk. Semgrep currently checks only `eval` and `unserialize`, not all vulnerabilities.
+
+For local triage, use the Verification commands above, plus:
+
+```bash
+npm ci && npm run build
+npm audit --audit-level=high
+docker compose -p scool exec -T app composer validate --strict
+docker compose -p scool exec -T app composer audit --locked
+docker compose -p scool exec -T -e APP_ENV=testing -e DB_DATABASE=scool_test app vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M --no-progress
+```
+
+Open the first failed Actions step, reproduce its command, fix the cause and rerun CI.
+Do not suppress assertions, skipped integrations, scanner findings or exit codes to get green.
+Record both the PR head and the actual tested merge-ref SHA; after merge, confirm the `main`
+push run too. A green run is not proof of enforcement: use a separate harmless failing PR,
+record the required check red and normal-merge blocking, restore the original code, then
+record green. Never merge the experiment PR.
+
+Only npm/Composer downloads and PHP image layers are cached, not `.env`, database data or
+the application dependency directories. Buildx cache misses build normally; `pull: true`
+checks base images but cached package-install layers do not refresh packages automatically.
+The image is loaded into the runner, not pushed to a registry. Successful-run artifacts
+contain only JUnit, the tested SHA and built manifest/assets, with seven-day retention;
+inspect/sanitize reports before sharing. Failure logs remain in Actions. Cleanup stops only
+runner services without deleting volumes. This is CI, not production deployment/CD.
+
 ## Safety
 
 - Tests use `scool_test`, separate from development `scool`. The test DB is created on initial volume setup; older volumes missing it need separate investigation.
