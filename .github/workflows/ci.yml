@@ -151,6 +151,7 @@ jobs:
             composer install --no-interaction --prefer-dist
 
           test -f vendor/autoload.php
+          test -f vendor/bin/phpstan
 
       - name: Check dependency security
         run: |
@@ -211,7 +212,7 @@ jobs:
             scool-php:ci \
             php artisan test \
               --fail-on-skipped \
-              --fail-on-empty-test-suite
+              --fail-on-empty-test-suite \
               --log-junit storage/framework/testing/junit.xml
 
       - name: Prepare CI evidence
