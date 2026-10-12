@@ -9,4 +9,4 @@ rules:
     langluages: [php]
     severity: ERROR
     message: Review unserialize input trust; prefer JSON for exchanged data.
-    pattern: unserialze(...)
+    pattern: unserialize(...)
