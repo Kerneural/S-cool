@@ -27,9 +27,9 @@
                         </svg>
                     </div>
                     <h1 class="text-2xl font-bold text-gray-900 mb-2">Đang chờ thanh toán</h1>
-                    <p class="text-gray-600 text-sm mb-6">Giao dịch của bạn đang chờ xác nhận từ SePay. Vui lòng hoàn tất chuyển khoản.</p>
+                    <p class="text-gray-600 text-sm mb-6">SePay Test Mode: giao dịch đang chờ xác nhận. Chỉ mô phỏng giao dịch trong SePay Test Mode. Không chuyển tiền thật.</p>
                     <a href="{{ route('payments.checkout', $payment->external_reference) }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
-                        Quay lại trang chuyển khoản
+                        Quay lại checkout thử nghiệm
                     </a>
                 @else
                     <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -39,6 +39,7 @@
                     </div>
                     <h1 class="text-2xl font-bold text-gray-900 mb-2">Giao dịch thất bại</h1>
                     <p class="text-gray-600 text-sm mb-6">Thanh toán không thành công hoặc đã bị hủy.</p>
+                    <p class="text-gray-600 text-sm mb-6">Để thử lại, mở link lời mời cộng đồng gốc trong email và chọn Paid Checkout. Lời mời phải còn hiệu lực; không chuyển tiền thật.</p>
                     <a href="{{ route('dashboard') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
                         Về trang chủ
                     </a>

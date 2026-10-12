@@ -140,6 +140,11 @@ Do not expose the full app, Mailpit or MySQL. No tunnel is started by setup scri
 Creator sets PAID and a price → sends an invitation → matching verified invitee
 starts Paid Checkout → simulate an **incoming** transaction in SePay Test Mode,
 using the displayed reference and exact amount. Do not scan a real-bank QR or send real money.
+After login/email verification, reopen the original community invitation email link.
+The verification email and a typed `/invitations/{id}` URL do not carry the invitation
+token. The token is removed from browser history and kept only in the current page;
+refresh/back navigation requires reopening the original link. Missing-token buttons
+remain disabled, including when JavaScript cannot start.
 Only an authenticated matching webhook activates membership; refreshing/status URLs cannot.
 Cancel stops the pending attempt without access; reopen the original valid invitation to retry
 with a new attempt. Old attempts keep their original price after a Creator changes pricing.

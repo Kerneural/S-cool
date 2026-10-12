@@ -368,4 +368,32 @@ class SePayPaymentTest extends TestCase
         $response->assertSee('SePay Test Mode');
         $response->assertDontSee('https://qr.sepay.vn');
     }
+
+    public function test_invitation_screen_explains_missing_token_without_disclosing_community(): void
+    {
+        $community = Community::factory()->create(['access_mode' => 'PAID']);
+        $user = User::factory()->create();
+        [$invitation] = $this->createInvitation($community, $user);
+
+        $this->actingAs($user)->get('/invitations/'.$invitation->id)
+            ->assertOk()->assertSee('Both buttons are disabled.')
+            ->assertSee('The verification email is not the community invitation.')
+            ->assertSee('JavaScript is required')
+            ->assertDontSee($community->name);
+        $this->post('/invitations/'.$invitation->id.'/checkout', ['token' => ''])
+            ->assertNotFound();
+        $this->assertDatabaseCount('payments', 0);
+        $this->assertDatabaseCount('community_memberships', 0);
+    }
+
+    public function test_pending_status_warns_against_real_transfers_and_remains_read_only(): void
+    {
+        $user = User::factory()->create();
+        $payment = Payment::factory()->create(['user_id' => $user->id]);
+        $this->actingAs($user)->get('/payments/'.$payment->external_reference.'/status')
+            ->assertOk()->assertSee('SePay Test Mode')->assertSee('Không chuyển tiền thật.')
+            ->assertDontSee('Vui lòng hoàn tất chuyển khoản.');
+        $this->assertSame(Payment::STATUS_PENDING, $payment->fresh()->status);
+        $this->assertDatabaseCount('community_memberships', 0);
+    }
 }
