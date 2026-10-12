@@ -126,7 +126,7 @@
                                 <tbody class="bg-white divide-y divide-gray-200 text-sm">
                                     @foreach ($communities as $community)
                                         @php
-                                            $latestAction = $community->platformAdminActions->sortByDesc('id')->first();
+                                            $latestAction = $community->latestPlatformAdminAction;
                                         @endphp
                                         <tr class="hover:bg-gray-50">
                                             <td class="px-4 py-3 font-mono text-xs text-gray-500">

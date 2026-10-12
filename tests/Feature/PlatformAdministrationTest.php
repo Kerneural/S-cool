@@ -5,8 +5,12 @@ namespace Tests\Feature;
 use App\Models\Community;
 use App\Models\CommunityMembership;
 use App\Models\Course;
+use App\Models\PlatformAdminAction;
 use App\Models\User;
+use Database\Seeders\DatabaseSeeder;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
@@ -293,7 +297,6 @@ class PlatformAdministrationTest extends TestCase
             'email' => 'sneaky@example.com',
             'password' => 'Password123!',
             'password_confirmation' => 'Password123!',
-            'is_platform_admin' => 1,
             'is_platform_admin' => true,
         ]);
 
@@ -309,5 +312,150 @@ class PlatformAdministrationTest extends TestCase
         ]);
 
         $this->assertFalse($user->fresh()->is_platform_admin);
+    }
+
+    public function test_profile_deletion_cannot_erase_admin_audit_history(): void
+    {
+        $admin = User::factory()->platformAdmin()->create();
+        $community = Community::factory()->create();
+        $this->actingAs($admin)->post(route('admin.communities.suspend', $community), [
+            'reason' => 'Synthetic audit retention test',
+        ])->assertSessionHasNoErrors();
+
+        $this->from('/profile')->delete('/profile', ['password' => 'password'])
+            ->assertRedirect('/profile')
+            ->assertSessionHasErrorsIn('userDeletion', 'password');
+
+        $this->assertNotNull($admin->fresh());
+        $this->assertAuthenticatedAs($admin);
+        $this->assertDatabaseCount('platform_admin_actions', 1);
+        $this->assertSame('SUSPENDED', $community->fresh()->status);
+    }
+
+    public function test_listing_loads_only_the_latest_audit_action_per_community(): void
+    {
+        $admin = User::factory()->platformAdmin()->create();
+        $community = Community::factory()->create();
+        foreach (range(1, 4) as $number) {
+            PlatformAdminAction::create([
+                'admin_id' => $admin->id,
+                'community_id' => $community->id,
+                'action' => 'SUSPEND',
+                'reason' => 'Synthetic history '.$number,
+                'created_at' => now(),
+            ]);
+        }
+
+        $this->actingAs($admin)->get(route('admin.communities.index'))
+            ->assertOk()
+            ->assertSee('Synthetic history 4')
+            ->assertDontSee('Synthetic history 1')
+            ->assertViewHas('communities', function ($communities) {
+                $community = $communities->first();
+
+                return $community->relationLoaded('latestPlatformAdminAction')
+                    && ! $community->relationLoaded('platformAdminActions');
+            });
+    }
+
+    public function test_fresh_seed_grants_only_the_demo_admin_role_and_rerun_never_promotes_existing_users(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+        $admin = User::where('email', 'admin@scool.local')->firstOrFail();
+        $this->assertTrue($admin->isPlatformAdmin());
+        $this->assertSame(1, User::where('is_platform_admin', true)->count());
+        $admin->forceFill(['is_platform_admin' => false])->save();
+        $attributes = $admin->fresh()->getAttributes();
+
+        $this->seed(DatabaseSeeder::class);
+
+        $this->assertSame($attributes, $admin->fresh()->getAttributes());
+        $this->assertFalse($admin->fresh()->isPlatformAdmin());
+    }
+
+    public function test_unverified_admin_cannot_read_or_change_platform_state(): void
+    {
+        $admin = User::factory()->platformAdmin()->unverified()->create();
+        $community = Community::factory()->create();
+        $this->actingAs($admin)->get(route('admin.communities.index'))
+            ->assertRedirect(route('verification.notice'));
+        foreach (['suspend', 'reactivate'] as $action) {
+            $this->post(route('admin.communities.'.$action, $community), ['reason' => 'Synthetic reason'])
+                ->assertRedirect(route('verification.notice'));
+        }
+        $this->assertSame('ACTIVE', $community->fresh()->status);
+        $this->assertDatabaseCount('platform_admin_actions', 0);
+    }
+
+    public function test_failed_state_transitions_and_invalid_reasons_create_no_audit_records(): void
+    {
+        $admin = User::factory()->platformAdmin()->create();
+        $this->actingAs($admin);
+        foreach (['ACTIVE' => 'suspend', 'SUSPENDED' => 'reactivate'] as $status => $action) {
+            $community = Community::factory()->create(['status' => $status]);
+            foreach (['', '   ', 'ab', str_repeat('x', 1001)] as $reason) {
+                $this->post(route('admin.communities.'.$action, $community), ['reason' => $reason])
+                    ->assertSessionHasErrors('reason');
+                $this->assertSame($status, $community->fresh()->status);
+                $this->assertDatabaseCount('platform_admin_actions', 0);
+            }
+        }
+        $archived = Community::factory()->create(['status' => 'ARCHIVED']);
+        foreach (['suspend', 'reactivate'] as $action) {
+            $this->post(route('admin.communities.'.$action, $archived), ['reason' => 'Synthetic reason'])
+                ->assertSessionHasErrors('community');
+        }
+        $this->assertSame('ARCHIVED', $archived->fresh()->status);
+        $this->assertDatabaseCount('platform_admin_actions', 0);
+    }
+
+    public function test_duplicate_suspend_is_rejected_without_a_second_audit_record(): void
+    {
+        $admin = User::factory()->platformAdmin()->create();
+        $community = Community::factory()->create();
+        $this->actingAs($admin)->post(route('admin.communities.suspend', $community), [
+            'reason' => 'Synthetic first request',
+        ])->assertSessionHasNoErrors();
+        $this->post(route('admin.communities.suspend', $community), [
+            'reason' => 'Synthetic repeated request',
+        ])->assertSessionHasErrors('community');
+        $this->assertSame('SUSPENDED', $community->fresh()->status);
+        $this->assertDatabaseCount('platform_admin_actions', 1);
+    }
+
+    public function test_admin_role_is_not_mass_assignable(): void
+    {
+        $user = User::factory()->create();
+        $user->fill(['is_platform_admin' => true])->save();
+        $this->assertFalse($user->fresh()->isPlatformAdmin());
+    }
+
+    public function test_forward_audit_retention_migration_preserves_rows_and_restricts_direct_deletion(): void
+    {
+        // RefreshDatabase is guarded by TestCase before this test uses scool_test.
+        $admin = User::factory()->platformAdmin()->create();
+        $community = Community::factory()->create();
+        $this->actingAs($admin)->post(route('admin.communities.suspend', $community), [
+            'reason' => 'Synthetic retained audit record',
+        ])->assertSessionHasNoErrors();
+        $original = PlatformAdminAction::firstOrFail()->getAttributes();
+
+        $migration = require database_path('migrations/2026_10_12_010001_preserve_platform_admin_audit_records.php');
+        // Simulate an installation that already ran the original CASCADE migration.
+        $migration->down();
+        $migration->up();
+        $this->assertSame($original, PlatformAdminAction::firstOrFail()->getAttributes());
+
+        foreach (['users' => $admin->id, 'communities' => $community->id] as $table => $id) {
+            try {
+                DB::table($table)->where('id', $id)->delete();
+                $this->fail('Audit parent deletion must be rejected by the database.');
+            } catch (QueryException $exception) {
+                $this->assertSame(1451, (int) $exception->errorInfo[1]);
+            }
+            $this->assertDatabaseHas($table, ['id' => $id]);
+            $this->assertDatabaseCount('platform_admin_actions', 1);
+        }
+        $this->assertSame($original, PlatformAdminAction::firstOrFail()->getAttributes());
     }
 }

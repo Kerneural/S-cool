@@ -20,7 +20,7 @@ class CommunityController extends Controller
     {
         $statusFilter = $request->query('status');
 
-        $query = Community::query()->with(['creator', 'platformAdminActions.admin']);
+        $query = Community::query()->with(['creator', 'latestPlatformAdminAction.admin']);
 
         if (in_array($statusFilter, ['ACTIVE', 'SUSPENDED', 'ARCHIVED'], true)) {
             $query->where('status', $statusFilter);
