@@ -140,54 +140,98 @@ npm run build
 ## Review and fix a teammate's PR
 
 > [!IMPORTANT]
-> **Fix on the PR's source branch, test, then push to that same branch.**
-> This updates the existing PR; do not create a second PR for the same branch.
-> Record your current branch and commit or explicitly stash unfinished work first.
-> Switching branches changes working files, not your local database or dependencies.
+> **Check out PR branch → fix/test → commit/push → latest CI → comments/review → merge → sync main → Linear Done.**
+> Push fixes to the existing PR's source branch; do not create a duplicate PR.
+> Run each command separately and stop on failure. Never reset or force-push to bypass a problem.
 
-Example: PR source branch `eur-9-lesson-progress`. Replace it with the actual PR branch.
+### 1. Get the PR code
+
+Copy the source branch from GitHub. Example: `eur-14-platform-admin`; replace it
+everywhere below with the actual branch. This example assumes a same-repository PR
+and permission to push to its branch; coordinate with the author otherwise.
 
 ```bash
-git status                         # Stop if there are uncommitted changes
-git branch --show-current          # Remember your return branch
-git fetch origin                   # Download remote commits; no integration yet
-git switch --track origin/eur-9-lesson-progress  # First local checkout only
-# If the local branch already exists, use instead:
-# git switch eur-9-lesson-progress
-git pull --ff-only origin eur-9-lesson-progress # Refuse divergent history
+git status                         # Start clean; preserve unfinished work first
+git fetch origin                   # Download commits; does not change local code
+git switch --track origin/eur-14-platform-admin # First local checkout only
+# If the branch already exists, use instead: git switch eur-14-platform-admin
+git pull --ff-only origin eur-14-platform-admin
+git rev-parse HEAD                  # Compare with the PR's latest commit
+git diff origin/main...HEAD         # Inspect the PR changes
 ```
 
-Confirm the branch/HEAD match the intended PR. Read its outcome, AC and diff;
-make only scoped fixes. If checkout or fast-forward fails, inspect the cause;
-do not reset, force-push or discard changes. If remote commits arrive during
-review, integrate them deliberately and rerun affected checks before pushing.
+### 2. Fix and test on that branch
 
-Before running the branch, inspect dependency/configuration/migration changes.
-Install changed lockfiles and apply reviewed forward migrations if needed;
-never use Bootstrap, database resets or volume deletion on an existing installation.
-Use the daily operations below to start the stack/restart workers. Stop Vite,
-then verify the actual branch and manually test the PR's AC:
+Read the Linear outcome/AC, inspect the diff and make only scoped corrections.
+Switching branches changes code, **not** installed dependencies, database schema or
+running workers. Prepare the runtime using [Daily operations](#daily-operations):
+install changed lockfiles, rebuild affected images and apply reviewed forward
+migrations as needed. Do not use Bootstrap, database resets or volume deletion.
+Verify does not install dependencies or migrate the development database.
 
 ```bash
 bash scripts/verify-fresh-setup.sh --mode verify
-git diff                           # Review the final changes
-git diff --check
-git status
-git add path/to/changed-file path/to/changed-test # Explicit paths only
-git diff --cached                  # Confirm exactly what will be committed
-git commit -m "fix: describe the reviewed correction"
-git push origin HEAD:eur-9-lesson-progress
 ```
 
-Add the commit hash, test results and remaining gaps to the existing PR/issue.
-Merge only after acceptance and required checks. For your own new feature branch
-without an existing PR, create a PR after pushing; that is a different workflow.
+Stop Vite before Verify. Manually test the AC on this exact branch, including
+validation and denied-access cases; passing backend tests alone does not prove UI
+behavior. Record results/gaps in the issue section of `docs/WORKING_CONTEXT.md`.
+Never run `sync-local.sh` to preview an open PR: it requires clean `main`.
 
-To return, ensure the review branch is clean, then run `git switch YOUR_PREVIOUS_BRANCH`.
-Committed files return to that branch's version; database migrations, installed
-dependencies and running workers do not roll back. Never run `sync-local.sh` on
-a review branch: it requires clean `main`. Use a separate worktree/runtime when
-incompatible changes require isolation; another complete stack is not mandatory.
+### 3. Commit and update the same PR
+
+Replace the example file paths and commit message with the actual correction.
+
+```bash
+git diff
+git diff --check
+git status
+git add path/to/changed-file path/to/changed-test # Explicit paths; include checkpoint
+git diff --cached                  # Check exactly what will be committed
+git commit -m "fix: describe the correction (EUR-XX)"
+git push origin HEAD:eur-14-platform-admin
+git rev-parse HEAD                  # Record the new PR head
+```
+
+If new remote commits arrive or Git refuses fast-forward/push, inspect and
+integrate deliberately, then rerun affected checks. Do not overwrite teammate
+changes. For a new feature branch without a PR, create one after pushing instead.
+
+### 4. Comment, review and merge
+
+Wait for CI on the **new revision**, not an older green run. Add this evidence to
+the existing GitHub PR and Linear issue; replace placeholders with observed facts:
+
+```text
+Revision: [PR head SHA]; CI tested merge-ref: [SHA / run link]
+Correction: [scope and reason]
+Automated checks: [commands and actual results]
+Manual checks: [scenarios and actual results]
+Remaining gaps: [none, or explicit blockers]
+PR: [URL]
+```
+
+Keep Linear **In Review** until accepted. Merge on GitHub only after manual
+acceptance, current-revision CI and required approvals; never bypass a blocked
+gate. Integrating main or changing the PR again requires re-verification.
+
+### 5. Return to main and close the handoff
+
+After GitHub confirms **Merged**, ensure the PR branch is clean:
+
+```bash
+git status
+git switch main
+git pull --ff-only origin main
+bash scripts/sync-local.sh
+```
+
+Wait for `[PASS] Local sync complete` and check the post-merge main CI. Comment
+on Linear with the merged PR, accepted evidence and sync outcome; then mark the
+accepted issue **Done**. Merge and local sync are separate results; report failures
+instead of claiming success. Other members use the same main/sync sequence with
+their unfinished work safely preserved first. Sync shares code/schema/runtime,
+not each machine's database data.
 
 ## Daily operations
 
