@@ -34,6 +34,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Demo Platform Admin',
                 'email' => 'admin@scool.local',
+                'is_platform_admin' => true,
             ],
             [
                 'name' => 'Test User',
@@ -48,6 +49,7 @@ class UserSeeder extends Seeder
                     'name' => $persona['name'],
                     'password' => Hash::make('password'),
                     'email_verified_at' => now(),
+                    'is_platform_admin' => $persona['is_platform_admin'] ?? false,
                 ]
             );
         }

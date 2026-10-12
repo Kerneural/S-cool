@@ -45,6 +45,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_platform_admin' => 'boolean',
         ];
     }
 
@@ -81,5 +82,15 @@ class User extends Authenticatable implements MustVerifyEmail
     public function createdEvents(): HasMany
     {
         return $this->hasMany(Event::class, 'creator_id');
+    }
+
+    public function isPlatformAdmin(): bool
+    {
+        return (bool) $this->is_platform_admin;
+    }
+
+    public function platformAdminActions(): HasMany
+    {
+        return $this->hasMany(PlatformAdminAction::class, 'admin_id');
     }
 }

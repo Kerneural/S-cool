@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Community extends Model
 {
@@ -75,6 +76,16 @@ class Community extends Model
     public function courses(): HasMany
     {
         return $this->hasMany(Course::class)->orderBy('order')->orderBy('id');
+    }
+
+    public function platformAdminActions(): HasMany
+    {
+        return $this->hasMany(PlatformAdminAction::class);
+    }
+
+    public function latestPlatformAdminAction(): HasOne
+    {
+        return $this->hasOne(PlatformAdminAction::class)->latestOfMany();
     }
 
     public function scopeAccessibleTo(Builder $query, User $user): Builder

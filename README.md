@@ -91,6 +91,33 @@ Persona names do not grant Creator/Member/Admin permissions. Re-running the seed
 preserves existing accounts and passwords; it does not reset them to `password`.
 You can also register a new account.
 
+## Platform Admin local review
+
+After applying pending migrations, a verified Platform Admin can open
+`/admin/communities`. Fresh Bootstrap grants the new `admin@scool.local` demo
+account this role; an existing account keeps its current role when seeding/syncing.
+Never promote an existing account automatically just because its email matches.
+
+If upgrading an existing local installation, a trusted operator may explicitly
+grant the role to the intended demo account. Open Tinker, inspect the selected
+record first, and only then run the last line. This is a local test action, not
+production provisioning; it does not change the password or email verification.
+
+```bash
+docker compose -p scool exec app php artisan tinker
+```
+
+```php
+$user = \App\Models\User::where('email', 'admin@scool.local')->firstOrFail();
+$user->only(['id', 'email', 'is_platform_admin']);
+$user->forceFill(['is_platform_admin' => true])->save();
+```
+
+Admin actions require a reason and retain audit records. Accounts with platform
+audit history cannot delete themselves; community content is not editable through
+the platform role. The retention upgrade is a new migration, so existing audit
+rows survive a normal forward migration; no reset or reseed is required.
+
 ## M2 private-community flow
 
 The dashboard lists communities you own or actively belong to (open [Dashboard](http://127.0.0.1:8080/dashboard)). Create a private community,

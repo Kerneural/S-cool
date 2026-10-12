@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CommunityController as AdminCommunityController;
 use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CommunityController;
@@ -82,6 +83,12 @@ Route::middleware('auth')->group(function () {
         Route::delete('/communities/{community:slug}/courses/{course}/sections/{section}/lessons/{lesson}', [LessonController::class, 'destroy'])->name('communities.lessons.destroy');
         Route::post('/communities/{community:slug}/courses/{course}/sections/{section}/lessons/reorder', [LessonController::class, 'reorder'])->name('communities.lessons.reorder');
     });
+});
+
+Route::middleware(['auth', 'verified', 'platform-admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/communities', [AdminCommunityController::class, 'index'])->name('communities.index');
+    Route::post('/communities/{community}/suspend', [AdminCommunityController::class, 'suspend'])->name('communities.suspend');
+    Route::post('/communities/{community}/reactivate', [AdminCommunityController::class, 'reactivate'])->name('communities.reactivate');
 });
 
 require __DIR__.'/auth.php';
