@@ -2,6 +2,26 @@
 
 A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
+## Shared execution workflow checkpoint (2026-10-10)
+
+- Authorized scope: relocate durable execution lessons to `docs/AI_WORKFLOW.md`, section **Execution efficiency**, and correct entrypoint routing. No application, runtime, dependency, data or publication change is authorized.
+- Starting checkout: `local-sync-safety`, HEAD `1bc6077571273918cdd8ad4d30b48ce12f601876`; the existing edits in `AGENTS.md`, `docs/AI_WORKFLOW.md` and this file are retained/reorganized. All other issue sections are preserved.
+- Diff: workflow owns the detailed observed failures, recovery guidance, bounded execution loop, verification selection/reuse and receiving-agent checklist. `AGENTS.md` requires that workflow section; this context stores only the change checkpoint. Routine checkpoint maintenance cannot silently rewrite the shared contract.
+- Historical evidence from the initial documentation edit: `git diff --check` PASS and `bash scripts/verify-agent-contract.sh --require-tracked` PASS for 11 files through the approved execution route. The sandboxed Git Bash startup exited `-1073741502` without a usable diagnostic; the same denied route was not blindly retried. These results predate relocation and are not fresh verification of the final diff.
+- Verification of the relocation: `git diff --check` PASS; direct routing checks confirmed mandatory reading from `AGENTS.md`/workflow, all four durable subsections in the workflow, no obsolete context routing or duplicate rules, and unchanged remaining issue checkpoints against HEAD. `bash scripts/verify-agent-contract.sh --require-tracked` PASS for 11 shared files via the approved route, without retrying the known failed sandbox startup. Structural checks cannot prove agent compliance; no application suite, runtime operation, index refresh, staging or publication was performed. Only this evidence note changes after those checks.
+- Next: review the bounded documentation diff. Commit/push/PR/merge are not authorized; teammates receive the shared rules only after authorized publication and pull.
+
+## GitNexus local navigation setup (2026-10-09)
+
+- Requested scope: enable graph navigation for this checkout before resuming PR #19 review. That audit, fixes, GitHub/Linear comments and publication remain pending; no PR acceptance is implied.
+- Starting branch `local-sync-safety`, HEAD `e7e612265974bcf20fbb4a6125745e6e5fbc7aef`, working tree clean. Existing GitNexus CLI `1.6.11` and MCP were reused without reinstalling/upgrading or changing global/editor configuration.
+- `.gitnexusrc` enables index-only mode, no embeddings and two workers. `.gitnexusignore` excludes private configuration, runtime storage, uploaded content and dependencies; `.gitignore` excludes the generated index. The optional workflow section routes graph discovery without replacing AGENTS or canonical issue/source evidence.
+- Scanner verification admitted 207 files (54 app, 3 routes, 29 tests, 50 views) and no selected private/runtime paths. Initial analysis succeeded: 1,372 nodes, 2,451 edges, 68 clusters and 56 flows, registered in MCP as `S-cool`.
+- MCP overview, bounded query and `ClassroomController` context succeeded. Source was indexed on this branch, not PR #19. Dynamic Laravel dispatch and UI behavior still require actual source/diff and runtime checks.
+- Agent contract `--require-tracked`: 11 shared files PASS; application/package files and AGENTS unchanged. No Docker/database operations, embeddings, wiki generation, graph publication or Git/Linear writes.
+- A documentation edit made the first index stale; refresh after the setup/checkpoint edits before handoff. Windows sandbox denied a Node/NVM realpath during status; the read-only check worked outside the sandbox. Other hosts remain unverified.
+- Modified files are limited to `.gitignore`, `.gitnexusrc`, `.gitnexusignore`, `docs/AI_WORKFLOW.md` and this checkpoint. No authorization to commit/push these setup changes. Next: confirm fresh status and MCP access, then refresh on the PR revision when the PR #19 audit resumes.
+
 ## Local team sync hardening (2026-10-08)
 
 - Requested outcome: one safe Bash command updates an existing teammate installation after merged changes, without replacing private configuration or resetting local data.
@@ -25,6 +45,28 @@ A checkpoint is historical context, not current Linear/Git/runtime evidence. Ver
 - Real feature-branch invocation correctly stopped before runtime writes. Read-only Compose validation, runtime database guard and canonical URL/local SMTP guard passed; all five existing services remained running/healthy.
 - No full live sync, migrations, configuration reload or dependency/runtime update was performed on this unpublished feature branch. Full application tests were not rerun for this Bash/documentation-only change. Independent-host, Linux/WSL and CI execution remain unverified.
 - Next: review and publish a focused follow-up PR when authorized. Teammates receive the script once with a fast-forward pull, then use `git switch main` followed by `bash scripts/sync-local.sh` for later updates; only the final sync PASS marker confirms a completed run.
+
+### GitHub #20 - container identity regression follow-up (2026-10-10)
+
+- Contract: [GitHub issue #20](https://github.com/Kerneural/S-cool/issues/20) and explicit approval to fix container identity comparison and its regression tests. An owned existing stack must not be rejected because Compose returns 64-character IDs while `docker ps -q` returns 12-character IDs. True name collisions, foreign checkout ownership and inventory failures must still stop before runtime/database changes.
+- Starting checkout: `local-sync-safety`, HEAD `e7e612265974bcf20fbb4a6125745e6e5fbc7aef`. Preserve existing `.gitignore`, `AGENTS.md`, `docs/AI_WORKFLOW.md`, the GitNexus checkpoint in this file and untracked `.gitnexusignore`/`.gitnexusrc` edits. No branch switch, dependency addition, UI change or environment rewrite is planned.
+- Bounded plan: request full Docker IDs using `--no-trunc`; preserve exact equality, checkout ownership and all existing sync safety gates. Make mocked IDs realistic, include an owned-stack success regression and a foreign ID sharing the same 12-character prefix, and cover missing/duplicate/failing inventories. Record evidence here only; do not create a parallel plan.
+- Regression-first evidence: `bash scripts/test-sync-local.sh` with the new mock/test and original sync script exited 1: owned-stack success was rejected with the exact issue #20 message at line 76. The test distinguishes the defect; the old 37-case mock returned identical fake ID formats and missed it.
+- Verification plan: Bash syntax, local-sync regressions, shared setup regressions, structural agent contract, diff check and read-only ID comparison for all five existing services. GitNexus has no Bash execution flow for these scripts; use source/test evidence, not a graph safety claim.
+- Post-fix verification: separate `bash -n` checks for both scripts PASS; a completed `bash -x scripts/test-sync-local.sh` rerun exited 0 with 42 mocked regression cases PASS. An earlier post-fix run was interrupted and is not counted as passing evidence. `bash scripts/test-setup-verification.sh`: 19 PASS; `bash scripts/verify-agent-contract.sh`: 11 shared files PASS; `git diff --check`: PASS. Structural checks do not prove agent compliance or publication.
+- Read-only Docker comparison: all five existing `scool` services returned matching 64-character IDs from Compose and `docker ps -aq --no-trunc`. No live sync or application suite was run; application/domain/UI code is unchanged. Source review confirms exact ID equality and checkout ownership are retained, with no automatic cleanup/adoption or weakened data guards.
+- Pending: publication and independent execution on the reporting host. No development database mutation, container stop/recreation, `.env` rewrite, commit/push/PR, external comment or issue closure occurred. This bounded fix does not guarantee every local setup can be repaired automatically or complete an end-to-end upgrade on another host.
+
+### GitHub #25 - early local configuration guard (2026-10-10)
+
+- Contract: [GitHub issue #25](https://github.com/Kerneural/S-cool/issues/25), the supplied local configuration (`APP_URL=http://localhost:8080`, with the three mail fields matching), and authorization to prevent recurrence. A mismatched local URL/SMTP configuration must stop before web/worker stop, source update, dependency installation or migrations, identify each offending field without exposing its value, and leave private `.env`/keys unchanged.
+- Start: clean `local-sync-safety`, HEAD `f766fbaeb10094801a92b4dde219c3c706067675`. Preserve all unrelated issue checkpoints. No commit/push/PR, external comment, issue closure or live sync is authorized.
+- Bounded plan: reuse one URL/SMTP check before the first stop and after dependency/config reload; bypass the persisted config cache only in the diagnostic process so it reads current environment/config without deleting cache or changing `.env`. Keep exact IPv4 origin, ownership/volume guards, late database checks and fail-fast behavior. Add a regression proving preflight rejects before stop and retain a late check for changes during sync. Clarify the four local settings and targeted correction in the existing README sync section.
+- Verification plan: discriminating mocked red/green regression; separate Bash syntax checks; completed local-sync and setup regressions; structural contract and diff checks; read-only PHP behavior probes when available for matching/mismatched settings and safe diagnostic output. GitNexus Bash coverage is unavailable; no graph-safety claim, application suite, development migration/reset, container stop or volume deletion is planned.
+- Red/green: the new preflight regression against the original sync script exited 1 with `local URL/SMTP preflight reached a forbidden later step`. The final `bash scripts/test-sync-local.sh` run exited 0 with 44 mocked cases PASS, including early rejection before stop, fresh-config invocation, late rejection before migration, unchanged `.env`, ownership/collision guards and running/stopped-stack pipelines. Separate Bash syntax checks PASS for both scripts. Related setup regression: 19 PASS; tracked structural agent contract: 11 files PASS, not proof of compliance/publication. Only README/checkpoint notes changed after the final script/runtime probes.
+- PHP runtime probes: 5 PASS using ephemeral `docker compose -p scool run --rm --no-deps -T` containers on the verified checkout with process-local synthetic overrides. Matching settings exit 0; `localhost`, wrong mailer, wrong SMTP host and wrong port each exit 1 with the correct field name and no configured value. Each probe confirms configuration was not loaded from cache; the `.env` checksum is unchanged. No mail, DB query/migration, persistent cache deletion, existing-service stop/start or full live sync is claimed.
+- Probe correction: an initial `exec` could not run because the existing app service was stopped. The first one-off cache strategy (`APP_CONFIG_CACHE=/dev/null`) failed because Laravel's loader uses `file_exists`, not only `is_file`; mocks had not detected this. The final override `/dev/null/scool-sync-config.php` cannot exist under the Linux null device, so both checks are false. The corrected exact PHP snippet passed all 5 probes; earlier mock success is not final runtime proof.
+- Final source/diff whitespace review PASS. The exact origin/SMTP predicate, data/ownership guards, post-update checks and lack of automatic environment edits remain intact. Trade-off: diagnostic one-off PHP containers add startup time but do not stop existing services; early checks are repeated after script reload, and the late check protects the changed runtime before migrations. No full application suite, CI, independent-host successful sync, publication or issue closure is claimed. After authorized publication, existing clones must fast-forward once to receive the corrected preflight; an old script cannot protect its first update retrospectively.
 
 ## EUR-20 - setup verification checkpoint (2026-10-06)
 
@@ -231,12 +273,12 @@ The latest request stops implementation here and transfers the remaining work fo
 
 **Implemented AC mapping**
 
-| Issue | Current implementation | Main evidence |
-|---|---|---|
-| EUR-23 | Membership/invitation forward migrations, guarded models, factories/relations, restrictive FK/unique/enum constraints, locked state primitive | `MembershipInvitationSchemaTest` |
-| EUR-22 | Paginated owned/ACTIVE-joined dashboard, separate creator writes/member reads, private cover upload/replacement/delivery | `PrivateCommunityAccessTest`, real desktop/mobile UI |
-| EUR-24 | Creator create/revoke, seven-day email-bound invitation, verified-email single-use free acceptance, ID-only SMTP job | `CommunityInvitationFlowTest`, real MySQL queue/Mailpit integration, browser acceptance |
-| EUR-25 | Community policy, accessible query scope, nested invitation scoped binding, transaction locks, cross-tenant/state/replay/race tests | All four new M2 test classes; real browser 404 isolation |
+| Issue  | Current implementation                                                                                                                        | Main evidence                                                                           |
+| ------ | --------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| EUR-23 | Membership/invitation forward migrations, guarded models, factories/relations, restrictive FK/unique/enum constraints, locked state primitive | `MembershipInvitationSchemaTest`                                                        |
+| EUR-22 | Paginated owned/ACTIVE-joined dashboard, separate creator writes/member reads, private cover upload/replacement/delivery                      | `PrivateCommunityAccessTest`, real desktop/mobile UI                                    |
+| EUR-24 | Creator create/revoke, seven-day email-bound invitation, verified-email single-use free acceptance, ID-only SMTP job                          | `CommunityInvitationFlowTest`, real MySQL queue/Mailpit integration, browser acceptance |
+| EUR-25 | Community policy, accessible query scope, nested invitation scoped binding, transaction locks, cross-tenant/state/replay/race tests           | All four new M2 test classes; real browser 404 isolation                                |
 
 **Diff inventory**
 
@@ -260,9 +302,9 @@ The latest request stops implementation here and transfers the remaining work fo
 - Setup guard regressions: `bash scripts/test-setup-verification.sh` -> 19 PASS.
 - Agent contract verification: `bash scripts/verify-agent-contract.sh` -> 11 shared files PASS.
 - Test concurrency and teardown fixes in `InvitationProcessIntegrationTest`:
-  - Replaced `DatabaseMigrations` with `RefreshDatabase` and empty `$connectionsToTransact = []` so fixtures commit and remain visible to child processes without per-test schema rollback. This is a test-isolation choice, not proof of a Laravel migration bug: the inspected `DatabaseMigrations` teardown also resets `RefreshDatabaseState::$migrated`. The initially added broad table cleanup was unsafe and is superseded by the scoped cleanup recorded in the audit below.
-  - Added stdout buffer flushing (`@ob_flush(); flush();`) in `tests/Fixtures/invitation-process.php` after `echo "READY\n"`.
-  - The initial readiness fix checked cumulative stdout before calling `waitUntil(...)`; this narrowed but did not eliminate the window in which output could be drained before callback registration. It is superseded by bounded cumulative-output polling recorded below.
+    - Replaced `DatabaseMigrations` with `RefreshDatabase` and empty `$connectionsToTransact = []` so fixtures commit and remain visible to child processes without per-test schema rollback. This is a test-isolation choice, not proof of a Laravel migration bug: the inspected `DatabaseMigrations` teardown also resets `RefreshDatabaseState::$migrated`. The initially added broad table cleanup was unsafe and is superseded by the scoped cleanup recorded in the audit below.
+    - Added stdout buffer flushing (`@ob_flush(); flush();`) in `tests/Fixtures/invitation-process.php` after `echo "READY\n"`.
+    - The initial readiness fix checked cumulative stdout before calling `waitUntil(...)`; this narrowed but did not eliminate the window in which output could be drained before callback registration. It is superseded by bounded cumulative-output polling recorded below.
 - Negative tests include duplicate/FK/enum constraints, stale state, wrong/unverified email, expired/revoked/replayed tokens, paid fail-closed/no token flashing, cross-tenant nested IDs, revoked access, throttling, atomic acceptance rollback, cover MIME/size/dimension rejection, DB/storage failure preservation and cross-tenant cleanup protection.
 - Local configuration guard passed; only the three pending forward migrations were applied to development. Existing users/data were not reset. Worker was restarted, then gracefully reloaded after the bootstrap security change.
 - Browser checks passed: create private community; default worker delivery; member login, email-fragment removal and explicit acceptance; creator cover upload with a loaded 1280x720 JPEG; ACTIVE member cover view; member creator-settings URL 404; second unjoined tenant URL 404; member dashboard omits that second tenant; mobile 390x844 navigation opens and no horizontal overflow. Temporary viewport override was reset.
@@ -394,72 +436,75 @@ Independent reviewer confirmation, required CI/publication and formal milestone 
 - Outcome: Implement end-to-end Community Feed (VS-04): post and comment CRUD, authorship policy, creator moderation, scoped route binding, pagination, soft deletes, and XSS protection.
 - Branch: `eur-8-community-feed`, branched from HEAD `e2f55503eb5897aaf73f7055734a73c91e6876dd`.
 - Implemented files:
-  - Migrations: `2026_10_07_030001_create_posts_table.php`, `2026_10_07_030002_create_comments_table.php` (restrictive foreign keys, indexes, soft deletes).
-  - Models: `Post`, `Comment`, updated `Community` and `User` with relationships.
-  - Factories: `PostFactory`, `CommentFactory`.
-  - Policies: `PostPolicy`, `CommentPolicy` (active member and creator access, author-only update, author/creator delete, denyAsNotFound privacy).
-  - Controllers: `PostController`, `CommentController` (eager loading to prevent N+1, pagination of 15 per page).
-  - Views: `resources/views/communities/posts/{index,show,edit}.blade.php`, updated `communities/show.blade.php`.
-  - Routes: Scoped nested routes under `/communities/{community:slug}/posts/...`.
-  - Feature tests: `tests/Feature/CommunityFeedTest.php` (14 tests, 53 assertions).
+    - Migrations: `2026_10_07_030001_create_posts_table.php`, `2026_10_07_030002_create_comments_table.php` (restrictive foreign keys, indexes, soft deletes).
+    - Models: `Post`, `Comment`, updated `Community` and `User` with relationships.
+    - Factories: `PostFactory`, `CommentFactory`.
+    - Policies: `PostPolicy`, `CommentPolicy` (active member and creator access, author-only update, author/creator delete, denyAsNotFound privacy).
+    - Controllers: `PostController`, `CommentController` (eager loading to prevent N+1, pagination of 15 per page).
+    - Views: `resources/views/communities/posts/{index,show,edit}.blade.php`, updated `communities/show.blade.php`.
+    - Routes: Scoped nested routes under `/communities/{community:slug}/posts/...`.
+    - Feature tests: `tests/Feature/CommunityFeedTest.php` (14 tests, 53 assertions).
 - Verification:
-  - `docker compose -p scool exec -T app php artisan test --compact --filter=CommunityFeedTest`: 14 passed (53 assertions).
-  - `docker compose -p scool exec -T app vendor/bin/pint`: 93 files PASS.
-  - Full test suite: `docker compose -p scool exec -T app php artisan test --compact`: 136 passed (877 assertions).
+    - `docker compose -p scool exec -T app php artisan test --compact --filter=CommunityFeedTest`: 14 passed (53 assertions).
+    - `docker compose -p scool exec -T app vendor/bin/pint`: 93 files PASS.
+    - Full test suite: `docker compose -p scool exec -T app php artisan test --compact`: 136 passed (877 assertions).
 - Status & Authority:
-  - Implementation completed and verified locally on `scool_test`.
-  - No commit, push, PR creation, merge, or Linear mutation performed. Awaiting review and authorization.
+    - Implementation completed and verified locally on `scool_test`.
+    - No commit, push, PR creation, merge, or Linear mutation performed. Awaiting review and authorization.
 
 ## EUR-11 - Community Events baseline implementation (2026-10-07)
 
 - Outcome: Implement end-to-end Community Events (VS-07): event scheduling, update, idempotent cancellation, UTC storage with IANA timezone presentation, URL safety validation, and meeting link omission on cancelled events.
 - Branch: `eur-11-community-events`, branched from `eur-8-community-feed` (`11c8420410b2ba39969251a83ba0e9c858a66ca2`).
 - Implemented files:
-  - Migration: `2026_10_07_040001_create_events_table.php` (restrictive foreign keys, UTC timestamps, IANA timezone string, status enum).
-  - Model: `Event` with timezone conversion helpers (`localStartsAt`, `localEndsAt`) and status helpers; updated `Community` and `User` relationships.
-  - Factory: `EventFactory` with scheduled and cancelled states.
-  - Policy: `EventPolicy` (creator manage, active member view, denyAsNotFound privacy).
-  - Controller: `EventController` (parses local wall time with IANA timezone, converts to UTC, validates end > start, enforces idempotent cancellation and rejects updating cancelled events).
-  - Views: `resources/views/communities/events/{index,create,edit,show}.blade.php`, updated `communities/show.blade.php` and `communities/posts/index.blade.php` with Events navigation.
-  - Routes: Scoped nested routes under `/communities/{community:slug}/events/...`.
-  - Feature tests: `tests/Feature/CommunityEventTest.php` (10 tests, 67 assertions).
+    - Migration: `2026_10_07_040001_create_events_table.php` (restrictive foreign keys, UTC timestamps, IANA timezone string, status enum).
+    - Model: `Event` with timezone conversion helpers (`localStartsAt`, `localEndsAt`) and status helpers; updated `Community` and `User` relationships.
+    - Factory: `EventFactory` with scheduled and cancelled states.
+    - Policy: `EventPolicy` (creator manage, active member view, denyAsNotFound privacy).
+    - Controller: `EventController` (parses local wall time with IANA timezone, converts to UTC, validates end > start, enforces idempotent cancellation and rejects updating cancelled events).
+    - Views: `resources/views/communities/events/{index,create,edit,show}.blade.php`, updated `communities/show.blade.php` and `communities/posts/index.blade.php` with Events navigation.
+    - Routes: Scoped nested routes under `/communities/{community:slug}/events/...`.
+    - Feature tests: `tests/Feature/CommunityEventTest.php` (10 tests, 67 assertions).
 - Verification:
-  - `docker compose -p scool exec -T app php artisan test --compact --filter=CommunityEventTest`: 10 passed (67 assertions).
-  - `docker compose -p scool exec -T app vendor/bin/pint`: 99 files PASS.
-  - Full test suite: `docker compose -p scool exec -T app php artisan test --compact`: 146 passed (944 assertions).
+    - `docker compose -p scool exec -T app php artisan test --compact --filter=CommunityEventTest`: 10 passed (67 assertions).
+    - `docker compose -p scool exec -T app vendor/bin/pint`: 99 files PASS.
+    - Full test suite: `docker compose -p scool exec -T app php artisan test --compact`: 146 passed (944 assertions).
 - Status & Authority:
-  - Implementation completed and verified locally on `scool_test`.
-  - No commit, push, PR creation, merge, or Linear mutation performed. Awaiting review and authorization.
+    - Implementation completed and verified locally on `scool_test`.
+    - No commit, push, PR creation, merge, or Linear mutation performed. Awaiting review and authorization.
 
 ## EUR-10 - Classroom publishing implementation (2026-10-08)
 
 The submitted implementation and results below are historical author-reported evidence. The independent remediation checkpoint at the end of this section supersedes them for the current local diff; it does not establish publication or acceptance.
 
 ### Outcome and scope
+
 - Outcome: Owning creator creates, edits, orders, previews drafts, and publishes courses, sections and lessons in an active private community. Active members can view courses and read lessons only when both the course and lesson are PUBLISHED. Unpublishing blocks member reads and progress mutations without deleting retained data.
 - Scope:
-  - Database: forward migrations, models, relations, factories for Course, CourseSection, Lesson.
-  - Video Embeds: strict validation of HTTPS YouTube and Vimeo URLs only; secure server-side embed URL generation. Rejection of raw iframe, javascript/data schemes, and lookalike domains.
-  - Reordering: transactional sibling reorder for courses, sections, and lessons.
-  - Security/Authorization: Creator-only writes/preview; active member access predicate (`community->isActive()` && `membership->isActive()` && `course->isPublished()` && `lesson->isPublished()`). Strict server-side ancestry resolution (`community` -> `course` -> `section` -> `lesson`). Deny unauthorized or draft access with 404 (`denyAsNotFound`).
-  - UI: Blade/Tailwind/Alpine views for classroom index, course outline, lesson view with responsive embed, and creator management forms/modals.
-  - Tests: comprehensive feature test suite covering AC-01 through AC-08 on MySQL `scool_test`.
+    - Database: forward migrations, models, relations, factories for Course, CourseSection, Lesson.
+    - Video Embeds: strict validation of HTTPS YouTube and Vimeo URLs only; secure server-side embed URL generation. Rejection of raw iframe, javascript/data schemes, and lookalike domains.
+    - Reordering: transactional sibling reorder for courses, sections, and lessons.
+    - Security/Authorization: Creator-only writes/preview; active member access predicate (`community->isActive()` && `membership->isActive()` && `course->isPublished()` && `lesson->isPublished()`). Strict server-side ancestry resolution (`community` -> `course` -> `section` -> `lesson`). Deny unauthorized or draft access with 404 (`denyAsNotFound`).
+    - UI: Blade/Tailwind/Alpine views for classroom index, course outline, lesson view with responsive embed, and creator management forms/modals.
+    - Tests: comprehensive feature test suite covering AC-01 through AC-08 on MySQL `scool_test`.
 
 ### Verification and results
+
 - Branch: `eur-10-classroom-publishing`, based on `main` HEAD `e2f55503eb5897aaf73f7055734a73c91e6876dd`.
 - Scoped Feature Tests: `php artisan test --filter=ClassroomPublishingTest` -> **8 tests / 106 assertions PASS** (15.18s).
-  - AC-01: Creator course/section/lesson CRUD, draft preview, and persistence.
-  - AC-02: Member read matrix (Course Draft + Lesson Published -> 404, Course Published + Lesson Draft -> 404, Both Published -> 200).
-  - AC-03: Unpublish blocks access without data purge; republish restores access immediately.
-  - AC-04: Negative authorization, outsider cross-tenant 404, ID tampering 404, and inactive community 404.
-  - AC-05: Sibling reordering transactions with strict validation of foreign/duplicate IDs.
-  - AC-06: Strict HTTPS YouTube/Vimeo validation, secure embed URL generation, rejection of XSS/iframe/schemes, and escaped text.
-  - AC-07: Member count excludes draft lessons, zero metadata leak, and empty state rendering.
+    - AC-01: Creator course/section/lesson CRUD, draft preview, and persistence.
+    - AC-02: Member read matrix (Course Draft + Lesson Published -> 404, Course Published + Lesson Draft -> 404, Both Published -> 200).
+    - AC-03: Unpublish blocks access without data purge; republish restores access immediately.
+    - AC-04: Negative authorization, outsider cross-tenant 404, ID tampering 404, and inactive community 404.
+    - AC-05: Sibling reordering transactions with strict validation of foreign/duplicate IDs.
+    - AC-06: Strict HTTPS YouTube/Vimeo validation, secure embed URL generation, rejection of XSS/iframe/schemes, and escaped text.
+    - AC-07: Member count excludes draft lessons, zero metadata leak, and empty state rendering.
 - Full Suite Verification: `php artisan test` -> **130 tests / 930 assertions PASS** (140.90s), zero failures or regressions.
 - Code Style: Laravel Pint passed clean across all files (100 files checked).
 - Agent Contract: `bash scripts/verify-agent-contract.sh` (PASS) and `bash scripts/test-agent-contract.sh` (16 PASS).
 
 ### Handoff contract for EUR-9 (Lesson Progress)
+
 - Models & Relationships: `Course`, `CourseSection`, `Lesson` ready with forward migrations and factories.
 - Access Predicate: Available on policies and models (`$course->isPublished() && $lesson->isPublished() && $community->isActive() && $membership->isActive()`).
 - Nested Routes: Scoped under `/communities/{community:slug}/courses/{course}/lessons/{lesson}`.
@@ -469,17 +514,17 @@ The submitted implementation and results below are historical author-reported ev
 - Authority/outcome: audit live EUR-10 AC and PR #17, fix bounded Classroom defects, and prepare for owner review. Commit, push, merge, external comments and Linear status changes are not authorized in this checkpoint.
 - Start: clean `main`, HEAD `c8c280c38f06f1485d149b29f3f48313a06b025b`. Local branch `eur-10-classroom-audit` applies PR head `6f86a94aeb99e866f00995dd93a6887e974c56f0` without a commit. Five integration conflicts were resolved while preserving the merged Feed/Events routes, models, navigation and shared workflow contract. This local branch is based on main, not on the PR head; publishing to the existing PR requires a history-preserving integration, not a force push.
 - Findings/remediation:
-  - Creator UI lacked section edit and sibling reorder controls. All three reorder levels and section editing are now exposed. Native disclosure forms retain the relevant form, inputs and publication status after errors; malformed flashed arrays no longer crash the retry page.
-  - Lesson validation allowed 500-character URLs while storage allowed 255. An additional forward migration extends storage to 500; existing migrations remain unchanged. Rollback refuses truncation of retained long URLs.
-  - Hard-delete actions and cascade foreign keys could purge retained content. Permanent purge is explicitly excluded by EUR-10: delete actions now deny, delete controls are removed, and the forward migration changes hierarchy foreign keys to RESTRICT. Use unpublish to hide content; no progress implementation or actual progress-row retention test is claimed here.
-  - Creator mutations now lock/reload community -> course -> section -> lesson and reauthorize the active owning creator inside the transaction. Reorder validates the exact locked current sibling set; invalid or stale submissions leave ordering unchanged. Coarse per-community serialization favors correctness over write throughput; hook-based state-change regressions are not independent-process concurrency or load proof.
-  - URL validation rejects credential presence, invalid ports, non-string video IDs and unsupported providers; embeds remain generated HTTPS URLs with no server fetch. Empty lessons fail validation, text length is bounded, and valid plaintext `0` is preserved. No package or frontend-stack change.
-  - Classroom lists paginate 12 courses, count only eligible lessons for members, and avoid eager-loading all lesson bodies on the listing page. Existing published/draft and tenant privacy rules remain enforced.
+    - Creator UI lacked section edit and sibling reorder controls. All three reorder levels and section editing are now exposed. Native disclosure forms retain the relevant form, inputs and publication status after errors; malformed flashed arrays no longer crash the retry page.
+    - Lesson validation allowed 500-character URLs while storage allowed 255. An additional forward migration extends storage to 500; existing migrations remain unchanged. Rollback refuses truncation of retained long URLs.
+    - Hard-delete actions and cascade foreign keys could purge retained content. Permanent purge is explicitly excluded by EUR-10: delete actions now deny, delete controls are removed, and the forward migration changes hierarchy foreign keys to RESTRICT. Use unpublish to hide content; no progress implementation or actual progress-row retention test is claimed here.
+    - Creator mutations now lock/reload community -> course -> section -> lesson and reauthorize the active owning creator inside the transaction. Reorder validates the exact locked current sibling set; invalid or stale submissions leave ordering unchanged. Coarse per-community serialization favors correctness over write throughput; hook-based state-change regressions are not independent-process concurrency or load proof.
+    - URL validation rejects credential presence, invalid ports, non-string video IDs and unsupported providers; embeds remain generated HTTPS URLs with no server fetch. Empty lessons fail validation, text length is bounded, and valid plaintext `0` is preserved. No package or frontend-stack change.
+    - Classroom lists paginate 12 courses, count only eligible lessons for members, and avoid eager-loading all lesson bodies on the listing page. Existing published/draft and tenant privacy rules remain enforced.
 - Automated verification on the baseline HEAD plus this reviewed dirty diff:
-  - `bash scripts/verify-fresh-setup.sh --mode verify`: exit 0, 139 seconds; **180 tests / 1480 assertions PASS**, test duration 110.67 seconds. This includes 8 original Classroom tests and 10 additional regressions, plus merged Feed/Events/M2 tests.
-  - Whole-tree Pint: 126 files PASS; Composer validation PASS; Vite production build: 59 modules PASS; shared structural contract: 11 files PASS.
-  - Real queue marker `EUR20-smoke-0d61977b-1cc8-4055-9d43-6ea566afa0a8`: pending=0, failed=0, handler=1. Live Mailpit/password-reset and invitation-worker integration passed with isolated recipients.
-  - `bash scripts/test-agent-contract.sh`: 16 regression cases PASS. An initial sandboxed attempt returned no usable diagnostic; the same existing script passed with permitted access to its synthetic temporary Git fixture.
+    - `bash scripts/verify-fresh-setup.sh --mode verify`: exit 0, 139 seconds; **180 tests / 1480 assertions PASS**, test duration 110.67 seconds. This includes 8 original Classroom tests and 10 additional regressions, plus merged Feed/Events/M2 tests.
+    - Whole-tree Pint: 126 files PASS; Composer validation PASS; Vite production build: 59 modules PASS; shared structural contract: 11 files PASS.
+    - Real queue marker `EUR20-smoke-0d61977b-1cc8-4055-9d43-6ea566afa0a8`: pending=0, failed=0, handler=1. Live Mailpit/password-reset and invitation-worker integration passed with isolated recipients.
+    - `bash scripts/test-agent-contract.sh`: 16 regression cases PASS. An initial sandboxed attempt returned no usable diagnostic; the same existing script passed with permitted access to its synthetic temporary Git fixture.
 - Browser verification used synthetic users/content in guarded MySQL `scool_test` through a disposable loopback preview, not the development database. Section rename, section reorder, invalid-provider validation with retained input/status, successful retry and lesson navigation were verified. Narrow-screen lesson content showed no horizontal overflow at the measured 355px viewport; Alpine video toggle hides the iframe while keeping its provider fallback visible. Provider playback was unavailable for the synthetic video; successful playback is not claimed. Temporary viewport and preview were cleaned up without volume deletion. An initial preview environment-forwarding issue was corrected using `artisan serve --no-reload` before functional write checks.
 - Privacy/safety: no development migration/reset, environment replacement, volume deletion, queue flush or shared inbox deletion. Preview fixtures remain ignored and are not publication prerequisites. Existing non-Classroom checkpoint sections are preserved.
 - Pending: remote PR #17 still reports conflicts and head `6f86a94`; these local fixes have not been published. No current-head CI, independent machine, production performance or actual EUR-9 progress evidence is claimed. Review the final diff, authorize a normal history-preserving PR update, then verify the resulting immutable head before approval/merge. EUR-9 should use the accepted merged Classroom baseline; EUR-10 is not declared Done here.
@@ -550,3 +595,194 @@ The submitted implementation and results below are historical author-reported ev
 - Safety: no development migration/reset, `.env`/key change, volume deletion, shared inbox deletion, live-money operation, HTTPS tunnel or external publication. Pricing forms and checkout controls are the only intended UI changes; visual parity/manual acceptance are not claimed.
 - Pending acceptance: integrate `origin/main` without discarding accepted routes, image upload/UI, admin/tenant protections, dependency locks, CI, README or other issue checkpoints; rerun final integrated checks and required CI. Configure actual SePay Test Mode and verify provider delivery plus cancel/retry in the browser. No independent-process payment race/load proof, real-money flow, provider acceptance, Linear Done or merge readiness is claimed.
 - Local handoff: an ignored `.gitnexus/eur-12-pr21-audit.patch` in the primary checkout carries this bounded diff, including new files, against `c7b397b`. Verify the fetched source branch still has that head before applying; if it changed, re-anchor instead of forcing the patch. Temporary intent-to-add entries used to generate the patch are removed without deleting files. The attached review worktree remains the preserved source of the uncommitted corrections. Do not run the main-only sync script on the feature branch.
+
+### Primary-checkout main integration (2026-10-12)
+
+- The audit patch was applied and manually committed as `bee67d0bd6afbfb6bd81c9555139450981da3be1` on `eur-12-sepay-sandbox-access`. The manual `git merge origin/main` uses `44c75c40359d7caef6fb7a6d89f52ca7dff716cc` and remains uncommitted. Current authority covers conflict resolution and verification, not committing, pushing, merging the GitHub PR or external status/comments.
+- Resolve only the five conflicted files: Community and User retain both payment and platform-admin relationships, User retains progress/admin casts, bootstrap retains exact-path webhook CSRF exemption and admin middleware alias, routes retain payments alongside accepted progress/admin routes, and this context retains both issue histories. No entire view or instruction file is replaced; incoming main CSS/locks/CI/scripts and accepted UI are preserved byte-for-byte against the pinned main where unchanged by payment.
+- Installed Composer packages match every production/development lock entry by name, version and dist reference. No Composer dependency update or development environment replacement is required. Main npm lock installation/build passed (59 modules, 5.64 seconds); npm audit reports zero vulnerabilities. `composer validate --strict --no-interaction` passed; full `vendor/bin/pint --test` passed 157 files; `vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M --no-progress` passed with no errors. Final integrated `php artisan test --compact --fail-on-skipped --fail-on-empty-test-suite` passed **246 tests / 2012 assertions**, exit 0, 201.55 seconds. These results cover HEAD `bee67d0` plus the pinned main integration and resolved source, not a committed merge head or remote CI.
+- Verification runtime mounts this checkout and read-only `.env.example` over the runtime `.env`, with a synthetic test key and explicit APP_ENV=testing / DB_DATABASE=scool_test. Keep development DB, roles, secrets, volumes and Mailpit inbox intact. No development migration, tunnel or real-money payment is performed. Both incoming main checkpoint history and existing payment history were verified as unchanged sections with this additive integration checkpoint. `git diff --check` passed.
+- GitNexus refreshed the integration source (4795 nodes / 8591 edges). Its registry and local metadata pin `bee67d0`; an initial MCP context response still reported an older commit, so it was not used as current evidence. Registry refresh and a subsequent context query removed that stale warning. Eloquent relationship queries return definitions without reliable runtime callers; bootstrap taint/control queries have no applicable findings/edges. No PHP taint completeness or safety from zero hits is claimed. Source comparison and executable tests establish preservation; the final evidence-only Markdown update was not reindexed.
+- Next: manually stage only the five resolved conflicts and finish the merge commit. The index still reports five unmerged paths until that explicit staging step, although the working files contain no conflict markers. Push to the existing source branch only after the final diff is understood; required CI (including remaining security scanners), browser/provider acceptance and normal review remain separate merge/Done gates. The audit did not stage files, commit, push, post external comments or mutate Linear. EUR-12 was freshly read as In Review; its external description/evidence still needs the approved Test Mode/pricing contract update when publication is authorized.
+
+## EUR-9 - Lesson progress implementation (2026-10-08)
+
+Historical implementation checkpoint below: reported before integration with accepted main. The sequential request tests did not independently prove competing writes or authorization changes during a waiting mutation; UI markup alone did not prove mobile behavior. Current audit evidence is recorded separately below.
+
+### Outcome and scope
+
+- Outcome: An active member marks an authorized published lesson complete or incomplete and sees the same personal completion state after refresh/re-login, without altering other members' progress or creating duplicate records.
+- Scope:
+    - Database: forward migration `2026_10_08_040001_create_lesson_progresses_table.php` with unique index `(user_id, lesson_id)`, model `LessonProgress` (`$table = 'lesson_progresses'`), factory `LessonProgressFactory`.
+    - Mutation & Idempotency: endpoint `POST /communities/{community:slug}/courses/{course}/lessons/{lesson}/progress` (`communities.lessons.progress.update`) validates explicit boolean `completed`, resolves actor strictly via `$request->user()`, atomic update/upsert handling concurrent writes without duplicate-key error.
+    - Security/Authorization: `LessonPolicy::updateProgress` enforces multi-tenant boundary, strict ancestry, active community, active membership, published course, and published lesson. Denies non-active memberships (`PENDING_PAYMENT`, `SUSPENDED`, `REMOVED`, `LEFT`) and draft states with 404 (`denyAsNotFound`). Creator role alone does not grant progress tracking without active membership context.
+    - Retention & Restore: unpublishing retains rows in DB but excludes them from access and calculations; republishing immediately restores member progress.
+    - Calculation: `Course::publishedLessonsCount()`, `Course::completedLessonsCountFor($user)`, and `Course::progressPercentageFor($user)` with safe zero division (0/0 = 0%).
+    - UI: responsive completion toggle buttons (min 44x44px touch target) in header and bottom navigation of lesson view, curriculum sidebar status checkmarks, personal progress bar on course outline, and progress percentage on classroom course cards.
+    - Tests: comprehensive feature test suite `tests/Feature/LessonProgressTest.php` covering AC-01 through AC-07 on MySQL `scool_test`.
+
+### Verification and results
+
+- Branch: `eur-9-lesson-progress`, branched from `eur-10-classroom-publishing` (HEAD `6f86a94aeb99e866f00995dd93a6887e974c56f0`).
+- Scoped Feature Tests: `docker compose -p scool exec -T app php artisan test --filter=LessonProgressTest` -> **11 tests / 55 assertions PASS** (13.90s).
+    - AC-01: Explicit mark complete/incomplete, timestamp persistence, fresh session/re-login persistence.
+    - AC-02: Idempotent repeat requests, atomic writes, JSON response format.
+    - AC-03: Member progress isolation, spoofed user_id in payload safely ignored.
+    - AC-04: Negative authorization matrix: non-members and non-active membership statuses (`PENDING_PAYMENT`, `SUSPENDED`, `REMOVED`, `LEFT`) denied with 404. Creator without active membership denied with 404; active member creator allowed.
+    - AC-05: Unpublish retains database rows; calculation excludes draft; republishing restores retained progress.
+    - AC-06: Published-only lesson calculation; zero-division safety on 0 published lessons.
+    - AC-07: Lesson show and course show UI controls, mobile accessibility touch target, sidebar checkmark rendering.
+- Full Suite Verification: `docker compose -p scool exec -T app php artisan test` -> **141 tests / 985 assertions PASS** (148.12s), zero failures or regressions across all test suites.
+- Code Style: `docker compose -p scool exec -T app vendor/bin/pint --test` -> **PASS** (105 files checked, 0 style issues).
+- Agent Contract: `bash scripts/verify-agent-contract.sh` -> **PASS** (11 shared files).
+- Preserved Working Tree: `scripts/sync-local.sh` preserved unstaged in working directory.
+
+### Integrated audit and verification (2026-10-09)
+
+- Contract: live Linear EUR-9 AC-01 through AC-07. Authorized: bounded fixes, a normal commit/push to the existing PR #19 branch after tests pass, and GitHub/Linear comments. Merge and Done are not authorized.
+- Pinned review: original PR head `156fe15768ebfe6773d3a0766bcac6ead7520d29`, main `38c5aba3b2e51e3b83eb12c7e68eb7bf472f99ac`, merge-base `6f86a94aeb99e866f00995dd93a6887e974c56f0`. Work was isolated from the original checkout and its five unrelated local GitNexus setup edits.
+- Integration: resolved eight conflicts by retaining accepted Classroom management/reorder forms, provider watch-page fallback, retention controls, paginated cards, Feed/Events routes and shared workflow. The publication keeps the original PR and main as merge parents; no history rewriting is needed. The final PR-only delta against main is limited to progress source/UI/schema/tests and this checkpoint.
+- Findings fixed:
+    - The original endpoint authorized route-bound state before an unlocked write. `LessonProgressMutation` now reloads/locks community -> course -> section -> lesson -> membership, validates ancestry and current access inside the transaction, and writes only the authenticated user's explicit completion state.
+    - Repeated complete requests previously changed `completed_at`. Replays now preserve completion/update timestamps; incomplete clears completion time. The unique user/lesson constraint remains the final database guard.
+    - Progress counters now use one personal published-only aggregate for the outline/JSON response and bounded subquery counts for paginated cards. Existing management controls and lesson navigation remain available.
+    - Added independent PHP-process regressions for competing first writes and committed lesson/course unpublish, community archive and membership suspension while a request waits on the community lock. Added CSRF enforcement, validation feedback, actual unique-constraint rejection, stale-snapshot denial, retention/republish, personal summaries and query-bound regressions.
+- Trade-off: reuse the existing coarse per-community creator lock order for correctness and simple serialization. This is not throughput/load proof and does not promise arrival ordering for opposing concurrent completion values. No package, stack, schema-retention or platform-admin contract change; admin authorization integration remains a future cross-module check once that role exists.
+- Verification:
+    - Scoped `docker exec scool-eur20-pr19_app php artisan test --filter=LessonProgress`: **25 tests / 190 assertions PASS**, 36.35 seconds.
+    - `bash scripts/verify-fresh-setup.sh --mode verify --project scool-eur20-pr19`: **206 tests / 1692 assertions PASS**, test duration 197.94 seconds, integrated Verify 229 seconds, exit 0. Whole-tree Pint: 135 files PASS; Composer manifest/lock validation, Vite production build (59 modules), five-service health and HTTP `/up` PASS.
+    - Real daemon queue marker `EUR20-smoke-7406ec56-5f05-474c-82dc-f147fcf78121`: pending=0, failed=0, handler=1. Mailpit password-reset and invitation process integration passed with isolated recipients.
+    - Tracked shared contract: 11 files PASS; existing agent-contract regression script: 16 cases PASS. Whitespace and bounded high-confidence source secret-pattern checks passed; these are not full history secret scanning or agent-compliance proof.
+    - The full run used original HEAD plus the integrated dirty candidate, captured as Git tree `96ef26085ceb0ea58f2cddb4f4b932142bf2a616`. Only this evidence checkpoint changes after the run; publication must verify all other tracked paths are identical to that tested tree.
+- An initial full run failed due to an incorrect membership helper assumption and a guarded test-fixture assignment. Both were corrected using the existing status/transition contract; the scoped and full passing runs above supersede that failed attempt.
+- Graph limits: GitNexus indexed the integrated working candidate, not a clean original PR graph. Its pending-merge change map includes incoming main changes; source diff against pinned main determines actual PR scope. Dynamic PHP call resolution can undercount callers; PHP PDG/taint coverage was skipped because it is unsupported by the installed analyzer. Raw source and MySQL/runtime tests supply the independent checks; graph risk labels are not an approval verdict.
+- Dependency baseline: unchanged npm lockfile reports nine development/build advisories (2 moderate, 5 high, 2 critical); `npm audit --omit=dev` reports zero at this check. No automatic dependency upgrade or production-safety claim.
+- Review environment: dedicated Compose project `scool-eur20-pr19`, application `http://127.0.0.1:18080`, Mailpit `http://127.0.0.1:18025`, separate database volume and session cookie. Its new private environment was configured for that preview only; the original checkout remains on `http://127.0.0.1:8080`. No original development migration/reset, key replacement, volume deletion, queue flush or shared inbox deletion.
+- Pending: browser/manual acceptance on the published revision, GitHub approval/required checks and merge. CI, independent-machine evidence and production load are not verified here. Keep Linear In Review; this checkpoint does not complete M3.
+
+## EUR-14 - Platform administration implementation (2026-10-10)
+
+### Outcome and scope
+
+- Outcome: Platform Admin suspends and reactivates communities with required reason and minimal audit logging without modifying Creator content or granting blanket access to private modules.
+- Scope:
+    - Database:
+        - Forward migration adding `is_platform_admin` boolean flag (default `false`) on `users` table.
+        - Forward migration creating `platform_admin_actions` table (`id`, `admin_id`, `community_id`, `action`, `reason`, `created_at`).
+        - Model updates: `User` (`isPlatformAdmin(): bool`, guarded from mass-assignment), `PlatformAdminAction` model and relations.
+        - Seeder update: `UserSeeder` persona `admin@scool.local` initialized with `is_platform_admin = true`.
+    - Security & Authorization:
+        - Middleware `EnsureUserIsPlatformAdmin` (`platform-admin`) protecting all `/admin/*` routes.
+        - Deny-by-default (403 Forbidden / 404 Not Found) for visitors, members, and creators.
+        - Least privilege: Platform Admin role does not grant content edit permissions or blanket policy bypass for Creator actions.
+        - Anti-privilege escalation: `is_platform_admin` excluded from mass-assignment in `User::$fillable`.
+    - Controllers & Routing:
+        - Dedicated namespace `App\Http\Controllers\Admin\CommunityController`.
+        - Routes under prefix `/admin`, middleware `['auth', 'verified', 'platform-admin']`.
+        - `GET /admin/communities`: Minimal listing with pagination and status filters.
+        - `POST /admin/communities/{community}/suspend`: Validates non-empty reason, transitions state from `ACTIVE` to `SUSPENDED`, records audit log in transaction.
+        - `POST /admin/communities/{community}/reactivate`: Validates non-empty reason, transitions state from `SUSPENDED` to `ACTIVE`, records audit log in transaction.
+        - Terminal state protection: rejects mutations on `ARCHIVED` communities.
+    - UI:
+        - Independent new view `resources/views/admin/communities/index.blade.php`.
+        - Existing Creator and Member views remain 100% untouched.
+        - Conditional Admin link in shared navbar visible strictly when `Auth::user()->isPlatformAdmin()`.
+    - Tests:
+        - Comprehensive feature test suite `tests/Feature/PlatformAdministrationTest.php` on MySQL `scool_test`.
+
+### Verification evidence
+
+- Feature test execution: `docker compose -p scool exec -T app php artisan test --filter=PlatformAdministrationTest` -> 11 passed, 64 assertions, 0 failures.
+    - Covers schema columns/tables, access denial for unauthenticated/unverified/members/creators, platform admin listing and filtering, community suspension with mandatory reason and immutable audit log, reason validation, already suspended/archived terminal checks, denial of member/creator access across modules when suspended, community reactivation with audit log, reactivation validation, least privilege (no blanket bypass for creator actions), and anti-privilege escalation via register/profile.
+- Full regression suite execution: `docker compose -p scool exec -T app php artisan test` -> 217 passed, 1,756 assertions, 0 failures. Zero regressions across all modules.
+- Code style check: `docker compose -p scool exec -T app vendor/bin/pint` -> PASS (style issues formatted).
+- Agent contract check: `bash scripts/verify-agent-contract.sh` -> PASS (11 shared files verified; routing and privacy boundaries valid).
+- Local development database: migrations applied and seeded (`admin@scool.local` with `is_platform_admin = true`).
+
+### Audit checkpoint - partial, acceptance blocked (2026-10-12)
+
+- Contract: live Linear EUR-14 AC; PR #28 head `36a47e914f7f6087fe7bfed1754a576aacedfc04`, merge-base `de69f8892a4b3d40f7550bceb2e7c9c50333b6f9`. The original checkout remains clean on `eur-26-ci-baseline` at `cffab26a3711323924692873352e4791b0b34b14`; review changes are isolated in the attached `eur-14-admin-review` worktree, currently detached at the PR head.
+- Confirmed P1: audit foreign keys cascade on account deletion. A platform admin with an action but no ownership/membership can use the existing profile-delete endpoint and erase the action history. New `test_profile_deletion_cannot_erase_admin_audit_history` fails against the original implementation. Proposed correction awaits approval: a forward migration changing audit FKs to RESTRICT, plus the existing profile retention guard denying deletion of users with audit records and returning a validation error. Do not change the original already-applied migration or reset data.
+- Fixed P2 locally: admin listing eagerly loaded all action history for each community although only the newest record is displayed. `latestPlatformAdminAction` uses `latestOfMany()` and only that relation/admin is eager-loaded. The view uses that relation without any layout/control redesign. The new bounded-loading test failed before this correction and passes afterward.
+- Tests also verify fresh seed grants only the new demo admin, reruns preserve existing role/account data, unverified admin denial, invalid reasons/terminal states produce no audit record, repeated suspension does not duplicate audit, and mass assignment cannot grant admin. Removed a duplicate PHP array key from the existing escalation test. Fresh seeding is not defective: seed execution is trusted/unguarded. An existing demo account remains non-admin intentionally; promotion requires an explicit trusted operator action, not automatic escalation by matching an email.
+- Runtime verification used a temporary `scool-app` container on `scool_scool-network`, PR worktree source, read-only dependencies/build assets from the unchanged CI checkout, and read-only `.env.example` mounted as the container's `.env` with explicit testing environment/key and `DB_DATABASE=scool_test`. The pre-RefreshDatabase safety guard was retained. No development DB migration/reset, local credential/key replacement, inbox deletion or stack restart was performed. This is not exact-lock CI, another host's proof or manual/browser evidence.
+- Initial three new tests: 2 failed (retention and bounded loading), 1 passed (seed behavior), 11 assertions. After the bounded-loading correction, `php artisan test --filter='PlatformAdministrationTest::(?!test_profile_deletion_cannot_erase_admin_audit_history)' --fail-on-skipped`: 17 passed, 124 assertions, exit 0, 20.32s. The named retention test is explicitly excluded and remains red/unfixed; this is NOT a full passing admin suite. Scoped Pint passed for the three PHP files changed so far.
+- GitNexus index-only graph was refreshed for this exact worktree/head under alias `S-cool-pr28`. Impact queries identify `routes/web.php`; Eloquent/Blade dynamic relations have missing callers and controller impact is a lower bound. Source/diff and real tests, not empty graph edges, establish the findings. No PHP PDG/taint coverage is claimed.
+- Pending: approve the retention shared-contract correction, implement it with negative deletion/forward-upgrade tests, run final complete tests and required CI, publish only with current commit/push authorization, then manual/browser acceptance and independent approval. No PR #28 merge, publication or Linear Done is authorized/completed by this checkpoint. PR #29 separately has successful CI but still requires independent approval before normal merge and a main push run before EUR-26 Done.
+
+### Approved retention correction and publication - in progress (2026-10-12)
+
+- Current authority: implement RESTRICT plus profile deletion retention guard; commit/push the tested changes to the existing PR #28 source branch `eur-14-platform-admin`. No PR #28 merge or EUR-14 Done authorization. PR #29 will be merged by the owner; its latest observed state is OPEN/REVIEW_REQUIRED, so EUR-26 remains unaccepted pending merge and main CI.
+- Added forward migration `2026_10_12_010001_preserve_platform_admin_audit_records.php` for both audit foreign keys, preserving the original already-applied migration and records. The profile deletion guard now checks `platformAdminActions` before logout/deletion and returns the existing `userDeletion` validation bag. This also protects retained actions after role revocation. Database-level RESTRICT remains the backstop for direct deletion.
+- Targeted command `php artisan test --filter='PlatformAdministrationTest|ProfileTest|DatabaseBaselineTest' --fail-on-skipped --fail-on-empty-test-suite` passed: 31 tests, 222 assertions, exit 0, 22.10s. The previously red retention test is included and passes. New migration test simulates the old CASCADE constraints with an existing action, applies the forward correction, verifies unchanged attributes and MySQL error 1451 for direct admin/community deletion. TestCase guarded scool_test before migrations; MySQL DDL commits invalidate RefreshDatabase's transaction and the framework resets its migration state before the next test.
+- All 112 packages in the PR #28 Composer lock match the borrowed installed vendor versions/distribution references; the CI checkout has additional analysis tooling. No dependency update is included. Full read-only Pint passed (142 PHP files). Full suite and level-0 Larastan verification are running; do not infer success until each session completes.
+- README now documents fresh versus existing demo admin roles and an explicit trusted local operator action. No automatic promotion, password reset, live database change or account deletion was performed. Visual parity/manual UI acceptance remains pending; only the admin view's latest-record binding changes, not its layout or controls.
+
+### Final local verification before publication (2026-10-12)
+
+- Full command on the final application/migration/test source: `php artisan test --fail-on-skipped --fail-on-empty-test-suite` passed, 225 tests / 1836 assertions, exit 0, 205.89s. No retention exclusion remains. Live Mailpit SMTP, tenant/privacy/authorization, invitation/progress concurrency, seed/database guards and original profile deletion behavior passed alongside the new admin regressions.
+- Runtime command prefix: `docker run --rm --network scool_scool-network` with this worktree mounted at `/var/www/html`, borrowed checked-in-lock-compatible vendor and existing built assets mounted read-only, `.env.example` mounted read-only as `.env`, explicit `APP_ENV=testing`, a synthetic test-only key and `DB_DATABASE=scool_test`. Every test connection is guarded before migration; the development database scool and application stack were not upgraded. Empty worktree mount-point placeholders were removed after completed runs; no credentials/config were stored or deleted.
+- Read-only full Pint: 142 files, exit 0. `vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M --no-progress`, using the unchanged EUR-26 level-0 config/analysis tooling mounted read-only, passed with no errors (exit 0). The config/tooling is not added to PR #28. `bash scripts/verify-agent-contract.sh --require-tracked` and `git diff --check` passed. Existing built assets were reused; a new frontend build/visual parity is not claimed.
+- GitNexus was refreshed for the final dirty source before publication gating; no stale index or missing dynamic Laravel edges are used as safety proof. Local results qualify this correction for commit/push, not for merge/Done. Await current-head GitHub checks, complete CI availability after PR #29, owner manual UI acceptance and independent review. Do not equate the old preflight-only workflow with EUR-26's full security/test gates.
+
+### Main integration and malformed-filter re-audit (2026-10-12)
+
+- Current authority: audit/fix EUR-14, commit and push tested updates to the existing PR #28 branch, then prepare the primary local checkout for owner browser testing. No PR merge or Linear Done until acceptance. Original PR head `0a05a7d88efd37179755edb0d33ba27116a28414`; integrated main `1d461258125462d4576c24a67befae2aec027637` contains merged CI PR #29. The primary checkout was clean on main `c8c280c38f06f1485d149b29f3f48313a06b025b`, 48 commits behind remote; its prior sync is not verified as complete.
+- Merge preparation preserves both the EUR-14 and EUR-26 checkpoint sections. Only WORKING_CONTEXT conflicted. Workflow, lockfiles, CSS/PostCSS configuration and sync scripts match integrated main; no UI replacement, dependency upgrade, history rewrite or CI gate weakening.
+- Confirmed P2: `GET /admin/communities?status[]=ACTIVE` rendered an array through Blade and returned 500 (`htmlspecialchars` TypeError). A new regression failed before the correction. The listing now accepts only scalar ACTIVE/SUSPENDED/ARCHIVED filters and otherwise uses the unfiltered list. Regression covers array/nested-array/unknown/empty values without creating audit records; green result: 1 test / 17 assertions, exit 0.
+- Final verification used this integrated dirty candidate in an ephemeral scool-app container, its own exact-lock installed vendor and newly built assets, read-only .env.example, synthetic testing key and guarded MySQL scool_test. Full `php artisan test --fail-on-skipped --fail-on-empty-test-suite`: 226 tests / 1853 assertions PASS, 175.61 seconds, exit 0; includes live Mailpit SMTP and all retention/authorization/progress regressions. No development DB reset or shared inbox deletion.
+- `npm ci` reported zero vulnerabilities; `npm run build` passed (59 modules). Full `vendor/bin/pint --test`: 143 files PASS. `vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M --no-progress`: no errors. `bash scripts/verify-agent-contract.sh --require-tracked`: 11 files PASS. Graph refresh uses alias S-cool-pr28 and typed schema-4 analyzer receipts; Eloquent/framework callers are lower-bound. PDG indexing was requested, but no PHP taint/dependence coverage or safety from zero findings is claimed; source and real regressions remain authoritative.
+- Pending: final staged publication gate and push, current-head full GitHub CI, approved primary-checkout runtime preparation, then owner manual testing and normal review/merge. sync-local.sh remains main-only; use it after acceptance/merge, not to preview an open PR. Do not infer visual acceptance, another host's success or CI success from these local results.
+
+### Modal backdrop correction (2026-10-12)
+
+- Contract: reported EUR-14 Suspend/Cancel/Confirm defect; authorized minimal shared modal fix and regression verification. Branch `eur-14-platform-admin`, base HEAD `4e8cdc24885f5c6b8471daad96fe6bc41deee16b`; initially clean. No publication, merge or Done performed for this correction.
+- Browser diagnosis: the rendered panel had `position: static`, `transform: none`, `z-index: auto`. Hit-testing the Confirm center returned the backdrop DIV, not the button. The backdrop's close handler intercepted panel clicks; backend PASS did not establish UI acceptance.
+- Diff: add `relative z-10` to the existing shared modal panel, preserving dimensions, appearance, transitions and handlers. Consumers are admin Suspend/Reactivate and Profile account deletion. Add a rendered-markup regression to FrontendScaffoldTest; record the authorized in-scope correction policy in AI_WORKFLOW. No dependencies, authorization contracts, data or account credentials changed.
+- Red/green: `docker compose -p scool exec -T -e APP_ENV=testing -e DB_DATABASE=scool_test app php artisan test --filter=test_alpine_modal_component_renders_in_profile_view` failed before the fix (1 failed / 6 assertions). After the fix, `--filter='FrontendScaffoldTest|PlatformAdministrationTest'` passed: 24 tests / 194 assertions, 16.22 seconds, exit 0. Guarded MySQL scool_test only; no development reset. The markup assertion pins explicit stacking classes, not browser behavior.
+- Verification: `npm run build` passed (59 modules); targeted Pint passed (1 file); `git diff --check` passed. Browser hit-testing now returns both Cancel and Confirm buttons, panel position relative / z-index 10. Cancel closes Suspend; empty-reason Confirm keeps it open with required-field feedback. Profile deletion modal Cancel is also pointer-accessible; no deletion was submitted. No development community was suspended/reactivated by these probes.
+- Handoff: local uses the corrected component and rebuilt assets; final screenshot captured after panel opacity reached 1. Owner can continue valid-reason Suspend/Reactivate tests. Changes remain uncommitted; prior remote CI success is for base 4e8cdc2, not this dirty correction. Graph results are not evidence for CSS stacking or pointer behavior; source, browser hit-testing and tests are authoritative. Full-suite/remote CI reruns and final browser acceptance remain publication gates.
+
+## EUR-26 - PHP runtime build cache (2026-10-12)
+
+- Contract: current Linear EUR-26 CI baseline plus the approved request to speed the PHP image build using persistent layer cache. Branch `eur-26-ci-baseline`; base HEAD `f84bd8143bd6080e6750163b0e1d0a03a520492c`; checkout was clean before editing.
+- Bounded plan/diff: replace only the plain PHP image build in `.github/workflows/ci.yml` with verified full-SHA-pinned Docker Buildx/build actions and GitHub Actions cache, scope `scool-php`. Keep Dockerfile, image tag `scool-php:ci`, PHP smoke check and all existing test/security gates unchanged. No parallel extension compilation or registry publishing.
+- Flow: restore matching layers, build missing layers, load the image into the runner's Docker daemon, then reuse it for the existing smoke check, Trivy and PHP commands. Export layers for subsequent eligible runs. A cache miss still performs a real build; the first run can remain slow.
+- Security/trade-offs: `push: false`, unchanged token permissions, and build-record artifact upload disabled to preserve the artifact allowlist. `pull: true` checks base images, but cached package-install layers do not refresh packages automatically; Trivy remains a blocking gate. Cache availability and transfer overhead affect timing; no measured speedup is claimed.
+- Local evidence on the dirty candidate: Python/PyYAML parsing and assertions passed (exit 0), checking exact cache/load/push/pull settings, pinned-action format, step order and semantic equality of every other workflow setting against HEAD. `git diff --check` passed (exit 0). Action pins were checked against official release commit pages; these are static checks, not an Actions run.
+- Pending: run the published candidate on GitHub, confirm the image is available to downstream steps, then compare cold/warm runs on the same unchanged Dockerfile/base inputs and inspect `CACHED` layers. GitHub execution, cache hits, timing and full CI acceptance remain unverified. No local container/database changes, commit, push, PR or Linear status update were performed.
+
+### Final acceptance check (2026-10-12)
+
+- Current checkout: `eur-26-ci-baseline`, HEAD `2abee269ef18747c3bcee07669179f9d2eaaffc0`, clean before this checkpoint update. PR #29 is open; main/base is `645db4dcbcbd690da06cdb868f01ad5688b6644e`.
+- Successful PR run: https://github.com/Kerneural/S-cool/actions/runs/38207259630 (attempt 1). Actual checkout/tested merge-ref SHA: `6c010aaf5ff200377b5bc6506b32ffa2292853f6`, distinct from the candidate head. GitHub job/log reads confirm all configured steps succeeded, 206 tests passed with 1692 assertions, live Mailpit SMTP, database safety guard and deterministic/idempotent seed tests passed. Skipped/empty tests are blocking flags in the test command.
+- Dependency audits, Pint, level-0 Larastan/PHPStan, Semgrep fixtures/application scan, redacted Gitleaks and Trivy gates passed. Buildx cache export succeeded; no warm-run speed comparison is available. The seven-day allowlisted evidence artifact is ID `11727758258`; its archive contents were not independently inspected here.
+- Read-only GitHub API checks: branch protection returns `Branch not protected`; active ruleset `24407564` and effective main rules require one PR approval but no required status checks, with an administrator always-bypass role. This does not prove CI-enforced merge blocking. Initial sandboxed CLI network calls failed; narrowly approved read-only API calls succeeded, without repeating the failing route.
+- Open AC: separate controlled test/style failure PR and corrected green run; approved required-check configuration and blocked normal-merge proof; accepted PR merge plus a full-pipeline main push run; checked-in CI operations/triage and static-analysis rationale. Existing main success runs use the earlier preflight-only workflow. Historical implementation failures do not replace the controlled negative experiment.
+- Acceptance evidence and gaps were posted to Linear EUR-26; issue status remains In Progress. No application/container/database change, ruleset mutation, commit, push or merge was performed. Do not mark Done while these AC remain open. Graph-backed review was not claimed: this check used bounded CI source and exact-run GitHub evidence rather than PHP symbol analysis.
+
+### Approved acceptance closure - in progress (2026-10-12)
+
+- Authority: enable the exact required CI check, create a separate harmless red-to-green PR without merging it, and publish README/checkpoint updates to the existing PR #29. No authorization to merge PR #29 or bypass its review/check gate.
+- Plan: preserve existing main rules, add the verified GitHub Actions context, demonstrate a Pint failure by whitespace alone, capture required-check/merge-state metadata without attempting a merge, then restore the original test byte-for-byte and verify green. Publish only README and the active checkpoint on `eur-26-ci-baseline`; no workflow/application changes.
+- Required gate now applies to main: ruleset `24407564`, context `CI/ Runner Preflight`, integration ID `15368`, non-strict up-to-date policy. Existing one-approval requirement and administrator always-bypass role are unchanged; no bypass was used. Read-back of effective main rules confirms the new rule.
+- Experiment: PR #33 https://github.com/Kerneural/S-cool/pull/33, branch `eur-26-ci-gate-proof`, red candidate head `3cfa2a49167fd6c08eba571668456e150bd4afb6`. Starts from the full CI candidate `2abee269ef18747c3bcee07669179f9d2eaaffc0`, not preflight-only main. Only indentation in `tests/Unit/ExampleTest.php` changes; a whitespace-stripped comparison verifies unchanged PHP tokens/assertions. Initial run `38208448473` is in progress; no red/green conclusion yet.
+- GitHub GraphQL identifies the experiment check as required and reports merge state BLOCKED while it is running; one approval is also missing. This is read-only metadata, not a failed merge attempt and not yet the controlled red result.
+- Original successful-run artifact `11727758258` was inspected in memory via Python/ZIP/XML: exact five-path allowlist, tested SHA `6c010aaf5ff200377b5bc6506b32ffa2292853f6`, 206 JUnit cases, no failures/errors/skips or system-output elements. No ZIP extraction or sensitive raw output was published.
+- Connector write access returned integration 403; the approved authenticated GitHub CLI route created the experiment successfully. Failed connector writes are not publication evidence. Local branch, environment, containers and database are unchanged.
+- README now documents triggers, gates, reproducible local checks, cache/artifact boundaries, first-failure triage, level-0 Larastan rationale and narrow Semgrep coverage. Pending: controlled red/block evidence, byte-identical restoration and green; README/checkpoint publication and its current-head CI; normal approval/merge of #29 followed by full main CI. EUR-26 remains In Progress.
+
+### Controlled failure result (2026-10-12)
+
+- Red run: https://github.com/Kerneural/S-cool/actions/runs/38208448473, head `3cfa2a49167fd6c08eba571668456e150bd4afb6`, tested merge-ref `56eab32` (short SHA from checkout log). Job `114677043673` failed at `Check PHP formatting`: exactly one `statement_indentation` violation in `tests/Unit/ExampleTest.php`, Pint exit 1. Downstream steps were not accepted as passing.
+- At that red head, read-only GitHub GraphQL returned `CI/ Runner Preflight` = COMPLETED/FAILURE, `isRequired: true`, and PR #33 `mergeStateStatus: BLOCKED`. Review was also required. No merge API call or admin bypass was used; this is required-check/blocked-state evidence, not an attempted merge or proof against administrator bypass.
+- Corrective commit `4aa62c4e80af0097973e48aa8845d96b0f4a87cd` restores the original test blob `5773b0ceb771e176520d5a9c1efe5e918878318d` byte-for-byte. PHP assertions, workflow and production code are unchanged. Corrected run is pending; PR #33 must never be merged.
+
+### Corrected green and documentation handoff (2026-10-12)
+
+- Corrected run https://github.com/Kerneural/S-cool/actions/runs/38208850421 succeeded, head `4aa62c4e80af0097973e48aa8845d96b0f4a87cd`, tested merge-ref `96b66bb92768d8f412914a081f2adac8f0ef3e8b`. Pint and all other configured steps passed; 206 tests, 1692 assertions, live SMTP passed. Git tree `e3b047b881274bbd78ca8f70a43240fa347b5e2a` exactly equals the original candidate tree: no code/test/workflow delta survives the experiment.
+- Warm Buildx log shows the dependency-install and extension-compilation layers CACHED. This confirms reuse in this run; mutable base images/cache eviction can still cause later misses, so no guaranteed duration is claimed.
+- Publication scope is README and the active EUR-26 checkpoint only. Diff/whitespace checks passed. GitNexus's bounded documentation map reported only Markdown headings and no execution flows; indexed heading locations can be stale, so source diff/file allowlist is authoritative here, not a graph-backed runtime safety claim. No application symbols were changed.
+- Pending after documentation publication: required CI on the updated PR #29 head, independent approval and normal merge of #29, then the full-pipeline main push run. Existing admin bypass remains a documented limitation, not an acceptance shortcut. PR #33 is evidence-only and must not be merged; EUR-26 is not Done yet.
+
+- Manual acceptance: all prescribed EUR-14 browser scenarios passed on the local modal correction, as confirmed during acceptance. Publication and current-head CI remain pending.

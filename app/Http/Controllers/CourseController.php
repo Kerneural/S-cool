@@ -23,6 +23,7 @@ class CourseController extends Controller
 
         $user = $request->user();
         $isCreator = $community->isCreator($user);
+        $isActiveMember = $community->memberships()->where('user_id', $user->id)->where('status', 'ACTIVE')->exists();
 
         $course->load([
             'sections' => function ($query) use ($isCreator) {
@@ -31,15 +32,20 @@ class CourseController extends Controller
                     $query->whereHas('lessons', fn ($q) => $q->published());
                 }
             },
-            'sections.lessons' => function ($query) use ($isCreator) {
+            'sections.lessons' => function ($query) use ($isCreator, $user) {
                 $query->ordered();
                 if (! $isCreator) {
                     $query->published();
                 }
+                $query->with(['progresses' => function ($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                }]);
             },
         ]);
 
-        return view('classroom.courses.show', compact('community', 'course', 'isCreator'));
+        $progressSummary = $isActiveMember ? $course->progressSummaryFor($user) : null;
+
+        return view('classroom.courses.show', compact('community', 'course', 'isCreator', 'isActiveMember', 'progressSummary'));
     }
 
     public function store(Request $request, Community $community): RedirectResponse
