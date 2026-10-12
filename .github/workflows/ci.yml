@@ -73,3 +73,30 @@ jobs:
             mysql mailpit
 
           docker compose -p scool ps
+
+      - name: Prepare Laravel environment
+        run: |
+          test ! -e .env
+          cp .env.example .env
+
+          docker run --rm \
+          -v "$PWD:/var/www/html" \
+          scool-php:ci \
+          php artisan key:generate --no-interaction
+
+      - name: Run application test
+        run: |
+          docker run --rm \
+            --network scool_scool-network \
+            -v "$PWD:/var/www/html" \
+            -e APP_ENV=testing \
+            -e DB_DATABASE=scool_test \
+            scool-php:ci \
+            php artisan test \
+              --fail-on-skipped \
+              --fail-on-empty-test-suite
+
+      - name: Stop test services
+        if: always()
+        run: |
+          docker compose -p scool down --remove-orphans
