@@ -6,7 +6,7 @@ rules:
     pattern: eval(...)
 
   - id: scool-php-review-unserialize
-    langluages: [php]
+    languages: [php]
     severity: ERROR
     message: Review unserialize input trust; prefer JSON for exchanged data.
     pattern: unserialize(...)
