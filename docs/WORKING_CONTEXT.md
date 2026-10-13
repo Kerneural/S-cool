@@ -865,3 +865,86 @@ Historical implementation checkpoint below: reported before integration with acc
 - Local UI smoke on the dirty candidate: after one additive `php artisan db:seed`, Creator Dashboard rendered both demo tenants and the free Feed, Classroom and Calendar records. Demo Member Dashboard rendered the free tenant but not the paid tenant; Classroom showed 50% progress and a direct paid Feed URL rendered 404. Captured browser console errors were empty. No invitation, payment, progress or lifecycle mutation was submitted in this smoke.
 - Security/trade-offs: all seed writes remain local/testing only and additive. The development database received only missing synthetic demo rows; no reset, migration, volume deletion, inbox deletion, queue flush, role escalation or secret change occurred. Seed reruns intentionally do not repair user-edited demo records, so an edited local dataset may need a newly created demo community/account rather than destructive reseeding.
 - Pending acceptance: current-head GitHub CI after publication; full owner/browser rehearsal for invitations and member/admin transitions; fresh Bootstrap evidence from a second physical machine; team cross-review/demo; provider-backed paid flow on this candidate if the earlier EUR-12 evidence is not accepted as unchanged-input evidence. These are not claimed complete. No commit, push, PR, merge or Linear Done has been performed.
+
+## Functional completion planning handoff (2026-10-13)
+
+- Scope: documentation-only planning authorized for mentor-reference feature completion; functionality first, visual redesign later. No feature implementation or Linear/GitHub mutation is part of this checkpoint.
+- Source snapshot: clean `main`, HEAD `2996aa6a24e4f8821d9351c0beb6460b554b8d6e` before documentation edits. Routes, core models/controllers, community policy and mutation helpers were inspected. Current source includes membership control and SePay transfer-webhook Test Mode; older architecture checkpoints claiming their absence are not current evidence.
+- Canonical implementation handoff: `docs/03_DELIVERY_PLAN.md`, section 17. Product direction: `docs/01_PRODUCT_SCOPE.md`, section 20. Mentor observations: Product Scope, section 19; no new live survey/backend verification was performed.
+- Local F-xx identifiers are draft plan keys, not existing Linear IDs or progress. Transfer the selected issue into Linear using the canonical template before implementation; resolve its actual dependencies/metadata. Record its technical checkpoint here when work starts. Do not execute every draft in one change.
+- Evidence limits: source review supports the gap map, not new runtime/CI acceptance. Historical MVP acceptance gaps remain separate; this planning work does not close them. Commerce and messaging decisions are explicitly gated in the plan.
+- Documentation verification: `git diff --check` passed; a bounded PowerShell structural check confirmed all 18 implementation drafts contain outcome/scope/contracts/AC/dependencies/security/verification/evidence and that F-19 acceptance exists. `bash scripts/verify-agent-contract.sh` passed for 11 shared files/routing/privacy (not agent compliance). The sandbox Bash invocation exited 1 without output; one approved read-only invocation completed with exit 0, rather than repeating the same failing route. No application tests, runtime writes, publication or issue-status changes occurred.
+
+## Shared design reference handoff (2026-10-13)
+
+- Scope: combine the accepted visual direction with the supplied design-system outline into root `design.md`; route UI work through it. Branch `f01-f02-workspace-directory`, HEAD `2996aa6a24e4f8821d9351c0beb6460b554b8d6e`; preserve the four existing completion-plan documentation edits. No feature/CSS/runtime implementation or publication is included.
+- Verified baseline: Tailwind v4/PostCSS and legacy `@config` coexist; app/guest layouts and font extension still use Figtree. Teal/Be Vietnam Pro are target decisions, not applied or visually verified changes. The document distinguishes member learning/community screens from creator data-management screens.
+- Optional UI/UX Pro Max upstream README was checked for Laravel/Blade/Tailwind reference support and its persistent design-generation behavior. No external skill/CLI/package was installed or executed. `design.md` remains canonical; local IDE integration is optional/private and must not create a competing design source or override approved issue/backend contracts.
+- Next UI task reads `design.md` plus its issue scope, inspects current components and applies only required functional controls until a scoped visual-adoption issue is started. Representative Feed/Lesson/Creator screens gate broad styling rollout. All rendered UI/browser, font/token application and usability acceptance remain pending.
+- Verification: agent-contract script passed (11 existing shared files); a separate bounded structural check passed for all 10 design sections, routing from AGENTS/workflow/docs index, unignored `design.md`, and diff whitespace. The existing structural script does not itself enforce the new design document or prove compliance. Concurrent application edits appeared during verification (profile request/user fields and a new profile migration); they were neither edited nor audited by this documentation task.
+
+## F-01 & F-02 — Contextual Workspace, Switcher, Directory & Profiles (2026-10-13)
+
+- Contract: F-01 (Contextual community workspace and switcher) & F-02 (Member directory and community-visible profiles) from `docs/03_DELIVERY_PLAN.md` Section 17.6. Branch `f01-f02-workspace-directory`, base HEAD `2996aa6a24e4f8821d9351c0beb6460b554b8d6e`. Pre-existing documentation edits preserved.
+- Implemented F-01:
+  - Contextual workspace header component `<x-community-workspace>` (`resources/views/components/community-workspace.blade.php`) integrated across Feed, Classroom, Events, Directory/Members, About/Show, and creator management views (Settings, Invitations, Manage Members).
+  - Community Switcher: lists other active accessible communities for the authenticated user (`accessibleTo->active`). Switching navigates to target community Feed (`route('communities.posts.index', $other)`), explicitly dropping nested item IDs. Inactive communities are excluded from the switcher.
+  - Dashboard search and filtering: `CommunityController@index` supports `filter` (`all`, `owned`, `joined`) and keyword search `q` on community name, deduplicated so overlapping creator/member ownership does not produce duplicate cards. Paginated with query string preservation.
+- Implemented F-02:
+  - Forward migration `database/migrations/2026_10_13_040001_add_bio_and_avatar_path_to_users_table.php` adding nullable `bio` (text) and `avatar_path` (string) to `users` table. `User` model `$fillable` updated.
+  - Profile customization: `ProfileUpdateRequest` validates `bio` (max 500 chars) and `avatar` (`image`, mimes: jpeg, png, webp, max 2MB). `ProfileController@update` handles upload to private disk (`'local'` under `'avatars'`), deletes obsolete avatars, and notice is added to profile form regarding cross-community visibility.
+  - Directory & Profiles: `DirectoryController` implements tenant-scoped `index` (lists active members and creator with role badges, bio preview, search `q`, zero emails/private metadata disclosed), `show` (renders member profile detail within community; returns fail-closed 404 for foreign/unrelated users), and `avatar` (streams avatar from private storage with private cache control or returns default SVG avatar placeholder).
+  - Routes in `routes/web.php`: registered under community scope with `withoutScopedBindings()` on `{user}` to support custom authorization of both creator and members. Added `profile.avatar` for authenticated user.
+- Automated tests:
+  - `tests/Feature/CommunityWorkspaceSwitcherTest.php`: 5 tests / 32 assertions PASS (AC-01 through AC-05).
+  - `tests/Feature/MemberDirectoryProfileTest.php`: 5 tests / 82 assertions PASS (AC-01 through AC-05).
+  - Regression and full suite: `docker compose -p scool exec -T -e APP_ENV=testing -e DB_DATABASE=scool_test app php artisan test --fail-on-skipped --fail-on-empty-test-suite` passed with 272 tests / 2,252 assertions, exit 0 in 174.90s.
+  - Code style: Pint passed on 168 PHP files with zero issues (`vendor/bin/pint --test`).
+  - Frontend assets: `npm run build` completed successfully (60 modules, exit 0).
+  - Agent contract: `scripts/verify-agent-contract.sh` PASS (11 shared files).
+- Handoff & Audit Limits:
+  - Prepared for Codex audit. Commit, push, PR creation, merge, and Linear status changes remain pending explicit user authorization.
+
+### F-01 & F-02 — Post-Audit Hardening (2026-10-13)
+
+- Audit Findings Resolved:
+  1. Avatar upload atomicity & transaction rollback: Avatar upload and user update in `ProfileController@update` wrapped in `DB::transaction()`. If commit fails, newly uploaded avatar file is immediately cleaned up (`Storage::disk('local')->delete()`), and previous avatar is preserved. Obsolete avatar is only deleted after successful transaction commit. Added `test_avatar_upload_rolls_back_and_cleans_new_file_if_database_update_fails()`.
+  2. Cache & Security Delivery: Replaced 24-hour cache with strict `Cache-Control: private, no-store` and `X-Content-Type-Options: nosniff` for avatar streaming in `DirectoryController@avatar` and `ProfileController@avatar`. Validated avatar file path strictly with regex `\Aavatars/[a-zA-Z0-9_\-\.]+\.(?:jpg|jpeg|png|webp)\z`. Added `test_avatar_response_contains_strict_cache_and_security_headers_and_guards_against_traversal()`.
+  3. Invalid/malformed input guards: Both `CommunityController@index` (dashboard/switcher) and `DirectoryController@index` (member directory) safely handle array parameters (`?q[]=`, `?filter[]=`) and clamp search strings to max 100 characters using `is_string()` and `mb_substr()`. Added `test_community_index_safely_handles_array_and_oversize_filter_and_search_input()` and `test_member_directory_search_safely_handles_array_and_oversize_search_input()`.
+
+## F-03 — Community About, Rules & Functional Settings (2026-10-13)
+
+- Contract: F-03 from `docs/03_DELIVERY_PLAN.md` Section 17.6.
+- Implementation:
+  - Forward migration `database/migrations/2026_10_13_050001_add_rules_and_intro_video_url_to_communities_table.php` adding nullable `rules` (text) and `intro_video_url` (string, max 500) to `communities` table.
+  - Model & Service: `Community` `$fillable` updated. Accessor `intro_video_embed_url` provides safe embed URLs for YouTube and Vimeo using `VideoEmbedService`.
+  - Validation: `rules` capped at 5,000 characters; `intro_video_url` validated via `VideoEmbedService::isValid()`.
+  - Active member count: Strictly counts memberships with `status === 'ACTIVE'`, excluding suspended/removed members and creator. No email or private member metadata disclosed.
+  - Views & Routes: Dedicated About tab and route `GET /communities/{community:slug}/about` (`communities.about`) rendering embedded video, numbered rules, community metadata and creator profile. Community edit view updated for creator rules/video configuration.
+- Automated tests:
+  - `tests/Feature/CommunityAboutSettingsTest.php`: 5 tests / 41 assertions PASS (AC-01 through AC-05).
+
+## F-04 — Feed Categories, Filtering & Pinned Posts (2026-10-13)
+
+- Contract: F-04 from `docs/03_DELIVERY_PLAN.md` Section 17.6.
+- Implementation & Audit Hardening:
+  - Forward migration `database/migrations/2026_10_13_060001_create_post_categories_and_add_category_and_pinned_to_posts_table.php` creating `post_categories` with unique `[community_id, slug]`; adds `category_id` FK (nullable, `nullOnDelete`) and `pinned_at` timestamp to `posts`.
+  - Default categories seeded: `General`, `Announcements`, `Questions`, `Introductions` via `PostCategory::seedDefaultsFor($community)`. Seeded during migration, in `CommunityController@store` on creation, and in `DemoContentSeeder`.
+  - Read-only GET feed: `PostController@index` is strictly read-only and never writes or auto-seeds categories on GET.
+  - Creator-only Announcements: Only the community creator can post with the Announcements category (`isAnnouncements()`); non-creators are rejected with validation errors.
+  - Creator-only Pinned Posts: `PostController@pin` and `@unpin` are creator-only and idempotent. Pinned posts sort first in the feed regardless of creation date.
+  - Inactive Community Guards: `PostCategoryController@store`, `@destroy`, `PostController@pin`, and `@unpin` verify `$community->isActive()` (404) and re-check inside row-locked DB transactions (`lockForUpdate`).
+  - Category Management UI: Minimal, non-intrusive collapsible creator control in `resources/views/communities/posts/index.blade.php` allows creating new categories and deleting existing categories with post uncategorization and confirmation.
+- Automated tests:
+  - `tests/Feature/CommunityFeedCategoriesTest.php`: 8 tests / 75 assertions PASS (AC-01 through AC-05 + audit hardening).
+
+## F-05 — Idempotent Likes and Personal Saved Posts (2026-10-13)
+
+- Contract: F-05 from `docs/03_DELIVERY_PLAN.md` Section 17.7.
+- Planned Scope:
+  - Single Like reaction on posts; like count; personal saved-post list within community. No comment reactions, emoji palettes, or F-10 points/leaderboards.
+  - Tables: `post_likes` (`community_id`, `post_id`, `user_id`, `is_active`, unique on `[post_id, user_id]`) and `post_bookmarks` (`community_id`, `post_id`, `user_id`, unique on `[post_id, user_id]`).
+  - Like row keeps original identity and `created_at` timestamp across unlike/re-like using `is_active` flag. Counts include active rows only.
+  - Explicit idempotent endpoints: Like (`POST .../like`), Unlike (`DELETE .../like`), Save (`POST .../save`), Unsave (`DELETE .../save`). Retries are fully idempotent.
+  - Authorization & Validation: Self-like is rejected (422 / validation error) without count change. Self-bookmark is allowed. Inactive/suspended/archived communities return 404. Non-members/suspended members return 404. Soft-deleted posts return 404.
+  - Saved Posts View: Personal saved posts view (`GET /communities/{community:slug}/saved` or `?filter=saved`), showing only requesting user's saved, non-deleted posts in active community.
