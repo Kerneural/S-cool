@@ -2,6 +2,7 @@
 
 namespace App\Actions\Communities;
 
+use App\Jobs\SendMemberActivatedNotification;
 use App\Models\Community;
 use App\Models\CommunityMembership;
 use App\Models\CommunityMembershipAction;
@@ -34,7 +35,7 @@ class TransitionCommunityMembership
             $previousStatus = $lockedMembership->status;
             $lockedMembership->transitionTo($target);
 
-            CommunityMembershipAction::create([
+            $action = CommunityMembershipAction::create([
                 'actor_id' => $actor->id,
                 'community_id' => $lockedCommunity->id,
                 'membership_id' => $lockedMembership->id,
@@ -49,6 +50,10 @@ class TransitionCommunityMembership
                 'reason' => $reason,
                 'created_at' => now(),
             ]);
+
+            if ($target === 'ACTIVE') {
+                SendMemberActivatedNotification::dispatch($lockedCommunity->id, $lockedMembership->id, 'action', $action->id);
+            }
 
             return $lockedMembership->refresh();
         });

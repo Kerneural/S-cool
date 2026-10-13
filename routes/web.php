@@ -13,6 +13,7 @@ use App\Http\Controllers\DirectoryController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\LessonProgressController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Payment\SePayWebhookController;
 use App\Http\Controllers\PostCategoryController;
@@ -86,6 +87,10 @@ Route::middleware('auth')->group(function () {
         Route::delete('/communities/{community:slug}/posts/{post}/save', [PostReactionController::class, 'unsave'])->name('communities.posts.unsave');
         Route::get('/communities/{community:slug}/saved', [PostReactionController::class, 'saved'])->name('communities.saved.index');
         Route::get('/communities/{community:slug}/search', [SearchController::class, 'index'])->name('communities.search');
+        Route::get('/communities/{community:slug}/notifications', [NotificationController::class, 'index'])->name('communities.notifications.index');
+        Route::patch('/communities/{community:slug}/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('communities.notifications.read');
+        Route::post('/communities/{community:slug}/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('communities.notifications.read-all');
+        Route::get('/communities/{community:slug}/notifications/{notification}/go', [NotificationController::class, 'follow'])->name('communities.notifications.follow');
 
         Route::post('/communities/{community:slug}/categories', [PostCategoryController::class, 'store'])->name('communities.categories.store');
         Route::delete('/communities/{community:slug}/categories/{category}', [PostCategoryController::class, 'destroy'])->name('communities.categories.destroy');

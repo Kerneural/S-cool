@@ -91,6 +91,11 @@ class Community extends Model
         return $this->hasMany(Payment::class);
     }
 
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(AppNotification::class);
+    }
+
     public function platformAdminActions(): HasMany
     {
         return $this->hasMany(PlatformAdminAction::class);

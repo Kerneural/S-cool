@@ -110,5 +110,10 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(PostBookmark::class);
     }
-}
+
+    public function appNotifications(): HasMany
+    {
+        return $this->hasMany(AppNotification::class, 'notifiable_id')
+            ->where('notifiable_type', self::class);
+    }
 }

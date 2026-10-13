@@ -941,10 +941,92 @@ Historical implementation checkpoint below: reported before integration with acc
 ## F-05 — Idempotent Likes and Personal Saved Posts (2026-10-13)
 
 - Contract: F-05 from `docs/03_DELIVERY_PLAN.md` Section 17.7.
-- Planned Scope:
-  - Single Like reaction on posts; like count; personal saved-post list within community. No comment reactions, emoji palettes, or F-10 points/leaderboards.
-  - Tables: `post_likes` (`community_id`, `post_id`, `user_id`, `is_active`, unique on `[post_id, user_id]`) and `post_bookmarks` (`community_id`, `post_id`, `user_id`, unique on `[post_id, user_id]`).
-  - Like row keeps original identity and `created_at` timestamp across unlike/re-like using `is_active` flag. Counts include active rows only.
-  - Explicit idempotent endpoints: Like (`POST .../like`), Unlike (`DELETE .../like`), Save (`POST .../save`), Unsave (`DELETE .../save`). Retries are fully idempotent.
-  - Authorization & Validation: Self-like is rejected (422 / validation error) without count change. Self-bookmark is allowed. Inactive/suspended/archived communities return 404. Non-members/suspended members return 404. Soft-deleted posts return 404.
-  - Saved Posts View: Personal saved posts view (`GET /communities/{community:slug}/saved` or `?filter=saved`), showing only requesting user's saved, non-deleted posts in active community.
+- Implementation:
+  - Forward migration `database/migrations/2026_10_13_070001_create_post_likes_and_post_bookmarks_tables.php` creating `post_likes` (`community_id`, `post_id`, `user_id`, `is_active`, unique on `[post_id, user_id]`) and `post_bookmarks` (`community_id`, `post_id`, `user_id`, unique on `[post_id, user_id]`).
+  - Models: Created `PostLike` (with `scopeActive`) and `PostBookmark`. Updated `Post` with `likes()`, `activeLikes()`, `bookmarks()`, `isLikedBy()`, and `isBookmarkedBy()`. Updated `User` with `postLikes()` and `postBookmarks()`.
+  - Controller: `PostReactionController` implements `like`, `unlike`, `save`, `unsave`, and `saved` (personal saved posts).
+  - Idempotency & F-10 Identity: Like row preserves original identity and `created_at` timestamp across unlike/re-like cycles via `is_active` boolean flag. Repeated Like/Unlike or Save/Unsave requests are idempotent without count drift.
+  - Security & Authorization: Self-like is rejected with validation error without changing counts; self-bookmark is allowed; non-members, suspended members, soft-deleted posts, and inactive/suspended/archived communities are rejected with 404. Cross-tenant post operations fail-closed with 404.
+  - Views: Updated `resources/views/communities/posts/index.blade.php` and `resources/views/communities/posts/show.blade.php` with Like button (counter and active state) and Save button. Created `resources/views/communities/saved.blade.php` rendering personal bookmarks within community.
+  - Scoped Eager-Loading Hardening: In `PostController@index`, `PostController@show`, and `PostReactionController@saved`, eager-loaded `likes` relation strictly loads only the active like of the authenticated viewer (`where('is_active', true)->where('user_id', $user->id)`), preventing unbounded memory growth. Total likes count continues to be accurately aggregated via `withCount(['likes as active_likes_count' => fn ($q) => $q->where('is_active', true)])`. Added test `test_eager_loaded_likes_relation_only_contains_active_like_of_current_viewer_while_active_likes_count_includes_all_likes`.
+  - Automated tests: `tests/Feature/CommunityPostReactionsTest.php`: 11 tests / 101 assertions PASS (AC-01 through AC-05 + scoped eager loading).
+
+## F-06 — Community-Scoped Search (2026-10-13)
+
+- Contract: F-06 from `docs/03_DELIVERY_PLAN.md` Section 17.7.
+- Implementation:
+  - Controller: `SearchController` (`app/Http/Controllers/SearchController.php`) implements `index` handling community-scoped search across `posts`, `courses`, `lessons`, and `members`.
+  - Route: Registered `GET /communities/{community:slug}/search` (`communities.search`) under community route group with `scopeBindings()`.
+  - Validation & Security:
+    - `type` restricted to allowlist `['posts', 'courses', 'lessons', 'members']` (defaults to `posts`); invalid type throws `ValidationException`.
+    - `q` validated between 2 and 100 characters; malformed/array input safely rejected with `ValidationException`.
+    - Parameterized MySQL LIKE with `addcslashes($search, '%_\\')` escaping literal SQL wildcards (`%`, `_`, `\`).
+    - Fail-closed access control: requires `$community->isActive()` and active membership or creator role; suspended/removed members and outsiders receive 404.
+  - Ancestry & Permission-Aware Queries:
+    - Posts: scoped to active community, excludes soft-deleted posts; eager loads `author:id,name` and `category`.
+    - Courses: scoped to active community; non-creators strictly see `PUBLISHED` courses only; creators can see draft courses with explicit `Draft` badge.
+    - Lessons: scoped via `whereHas('courseSection.course')` to active community; non-creators strictly see `PUBLISHED` lessons within `PUBLISHED` courses; creators can see draft lessons with explicit `Draft` badge.
+    - Members: scoped to active community members and creator; selects only public profile fields (`id`, `name`, `bio`, `avatar_path`), zero emails or private credentials disclosed.
+    - Snippets: HTML stripped and length-capped (`Str::limit(strip_tags(...), 160)`), safely escaped in Blade.
+    - Tab Counts: calculated with identical permission/status filters as the query results.
+    - Query Efficiency: only the selected result type is paginated (`15` per page with query string preservation), avoiding loading full tables into memory.
+  - UI Templates:
+    - Search view: `resources/views/communities/search.blade.php` with workspace header, keyword input, tabbed type filters with count badges, paginated results, and idle/zero-result empty states.
+    - Workspace navigation: Added `Search` tab to `resources/views/components/community-workspace.blade.php`.
+- Automated tests:
+  - `tests/Feature/CommunitySearchTest.php`: 5 tests / 62 assertions PASS (AC-01 through AC-05).
+  - Combined F-01 through F-06 & Demo readiness suite: 46 tests / 456 assertions PASS, 0 failures.
+  - Code style: Pint passed on 181 files (`vendor/bin/pint --test`).
+  - Frontend assets: `npm run build` passed (60 modules, 3.42s).
+
+## F-07 — Calendar Month and List Navigation (2026-10-13)
+
+- Contract: F-07 from `docs/03_DELIVERY_PLAN.md` Section 17.7.
+- Implementation:
+  - Model: Added `startsAtInTimezone(string $timezone): Carbon` and `endsAtInTimezone(string $timezone): Carbon` to `App\Models\Event`.
+  - Controller: `EventController@index` updated with:
+    - Allowlisted `view=month|list` (default `month`).
+    - Validated IANA `display_timezone` (default `Asia/Ho_Chi_Minh`), preserved across links and view switching.
+    - Strict `month=YYYY-MM` validation (default current month in display timezone).
+    - Bounded UTC range queries: converts month start/end in `display_timezone` to UTC instants and queries overlapping intervals (`starts_at <= endUtc AND ends_at >= startUtc`).
+    - Grid generation: constructs a 7-column calendar matrix with leading and trailing padding days, mapping events to their displayed day in `display_timezone`.
+    - Payload capping: capped at 100 events per month view with fallback notification to list view when dense.
+    - Chronological list view: preserved existing pagination when no specific month is requested, and filtered by bounded month when `month` is set.
+  - Views: `resources/views/communities/events/index.blade.php`:
+    - Toolbar with Prev/Next month navigation, Month/List view toggle buttons, and timezone selector dropdown.
+    - Display timezone indicator pill and event pills showing display time alongside original event timezone labels.
+    - Cancelled events visibly labelled with `Cancelled` badges and omitting member meeting links.
+  - Automated tests: `tests/Feature/CommunityEventCalendarTest.php` (4 tests / 24 assertions PASS, covering AC-01 through AC-05). Total event test suite: 28 tests / 147 assertions PASS.
+
+## F-08 — In-App Notification Center (2026-10-13)
+
+- Contract: F-08 from `docs/03_DELIVERY_PLAN.md` Section 17.7.
+- Implementation:
+  - Database Schema:
+    - Forward migration `database/migrations/2026_10_13_080001_create_notifications_table.php` creating `notifications` table with UUID primary key, `notifiable` polymorphic relation, `community_id`, unique `dedupe_key`, `data` json, `read_at`, and timestamps.
+    - Added `published_revision` column (unsigned int default 0) to `courses` table for publication transition tracking.
+  - Models:
+    - `App\Models\AppNotification`: extends `Illuminate\Notifications\DatabaseNotification`. Implements `isAvailableFor(User $viewer)` performing fresh runtime access checks (community active, recipient permitted, post/comment not deleted, course published, membership active); `summary()` for safe rendering; `targetUrl()` for deep links; `createNotification()` with unique constraint error handling for idempotency; and `unreadCountFor()` matching the visibility filter.
+    - `App\Models\Community`: added `notifications()` relation.
+    - `App\Models\User`: added `appNotifications()` relation.
+    - `App\Models\Course`: added `published_revision` fillable, cast, and attribute.
+  - Queued Jobs (with `$this->afterCommit()` transaction guards):
+    - `SendPostReplyNotification`: dispatches on new comment; notifies post author if commenter is not author, with dedupe key `post_reply:comment_{id}:recipient_{author_id}`.
+    - `SendMemberActivatedNotification`: dispatches on member acceptance or reactivation; notifies community creator with dedupe key `member_activated:{source_type}_{source_id}:recipient_{creator_id}`.
+    - `SendCoursePublishedNotification`: fan-out job querying eligible active members and chunking in batches of 100 with dedupe key `course_published:course_{id}_rev_{revision}:recipient_{user_id}`.
+  - Producer Integrations:
+    - `CommentController@store`: dispatches `SendPostReplyNotification` after comment creation.
+    - `AcceptInvitation@handle`: dispatches `SendMemberActivatedNotification` on invite acceptance.
+    - `TransitionCommunityMembership@handle`: dispatches `SendMemberActivatedNotification` when reactivating suspended member to `ACTIVE`.
+    - `SePayWebhookController`: dispatches `SendMemberActivatedNotification` on webhook payment activation.
+    - `CourseController@store` & `update`: manages `published_revision` on DRAFT→PUBLISHED transitions and dispatches `SendCoursePublishedNotification`; updates while already PUBLISHED do not repeat.
+  - Controller & Routes:
+    - `App\Http\Controllers\NotificationController`: `index` (paginated personal inbox), `markAsRead` (enforces recipient ownership, 403 on foreign notifications), `markAllAsRead` (strictly bounded to viewer's visible inbox), and `follow` (safe deep links that mark as read and redirect to target, or display safe unavailable message without leaking private metadata).
+    - Routes registered under community scoped group: `communities.notifications.index`, `communities.notifications.read`, `communities.notifications.read-all`, `communities.notifications.follow`.
+  - UI Views:
+    - `resources/views/communities/notifications/index.blade.php`: notification cards with type-specific icon badges, summary text, relative timestamps, unread badges, mark-as-read actions, "Mark all as read" button, and clean empty state.
+    - `<x-community-workspace>`: added `Notifications` navigation tab with dynamic unread count pill badge derived from visible notifications.
+  - Automated tests:
+    - `tests/Feature/CommunityNotificationTest.php`: 7 tests / 59 assertions PASS (AC-01 through AC-06), including a real database queue worker probe (`Artisan::call('queue:work', ['--once' => true])`).
+    - Full regression suites across F-01 through F-08: 71 tests / 820 assertions PASS.
+    - Code style: Pint passed on 189 files (`vendor/bin/pint --test`).

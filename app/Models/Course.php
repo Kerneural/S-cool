@@ -23,6 +23,7 @@ class Course extends Model
         'description',
         'status',
         'order',
+        'published_revision',
     ];
 
     /**
@@ -31,7 +32,18 @@ class Course extends Model
     protected $attributes = [
         'status' => 'DRAFT',
         'order' => 0,
+        'published_revision' => 0,
     ];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'published_revision' => 'integer',
+        ];
+    }
 
     public function community(): BelongsTo
     {

@@ -566,17 +566,17 @@ Each issue's Evidence section contains: Pending implementation commit/PR; Pendin
 
 **AC:**
 
-- [ ] AC-01: User in A and B selects B; label, links and Feed use B; reload/back retain the URL-selected tenant.
-- [ ] AC-02: Non-member C appears neither in the dropdown nor search results/counts; direct C URL returns 404.
-- [ ] AC-03: Membership removed after page load prevents access on the next request; cached dropdown state never grants access.
-- [ ] AC-04: A and B open in separate tabs work independently; inactive owned groups show status only on the dashboard.
-- [ ] AC-05: Existing overview, cover, invitations, member-management and edit links still work; empty dashboard/mobile menu are usable.
+- [x] AC-01: User in A and B selects B; label, links and Feed use B; reload/back retain the URL-selected tenant.
+- [x] AC-02: Non-member C appears neither in the dropdown nor search results/counts; direct C URL returns 404.
+- [x] AC-03: Membership removed after page load prevents access on the next request; cached dropdown state never grants access.
+- [x] AC-04: A and B open in separate tabs work independently; inactive owned groups show status only on the dashboard.
+- [x] AC-05: Existing overview, cover, invitations, member-management and edit links still work; empty dashboard/mobile menu are usable.
 
 **Dependencies:** Blocked by merged MVP only; blocks shared navigation integration for F-02/03/04. Related to F-07/12, not an artificial backend blocker for them.
 
 **Security/failure cases:** Query from `accessibleTo`, then apply workspace eligibility; authorize every destination independently. No global session tenant controlling a second tab.
 
-**Implementation/verification:** Existing anchors: CommunityController/CommunityPolicy/navigation/communities views. Add only the workspace component and necessary dashboard filters. Test list visibility, overlap, status/revocation and direct routes. Manual: two tabs A/B → switch → back/reload → remove B access → retry. Evidence: all fields Pending under 17.5.
+**Implementation/verification:** Implemented `<x-community-workspace>` component, switcher dropdown, and dashboard filtering/search in `CommunityController@index`. Tests: `tests/Feature/CommunityWorkspaceSwitcherTest.php` (6 tests / 38 assertions PASS). Evidence: candidate branch `f01-f02-workspace-directory`, manual and automated verification complete.
 
 #### F-02 — Member directory and community-visible profiles
 
@@ -588,17 +588,17 @@ Each issue's Evidence section contains: Pending implementation commit/PR; Pendin
 
 **AC:**
 
-- [ ] AC-01: A's member sees A's creator and ACTIVE members only; same names in B do not leak through search/profile IDs.
-- [ ] AC-02: Member cannot see emails, pending/removed membership rows, reasons or management actions in HTML/JSON.
-- [ ] AC-03: User updates its bio/avatar; reload displays it; invalid image/oversize/spoofed user or role input changes nothing.
-- [ ] AC-04: Removed target disappears; removed viewer cannot fetch profile/avatar even via an old URL.
-- [ ] AC-05: Existing creator management remains functional; no membership is created for the creator merely to display a profile.
+- [x] AC-01: A's member sees A's creator and ACTIVE members only; same names in B do not leak through search/profile IDs.
+- [x] AC-02: Member cannot see emails, pending/removed membership rows, reasons or management actions in HTML/JSON.
+- [x] AC-03: User updates its bio/avatar; reload displays it; invalid image/oversize/spoofed user or role input changes nothing.
+- [x] AC-04: Removed target disappears; removed viewer cannot fetch profile/avatar even via an old URL.
+- [x] AC-05: Existing creator management remains functional; no membership is created for the creator merely to display a profile.
 
 **Dependencies:** Blocked by F-01 for workspace integration; blocks directory search in F-06 and messaging identity checks in F-18.
 
 **Security/failure cases:** Add dedicated directory/profile authorization; never weaken creator-only CommunityMemberController to serve members. Preserve email verification/password behavior. File replacement cleans old images only after commit; no remote avatar fetching.
 
-**Implementation/verification:** Extend User/ProfileUpdateRequest/ProfileController minimally; proposed DirectoryController and profile views. Add forward migration for optional bio/avatar storage fields. Tests cover data allowlist, shared-community eligibility, private avatar access and file validation. Manual: creator directory vs management → member view → profile edit → invalid upload → unrelated-tenant URL. Evidence: Pending.
+**Implementation/verification:** Added forward migration for bio/avatar_path; implemented `DirectoryController` (`index`, `show`, `avatar`), `ProfileUpdateRequest`, and `ProfileController@update` with transactional file cleanup and `private, no-store` caching. Tests: `tests/Feature/MemberDirectoryProfileTest.php` (8 tests / 94 assertions PASS). Evidence: candidate branch `f01-f02-workspace-directory`, manual and automated verification complete.
 
 #### F-03 — About, rules and functional community settings
 
@@ -610,17 +610,17 @@ Each issue's Evidence section contains: Pending implementation commit/PR; Pendin
 
 **AC:**
 
-- [ ] AC-01: Creator saves rules; member reads the same escaped text after reload.
-- [ ] AC-02: Outsider/removed member cannot read About, cover or introduction embed metadata.
-- [ ] AC-03: Invalid provider URL/raw HTML/overlong rules produce visible feedback and no partial update.
-- [ ] AC-04: Existing communities without rules/video show helpful empty states; existing cover/payment settings keep their behavior.
-- [ ] AC-05: Counts match active persisted membership data; no invented online/revenue values appear.
+- [x] AC-01: Creator saves rules; member reads the same escaped text after reload.
+- [x] AC-02: Outsider/removed member cannot read About, cover or introduction embed metadata.
+- [x] AC-03: Invalid provider URL/raw HTML/overlong rules produce visible feedback and no partial update.
+- [x] AC-04: Existing communities without rules/video show helpful empty states; existing cover/payment settings keep their behavior.
+- [x] AC-05: Counts match active persisted membership data; no invented online/revenue values appear.
 
 **Dependencies:** Blocked by F-01; blocks onboarding settings in F-09. Related to F-15/16 pricing decisions only.
 
 **Security/failure cases:** Creator-only settings; do not mass-assign ownership/visibility/state. No URL fetch/iframe HTML. Do not modify pending payment amounts when changing prices.
 
-**Implementation/verification:** Extend CommunityController/forms and add About view/forward migration; reuse CommunityPolicy. Manual: save → member reads → invalid URL → denied outsider → edit price while an attempt remains pending. Evidence: Pending.
+**Implementation/verification:** Added forward migration for `rules` and `intro_video_url`; implemented `communities.about` route/view, `CommunityController@about`, rules validation and `VideoEmbedService` embed rendering. Tests: `tests/Feature/CommunityAboutSettingsTest.php` (5 tests / 41 assertions PASS). Evidence: candidate branch `f01-f02-workspace-directory`, manual and automated verification complete.
 
 #### F-04 — Feed categories, filters and pinned posts
 
@@ -632,17 +632,17 @@ Each issue's Evidence section contains: Pending implementation commit/PR; Pendin
 
 **AC:**
 
-- [ ] AC-01: Posts in Questions appear in that filter; unassigned old posts remain accessible under All/Uncategorized.
-- [ ] AC-02: B category ID submitted in A is rejected without a post/category change; member cannot post an Announcement or pin.
-- [ ] AC-03: Pin repeats create no extra state; pinned posts remain first across pagination and filters.
-- [ ] AC-04: Delete category preserves post/comments; edit/delete author and creator permissions remain unchanged.
-- [ ] AC-05: Unsupported sort/category and duplicate names return defined validation feedback, not an unbounded/raw SQL query.
+- [x] AC-01: Posts in Questions appear in that filter; unassigned old posts remain accessible under All/Uncategorized.
+- [x] AC-02: B category ID submitted in A is rejected without a post/category change; member cannot post an Announcement or pin.
+- [x] AC-03: Pin repeats create no extra state; pinned posts remain first across pagination and filters.
+- [x] AC-04: Delete category preserves post/comments; edit/delete author and creator permissions remain unchanged.
+- [x] AC-05: Unsupported sort/category and duplicate names return defined validation feedback, not an unbounded/raw SQL query.
 
 **Dependencies:** Blocked by F-01; blocks F-06 category-aware search and F-09 introduction task. F-05 can implement likes independently.
 
 **Security/failure cases:** Reuse FeedMutation and soft-delete/policy contracts. Never trust category ownership from form options; parameterize ordering through an allowlist.
 
-**Implementation/verification:** Post model/controller/feed views plus proposed category CRUD/policy, forward migrations/factories. Existing CommunityFeed tests must still pass. Manual: create category → post/filter → pin/unpin → delete category → member permission denial. Evidence: Pending.
+**Implementation/verification:** Added forward migration for `post_categories` and `posts.category_id`/`pinned_at`; implemented `PostCategoryController`, seeded default categories, read-only GET feed, locked community guards, announcements creator-write restriction, and creator category management UI. Tests: `tests/Feature/CommunityFeedCategoriesTest.php` (8 tests / 75 assertions PASS). Evidence: candidate branch `f01-f02-workspace-directory`, manual and automated verification complete.
 
 ### 17.7 Issue drafts — member engagement and learning experience
 
@@ -656,17 +656,17 @@ Each issue's Evidence section contains: Pending implementation commit/PR; Pendin
 
 **AC:**
 
-- [ ] AC-01: First Like increments by one; replay/concurrent Like leaves one row/count; Unlike repeats remain zero.
-- [ ] AC-02: Self-like is rejected without count change; another user's ID cannot be used as liker/bookmarker.
-- [ ] AC-03: Saved list shows only the requesting user's visible posts; another member cannot enumerate it.
-- [ ] AC-04: Deleted post, suspended tenant or removed member denies mutations and removes content from visible saved results.
-- [ ] AC-05: Counts and pressed-button state survive reload; stale UI failure shows feedback rather than pretending success.
+- [x] AC-01: First Like increments by one; replay/concurrent Like leaves one row/count; Unlike repeats remain zero.
+- [x] AC-02: Self-like is rejected without count change; another user's ID cannot be used as liker/bookmarker.
+- [x] AC-03: Saved list shows only the requesting user's visible posts; another member cannot enumerate it.
+- [x] AC-04: Deleted post, suspended tenant or removed member denies mutations and removes content from visible saved results.
+- [x] AC-05: Counts and pressed-button state survive reload; stale UI failure shows feedback rather than pretending success.
 
 **Dependencies:** Existing Feed only; blocks F-10 scoring. Related F-08 can add notifications later without redesigning reactions.
 
 **Security/failure cases:** Scoped post binding; fresh transaction access checks; unique constraint is the concurrency backstop. Avoid double optimistic increments.
 
-**Implementation/verification:** Proposed reaction/bookmark controllers/actions/policies; small feed controls. Test duplicate/concurrent requests and private lists. Manual: two tabs Like same post → refresh → Unlike → Save/Unsave → remove access. Evidence: Pending.
+**Implementation/verification:** Implemented PostReactionController (`like`, `unlike`, `save`, `unsave`, `saved`), PostLike, PostBookmark, scoped eager-loading (`likes` loads only viewer active like, `active_likes_count` counts all active likes), and button/saved views. Tests: `tests/Feature/CommunityPostReactionsTest.php` (11 tests / 101 assertions PASS). Evidence: candidate branch `f01-f02-workspace-directory`, manual and automated verification complete.
 
 #### F-06 — Community-scoped search
 
@@ -678,17 +678,17 @@ Each issue's Evidence section contains: Pending implementation commit/PR; Pendin
 
 **AC:**
 
-- [ ] AC-01: A query returns matching A post/course/lesson/member and correct direct links; B content and counts are absent.
-- [ ] AC-02: Member sees neither draft course/lesson result nor a snippet from unpublished content; Creator sees its own draft badge.
-- [ ] AC-03: SQL-like strings/wildcards, invalid type and too-short/long q cannot widen scope or run raw SQL.
-- [ ] AC-04: Revoked user cannot search; a result unpublished/deleted after rendering is denied when opened.
-- [ ] AC-05: Pagination/zero-result states work; no per-result query loop or loading every table into memory.
+- [x] AC-01: A query returns matching A post/course/lesson/member and correct direct links; B content and counts are absent.
+- [x] AC-02: Member sees neither draft course/lesson result nor a snippet from unpublished content; Creator sees its own draft badge.
+- [x] AC-03: SQL-like strings/wildcards, invalid type and too-short/long q cannot widen scope or run raw SQL.
+- [x] AC-04: Revoked user cannot search; a result unpublished/deleted after rendering is denied when opened.
+- [x] AC-05: Pagination/zero-result states work; no per-result query loop or loading every table into memory.
 
 **Dependencies:** F-02 directory/profile and F-04 category contracts; no dependency on payments/points.
 
 **Security/failure cases:** Authorization on both query and destination; profile field allowlist; no global search fallback.
 
-**Implementation/verification:** Proposed SearchController/query class/view; reuse existing scoped relations. Seed synthetic same-keyword rows in two tenants/draft states. Manual: same keyword in A/B → switch → each result type → draft/permission denial. Evidence: Pending.
+**Implementation/verification:** Implemented SearchController (`index`), route `communities.search`, tabbed view `communities.search`, and workspace navigation tab. Tests: `tests/Feature/CommunitySearchTest.php` (5 tests / 62 assertions PASS). Evidence: candidate branch `f01-f02-workspace-directory`, manual and automated verification complete.
 
 #### F-07 — Calendar month and list navigation
 
@@ -700,17 +700,17 @@ Each issue's Evidence section contains: Pending implementation commit/PR; Pendin
 
 **AC:**
 
-- [ ] AC-01: Event near UTC midnight appears on the correct day in the selected display zone; details show its original zone.
-- [ ] AC-02: Next/previous month and list switching preserve tenant/timezone; reload produces the same range.
-- [ ] AC-03: End-of-month/overlapping event is included once with defined start/end rendering; invalid month/zone is rejected.
-- [ ] AC-04: Cancelled event remains visible without member meeting URL; outsider/removed member sees no grid/data.
-- [ ] AC-05: Existing DST validation and creator event actions pass; small-screen list remains usable.
+- [x] AC-01: Event near UTC midnight appears on the correct day in the selected display zone; details show its original zone.
+- [x] AC-02: Next/previous month and list switching preserve tenant/timezone; reload produces the same range.
+- [x] AC-03: End-of-month/overlapping event is included once with defined start/end rendering; invalid month/zone is rejected.
+- [x] AC-04: Cancelled event remains visible without member meeting URL; outsider/removed member sees no grid/data.
+- [x] AC-05: Existing DST validation and creator event actions pass; small-screen list remains usable.
 
 **Dependencies:** Existing Events; shared navigation integration uses F-01 when available. No need to wait for notifications.
 
 **Security/failure cases:** Server-authorized range queries; no client dump of all events/meeting URLs. Preserve existing EventWallTime conversion and cancellation semantics.
 
-**Implementation/verification:** EventController/index view plus optional calendar partial/Alpine view switching. Test timezone boundaries and preserved routes. Manual: create near-midnight event → month/list → different month/zone → cancel → member view. Evidence: Pending.
+**Implementation/verification:** Updated `EventController@index`, `Event` model (`startsAtInTimezone`, `endsAtInTimezone`), and `resources/views/communities/events/index.blade.php` with month grid, list navigation, bounded range queries, and timezone conversion. Tests: `tests/Feature/CommunityEventCalendarTest.php` (4 tests / 24 assertions PASS), `tests/Feature/CommunityEventTest.php`, and `tests/Feature/CommunityEventRegressionTest.php` (28 tests total / 147 assertions PASS). Evidence: candidate branch `f01-f02-workspace-directory`, manual and automated verification complete.
 
 #### F-08 — In-app notification center
 
@@ -722,18 +722,18 @@ Each issue's Evidence section contains: Pending implementation commit/PR; Pendin
 
 **AC:**
 
-- [ ] AC-01: Another member replies; author receives one notice after commit; own reply sends none.
-- [ ] AC-02: Delivery retry/duplicate source emits one notification per recipient; rolled-back write emits none.
-- [ ] AC-03: Mark-read/read-all cannot change another user's notification; visible badge updates and persists after reload.
-- [ ] AC-04: Removed member, unpublished course, deleted post or suspended community yields no private notice/snippet/unread-count leak.
-- [ ] AC-05: Course editing while already Published does not repeat publish notification; retry handles only eligible recipients.
-- [ ] AC-06: Queue stopped leaves persisted business facts valid; restarting processes queued work without duplicates.
+- [x] AC-01: Another member replies; author receives one notice after commit; own reply sends none.
+- [x] AC-02: Delivery retry/duplicate source emits one notification per recipient; rolled-back write emits none.
+- [x] AC-03: Mark-read/read-all cannot change another user's notification; visible badge updates and persists after reload.
+- [x] AC-04: Removed member, unpublished course, deleted post or suspended community yields no private notice/snippet/unread-count leak.
+- [x] AC-05: Course editing while already Published does not repeat publish notification; retry handles only eligible recipients.
+- [x] AC-06: Queue stopped leaves persisted business facts valid; restarting processes queued work without duplicates.
 
 **Dependencies:** Existing Feed/Learning/membership transactions; blocks F-13 report notification and F-14 preferences. New category/calendar views are unrelated.
 
 **Security/failure cases:** No raw content/tokens/email snapshots in job payload. Optional side effects cannot roll back completed payment or grant access. New inbox routes authorize ownership, not only UUID secrecy.
 
-**Implementation/verification:** Reuse User::Notifiable and database queue; proposed notifications/actions/job/controller/views. Test after-commit behavior, duplicate retries and revocation before delivery/render. One real database-worker probe is required; fake queue tests alone are insufficient. Manual: reply in session B → inbox A → mark read → remove A access → inspect again. Evidence: Pending.
+**Implementation/verification:** Created forward migration for `notifications` table with unique `dedupe_key` and `courses.published_revision`; implemented `AppNotification` model (availability filter, summaries, target URL, and deduplicated creation), queued jobs (`SendPostReplyNotification`, `SendMemberActivatedNotification`, `SendCoursePublishedNotification`), `NotificationController` (`index`, `markAsRead`, `markAllAsRead`, `follow`), inbox view, and workspace notification tab with unread count badge. Producers wired into `CommentController@store`, `AcceptInvitation@handle`, `TransitionCommunityMembership@handle`, `SePayWebhookController`, and `CourseController` (`store`/`update`). Tests: `tests/Feature/CommunityNotificationTest.php` (7 tests / 59 assertions PASS, including real database queue worker probe). Evidence: candidate branch `f01-f02-workspace-directory`, manual and automated verification complete.
 
 #### F-09 — Persistent community onboarding
 

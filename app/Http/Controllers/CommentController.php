@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\CommunityContent\FeedMutation;
+use App\Jobs\SendPostReplyNotification;
 use App\Models\Comment;
 use App\Models\Community;
 use App\Models\Post;
@@ -26,7 +27,11 @@ class CommentController extends Controller
 
         app(FeedMutation::class)->run($request->user(), $community, $post->id, null, function (Community $current, Post $currentPost) use ($request, $validated): void {
             Gate::authorize('create', [Comment::class, $currentPost]);
-            $currentPost->comments()->create(['user_id' => $request->user()->id, 'body' => $validated['body']]);
+            $comment = $currentPost->comments()->create(['user_id' => $request->user()->id, 'body' => $validated['body']]);
+
+            if ($currentPost->user_id !== $request->user()->id) {
+                SendPostReplyNotification::dispatch($comment->id);
+            }
         });
 
         return redirect()->route('communities.posts.show', [$community, $post])->with('status', 'comment-created');

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Payment;
 
 use App\Contracts\PaymentGateway;
 use App\Http\Controllers\Controller;
+use App\Jobs\SendMemberActivatedNotification;
 use App\Models\Community;
 use App\Models\CommunityInvitation;
 use App\Models\CommunityMembership;
@@ -177,6 +178,12 @@ class SePayWebhookController extends Controller
                         'accepted_by_user_id' => $payment->user_id,
                     ])->save();
                 }
+            }
+
+            if ($payment->community_invitation_id && isset($invite) && $invite) {
+                SendMemberActivatedNotification::dispatch($payment->community_id, $membership->id, 'invitation', $invite->id);
+            } else {
+                SendMemberActivatedNotification::dispatch($payment->community_id, $membership->id, 'payment', $payment->id);
             }
 
             return [

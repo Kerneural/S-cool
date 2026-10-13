@@ -2,6 +2,7 @@
 
 namespace App\Actions\Communities;
 
+use App\Jobs\SendMemberActivatedNotification;
 use App\Models\Community;
 use App\Models\CommunityInvitation;
 use App\Models\CommunityMembership;
@@ -39,6 +40,8 @@ class AcceptInvitation
             $membership->status = 'ACTIVE';
             $membership->save();
             $invite->forceFill(['status' => 'ACCEPTED', 'accepted_at' => now(), 'accepted_by_user_id' => $actor->id])->save();
+
+            SendMemberActivatedNotification::dispatch($community->id, $membership->id, 'invitation', $invite->id);
 
             return $community;
         }, 3);

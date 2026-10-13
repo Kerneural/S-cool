@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendCoursePublishedNotification;
 use App\Models\Community;
 use App\Models\Course;
 use App\Services\ClassroomMutation;
@@ -59,7 +60,15 @@ class CourseController extends Controller
         ]);
 
         ClassroomMutation::run($community, null, null, null, function ($community) use ($validated) {
-            $community->courses()->create($validated + ['order' => (int) $community->courses()->max('order') + 1]);
+            $publishedRevision = $validated['status'] === 'PUBLISHED' ? 1 : 0;
+            $course = $community->courses()->create($validated + [
+                'order' => (int) $community->courses()->max('order') + 1,
+                'published_revision' => $publishedRevision,
+            ]);
+
+            if ($validated['status'] === 'PUBLISHED') {
+                SendCoursePublishedNotification::dispatch($course->id, $publishedRevision);
+            }
         });
 
         return redirect()->route('communities.classroom.index', $community)
@@ -80,7 +89,23 @@ class CourseController extends Controller
             'status' => ['required', 'in:DRAFT,PUBLISHED'],
         ]);
 
-        ClassroomMutation::run($community, $course, null, null, fn ($community, $course) => $course->update($validated));
+        $oldStatus = $course->status;
+        $newStatus = $validated['status'];
+
+        ClassroomMutation::run($community, $course, null, null, function ($community, $course) use ($validated, $oldStatus, $newStatus) {
+            $publishedRevision = (int) $course->published_revision;
+            $transitionedToPublished = $oldStatus !== 'PUBLISHED' && $newStatus === 'PUBLISHED';
+
+            if ($transitionedToPublished) {
+                $publishedRevision++;
+            }
+
+            $course->update($validated + ['published_revision' => $publishedRevision]);
+
+            if ($transitionedToPublished) {
+                SendCoursePublishedNotification::dispatch($course->id, $publishedRevision);
+            }
+        });
 
         return back()->with('status', 'Course updated successfully.');
     }
