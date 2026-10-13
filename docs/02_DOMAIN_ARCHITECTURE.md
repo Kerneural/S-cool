@@ -283,6 +283,7 @@ ERD trên chỉ thể hiện quan hệ chính, không thay thế migration desig
 ### Bảng/resource tenant-scoped
 
 - `community_memberships`
+- `community_membership_actions`
 - `community_invitations`
 - `posts`, `comments`
 - `courses`, `course_sections`, `lessons`, `lesson_progress`
@@ -489,7 +490,7 @@ Invalid authentication/reference/amount/currency returns an error, changes no me
 - Free invitation acceptance: validate/mark invitation + create/activate membership trong một transaction.
 - Paid invitation acceptance: validate/mark invitation + create PENDING_PAYMENT membership + payment trong một transaction.
 - Paid success: processed IPN + payment transition + membership activation trong một transaction.
-- Creator suspend/remove member: membership transition trong một transaction.
+- Creator suspend/reactivate/remove member: lock community then membership; persist the membership transition and immutable reason/action audit record in one transaction.
 - Community suspend: community state update và admin action log trong một transaction.
 
 ### Constraints
@@ -498,6 +499,7 @@ Invalid authentication/reference/amount/currency returns an error, changes no me
 - `community_invitations.token_hash` unique.
 - Index `community_invitations(community_id, normalized_email, status)` phục vụ lookup/revoke; rule invitation active được enforce trong action/transaction phù hợp với MySQL.
 - `community_memberships(community_id, user_id)` unique.
+- Index `community_membership_actions(community_id, created_at)` and `(membership_id, created_at)` for tenant/member audit lookup; restrictive foreign keys preserve history.
 - `lesson_progress(user_id, lesson_id)` unique.
 - `payments.external_reference` unique.
 - `processed_webhook_events(provider, provider_event_id)` unique; SePay order/transaction reference liên quan cũng phải unique theo semantics provider.
@@ -514,7 +516,7 @@ Invalid authentication/reference/amount/currency returns an error, changes no me
 
 - Community dùng state ARCHIVED; không hard delete trong MVP.
 - EUR-21 retention safeguard: `creator_id` is non-null with a restrictive foreign key, not a cascading delete. Profile deletion is refused while a user owns any community, including suspended/archived communities. This prevents account deletion from erasing tenant data; ownership transfer/account anonymization remains outside this slice.
-- Membership giữ state history; không xóa khi leave/remove.
+- Membership giữ state history; không xóa khi leave/remove. Creator state changes retain a separate reason/action audit record.
 - Post/comment dùng soft delete nếu cần creator moderation/history.
 - Course/lesson ưu tiên unpublish; soft delete chỉ khi UI cần.
 - Payment và processed webhook event không bị sửa/xóa qua UI.

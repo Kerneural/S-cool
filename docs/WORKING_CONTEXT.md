@@ -553,6 +553,42 @@ The submitted implementation and results below are historical author-reported ev
 - Only this evidence checkpoint changes after the clean-head run. Verify application/test/runtime file equality with `2ba10ea` before the normal push to `eur-10-classroom-publishing`. No development migration/reset, environment replacement, volume deletion, queue flush or shared inbox deletion occurred during publication.
 - Local functional evidence is ready for review. Remote-head confirmation, GitHub approval/required checks and merge remain separate; no CI success, production-readiness or EUR-9 progress completion is claimed. Linear remains In Review; no external comment or status change is authorized by this publication step.
 
+## EUR-13 - Creator Member Management baseline implementation (2026-10-09)
+
+- Outcome: Implement end-to-end Creator Member Management (VS-09): paginated member listing for owning creators with status metrics, domain state transitions (suspend, reactivate, remove), access blocking for non-active members, and anti-enumeration authorization.
+- Branch: `eur-13-creator-member-management`, branched from `origin/main` (`38c5aba`).
+- Implemented files:
+  - Controller: `CommunityMemberController` handling `index`, `suspend`, `reactivate`, and `remove` with creator authorization, scope bindings, reason validation, and domain state transitions.
+  - Views: `resources/views/communities/members/index.blade.php` (summary cards, member table with status badges and action forms), updated `resources/views/communities/show.blade.php` with Members navigation link.
+  - Routes: Registered scoped routes under `/communities/{community:slug}/members` (`index`, `suspend`, `reactivate`, `remove`) in `routes/web.php`.
+  - Feature tests: `tests/Feature/CommunityMemberManagementTest.php` (8 tests, 33 assertions covering AC-01 to AC-05).
+- Verification:
+  - `docker compose -p scool exec -T app php artisan test --filter=CommunityMemberManagementTest`: **8 passed (33 assertions)** in 9.34s.
+  - Full test suite: `docker compose -p scool exec -T app php artisan test --compact`: **189 passed (1535 assertions)** in 134.16s.
+  - Code Style: `docker compose -p scool exec -T app vendor/bin/pint --test`: **128 files PASS**.
+- Status & Handoff:
+  - Implementation completed and verified locally on guarded MySQL `scool_test`.
+  - Changes committed under `3316423` and pushed to `origin/eur-13-creator-member-management`.
+  - Pull Request link: https://github.com/Kerneural/S-cool/pull/new/eur-13-creator-member-management
+  - Evidence comment prepared for Linear EUR-13 including metrics dashboard, state transition feedback, and automated test terminal proof. Awaiting review and PR merge authorization.
+
+### PR #22 integration audit and local remediation (2026-10-12)
+
+- Authority: fetch PR #22, audit and fix EUR-13, run verification, prepare the local UI for owner acceptance, then publish, comment, merge and complete EUR-13 after the owner explicitly accepted the browser flow.
+- Provenance: original PR head `144cd55139319eb0e8e3b3c8a7469153232c0980`; fetched `origin/main` `eef5221d51f722138cd7a4d89967dda1e7ba5da3`. The branch is in an uncommitted history-preserving merge with the single `WORKING_CONTEXT.md` conflict resolved by retaining both issue histories.
+- Findings corrected:
+  - The submitted reason was optional, existed only for suspension and was discarded. All Creator membership state changes now require a trimmed non-blank reason and retain an immutable audit record.
+  - Authorization and community activity were checked before the membership transaction. A domain action now locks and rechecks `community -> membership`, applies the existing state-machine transition, and writes the audit record atomically.
+  - Automated coverage now performs an actual non-Creator mutation attempt and verifies audit creation, no audit on validation/tenant/state failure, duplicate-transition rejection and inactive-community denial.
+- Scope: one forward migration creates `community_membership_actions` with restrictive foreign keys and tenant/member time indexes; the member list shows the latest action/reason and provides required reason inputs. Existing layout, payment state, invitation lifecycle and membership transition rules are preserved.
+- Verification on the merged working tree:
+  - Targeted EUR-13: **11 tests / 57 assertions PASS** on the final test source; the 259-test integrated run predates only these additional view assertions.
+  - Scoped Pint and PHPStan: PASS; four expected member-management routes registered.
+  - `scripts/verify-fresh-setup.sh --mode verify` through the installed Git Bash: production Vite build (60 modules), queue smoke, Composer validation, whole-tree Pint and **259 tests / 2078 assertions PASS** in 245 seconds. The first invocation selected the unavailable WSL alias and produced no source-test result; the corrected explicit Git Bash run is the acceptance evidence.
+  - Local development database received only forward migration `2026_10_12_030001_create_community_membership_actions_table`; no reset, reseed, volume deletion, environment replacement or inbox deletion occurred.
+- Owner-reported browser acceptance passed the member list, blank-reason validation, suspension and access denial, reactivation and access restoration, terminal removal, and latest audit display on the prepared local PR candidate. This is owner manual evidence; it does not replace automated tests or current-head CI.
+- Publication authorization: inspect and stage the intended merge/fix set, create a history-preserving commit on the existing PR branch, push PR #22, wait for current-head required checks, post GitHub and Linear evidence, merge normally, update local `main`, and mark EUR-13 Done. Do not bypass branch protection or represent M4 as complete before the merge and tracker update succeed.
+
 ## EUR-12 - SePay Sandbox Access baseline implementation (2026-10-09)
 
 - Outcome: Implement end-to-end SePay Sandbox paid community access (VS-08): paid invitation checkout initiation, checkout UI with QR/transfer details, IPN webhook with strict signature/amount/currency validation, idempotent replay protection, transactional membership activation, and read-only status checking.
