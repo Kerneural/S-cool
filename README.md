@@ -91,6 +91,46 @@ Persona names do not grant Creator/Member/Admin permissions. Re-running the seed
 preserves existing accounts and passwords; it does not reset them to `password`.
 You can also register a new account.
 
+Fresh Bootstrap also creates two deterministic private communities owned by
+`creator@scool.local`: `demo-free-learning` and `demo-paid-learning`. Both include
+a post, published course/lessons and a scheduled event. The demo member is active
+only in the free community and starts with one of two lessons complete. The paid
+community costs 100,000 VND and still requires a real SePay Test Mode webhook to
+activate an invited user. Re-seeding adds missing demo records but never resets
+existing accounts, memberships or edited records.
+
+## M5 local demo rehearsal
+
+Run the automated gate first. On an existing installation, add any missing demo
+records before Verify; neither command resets the development database.
+
+```bash
+docker compose -p scool exec -T app php artisan db:seed
+bash scripts/verify-fresh-setup.sh --mode verify
+```
+
+Then rehearse this browser flow on `http://127.0.0.1:8080`:
+
+1. Sign in as Demo Creator and confirm both seeded communities appear on Dashboard.
+2. Create one temporary community and confirm its Feed, Classroom and Calendar empty
+   states. Create a temporary post and confirm validation rejects an empty post.
+3. Invite `test@example.com`, open the unique Mailpit link, sign in as that user and
+   accept. A typed invitation URL without its token must not grant access.
+4. Sign in as Demo Member, open the free course, toggle the remaining lesson and
+   confirm progress survives a refresh. Direct paid-community URLs must return 404.
+5. Invite `devops-demo@scool.local` to the paid community and complete the documented
+   SePay Test Mode flow with the exact amount/reference. Confirm access is granted
+   only after the authenticated webhook; cancel or wrong-amount attempts grant none.
+6. As Creator, suspend and reactivate Demo Member with reasons; verify access is
+   removed and restored. As Demo Platform Admin, suspend and reactivate a community
+   with reasons; verify both creator and member access follow the platform state.
+
+For acceptance evidence, record the exact Git SHA, Verify result, browser/role used,
+SePay Test Mode delivery result and any unverified step. Never include credentials,
+tokens, cookies, raw webhook payloads or personal data. Automated negative tests are
+security evidence, but they do not replace the provider-backed paid-flow rehearsal or
+fresh Bootstrap evidence from another machine.
+
 ## Platform Admin local review
 
 After applying pending migrations, a verified Platform Admin can open
