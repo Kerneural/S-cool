@@ -21,10 +21,24 @@ class Post extends Model
      */
     protected $fillable = [
         'community_id',
+        'category_id',
         'user_id',
         'title',
         'body',
+        'pinned_at',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'pinned_at' => 'datetime',
+        ];
+    }
 
     /**
      * Get the community that owns the post.
@@ -32,6 +46,22 @@ class Post extends Model
     public function community(): BelongsTo
     {
         return $this->belongsTo(Community::class);
+    }
+
+    /**
+     * Get the category of the post.
+     */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(PostCategory::class, 'category_id');
+    }
+
+    /**
+     * Determine if the post is currently pinned.
+     */
+    public function isPinned(): bool
+    {
+        return $this->pinned_at !== null;
     }
 
     /**

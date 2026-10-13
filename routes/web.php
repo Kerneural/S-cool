@@ -15,6 +15,7 @@ use App\Http\Controllers\LessonController;
 use App\Http\Controllers\LessonProgressController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Payment\SePayWebhookController;
+use App\Http\Controllers\PostCategoryController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -75,6 +76,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/communities/{community:slug}/posts/{post}/edit', [PostController::class, 'edit'])->name('communities.posts.edit');
         Route::put('/communities/{community:slug}/posts/{post}', [PostController::class, 'update'])->name('communities.posts.update');
         Route::delete('/communities/{community:slug}/posts/{post}', [PostController::class, 'destroy'])->name('communities.posts.destroy');
+        Route::post('/communities/{community:slug}/posts/{post}/pin', [PostController::class, 'pin'])->name('communities.posts.pin');
+        Route::post('/communities/{community:slug}/posts/{post}/unpin', [PostController::class, 'unpin'])->name('communities.posts.unpin');
+
+        Route::post('/communities/{community:slug}/categories', [PostCategoryController::class, 'store'])->name('communities.categories.store');
+        Route::delete('/communities/{community:slug}/categories/{category}', [PostCategoryController::class, 'destroy'])->name('communities.categories.destroy');
 
         Route::post('/communities/{community:slug}/posts/{post}/comments', [CommentController::class, 'store'])->name('communities.posts.comments.store');
         Route::get('/communities/{community:slug}/posts/{post}/comments/{comment}/edit', [CommentController::class, 'edit'])->name('communities.posts.comments.edit');

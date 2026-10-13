@@ -71,6 +71,11 @@ class Community extends Model
         return $this->hasMany(Post::class);
     }
 
+    public function categories(): HasMany
+    {
+        return $this->hasMany(PostCategory::class)->orderBy('name');
+    }
+
     public function events(): HasMany
     {
         return $this->hasMany(Event::class);
