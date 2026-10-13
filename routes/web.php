@@ -50,6 +50,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/communities/create', [CommunityController::class, 'create'])->name('communities.create');
     Route::post('/communities', [CommunityController::class, 'store'])->name('communities.store');
     Route::get('/communities/{community:slug}', [CommunityController::class, 'show'])->name('communities.show');
+    Route::get('/communities/{community:slug}/about', [CommunityController::class, 'about'])->name('communities.about');
     Route::get('/communities/{community:slug}/edit', [CommunityController::class, 'edit'])->name('communities.edit');
     Route::put('/communities/{community:slug}', [CommunityController::class, 'update'])->name('communities.update');
     Route::get('/communities/{community:slug}/cover', [CommunityCoverController::class, 'show'])->name('communities.cover.show');
