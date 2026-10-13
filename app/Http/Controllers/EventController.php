@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Community;
 use App\Models\Event;
 use App\Support\EventWallTime;
+use Carbon\Carbon;
 use Closure;
 use DateTimeZone;
 use Illuminate\Http\RedirectResponse;
@@ -20,9 +21,115 @@ class EventController extends Controller
     public function index(Request $request, Community $community): View
     {
         Gate::authorize('viewAny', [Event::class, $community]);
-        $events = $community->events()->with('creator:id,name')->orderBy('starts_at')->orderBy('id')->paginate(15);
 
-        return view('communities.events.index', compact('community', 'events'));
+        // 1. Validate view parameter (allowlist: month|list, default: list)
+        $view = $request->query('view', 'list');
+        if (! is_string($view) || ! in_array($view, ['month', 'list'], true)) {
+            throw ValidationException::withMessages([
+                'view' => 'The selected view is invalid.',
+            ]);
+        }
+
+        // 2. Validate display_timezone parameter (default: Asia/Ho_Chi_Minh)
+        $displayTimezone = $request->query('display_timezone', 'Asia/Ho_Chi_Minh');
+        if (! is_string($displayTimezone) || ! in_array($displayTimezone, DateTimeZone::listIdentifiers(), true)) {
+            throw ValidationException::withMessages([
+                'display_timezone' => 'The selected timezone is invalid.',
+            ]);
+        }
+
+        // 3. Validate month parameter (strict YYYY-MM)
+        $nowInZone = Carbon::now($displayTimezone);
+        $month = $request->query('month');
+        $hasExplicitMonth = $month !== null;
+
+        if ($hasExplicitMonth) {
+            if (! is_string($month) || ! preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $month)) {
+                throw ValidationException::withMessages([
+                    'month' => 'The selected month must be in YYYY-MM format.',
+                ]);
+            }
+        } else {
+            $month = $nowInZone->format('Y-m');
+        }
+
+        $startOfMonth = Carbon::createFromFormat('!Y-m-d H:i:s', "{$month}-01 00:00:00", $displayTimezone);
+        $endOfMonth = $startOfMonth->copy()->endOfMonth();
+        $startUtc = $startOfMonth->copy()->setTimezone('UTC');
+        $endUtc = $endOfMonth->copy()->setTimezone('UTC');
+
+        $prevMonth = $startOfMonth->copy()->subMonth()->format('Y-m');
+        $nextMonth = $startOfMonth->copy()->addMonth()->format('Y-m');
+        $monthLabel = $startOfMonth->format('F Y');
+
+        $eventsQuery = $community->events()
+            ->with('creator:id,name');
+
+        if ($view === 'month' || $hasExplicitMonth) {
+            $eventsQuery->where('starts_at', '<=', $endUtc)
+                ->where('ends_at', '>=', $startUtc);
+        }
+
+        $eventsQuery->orderBy('starts_at')->orderBy('id');
+
+        $calendarGrid = [];
+        if ($view === 'month') {
+            // Cap month grid payload to prevent memory exhaustion (max 100 events)
+            $events = $eventsQuery->take(100)->get();
+
+            $daysInMonth = $startOfMonth->daysInMonth;
+            $startOfWeekIso = $startOfMonth->dayOfWeekIso; // 1 = Mon, 7 = Sun
+            $leadingEmptyDays = $startOfWeekIso - 1;
+
+            $days = [];
+            for ($i = 0; $i < $leadingEmptyDays; $i++) {
+                $days[] = null;
+            }
+
+            for ($d = 1; $d <= $daysInMonth; $d++) {
+                $dateStr = sprintf('%s-%02d', $month, $d);
+                $dayStart = Carbon::createFromFormat('!Y-m-d H:i:s', "{$dateStr} 00:00:00", $displayTimezone);
+                $dayEnd = Carbon::createFromFormat('!Y-m-d H:i:s', "{$dateStr} 23:59:59", $displayTimezone);
+
+                $dayEvents = $events->filter(function (Event $event) use ($dayStart, $dayEnd, $displayTimezone): bool {
+                    $startInTz = $event->startsAtInTimezone($displayTimezone);
+                    $endInTz = $event->endsAtInTimezone($displayTimezone);
+
+                    return $startInTz->lte($dayEnd) && $endInTz->gte($dayStart);
+                })->values();
+
+                $days[] = [
+                    'day' => $d,
+                    'date' => $dateStr,
+                    'is_today' => $dateStr === $nowInZone->format('Y-m-d'),
+                    'events' => $dayEvents,
+                ];
+            }
+
+            $remainder = count($days) % 7;
+            if ($remainder > 0) {
+                for ($i = 0; $i < (7 - $remainder); $i++) {
+                    $days[] = null;
+                }
+            }
+
+            $calendarGrid = array_chunk($days, 7);
+        } else {
+            $events = $eventsQuery->paginate(15)->withQueryString();
+        }
+
+        return view('communities.events.index', [
+            'community' => $community,
+            'events' => $events,
+            'view' => $view,
+            'month' => $month,
+            'monthLabel' => $monthLabel,
+            'prevMonth' => $prevMonth,
+            'nextMonth' => $nextMonth,
+            'displayTimezone' => $displayTimezone,
+            'timezones' => DateTimeZone::listIdentifiers(),
+            'calendarGrid' => $calendarGrid,
+        ]);
     }
 
     public function create(Community $community): View
