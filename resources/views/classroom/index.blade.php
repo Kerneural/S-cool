@@ -1,11 +1,6 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-            <h2 class="min-w-0 break-words text-xl font-semibold text-gray-800">{{ $community->name }} / {{ __('Classroom') }}</h2>
-            <a class="text-sm text-indigo-700" href="{{ route('communities.show', $community) }}">{{ __('Community') }}</a>
-        </div>
-    </x-slot>
     <div class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6">
+        <x-community-workspace :community="$community" active-tab="classroom" />
         <x-classroom-feedback />
         @if ($isCreator)
             <details class="rounded-lg bg-white p-6 shadow-sm" @if ($errors->any() && old('_form') === 'create-course') open @endif>
