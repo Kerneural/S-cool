@@ -9,6 +9,7 @@ use App\Http\Controllers\CommunityInvitationController;
 use App\Http\Controllers\CommunityMemberController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\CourseSectionController;
+use App\Http\Controllers\DirectoryController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\LessonProgressController;
@@ -38,6 +39,7 @@ Route::post('/invitations/{invitation}/checkout', [PaymentController::class, 'in
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile/avatar', [ProfileController::class, 'avatar'])->name('profile.avatar');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/payments/{reference}/checkout', [PaymentController::class, 'checkout'])->middleware('verified')->name('payments.checkout');
@@ -61,6 +63,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/communities/{community:slug}/members/{membership}/suspend', [CommunityMemberController::class, 'suspend'])->name('communities.members.suspend');
         Route::post('/communities/{community:slug}/members/{membership}/reactivate', [CommunityMemberController::class, 'reactivate'])->name('communities.members.reactivate');
         Route::post('/communities/{community:slug}/members/{membership}/remove', [CommunityMemberController::class, 'remove'])->name('communities.members.remove');
+
+        Route::get('/communities/{community:slug}/directory', [DirectoryController::class, 'index'])->name('communities.directory.index');
+        Route::get('/communities/{community:slug}/directory/{user}', [DirectoryController::class, 'show'])->withoutScopedBindings()->name('communities.directory.show');
+        Route::get('/communities/{community:slug}/directory/{user}/avatar', [DirectoryController::class, 'avatar'])->withoutScopedBindings()->name('communities.directory.avatar');
 
         Route::get('/communities/{community:slug}/posts', [PostController::class, 'index'])->name('communities.posts.index');
         Route::post('/communities/{community:slug}/posts', [PostController::class, 'store'])->name('communities.posts.store');
