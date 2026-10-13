@@ -17,6 +17,7 @@ use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Payment\SePayWebhookController;
 use App\Http\Controllers\PostCategoryController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\PostReactionController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -78,6 +79,11 @@ Route::middleware('auth')->group(function () {
         Route::delete('/communities/{community:slug}/posts/{post}', [PostController::class, 'destroy'])->name('communities.posts.destroy');
         Route::post('/communities/{community:slug}/posts/{post}/pin', [PostController::class, 'pin'])->name('communities.posts.pin');
         Route::post('/communities/{community:slug}/posts/{post}/unpin', [PostController::class, 'unpin'])->name('communities.posts.unpin');
+        Route::post('/communities/{community:slug}/posts/{post}/like', [PostReactionController::class, 'like'])->name('communities.posts.like');
+        Route::delete('/communities/{community:slug}/posts/{post}/like', [PostReactionController::class, 'unlike'])->name('communities.posts.unlike');
+        Route::post('/communities/{community:slug}/posts/{post}/save', [PostReactionController::class, 'save'])->name('communities.posts.save');
+        Route::delete('/communities/{community:slug}/posts/{post}/save', [PostReactionController::class, 'unsave'])->name('communities.posts.unsave');
+        Route::get('/communities/{community:slug}/saved', [PostReactionController::class, 'saved'])->name('communities.saved.index');
 
         Route::post('/communities/{community:slug}/categories', [PostCategoryController::class, 'store'])->name('communities.categories.store');
         Route::delete('/communities/{community:slug}/categories/{category}', [PostCategoryController::class, 'destroy'])->name('communities.categories.destroy');

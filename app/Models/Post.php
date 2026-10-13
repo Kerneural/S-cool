@@ -87,4 +87,60 @@ class Post extends Model
     {
         return $this->hasMany(Comment::class);
     }
+
+    /**
+     * Get the likes for the post.
+     */
+    public function likes(): HasMany
+    {
+        return $this->hasMany(PostLike::class);
+    }
+
+    /**
+     * Get the active likes for the post.
+     */
+    public function activeLikes(): HasMany
+    {
+        return $this->hasMany(PostLike::class)->where('is_active', true);
+    }
+
+    /**
+     * Get the bookmarks/saves for the post.
+     */
+    public function bookmarks(): HasMany
+    {
+        return $this->hasMany(PostBookmark::class);
+    }
+
+    /**
+     * Determine if the post is liked by a given user.
+     */
+    public function isLikedBy(?User $user): bool
+    {
+        if (! $user) {
+            return false;
+        }
+
+        if ($this->relationLoaded('likes')) {
+            return $this->likes->where('user_id', $user->id)->where('is_active', true)->isNotEmpty();
+        }
+
+        return $this->activeLikes()->where('user_id', $user->id)->exists();
+    }
+
+    /**
+     * Determine if the post is bookmarked/saved by a given user.
+     */
+    public function isBookmarkedBy(?User $user): bool
+    {
+        if (! $user) {
+            return false;
+        }
+
+        if ($this->relationLoaded('bookmarks')) {
+            return $this->bookmarks->where('user_id', $user->id)->isNotEmpty();
+        }
+
+        return $this->bookmarks()->where('user_id', $user->id)->exists();
+    }
 }

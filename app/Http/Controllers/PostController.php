@@ -30,12 +30,18 @@ class PostController extends Controller
             ]);
         }
 
+        $user = $request->user();
         $query = $community->posts()
             ->with([
                 'author:id,name',
                 'category',
+                'likes' => fn ($q) => $user ? $q->where('is_active', true)->where('user_id', $user->id) : $q->whereRaw('0 = 1'),
+                'bookmarks' => fn ($q) => $user ? $q->where('user_id', $user->id) : $q->whereRaw('0 = 1'),
             ])
-            ->withCount('comments');
+            ->withCount([
+                'comments',
+                'likes as active_likes_count' => fn ($q) => $q->where('is_active', true),
+            ]);
 
         if (is_string($currentCategorySlug) && $currentCategorySlug !== '' && $currentCategorySlug !== 'all') {
             if ($currentCategorySlug === 'uncategorized') {
@@ -117,10 +123,14 @@ class PostController extends Controller
     {
         Gate::authorize('view', $post);
 
+        $user = auth()->user();
         $post->load([
             'author:id,name',
             'category',
+            'likes' => fn ($q) => $user ? $q->where('is_active', true)->where('user_id', $user->id) : $q->whereRaw('0 = 1'),
+            'bookmarks' => fn ($q) => $user ? $q->where('user_id', $user->id) : $q->whereRaw('0 = 1'),
         ]);
+        $post->loadCount(['likes as active_likes_count' => fn ($q) => $q->where('is_active', true)]);
 
         $comments = $post->comments()->with('author:id,name')->orderBy('created_at')->orderBy('id')->paginate(20);
         $comments->each(fn ($comment) => $comment->setRelation('post', $post));

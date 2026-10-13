@@ -218,10 +218,60 @@
                         </a>
 
                         <div class="flex items-center justify-between pt-3 border-t text-xs text-gray-500">
-                            <a href="{{ route('communities.posts.show', [$community, $post]) }}" class="inline-flex items-center text-indigo-600 hover:text-indigo-800 font-medium">
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
-                                {{ $post->comments_count }} {{ __('comments') }}
-                            </a>
+                            <div class="flex items-center gap-4">
+                                @php
+                                    $isLiked = $post->isLikedBy(auth()->user());
+                                    $likesCount = $post->active_likes_count ?? $post->activeLikes()->count();
+                                    $isBookmarked = $post->isBookmarkedBy(auth()->user());
+                                @endphp
+                                @if ((int) $post->user_id === (int) auth()->id())
+                                    <span class="inline-flex items-center text-gray-400 cursor-not-allowed" title="{{ __('You cannot like your own post') }}">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path></svg>
+                                        {{ $likesCount }} {{ __('likes') }}
+                                    </span>
+                                @elseif ($isLiked)
+                                    <form method="POST" action="{{ route('communities.posts.unlike', [$community, $post]) }}" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="inline-flex items-center text-rose-600 hover:text-rose-700 font-semibold" title="{{ __('Unlike post') }}">
+                                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24"><path d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path></svg>
+                                            {{ $likesCount }} {{ __('likes') }}
+                                        </button>
+                                    </form>
+                                @else
+                                    <form method="POST" action="{{ route('communities.posts.like', [$community, $post]) }}" class="inline">
+                                        @csrf
+                                        <button type="submit" class="inline-flex items-center text-gray-500 hover:text-rose-600 font-medium" title="{{ __('Like post') }}">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path></svg>
+                                            {{ $likesCount }} {{ __('likes') }}
+                                        </button>
+                                    </form>
+                                @endif
+
+                                @if ($isBookmarked)
+                                    <form method="POST" action="{{ route('communities.posts.unsave', [$community, $post]) }}" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="inline-flex items-center text-amber-600 hover:text-amber-700 font-semibold" title="{{ __('Remove from saved') }}">
+                                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/></svg>
+                                            {{ __('Saved') }}
+                                        </button>
+                                    </form>
+                                @else
+                                    <form method="POST" action="{{ route('communities.posts.save', [$community, $post]) }}" class="inline">
+                                        @csrf
+                                        <button type="submit" class="inline-flex items-center text-gray-500 hover:text-amber-600 font-medium" title="{{ __('Save post for later') }}">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                                            {{ __('Save') }}
+                                        </button>
+                                    </form>
+                                @endif
+
+                                <a href="{{ route('communities.posts.show', [$community, $post]) }}" class="inline-flex items-center text-indigo-600 hover:text-indigo-800 font-medium">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                                    {{ $post->comments_count }} {{ __('comments') }}
+                                </a>
+                            </div>
 
                             <a href="{{ route('communities.posts.show', [$community, $post]) }}" class="text-gray-400 hover:text-gray-600">
                                 {{ __('View full discussion &rarr;') }}

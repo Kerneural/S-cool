@@ -100,4 +100,15 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(PlatformAdminAction::class, 'admin_id');
     }
+
+    public function postLikes(): HasMany
+    {
+        return $this->hasMany(PostLike::class);
+    }
+
+    public function postBookmarks(): HasMany
+    {
+        return $this->hasMany(PostBookmark::class);
+    }
+}
 }
