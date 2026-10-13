@@ -19,6 +19,7 @@ use App\Http\Controllers\PostCategoryController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PostReactionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -84,6 +85,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/communities/{community:slug}/posts/{post}/save', [PostReactionController::class, 'save'])->name('communities.posts.save');
         Route::delete('/communities/{community:slug}/posts/{post}/save', [PostReactionController::class, 'unsave'])->name('communities.posts.unsave');
         Route::get('/communities/{community:slug}/saved', [PostReactionController::class, 'saved'])->name('communities.saved.index');
+        Route::get('/communities/{community:slug}/search', [SearchController::class, 'index'])->name('communities.search');
 
         Route::post('/communities/{community:slug}/categories', [PostCategoryController::class, 'store'])->name('communities.categories.store');
         Route::delete('/communities/{community:slug}/categories/{category}', [PostCategoryController::class, 'destroy'])->name('communities.categories.destroy');
