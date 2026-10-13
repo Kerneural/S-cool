@@ -1,42 +1,8 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                    {{ $community->name }}
-                </h2>
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $community->isActive() ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
-                    {{ $community->status }}
-                </span>
-            </div>
-            <div class="flex flex-wrap items-center gap-2">
-                <a href="{{ route('communities.posts.index', $community) }}" class="inline-flex items-center px-3 py-1.5 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 transition">
-                    {{ __('Community Feed') }}
-                </a>
-                <a href="{{ route('communities.events.index', $community) }}" class="inline-flex items-center px-3 py-1.5 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 transition">
-                    {{ __('Events') }}
-                </a>
-                <a href="{{ route('communities.classroom.index', $community) }}" class="inline-flex items-center px-3 py-1.5 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 transition ease-in-out duration-150">
-                    {{ __('Classroom') }}
-                </a>
-                @can('update', $community)
-                    <a class="underline text-sm" href="{{ route('communities.invitations.index', $community) }}">Invitations</a>
-                    <a class="underline text-sm" href="{{ route('communities.members.index', $community) }}">Members</a>
-                    <a href="{{ route('communities.edit', $community) }}" class="inline-flex items-center px-3 py-1.5 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                        {{ __('Edit Settings') }}
-                    </a>
-                @endcan
-                <a href="{{ route('communities.index') }}" class="inline-flex items-center px-3 py-1.5 bg-gray-100 border border-transparent rounded-md font-semibold text-xs text-gray-600 uppercase tracking-widest hover:bg-gray-200 transition ease-in-out duration-150">
-                    {{ __('Back to List') }}
-                </a>
-            </div>
-
-        </div>
-    </x-slot>
-
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            @if ($community->cover_path)<img src="{{ route('communities.cover.show', $community) }}" alt="Community cover" class="w-full max-h-64 object-cover rounded-lg">@endif
+            <x-community-workspace :community="$community" active-tab="about" />
+
             @if (session('status'))
                 <div class="p-4 font-medium text-sm text-green-700 bg-green-50 rounded-lg">
                     {{ session('status') }}
@@ -53,14 +19,19 @@
                                 {{ $community->description ?: __('No description provided yet.') }}
                             </p>
 
-                            <div class="flex flex-wrap gap-4 text-sm text-gray-500 pt-4 border-t">
+                            <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500 pt-4 border-t">
                                 <div>
                                     <span class="font-medium text-gray-700">{{ __('Tenant Slug:') }}</span>
                                     <code class="ml-1 px-2 py-0.5 bg-gray-100 rounded text-xs text-indigo-600">{{ $community->slug }}</code>
                                 </div>
-                                <div>
+                                <div class="flex items-center gap-1.5">
                                     <span class="font-medium text-gray-700">{{ __('Creator:') }}</span>
-                                    <span class="ml-1">{{ $community->creator->name ?? 'Unknown' }}</span>
+                                    <img src="{{ route('communities.directory.avatar', [$community, $community->creator]) }}" alt="{{ $community->creator->name }}" class="w-5 h-5 rounded-full object-cover">
+                                    <span class="text-gray-900 font-medium">{{ $community->creator->name }}</span>
+                                </div>
+                                <div>
+                                    <span class="font-medium text-gray-700">{{ __('Active Members:') }}</span>
+                                    <span class="ml-1 font-semibold text-gray-900">{{ $activeMemberCount ?? $community->memberships()->where('status', 'ACTIVE')->count() }}</span>
                                 </div>
                                 <div>
                                     <span class="font-medium text-gray-700">{{ __('Created:') }}</span>
@@ -90,6 +61,35 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Introduction Video (if present) -->
+            @if ($community->intro_embed_url)
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">{{ __('Introduction Video') }}</h3>
+                    <div class="aspect-video w-full max-w-3xl rounded-xl overflow-hidden shadow-sm border border-gray-200">
+                        <iframe src="{{ $community->intro_embed_url }}" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Community Rules Card -->
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span>{{ __('Community Rules') }}</span>
+                </h3>
+                @if ($community->rules)
+                    <div class="p-4 bg-gray-50 rounded-lg border border-gray-200 text-gray-800 text-sm whitespace-pre-line leading-relaxed">
+                        {{ $community->rules }}
+                    </div>
+                @else
+                    <p class="text-sm text-gray-500 italic">
+                        {{ __('No community rules posted yet.') }}
+                    </p>
+                @endif
             </div>
         </div>
     </div>

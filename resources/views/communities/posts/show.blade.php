@@ -30,10 +30,21 @@
                             {{ strtoupper(substr($post->author->name ?? 'U', 0, 1)) }}
                         </div>
                         <div>
-                            <div class="font-semibold text-gray-900 text-sm">
-                                {{ $post->author->name ?? __('Unknown') }}
+                            <div class="flex flex-wrap items-center gap-1.5 font-semibold text-gray-900 text-sm">
+                                <span>{{ $post->author->name ?? __('Unknown') }}</span>
                                 @if ($community->isCreator($post->author))
-                                    <span class="ml-1 px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-full text-xs font-medium">{{ __('Creator') }}</span>
+                                    <span class="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-full text-xs font-medium">{{ __('Creator') }}</span>
+                                @endif
+                                @if ($post->category)
+                                    <span class="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs font-normal">
+                                        {{ $post->category->name }}
+                                    </span>
+                                @endif
+                                @if ($post->isPinned())
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-800 rounded-full text-xs font-bold border border-amber-300">
+                                        <svg class="w-3 h-3 text-amber-600" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/></svg>
+                                        {{ __('Pinned') }}
+                                    </span>
                                 @endif
                             </div>
                             <div class="text-xs text-gray-400">
@@ -44,6 +55,23 @@
 
                     <!-- Actions -->
                     <div class="flex items-center space-x-3">
+                        @if ($community->isCreator(auth()->user()))
+                            @if ($post->isPinned())
+                                <form method="POST" action="{{ route('communities.posts.unpin', [$community, $post]) }}">
+                                    @csrf
+                                    <button type="submit" class="text-xs text-amber-700 hover:text-amber-900 underline font-medium">
+                                        {{ __('Unpin') }}
+                                    </button>
+                                </form>
+                            @else
+                                <form method="POST" action="{{ route('communities.posts.pin', [$community, $post]) }}">
+                                    @csrf
+                                    <button type="submit" class="text-xs text-gray-500 hover:text-gray-800 underline font-medium">
+                                        {{ __('Pin') }}
+                                    </button>
+                                </form>
+                            @endif
+                        @endif
                         @can('update', $post)
                             <a href="{{ route('communities.posts.edit', [$community, $post]) }}" class="text-xs text-indigo-600 hover:text-indigo-800 underline font-medium">
                                 {{ __('Edit') }}

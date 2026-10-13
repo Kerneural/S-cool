@@ -1,14 +1,10 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Edit Community: ') }} {{ $community->name }}
-        </h2>
-    </x-slot>
-
     <div class="py-12">
-        <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            <x-community-workspace :community="$community" active-tab="settings" />
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">{{ __('Edit Community: ') }} {{ $community->name }}</h3>
                     @if (session('status'))<p class="mb-4 text-green-700">{{ session('status') }}</p>@endif
                     <form method="POST" enctype="multipart/form-data" action="{{ route('communities.cover.store', $community) }}" class="mb-8 space-y-4 border-b pb-6">
                         @csrf
@@ -49,6 +45,22 @@
                             <x-input-label for="description" :value="__('Description')" />
                             <textarea id="description" name="description" rows="4" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('description', $community->description) }}</textarea>
                             <x-input-error class="mt-2" :messages="$errors->get('description')" />
+                        </div>
+
+                        <!-- Community Rules -->
+                        <div>
+                            <x-input-label for="rules" :value="__('Community Rules (max 5,000 characters)')" />
+                            <textarea id="rules" name="rules" rows="6" maxlength="5000" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('rules', $community->rules) }}</textarea>
+                            <x-input-error class="mt-2" :messages="$errors->get('rules')" />
+                            <p class="mt-1 text-xs text-gray-500">{{ __('Plain-text guidelines and rules visible to all community members.') }}</p>
+                        </div>
+
+                        <!-- Introduction Video URL -->
+                        <div>
+                            <x-input-label for="intro_video_url" :value="__('Introduction Video URL (YouTube or Vimeo)')" />
+                            <x-text-input id="intro_video_url" name="intro_video_url" type="url" class="mt-1 block w-full" :value="old('intro_video_url', $community->intro_video_url)" placeholder="https://www.youtube.com/watch?v=..." />
+                            <x-input-error class="mt-2" :messages="$errors->get('intro_video_url')" />
+                            <p class="mt-1 text-xs text-gray-500">{{ __('Optional video displayed on the community About page.') }}</p>
                         </div>
 
                         @include('communities.partials.access-pricing', ['community' => $community])

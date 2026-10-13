@@ -1,38 +1,15 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
-            <div class="flex flex-wrap items-center gap-3 min-w-0">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                    {{ $community->name }} — {{ __('Events Calendar') }}
-                </h2>
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $community->isActive() ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
-                    {{ $community->status }}
-                </span>
-            </div>
-            <div class="flex flex-wrap items-center gap-2">
-                <a href="{{ route('communities.posts.index', $community) }}" class="inline-flex items-center px-3 py-1.5 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 transition">
-                    {{ __('Community Feed') }}
-                </a>
-                <a href="{{ route('communities.show', $community) }}" class="inline-flex items-center px-3 py-1.5 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 transition">
-                    {{ __('About') }}
-                </a>
+    <div class="py-12">
+        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            <x-community-workspace :community="$community" active-tab="events" />
+
+            <div class="flex justify-end">
                 @can('create', [App\Models\Event::class, $community])
-                    <a href="{{ route('communities.events.create', $community) }}" class="inline-flex items-center px-3 py-1.5 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 transition">
+                    <a href="{{ route('communities.events.create', $community) }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 transition">
                         + {{ __('Create Event') }}
                     </a>
                 @endcan
-                <a href="{{ route('communities.index') }}" class="inline-flex items-center px-3 py-1.5 bg-gray-100 border border-transparent rounded-md font-semibold text-xs text-gray-600 uppercase tracking-widest hover:bg-gray-200 transition">
-                    {{ __('Back to List') }}
-                </a>
             </div>
-        </div>
-    </x-slot>
-
-    <div class="py-12">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            @if ($community->cover_path)
-                <img src="{{ route('communities.cover.show', $community) }}" alt="Community cover" class="w-full max-h-48 object-cover rounded-lg shadow-sm">
-            @endif
 
             @if (session('status'))
                 <div class="p-4 font-medium text-sm text-green-700 bg-green-50 rounded-lg border border-green-200">

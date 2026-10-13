@@ -24,6 +24,21 @@
                     </div>
 
                     <div>
+                        <x-input-label for="category_id" :value="__('Category')" />
+                        <select id="category_id" name="category_id" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
+                            <option value="">{{ __('-- None / General --') }}</option>
+                            @foreach ($categories as $cat)
+                                @if (! $cat->isAnnouncements() || $community->isCreator(auth()->user()))
+                                    <option value="{{ $cat->id }}" {{ old('category_id', $post->category_id) == $cat->id ? 'selected' : '' }}>
+                                        {{ $cat->name }}{{ $cat->isAnnouncements() ? ' (Creator Only)' : '' }}
+                                    </option>
+                                @endif
+                            @endforeach
+                        </select>
+                        <x-input-error :messages="$errors->get('category_id')" class="mt-2" />
+                    </div>
+
+                    <div>
                         <x-input-label for="body" :value="__('Content')" />
                         <textarea id="body" name="body" rows="6" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm" required>{{ old('body', $post->body) }}</textarea>
                         <x-input-error :messages="$errors->get('body')" class="mt-2" />

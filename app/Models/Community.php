@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\VideoEmbedService;
 use Database\Factories\CommunityFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -24,6 +25,8 @@ class Community extends Model
         'name',
         'slug',
         'description',
+        'rules',
+        'intro_video_url',
     ];
 
     /**
@@ -66,6 +69,11 @@ class Community extends Model
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
+    }
+
+    public function categories(): HasMany
+    {
+        return $this->hasMany(PostCategory::class)->orderBy('name');
     }
 
     public function events(): HasMany
@@ -134,5 +142,13 @@ class Community extends Model
         }
 
         return (int) $this->creator_id === (int) $user->id;
+    }
+
+    /**
+     * Get the embedded player URL for the community intro video, if valid.
+     */
+    public function getIntroEmbedUrlAttribute(): ?string
+    {
+        return VideoEmbedService::getEmbedUrl($this->intro_video_url);
     }
 }
