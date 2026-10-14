@@ -2324,3 +2324,26 @@ Visual redesign is separate; no production provider run or real funds are select
   CI/security/review, complete manual negative/replay/TERM/role cases, provider-backed
   SePay Test Mode, retained-row upgrade proof and independent second-machine setup
   remain pending. F-19 is not formally accepted; UI redesign remains separate scope.
+
+Publication follow-through:
+
+- Committed the exact allowlist as `1d294869a27597ceac20fbfb7bcad8d560319880`
+  (`feat: complete community engagement, commerce and messaging`), then pushed
+  `functional-completion-acceptance` without force. No unstaged/untracked candidate
+  files remain. The commit contains 138 changed files; its integrated diff against
+  refreshed main contains 168 files and the nine earlier F-01–F-08/planning commits.
+- Created and attached [Draft PR #37](https://github.com/Kerneural/S-cool/pull/37)
+  against `main`. GitHub confirms OPEN, draft=true and MERGEABLE; the last value is
+  conflict metadata, not review, passing checks or merge authorization.
+- Initial CI run [38602549373](https://github.com/Kerneural/S-cool/actions/runs/38602549373)
+  started for source commit `1d29486`; `CI/ Runner Preflight` is IN_PROGRESS at this
+  checkpoint. This documentation follow-up will produce the final branch revision;
+  assess its own current head/merge-ref checks in GitHub, not a superseded run.
+- Before source commit: explicit staged allowlist matched all 138 expected files,
+  cached whitespace check and shared contract `--require-tracked` PASS. The 384-file
+  input comparison changed only this checkpoint; application/tests/locks are unchanged.
+  No new local full suite is claimed for publication. GitNexus is refreshed privately
+  in index-only mode after publication; graph metadata is not CI/acceptance evidence.
+- The PR records the pending manual/provider/retention/independent-host acceptance
+  gates and validation provenance. No merge, status transition, redesign, deployment
+  or additional runtime/data mutation was performed by this publication step.
