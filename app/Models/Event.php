@@ -100,4 +100,20 @@ class Event extends Model
     {
         return $this->ends_at->copy()->setTimezone($this->timezone);
     }
+
+    /**
+     * Get the start time converted to a specified IANA timezone.
+     */
+    public function startsAtInTimezone(string $timezone): Carbon
+    {
+        return $this->starts_at->copy()->setTimezone($timezone);
+    }
+
+    /**
+     * Get the end time converted to a specified IANA timezone.
+     */
+    public function endsAtInTimezone(string $timezone): Carbon
+    {
+        return $this->ends_at->copy()->setTimezone($timezone);
+    }
 }

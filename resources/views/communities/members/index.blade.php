@@ -1,17 +1,7 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Quản lý thành viên — ') }} {{ $community->name }}
-            </h2>
-            <a href="{{ route('communities.show', $community) }}" class="text-sm text-indigo-600 hover:text-indigo-900 font-medium">
-                &larr; {{ __('Quay lại cộng đồng') }}
-            </a>
-        </div>
-    </x-slot>
-
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            <x-community-workspace :community="$community" active-tab="members" />
             @if (session('status'))
                 <div class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg text-sm">
                     {{ session('status') }}

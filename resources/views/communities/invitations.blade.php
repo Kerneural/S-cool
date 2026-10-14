@@ -1,7 +1,6 @@
 <x-app-layout>
-    <x-slot name="header"><h1 class="font-semibold text-xl">Invitations — {{ $community->name }}</h1></x-slot>
     <div class="max-w-4xl mx-auto py-8 px-4 space-y-6">
-        <a class="underline" href="{{ route('communities.show', $community) }}">Back to community</a>
+        <x-community-workspace :community="$community" active-tab="invitations" />
         @if (session('status'))<p class="p-4 bg-green-50">{{ session('status') }}</p>@endif
         <form method="POST" action="{{ route('communities.invitations.store', $community) }}" class="p-6 bg-white rounded-lg space-y-4">
             @csrf

@@ -1,11 +1,6 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-            <h2 class="min-w-0 break-words text-xl font-semibold text-gray-800">{{ $community->name }} / {{ __('Classroom') }}</h2>
-            <a class="text-sm text-indigo-700" href="{{ route('communities.show', $community) }}">{{ __('Community') }}</a>
-        </div>
-    </x-slot>
     <div class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6">
+        <x-community-workspace :community="$community" active-tab="classroom" />
         <x-classroom-feedback />
         @if ($isCreator)
             <details class="rounded-lg bg-white p-6 shadow-sm" @if ($errors->any() && old('_form') === 'create-course') open @endif>
@@ -24,14 +19,27 @@
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 @foreach ($courses as $course)
                     <article class="min-w-0 space-y-4 rounded-lg border border-gray-100 bg-white p-6 shadow-sm">
-                        <a href="{{ route('communities.courses.show', [$community, $course]) }}" class="block break-words text-lg font-bold text-indigo-700">{{ $course->title }}</a>
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <a href="{{ route('communities.courses.show', [$community, $course]) }}" class="block break-words text-lg font-bold text-indigo-700">{{ $course->title }}</a>
+                            @if ($course->isOneTime())
+                                <span class="rounded bg-indigo-50 text-indigo-700 px-2 py-0.5 text-xs font-semibold">{{ $course->formattedPrice() }}</span>
+                            @endif
+                        </div>
                         @if ($isCreator)<span class="rounded bg-gray-100 px-2 py-1 text-xs">{{ $course->status }}</span>@endif
+                        @if ($isCreator || $course->hasMemberAccess(auth()->user()))
                         <p class="break-words text-sm text-gray-600">{{ $course->description ?? __('No course description provided.') }}</p>
                         <p class="text-xs text-gray-500">{{ $course->visible_lessons_count }} {{ $course->visible_lessons_count === 1 ? __('lesson') : __('lessons') }}</p>
+                        @endif
                         @if ($isActiveMember && $course->isPublished())
-                            @php($percent = $course->progress_total ? (int) round(100 * $course->progress_completed / $course->progress_total) : 0)
-                            <p class="text-sm">{{ __('Your Progress') }}: {{ $percent }}%</p>
-                            <progress class="block h-3 w-full" max="100" value="{{ $percent }}" aria-label="{{ __('Course completion percentage') }}">{{ $percent }}%</progress>
+                            @if ($course->isOneTime() && ! $course->isEntitledFor(auth()->user()))
+                                <div class="rounded bg-amber-50 border border-amber-200 px-3 py-1.5 text-xs font-medium text-amber-800">
+                                    🔒 {{ __('One-time purchase required') }} — {{ $course->formattedPrice() }}
+                                </div>
+                            @else
+                                @php($percent = $course->progress_total ? (int) round(100 * $course->progress_completed / $course->progress_total) : 0)
+                                <p class="text-sm">{{ __('Your Progress') }}: {{ $percent }}%</p>
+                                <progress class="block h-3 w-full" max="100" value="{{ $percent }}" aria-label="{{ __('Course completion percentage') }}">{{ $percent }}%</progress>
+                            @endif
                         @endif
                         @if ($isCreator)
                             <x-classroom-reorder :ids="$courseOrder" :id="$course->id" :action="route('communities.courses.reorder', $community)" />

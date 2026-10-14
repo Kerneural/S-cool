@@ -9,6 +9,7 @@ use App\Models\Event;
 use App\Models\Lesson;
 use App\Models\LessonProgress;
 use App\Models\Post;
+use App\Models\PostCategory;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
@@ -97,6 +98,8 @@ class DemoContentSeeder extends Seeder
             'price_vnd' => $priceVnd,
             'status' => 'ACTIVE',
         ])->save();
+
+        PostCategory::initializeDefaultsFor($community);
 
         return $community;
     }

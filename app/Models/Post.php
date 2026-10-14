@@ -21,10 +21,24 @@ class Post extends Model
      */
     protected $fillable = [
         'community_id',
+        'category_id',
         'user_id',
         'title',
         'body',
+        'pinned_at',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'pinned_at' => 'datetime',
+        ];
+    }
 
     /**
      * Get the community that owns the post.
@@ -32,6 +46,22 @@ class Post extends Model
     public function community(): BelongsTo
     {
         return $this->belongsTo(Community::class);
+    }
+
+    /**
+     * Get the category of the post.
+     */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(PostCategory::class, 'category_id');
+    }
+
+    /**
+     * Determine if the post is currently pinned.
+     */
+    public function isPinned(): bool
+    {
+        return $this->pinned_at !== null;
     }
 
     /**
@@ -56,5 +86,61 @@ class Post extends Model
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
+    }
+
+    /**
+     * Get the likes for the post.
+     */
+    public function likes(): HasMany
+    {
+        return $this->hasMany(PostLike::class);
+    }
+
+    /**
+     * Get the active likes for the post.
+     */
+    public function activeLikes(): HasMany
+    {
+        return $this->hasMany(PostLike::class)->where('is_active', true);
+    }
+
+    /**
+     * Get the bookmarks/saves for the post.
+     */
+    public function bookmarks(): HasMany
+    {
+        return $this->hasMany(PostBookmark::class);
+    }
+
+    /**
+     * Determine if the post is liked by a given user.
+     */
+    public function isLikedBy(?User $user): bool
+    {
+        if (! $user) {
+            return false;
+        }
+
+        if ($this->relationLoaded('likes')) {
+            return $this->likes->where('user_id', $user->id)->where('is_active', true)->isNotEmpty();
+        }
+
+        return $this->activeLikes()->where('user_id', $user->id)->exists();
+    }
+
+    /**
+     * Determine if the post is bookmarked/saved by a given user.
+     */
+    public function isBookmarkedBy(?User $user): bool
+    {
+        if (! $user) {
+            return false;
+        }
+
+        if ($this->relationLoaded('bookmarks')) {
+            return $this->bookmarks->where('user_id', $user->id)->isNotEmpty();
+        }
+
+        return $this->bookmarks()->where('user_id', $user->id)->exists();
     }
 }

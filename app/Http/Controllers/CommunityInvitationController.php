@@ -7,6 +7,7 @@ use App\Actions\Communities\CreateInvitation;
 use App\Actions\Communities\RevokeInvitation;
 use App\Models\Community;
 use App\Models\CommunityInvitation;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -27,8 +28,12 @@ class CommunityInvitationController extends Controller
     public function store(Request $request, Community $community, CreateInvitation $action): RedirectResponse
     {
         Gate::authorize('update', $community);
-        $validated = $request->validate(['email' => ['required', 'string', 'email', 'max:255']]);
-        $action->handle($community, $request->user(), $validated['email']);
+        $validated = $request->validate([
+            'email' => ['required', 'string', 'email', 'max:255'],
+            'referrer_id' => ['nullable', 'integer', 'exists:users,id'],
+        ]);
+        $referrer = ! empty($validated['referrer_id']) ? User::find($validated['referrer_id']) : null;
+        $action->handle($community, $request->user(), $validated['email'], $referrer);
 
         return redirect()->route('communities.invitations.index', $community)->with('status', 'Invitation queued. Check Mailpit locally.');
     }

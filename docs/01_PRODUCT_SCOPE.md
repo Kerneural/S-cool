@@ -536,3 +536,14 @@ Nếu mentor thay đổi một quyết định làm ảnh hưởng Must scope, n
 1. Tiếp tục issue hiện tại và hoàn thành golden flow MVP với quality/security gates đã chốt.
 2. Khi làm M2, dùng handoff này để thảo luận điều hướng và tenant boundary, đọc AC Linear hiện tại trước.
 3. Sau nghiệm thu MVP, so sánh từng feature với demo, ưu tiên cải tiến có vấn đề cụ thể và acceptance criteria; Hoàng duyệt trước khi thêm scope.
+
+## 20. Feature completion direction (2026-10-13)
+
+- `ACCEPTED`: Plan a functional completion release against the mentor reference. The existing MVP is the starting point, not the intended final feature set.
+- `ACCEPTED`: Complete functionality before a separate visual redesign. Feature work includes usable controls, navigation, validation and empty/error states using existing Blade components.
+- `ACCEPTED`: Keep Laravel, MySQL, Blade, Alpine, Tailwind and Vite; local-first delivery and the current SePay transfer-webhook Test Mode remain the baseline.
+- `ACCEPTED`: Preserve private, invitation-only communities, direct creator ownership and the distinction between Creator management and Platform Admin. The reference's public discovery and additional admin role do not override these decisions.
+- `PLANNED`: Workspace/switcher, Members/About, feed organization and interactions, search, calendar views, notifications, onboarding, levels/leaderboard, creator statistics, orders/history, reports and account/help functions. Exact proposed contracts and issue drafts are in [Delivery Plan, section 17](03_DELIVERY_PLAN.md#17-functional-completion-release--implementation-handoff).
+- `OPEN`: Separate course sales, time-limited membership/renewal and affiliate accounting need their business contracts resolved before implementation. They are represented in the completion plan, not silently excluded. A monthly price shown in the reference does not establish automatic recurring billing.
+- `PROPOSED`: Community-scoped asynchronous messaging is a reference-adjacent option; the visible messaging icon is not verified evidence of the mentor implementation.
+- The canonical mentor observations remain in section 19. The delivery plan distinguishes observed UI, screenshot references, proposed improvements and behavior still requiring a decision. It does not claim backend parity or acceptance completion.

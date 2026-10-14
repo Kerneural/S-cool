@@ -2,6 +2,7 @@
 
 namespace App\Actions\Communities;
 
+use App\Jobs\SendMemberActivatedNotification;
 use App\Models\Community;
 use App\Models\CommunityInvitation;
 use App\Models\CommunityMembership;
@@ -32,13 +33,22 @@ class AcceptInvitation
             }
             $membership = $community->memberships()->where('user_id', $actor->id)->lockForUpdate()->first();
             abort_if($membership && ! in_array($membership->status, ['ACTIVE', 'LEFT'], true), 404);
+            $alreadyActive = $membership?->status === 'ACTIVE';
+            abort_if($alreadyActive && ! $membership->hasEffectiveAccess(), 404);
             if (! $membership) {
                 $membership = new CommunityMembership;
                 $membership->forceFill(['community_id' => $community->id, 'user_id' => $actor->id]);
             }
-            $membership->status = 'ACTIVE';
+            if ($alreadyActive) {
+                // A new free invitation must not convert an existing term into lifetime access.
+                $membership->status = 'ACTIVE';
+            } else {
+                $membership->forceFill(['status' => 'ACTIVE', 'access_kind' => CommunityMembership::ACCESS_LIFETIME, 'expires_at' => null]);
+            }
             $membership->save();
             $invite->forceFill(['status' => 'ACCEPTED', 'accepted_at' => now(), 'accepted_by_user_id' => $actor->id])->save();
+
+            SendMemberActivatedNotification::dispatch($community->id, $membership->id, 'invitation', $invite->id);
 
             return $community;
         }, 3);

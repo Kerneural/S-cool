@@ -865,3 +865,1485 @@ Historical implementation checkpoint below: reported before integration with acc
 - Local UI smoke on the dirty candidate: after one additive `php artisan db:seed`, Creator Dashboard rendered both demo tenants and the free Feed, Classroom and Calendar records. Demo Member Dashboard rendered the free tenant but not the paid tenant; Classroom showed 50% progress and a direct paid Feed URL rendered 404. Captured browser console errors were empty. No invitation, payment, progress or lifecycle mutation was submitted in this smoke.
 - Security/trade-offs: all seed writes remain local/testing only and additive. The development database received only missing synthetic demo rows; no reset, migration, volume deletion, inbox deletion, queue flush, role escalation or secret change occurred. Seed reruns intentionally do not repair user-edited demo records, so an edited local dataset may need a newly created demo community/account rather than destructive reseeding.
 - Pending acceptance: current-head GitHub CI after publication; full owner/browser rehearsal for invitations and member/admin transitions; fresh Bootstrap evidence from a second physical machine; team cross-review/demo; provider-backed paid flow on this candidate if the earlier EUR-12 evidence is not accepted as unchanged-input evidence. These are not claimed complete. No commit, push, PR, merge or Linear Done has been performed.
+
+## Functional completion planning handoff (2026-10-13)
+
+- Scope: documentation-only planning authorized for mentor-reference feature completion; functionality first, visual redesign later. No feature implementation or Linear/GitHub mutation is part of this checkpoint.
+- Source snapshot: clean `main`, HEAD `2996aa6a24e4f8821d9351c0beb6460b554b8d6e` before documentation edits. Routes, core models/controllers, community policy and mutation helpers were inspected. Current source includes membership control and SePay transfer-webhook Test Mode; older architecture checkpoints claiming their absence are not current evidence.
+- Canonical implementation handoff: `docs/03_DELIVERY_PLAN.md`, section 17. Product direction: `docs/01_PRODUCT_SCOPE.md`, section 20. Mentor observations: Product Scope, section 19; no new live survey/backend verification was performed.
+- Local F-xx identifiers are draft plan keys, not existing Linear IDs or progress. Transfer the selected issue into Linear using the canonical template before implementation; resolve its actual dependencies/metadata. Record its technical checkpoint here when work starts. Do not execute every draft in one change.
+- Evidence limits: source review supports the gap map, not new runtime/CI acceptance. Historical MVP acceptance gaps remain separate; this planning work does not close them. Commerce and messaging decisions are explicitly gated in the plan.
+- Documentation verification: `git diff --check` passed; a bounded PowerShell structural check confirmed all 18 implementation drafts contain outcome/scope/contracts/AC/dependencies/security/verification/evidence and that F-19 acceptance exists. `bash scripts/verify-agent-contract.sh` passed for 11 shared files/routing/privacy (not agent compliance). The sandbox Bash invocation exited 1 without output; one approved read-only invocation completed with exit 0, rather than repeating the same failing route. No application tests, runtime writes, publication or issue-status changes occurred.
+
+## Shared design reference handoff (2026-10-13)
+
+- Scope: combine the accepted visual direction with the supplied design-system outline into root `design.md`; route UI work through it. Branch `f01-f02-workspace-directory`, HEAD `2996aa6a24e4f8821d9351c0beb6460b554b8d6e`; preserve the four existing completion-plan documentation edits. No feature/CSS/runtime implementation or publication is included.
+- Verified baseline: Tailwind v4/PostCSS and legacy `@config` coexist; app/guest layouts and font extension still use Figtree. Teal/Be Vietnam Pro are target decisions, not applied or visually verified changes. The document distinguishes member learning/community screens from creator data-management screens.
+- Optional UI/UX Pro Max upstream README was checked for Laravel/Blade/Tailwind reference support and its persistent design-generation behavior. No external skill/CLI/package was installed or executed. `design.md` remains canonical; local IDE integration is optional/private and must not create a competing design source or override approved issue/backend contracts.
+- Next UI task reads `design.md` plus its issue scope, inspects current components and applies only required functional controls until a scoped visual-adoption issue is started. Representative Feed/Lesson/Creator screens gate broad styling rollout. All rendered UI/browser, font/token application and usability acceptance remain pending.
+- Verification: agent-contract script passed (11 existing shared files); a separate bounded structural check passed for all 10 design sections, routing from AGENTS/workflow/docs index, unignored `design.md`, and diff whitespace. The existing structural script does not itself enforce the new design document or prove compliance. Concurrent application edits appeared during verification (profile request/user fields and a new profile migration); they were neither edited nor audited by this documentation task.
+
+## F-01 & F-02 — Contextual Workspace, Switcher, Directory & Profiles (2026-10-13)
+
+- Contract: F-01 (Contextual community workspace and switcher) & F-02 (Member directory and community-visible profiles) from `docs/03_DELIVERY_PLAN.md` Section 17.6. Branch `f01-f02-workspace-directory`, base HEAD `2996aa6a24e4f8821d9351c0beb6460b554b8d6e`. Pre-existing documentation edits preserved.
+- Implemented F-01:
+  - Contextual workspace header component `<x-community-workspace>` (`resources/views/components/community-workspace.blade.php`) integrated across Feed, Classroom, Events, Directory/Members, About/Show, and creator management views (Settings, Invitations, Manage Members).
+  - Community Switcher: lists other active accessible communities for the authenticated user (`accessibleTo->active`). Switching navigates to target community Feed (`route('communities.posts.index', $other)`), explicitly dropping nested item IDs. Inactive communities are excluded from the switcher.
+  - Dashboard search and filtering: `CommunityController@index` supports `filter` (`all`, `owned`, `joined`) and keyword search `q` on community name, deduplicated so overlapping creator/member ownership does not produce duplicate cards. Paginated with query string preservation.
+- Implemented F-02:
+  - Forward migration `database/migrations/2026_10_13_040001_add_bio_and_avatar_path_to_users_table.php` adding nullable `bio` (text) and `avatar_path` (string) to `users` table. `User` model `$fillable` updated.
+  - Profile customization: `ProfileUpdateRequest` validates `bio` (max 500 chars) and `avatar` (`image`, mimes: jpeg, png, webp, max 2MB). `ProfileController@update` handles upload to private disk (`'local'` under `'avatars'`), deletes obsolete avatars, and notice is added to profile form regarding cross-community visibility.
+  - Directory & Profiles: `DirectoryController` implements tenant-scoped `index` (lists active members and creator with role badges, bio preview, search `q`, zero emails/private metadata disclosed), `show` (renders member profile detail within community; returns fail-closed 404 for foreign/unrelated users), and `avatar` (streams avatar from private storage with private cache control or returns default SVG avatar placeholder).
+  - Routes in `routes/web.php`: registered under community scope with `withoutScopedBindings()` on `{user}` to support custom authorization of both creator and members. Added `profile.avatar` for authenticated user.
+- Automated tests:
+  - `tests/Feature/CommunityWorkspaceSwitcherTest.php`: 5 tests / 32 assertions PASS (AC-01 through AC-05).
+  - `tests/Feature/MemberDirectoryProfileTest.php`: 5 tests / 82 assertions PASS (AC-01 through AC-05).
+  - Regression and full suite: `docker compose -p scool exec -T -e APP_ENV=testing -e DB_DATABASE=scool_test app php artisan test --fail-on-skipped --fail-on-empty-test-suite` passed with 272 tests / 2,252 assertions, exit 0 in 174.90s.
+  - Code style: Pint passed on 168 PHP files with zero issues (`vendor/bin/pint --test`).
+  - Frontend assets: `npm run build` completed successfully (60 modules, exit 0).
+  - Agent contract: `scripts/verify-agent-contract.sh` PASS (11 shared files).
+- Handoff & Audit Limits:
+  - Prepared for Codex audit. Commit, push, PR creation, merge, and Linear status changes remain pending explicit user authorization.
+
+### F-01 & F-02 — Post-Audit Hardening (2026-10-13)
+
+- Audit Findings Resolved:
+  1. Avatar upload atomicity & transaction rollback: Avatar upload and user update in `ProfileController@update` wrapped in `DB::transaction()`. If commit fails, newly uploaded avatar file is immediately cleaned up (`Storage::disk('local')->delete()`), and previous avatar is preserved. Obsolete avatar is only deleted after successful transaction commit. Added `test_avatar_upload_rolls_back_and_cleans_new_file_if_database_update_fails()`.
+  2. Cache & Security Delivery: Replaced 24-hour cache with strict `Cache-Control: private, no-store` and `X-Content-Type-Options: nosniff` for avatar streaming in `DirectoryController@avatar` and `ProfileController@avatar`. Validated avatar file path strictly with regex `\Aavatars/[a-zA-Z0-9_\-\.]+\.(?:jpg|jpeg|png|webp)\z`. Added `test_avatar_response_contains_strict_cache_and_security_headers_and_guards_against_traversal()`.
+  3. Invalid/malformed input guards: Both `CommunityController@index` (dashboard/switcher) and `DirectoryController@index` (member directory) safely handle array parameters (`?q[]=`, `?filter[]=`) and clamp search strings to max 100 characters using `is_string()` and `mb_substr()`. Added `test_community_index_safely_handles_array_and_oversize_filter_and_search_input()` and `test_member_directory_search_safely_handles_array_and_oversize_search_input()`.
+
+## F-03 — Community About, Rules & Functional Settings (2026-10-13)
+
+- Contract: F-03 from `docs/03_DELIVERY_PLAN.md` Section 17.6.
+- Implementation:
+  - Forward migration `database/migrations/2026_10_13_050001_add_rules_and_intro_video_url_to_communities_table.php` adding nullable `rules` (text) and `intro_video_url` (string, max 500) to `communities` table.
+  - Model & Service: `Community` `$fillable` updated. Accessor `intro_video_embed_url` provides safe embed URLs for YouTube and Vimeo using `VideoEmbedService`.
+  - Validation: `rules` capped at 5,000 characters; `intro_video_url` validated via `VideoEmbedService::isValid()`.
+  - Active member count: Strictly counts memberships with `status === 'ACTIVE'`, excluding suspended/removed members and creator. No email or private member metadata disclosed.
+  - Views & Routes: Dedicated About tab and route `GET /communities/{community:slug}/about` (`communities.about`) rendering embedded video, numbered rules, community metadata and creator profile. Community edit view updated for creator rules/video configuration.
+- Automated tests:
+  - `tests/Feature/CommunityAboutSettingsTest.php`: 5 tests / 41 assertions PASS (AC-01 through AC-05).
+
+## F-04 — Feed Categories, Filtering & Pinned Posts (2026-10-13)
+
+- Contract: F-04 from `docs/03_DELIVERY_PLAN.md` Section 17.6.
+- Implementation & Audit Hardening:
+  - Forward migration `database/migrations/2026_10_13_060001_create_post_categories_and_add_category_and_pinned_to_posts_table.php` creating `post_categories` with unique `[community_id, slug]`; adds `category_id` FK (nullable, `nullOnDelete`) and `pinned_at` timestamp to `posts`.
+  - Default categories seeded: `General`, `Announcements`, `Questions`, `Introductions` via `PostCategory::seedDefaultsFor($community)`. Seeded during migration, in `CommunityController@store` on creation, and in `DemoContentSeeder`.
+  - Read-only GET feed: `PostController@index` is strictly read-only and never writes or auto-seeds categories on GET.
+  - Creator-only Announcements: Only the community creator can post with the Announcements category (`isAnnouncements()`); non-creators are rejected with validation errors.
+  - Creator-only Pinned Posts: `PostController@pin` and `@unpin` are creator-only and idempotent. Pinned posts sort first in the feed regardless of creation date.
+  - Inactive Community Guards: `PostCategoryController@store`, `@destroy`, `PostController@pin`, and `@unpin` verify `$community->isActive()` (404) and re-check inside row-locked DB transactions (`lockForUpdate`).
+  - Category Management UI: Minimal, non-intrusive collapsible creator control in `resources/views/communities/posts/index.blade.php` allows creating new categories and deleting existing categories with post uncategorization and confirmation.
+- Automated tests:
+  - `tests/Feature/CommunityFeedCategoriesTest.php`: 8 tests / 75 assertions PASS (AC-01 through AC-05 + audit hardening).
+
+## F-05 — Idempotent Likes and Personal Saved Posts (2026-10-13)
+
+- Contract: F-05 from `docs/03_DELIVERY_PLAN.md` Section 17.7.
+- Implementation:
+  - Forward migration `database/migrations/2026_10_13_070001_create_post_likes_and_post_bookmarks_tables.php` creating `post_likes` (`community_id`, `post_id`, `user_id`, `is_active`, unique on `[post_id, user_id]`) and `post_bookmarks` (`community_id`, `post_id`, `user_id`, unique on `[post_id, user_id]`).
+  - Models: Created `PostLike` (with `scopeActive`) and `PostBookmark`. Updated `Post` with `likes()`, `activeLikes()`, `bookmarks()`, `isLikedBy()`, and `isBookmarkedBy()`. Updated `User` with `postLikes()` and `postBookmarks()`.
+  - Controller: `PostReactionController` implements `like`, `unlike`, `save`, `unsave`, and `saved` (personal saved posts).
+  - Idempotency & F-10 Identity: Like row preserves original identity and `created_at` timestamp across unlike/re-like cycles via `is_active` boolean flag. Repeated Like/Unlike or Save/Unsave requests are idempotent without count drift.
+  - Security & Authorization: Self-like is rejected with validation error without changing counts; self-bookmark is allowed; non-members, suspended members, soft-deleted posts, and inactive/suspended/archived communities are rejected with 404. Cross-tenant post operations fail-closed with 404.
+  - Views: Updated `resources/views/communities/posts/index.blade.php` and `resources/views/communities/posts/show.blade.php` with Like button (counter and active state) and Save button. Created `resources/views/communities/saved.blade.php` rendering personal bookmarks within community.
+  - Scoped Eager-Loading Hardening: In `PostController@index`, `PostController@show`, and `PostReactionController@saved`, eager-loaded `likes` relation strictly loads only the active like of the authenticated viewer (`where('is_active', true)->where('user_id', $user->id)`), preventing unbounded memory growth. Total likes count continues to be accurately aggregated via `withCount(['likes as active_likes_count' => fn ($q) => $q->where('is_active', true)])`. Added test `test_eager_loaded_likes_relation_only_contains_active_like_of_current_viewer_while_active_likes_count_includes_all_likes`.
+  - Automated tests: `tests/Feature/CommunityPostReactionsTest.php`: 11 tests / 101 assertions PASS (AC-01 through AC-05 + scoped eager loading).
+
+## F-06 — Community-Scoped Search (2026-10-13)
+
+- Contract: F-06 from `docs/03_DELIVERY_PLAN.md` Section 17.7.
+- Implementation:
+  - Controller: `SearchController` (`app/Http/Controllers/SearchController.php`) implements `index` handling community-scoped search across `posts`, `courses`, `lessons`, and `members`.
+  - Route: Registered `GET /communities/{community:slug}/search` (`communities.search`) under community route group with `scopeBindings()`.
+  - Validation & Security:
+    - `type` restricted to allowlist `['posts', 'courses', 'lessons', 'members']` (defaults to `posts`); invalid type throws `ValidationException`.
+    - `q` validated between 2 and 100 characters; malformed/array input safely rejected with `ValidationException`.
+    - Parameterized MySQL LIKE with `addcslashes($search, '%_\\')` escaping literal SQL wildcards (`%`, `_`, `\`).
+    - Fail-closed access control: requires `$community->isActive()` and active membership or creator role; suspended/removed members and outsiders receive 404.
+  - Ancestry & Permission-Aware Queries:
+    - Posts: scoped to active community, excludes soft-deleted posts; eager loads `author:id,name` and `category`.
+    - Courses: scoped to active community; non-creators strictly see `PUBLISHED` courses only; creators can see draft courses with explicit `Draft` badge.
+    - Lessons: scoped via `whereHas('courseSection.course')` to active community; non-creators strictly see `PUBLISHED` lessons within `PUBLISHED` courses; creators can see draft lessons with explicit `Draft` badge.
+    - Members: scoped to active community members and creator; selects only public profile fields (`id`, `name`, `bio`, `avatar_path`), zero emails or private credentials disclosed.
+    - Snippets: HTML stripped and length-capped (`Str::limit(strip_tags(...), 160)`), safely escaped in Blade.
+    - Tab Counts: calculated with identical permission/status filters as the query results.
+    - Query Efficiency: only the selected result type is paginated (`15` per page with query string preservation), avoiding loading full tables into memory.
+  - UI Templates:
+    - Search view: `resources/views/communities/search.blade.php` with workspace header, keyword input, tabbed type filters with count badges, paginated results, and idle/zero-result empty states.
+    - Workspace navigation: Added `Search` tab to `resources/views/components/community-workspace.blade.php`.
+- Automated tests:
+  - `tests/Feature/CommunitySearchTest.php`: 5 tests / 62 assertions PASS (AC-01 through AC-05).
+  - Combined F-01 through F-06 & Demo readiness suite: 46 tests / 456 assertions PASS, 0 failures.
+  - Code style: Pint passed on 181 files (`vendor/bin/pint --test`).
+  - Frontend assets: `npm run build` passed (60 modules, 3.42s).
+
+## F-07 — Calendar Month and List Navigation (2026-10-13)
+
+- Contract: F-07 from `docs/03_DELIVERY_PLAN.md` Section 17.7.
+- Implementation:
+  - Model: Added `startsAtInTimezone(string $timezone): Carbon` and `endsAtInTimezone(string $timezone): Carbon` to `App\Models\Event`.
+  - Controller: `EventController@index` updated with:
+    - Allowlisted `view=month|list` (default `month`).
+    - Validated IANA `display_timezone` (default `Asia/Ho_Chi_Minh`), preserved across links and view switching.
+    - Strict `month=YYYY-MM` validation (default current month in display timezone).
+    - Bounded UTC range queries: converts month start/end in `display_timezone` to UTC instants and queries overlapping intervals (`starts_at <= endUtc AND ends_at >= startUtc`).
+    - Grid generation: constructs a 7-column calendar matrix with leading and trailing padding days, mapping events to their displayed day in `display_timezone`.
+    - Payload capping: capped at 100 events per month view with fallback notification to list view when dense.
+    - Chronological list view: preserved existing pagination when no specific month is requested, and filtered by bounded month when `month` is set.
+  - Views: `resources/views/communities/events/index.blade.php`:
+    - Toolbar with Prev/Next month navigation, Month/List view toggle buttons, and timezone selector dropdown.
+    - Display timezone indicator pill and event pills showing display time alongside original event timezone labels.
+    - Cancelled events visibly labelled with `Cancelled` badges and omitting member meeting links.
+  - Automated tests: `tests/Feature/CommunityEventCalendarTest.php` (4 tests / 24 assertions PASS, covering AC-01 through AC-05). Total event test suite: 28 tests / 147 assertions PASS.
+
+## F-08 — In-App Notification Center (2026-10-13)
+
+- Contract: F-08 from `docs/03_DELIVERY_PLAN.md` Section 17.7.
+- Implementation:
+  - Database Schema:
+    - Forward migration `database/migrations/2026_10_13_080001_create_notifications_table.php` creating `notifications` table with UUID primary key, `notifiable` polymorphic relation, `community_id`, unique `dedupe_key`, `data` json, `read_at`, and timestamps.
+    - Added `published_revision` column (unsigned int default 0) to `courses` table for publication transition tracking.
+  - Models:
+    - `App\Models\AppNotification`: extends `Illuminate\Notifications\DatabaseNotification`. Implements `isAvailableFor(User $viewer)` performing fresh runtime access checks (community active, recipient permitted, post/comment not deleted, course published, membership active); `summary()` for safe rendering; `targetUrl()` for deep links; `createNotification()` with unique constraint error handling for idempotency; and `unreadCountFor()` matching the visibility filter.
+    - `App\Models\Community`: added `notifications()` relation.
+    - `App\Models\User`: added `appNotifications()` relation.
+    - `App\Models\Course`: added `published_revision` fillable, cast, and attribute.
+  - Queued Jobs (with `$this->afterCommit()` transaction guards):
+    - `SendPostReplyNotification`: dispatches on new comment; notifies post author if commenter is not author, with dedupe key `post_reply:comment_{id}:recipient_{author_id}`.
+    - `SendMemberActivatedNotification`: dispatches on member acceptance or reactivation; notifies community creator with dedupe key `member_activated:{source_type}_{source_id}:recipient_{creator_id}`.
+    - `SendCoursePublishedNotification`: fan-out job querying eligible active members and chunking in batches of 100 with dedupe key `course_published:course_{id}_rev_{revision}:recipient_{user_id}`.
+  - Producer Integrations:
+    - `CommentController@store`: dispatches `SendPostReplyNotification` after comment creation.
+    - `AcceptInvitation@handle`: dispatches `SendMemberActivatedNotification` on invite acceptance.
+    - `TransitionCommunityMembership@handle`: dispatches `SendMemberActivatedNotification` when reactivating suspended member to `ACTIVE`.
+    - `SePayWebhookController`: dispatches `SendMemberActivatedNotification` on webhook payment activation.
+    - `CourseController@store` & `update`: manages `published_revision` on DRAFT→PUBLISHED transitions and dispatches `SendCoursePublishedNotification`; updates while already PUBLISHED do not repeat.
+  - Controller & Routes:
+    - `App\Http\Controllers\NotificationController`: `index` (paginated personal inbox), `markAsRead` (enforces recipient ownership, 403 on foreign notifications), `markAllAsRead` (strictly bounded to viewer's visible inbox), and `follow` (safe deep links that mark as read and redirect to target, or display safe unavailable message without leaking private metadata).
+    - Routes registered under community scoped group: `communities.notifications.index`, `communities.notifications.read`, `communities.notifications.read-all`, `communities.notifications.follow`.
+  - UI Views:
+    - `resources/views/communities/notifications/index.blade.php`: notification cards with type-specific icon badges, summary text, relative timestamps, unread badges, mark-as-read actions, "Mark all as read" button, and clean empty state.
+    - `<x-community-workspace>`: added `Notifications` navigation tab with dynamic unread count pill badge derived from visible notifications.
+  - Automated tests:
+    - `tests/Feature/CommunityNotificationTest.php`: 7 tests / 59 assertions PASS (AC-01 through AC-06), including a real database queue worker probe (`Artisan::call('queue:work', ['--once' => true])`).
+    - Full regression suites across F-01 through F-08: 71 tests / 820 assertions PASS.
+    - Code style: Pint passed on 189 files (`vendor/bin/pint --test`).
+
+### F-07 / F-08 Audit Remediation (2026-10-13)
+
+- **Audit Findings Corrected (4 P2 items)**:
+  1. **Non-duplicate SQL errors swallowed in AppNotification**: `createNotification` previously caught all `QueryException`s. Now it strictly catches unique constraint violations (`UniqueConstraintViolationException` and SQLSTATE 23000 / MySQL error 1062 for dedupe). All other database exceptions are re-thrown to allow queue worker retries. Added test `test_non_duplicate_query_exception_is_not_swallowed_and_re_thrown`.
+  2. **Inbox/badge unread count and fan-out unbounded memory loading**:
+     - `AppNotification::scopeVisibleFor`: Implemented SQL query-level visibility filtering (checking non-deleted posts, non-deleted comments, active memberships, published courses, and creator authorization directly in database subqueries).
+     - `AppNotification::unreadCountFor`: Computes count via a single SQL query `count()` instead of loading all rows into PHP collections.
+     - `NotificationController@index`: Uses database-level `paginate(15)` via `visibleFor` query instead of in-memory collection pagination.
+     - `SendCoursePublishedNotification`: Uses database cursor chunking `chunkById(100)` on active memberships instead of loading all member IDs with `pluck()`.
+  3. **Concurrent course publish race condition**: `CourseController@update` previously evaluated `$oldStatus` from route-model binding preflight before entering the transaction. Now it reads `$course->status` directly from the locked course instance inside `ClassroomMutation::run` transaction callback, preventing duplicate revision increments and repeat fan-out notifications. Added regression test `test_concurrent_publish_race_detects_status_change_in_locked_transaction_and_avoids_duplicate_revision`.
+  4. **Calendar silent overflow beyond 100 events**: `EventController@index` now queries `take(101)` to detect overflow, displays up to 100 events on the month grid, and renders an alert banner with a direct link to List view preserving the current `month` and `display_timezone`. Added test `test_month_view_with_more_than_100_events_caps_grid_and_renders_overflow_warning_with_list_link`.
+- **Follow-up Audit Corrections (2 findings)**:
+  1. **Strict MySQL 1062 duplicate handling**: In `AppNotification::createNotification`, MySQL foreign key constraint violations (SQLSTATE 23000, error 1452) were previously caught under general 23000 check. Now strictly checks `(int) ($e->errorInfo[1] ?? 0) === 1062` and verifies that the existing record with matching dedupe key exists; otherwise throws. Added test `test_foreign_key_exception_1452_is_not_swallowed_and_throws`.
+  2. **Bulk SQL mark all as read**: In `NotificationController@markAllAsRead`, replaced PHP-level loop with single bulk update query using `AppNotification::query()->visibleFor($user, $community)->whereNull('read_at')->update(['read_at' => now()])`.
+  3. **Concurrent publish race test**: Verified course status change between route model binding and locked transaction via `Course::retrieved` callback in `test_concurrent_publish_race_detects_status_change_in_locked_transaction_and_avoids_duplicate_revision`.
+  4. **Documentation verification status**: Updated `docs/03_DELIVERY_PLAN.md` Evidence lines for F-01 through F-08 to "automated verification complete; manual verification pending".
+
+## F-09 — Persistent Community Onboarding (2026-10-13)
+
+- Contract: F-09 from `docs/03_DELIVERY_PLAN.md` Section 17.7.
+- Implementation:
+  - Database Schema:
+    - Forward migration `database/migrations/2026_10_13_090001_create_onboarding_step_completions_table.php` adding `onboarding_enabled` (boolean, default true) and `introduction_category_id` (nullable FK to `post_categories`) to `communities` table.
+    - Creates `onboarding_step_completions` table with unique `[community_id, user_id, step_key]` constraint.
+  - Models:
+    - `App\Models\OnboardingStepCompletion`: implements `markStep(Community $community, User $user, string $stepKey)` for idempotent recording of completed steps, and `getChecklist(Community $community, ?User $user)` for evaluating active/completed steps, progress percentage, and dynamic denominator calculation.
+    - `App\Models\Community`: added `onboarding_enabled` cast, `introductionCategory()` relation, `getIntroductionCategory()` with fallback to category slug `introductions`, and `onboardingCompletions()` relation.
+  - Dynamic Step & Denominator Behavior:
+    - `video`: Included only if community has `intro_video_url`. Missing video hides the step and recalculates the denominator. Explicitly acknowledged via POST button (`communities.onboarding.video`).
+    - `comment`: Automatically recorded upon successful comment creation in `CommentController@store` within `FeedMutation::run` transaction.
+    - `post`: Automatically recorded in `PostController@store` within `FeedMutation::run` when posting in the designated introductions category. If the category is deleted, displays an unavailable step and excludes it from the denominator.
+    - Completions are historical facts and are preserved even if source comments or posts are later deleted.
+  - Controller & Routes:
+    - `App\Http\Controllers\CommunityOnboardingController@acknowledgeVideo`: authorizes active members/creator and marks video step.
+    - `CommunityController@update`: permits creator to toggle `onboarding_enabled` and choose designated introductions category.
+  - UI Views:
+    - Welcome checklist partial `resources/views/communities/partials/onboarding-checklist.blade.php` included on community feed (`communities.posts.index`) with progress bar, step items, action links/buttons, and creator preview badge.
+    - Community edit view updated with onboarding toggle and category selector.
+- Automated tests:
+  - `tests/Feature/CommunityOnboardingTest.php`: 5 tests / 39 assertions PASS (covering AC-01 through AC-05).
+
+## F-10 — Points, Levels and Community Leaderboard (2026-10-13)
+
+- Contract: F-10 from `docs/03_DELIVERY_PLAN.md` Section 17.7.
+- Implementation:
+  - Database Schema:
+    - Forward migration `database/migrations/2026_10_13_100001_create_point_contributions_table.php` creating `point_contributions` ledger table with unique `[source_type, source_id]` constraint and indexes on `[community_id, beneficiary_id, is_active, contributed_at]`.
+  - Models:
+    - `App\Models\PointContribution`:
+      - Scoring rule: 1 point per valid non-self like awarded to the post author.
+      - Level thresholds: Fixed levels 1 to 5 with thresholds 0/5/15/30/60 (`THRESHOLDS`). Lifetime points determine level.
+      - `nextLevelProgress(int $points)` calculates points needed and percentage progress toward next level.
+      - Query Scope `scopeEligible(Builder $query, Community $community, string $period = 'lifetime')`: Query-time eligibility checks (source like is active, source post is not soft-deleted, beneficiary is creator or active member, actor is creator or active member, actor != beneficiary). Prevents mass-reversal writes upon membership changes; restoring active membership instantly restores eligibility.
+      - Period filtering: Supports `lifetime` and `month` (bounded to current UTC month boundaries).
+      - `getUserPoints()`, `getUserRank()`, and `getLeaderboard()` with stable tie-breaking (`points DESC, user_id ASC`).
+      - Idempotent `backfill(Community $community)` method for seeding points from existing active likes.
+  - Transaction Integration:
+    - `PostReactionController@like`: Inside the locked transaction, updates or creates `PointContribution` for the post author with `is_active = true`.
+    - `PostReactionController@unlike`: Inside transaction, sets `PointContribution.is_active = false`. Re-like restores `is_active = true` on the same record without count drift.
+  - Artisan Command:
+    - `App\Console\Commands\BackfillPointContributions` (`points:backfill {community?}`): Idempotently processes likes for communities.
+  - Controller & Routes:
+    - `App\Http\Controllers\CommunityLeaderboardController@index`: Authorizes active members and creator, validates `period=lifetime|month`, loads paginated leaderboard, and computes viewer personal rank/progress.
+    - Route `communities.leaderboard` registered under community scope.
+  - UI Views:
+    - `resources/views/communities/leaderboard.blade.php`: Workspace header, scoring explanation banner, current viewer progress card (avatar, level badge, lifetime & UTC month points, rank, and visual progress bar), lifetime/month tab toggles, and paginated rankings table.
+    - Workspace navigation: Added `Leaderboard` tab to `<x-community-workspace>`.
+- Automated tests:
+  - `tests/Feature/CommunityLeaderboardTest.php`: 6 tests / 48 assertions PASS (covering AC-01 through AC-06).
+
+## F-09 / F-10 Audit Fixes (2026-10-13)
+
+- Finding 1 (F-09 Category stability):
+  - `Community::getIntroductionCategory()` now resolves strictly by `introduction_category_id` (foreign key) without fallback to slug `introductions`.
+  - On community creation and default seeding (`PostCategory::seedDefaultsFor`), default introduction category ID is set directly.
+  - Deleting custom category marks onboarding task unavailable until creator reassigns, satisfying AC without unexpected fallback.
+  - Regression test: `test_deleting_custom_introduction_category_makes_task_unavailable_without_falling_back_to_slug` in `CommunityOnboardingTest`.
+- Finding 2 (F-10 Rank for 0 points):
+  - Base population for leaderboard and personal rank queries established as Creator + active members via `eligibleUsersQuery()`.
+  - Unified tie-breaking (`points DESC, user_id ASC`) applied via LEFT JOIN for both personal rank and leaderboard table, ensuring consistent rank numbering.
+  - Regression test: `test_zero_points_ranking_and_personal_rank_are_consistent_and_leaderboard_not_empty` in `CommunityLeaderboardTest`.
+- Finding 3 (F-10 Monthly leaderboard level calculation):
+  - Rank and points in monthly tab respect UTC month period; level is always derived strictly from lifetime points.
+  - Regression test: `test_lifetime_month_boundaries_stable_ties_and_thresholds_render_correctly` in `CommunityLeaderboardTest`.
+- Finding 4 (F-10 Bounded and locked backfill):
+  - `PointContribution::backfill` now processes in database chunks (`chunkById(100)`), acquires explicit pessimistic locks in strict mutation order (`Community` -> `Post` -> `PostLike`), and re-checks active state under lock to prevent overwriting newer interleaved unlike transactions.
+  - Regression test: `test_backfill_interleaved_with_unlike_does_not_overwrite_newer_inactive_state` in `CommunityLeaderboardTest`.
+- Automated tests:
+  - `CommunityOnboardingTest`: 6 tests / 52 assertions PASS.
+  - `CommunityLeaderboardTest`: 8 tests / 72 assertions PASS.
+
+## F-11 — Creator Overview and Truthful Statistics (2026-10-13)
+
+- Contract: F-11 from `docs/03_DELIVERY_PLAN.md` Section 17.8.
+- Implementation:
+  - Controller & Routes:
+    - `App\Http\Controllers\CreatorOverviewController@index`: Creator-only endpoint (`abort_unless($community->isActive() && $community->isCreator($request->user()), 404)`).
+    - Route `communities.manage` (`GET /communities/{community:slug}/manage`).
+  - Metrics & Truthful Formulas:
+    - Active Members: `$community->memberships()->where('status', 'ACTIVE')->count()`. Creator shown separately.
+    - Content: Non-deleted posts (`$community->posts()->count()`) and published courses (`$community->courses()->where('status', 'PUBLISHED')->count()`).
+    - Simulated Receipts: Succeeded payment sum in VND (`Payment::STATUS_SUCCEEDED`) within selected UTC date range (default 30 days, clamped between 1 and 90 days), labeled explicitly as "Simulated successful receipts (Test Mode)". Pending/cancelled/failed payments never contribute.
+    - Learning Completion Ratio: Completed published lessons by active members divided by (ACTIVE members * published lessons in Published courses). If denominator is 0, safely returns 0% with "No data" badge. Ineligible members (suspended/removed) and draft/unpublished lessons do not affect the ratio.
+  - UI & Navigation:
+    - View: `resources/views/communities/manage.blade.php` with responsive cards, date range filter buttons (7, 30, 90 days), management shortcuts (Classroom, Members, Invitations, Orders, Settings), and paginated recent payment attempts table.
+    - Workspace header: Added `Overview` tab to `<x-community-workspace>`.
+- Automated tests:
+  - `tests/Feature/CreatorOverviewTest.php`: 4 tests / 24 assertions PASS (covering AC-01 through AC-05).
+
+## F-12 — Creator Orders and Personal Payment History (2026-10-13)
+
+- Contract: F-12 from `docs/03_DELIVERY_PLAN.md` Section 17.8.
+- Implementation:
+  - Controllers & Routes:
+    - `App\Http\Controllers\CommunityOrderController@index`: Creator-only orders list (`GET /communities/{community:slug}/orders`, `communities.orders.index`), scoped to tenant, with summary metrics (total, succeeded, succeeded sum, pending, cancelled, failed) and status filtering (`ALL`, `SUCCEEDED`, `PENDING`, `CANCELLED`, `FAILED`).
+    - `App\Http\Controllers\PaymentHistoryController@index`: Personal payment attempts list (`GET /account/payment-history`, `account.payment-history.index`).
+    - `App\Http\Controllers\PaymentHistoryController@show`: Personal receipt detail (`GET /account/payment-history/{payment}`, `account.payment-history.show`). Enforces strict ownership (`abort_unless($payment->user_id === $request->user()->id, 404)`).
+  - Security & Contracts:
+    - Safe receipt access: Removed or suspended members retain safe receipt access for past purchases without granting community access or leaking secrets/raw payloads.
+    - Price change resilience: Uses stored amount snapshot on `payments.amount`, unchanged by subsequent community price updates.
+    - Read-only protection: All views are strictly read-only; query parameters and client POST cannot mutate statuses, amounts, or entitlements.
+  - UI & Navigation:
+    - Views: `resources/views/communities/orders/index.blade.php`, `resources/views/account/payment-history/index.blade.php`, and `resources/views/account/payment-history/show.blade.php`.
+    - Navigation: Added `Orders` tab in creator workspace navigation and `Lịch sử thanh toán` link in user profile dropdown menu.
+- Automated tests:
+  - `tests/Feature/CreatorOrdersAndPaymentHistoryTest.php`: 8 tests / 54 assertions PASS (covering AC-01 through AC-05, array status negative validation, UTC date filtering, and checkout resume eligibility).
+  - Regressions: `tests/Feature/SePayPaymentTest.php` and `tests/Feature/PaymentEntitlementRegressionTest.php`: 22 tests / 172 assertions PASS.
+
+## Audit Fixes for F-09 and F-12 (2026-10-13)
+
+- **F-09 Introduction Category Reseed:**
+  - Separated `PostCategory::initializeDefaultsFor(Community $community)` from `PostCategory::seedDefaultsFor(Community $community)`.
+  - Re-seeding via routine or command no longer re-sets a deleted or cleared introduction category, leaving it safely unavailable until explicitly chosen again by the Creator.
+  - Regression verified: `tests/Feature/CommunityOnboardingTest.php` (6 tests / 50 assertions PASS).
+- **F-12 Array Input Status Protection:**
+  - Added strict `is_string` type verification and allowlist validation before string casting in `CommunityOrderController@index`, preventing "Array to string conversion" 500 error on array inputs like `status[]=SUCCEEDED`.
+- **F-12 Date Range Filtering:**
+  - Added UTC date range selector (`range=7|30|90` and custom `from`/`to`) with inclusive start and exclusive next-day boundaries in `CommunityOrderController`, with query string persistence on pagination.
+- **F-12 Current Checkout Resume Eligibility:**
+  - Added `Payment::canResumeCheckout(?User $user = null): bool` verifying pending status, active community, non-expired/non-revoked invitation, and non-suspended/non-removed membership status.
+  - Personal payment history view (`resources/views/account/payment-history/show.blade.php`) hides checkout button and renders safe unavailable notice when ineligible.
+
+## F-13 — Content Reports and Creator Moderation Queue (2026-10-13)
+
+- Contract: F-13 from `docs/03_DELIVERY_PLAN.md` Section 17.8.
+- Implementation:
+  - Model & Schema:
+    - Created `content_reports` table with unique constraint `[community_id, reporter_id, target_type, target_id]`, index on `[community_id, status, created_at]`.
+    - Created `App\Models\ContentReport` model with statuses (`OPEN`, `RESOLVED`, `DISMISSED`), actions (`REMOVED`, `DISMISSED`), and safe target resolver `getTargetModel()`.
+  - Controller & Routes:
+    - `POST /communities/{community:slug}/reports`: `ContentReportController@store`, validates active membership, target exists and not deleted, plain text reason 10-1000 chars, creates one OPEN record and one deduplicated creator notification (`content_reported`), replay returns existing state without reopening terminal reports.
+    - `GET /communities/{community:slug}/reports`: `ContentReportController@index`, creator-only private moderation queue with status filter tabs (`ALL`, `OPEN`, `RESOLVED`, `DISMISSED`) and pagination.
+    - `POST /communities/{community:slug}/reports/{report}/remove`: `ContentReportController@remove`, creator-only, executes inside `FeedMutation::run` under lock, verifies open state, soft-deletes target post/comment, updates report to `RESOLVED` with `resolution_action = 'REMOVED'`, reason, creator ID, and timestamp.
+    - `POST /communities/{community:slug}/reports/{report}/dismiss`: `ContentReportController@dismiss`, creator-only, DB transaction under lock, verifies open state, updates report to `DISMISSED` with `resolution_action = 'DISMISSED'`, reason, creator ID, and timestamp.
+  - Notifications & Safety:
+    - Added `content_reported` notification type in `AppNotification`, restricted to creator, linking directly to moderation queue.
+    - Notification payload contains only IDs and metadata; sensitive report text is never leaked in notifications and safely escaped in views.
+    - Display handles soft-deleted targets and unavailable/deleted reporters safely.
+  - UI & Navigation:
+    - Workspace navigation: added `Reports` tab for creators.
+    - Creator overview: added `Báo cáo` shortcut button.
+    - Post & Comment: added `Report` modal button for active members.
+- Automated tests:
+  - `tests/Feature/ContentReportTest.php`: 5 tests / 46 assertions PASS (covering AC-01 through AC-05).
+
+## F-14 — Account Notification Preferences and Contextual Help (2026-10-13)
+
+- Contract: F-14 from `docs/03_DELIVERY_PLAN.md` Section 17.8.
+- Implementation:
+  - User Notification Preferences:
+    - Added `notify_replies` (boolean, default true) and `notify_courses` (boolean, default true) to `users` table via migration.
+    - Updated `App\Models\User` fillable and casts.
+    - Added `ProfileController@updateNotifications` (`PATCH /profile/notifications`, `profile.notifications.update`) with allowlist validation preventing privilege escalation or role tampering.
+    - Added `notification-preferences-form.blade.php` card in `resources/views/profile/edit.blade.php`, explaining that settings apply globally across communities, and noting that required creator operational notices (`member_activated`, `content_reported`) are mandatory and cannot be disabled.
+  - Job & Delivery Integration:
+    - `SendPostReplyNotification`: respects recipient user's `notify_replies` preference; skips dispatch when disabled without backfilling when re-enabled.
+    - `SendCoursePublishedNotification`: filters active members using `whereHas('user', fn($q) => $q->where('notify_courses', true))` at the database query level.
+  - Contextual Help & Guidance:
+    - Route `GET /help` (`help.index`) handled by `HelpController@index`.
+    - View `resources/views/help/index.blade.php`: responsive layout covering invite-only access, classroom publishing rules, event timezones in UTC/local, content reporting standards, and explicit safety warning prohibiting real money transfers in SePay Test Mode.
+    - Safe navigation links to named routes (`communities.index`, `profile.edit`, `account.payment-history.index`) without leaking tokens or credentials.
+    - Updated navigation header, mobile menu, and user dropdown with Help links, with guest auth safety.
+- Automated tests:
+  - `tests/Feature/AccountNotificationPreferencesAndHelpTest.php`: 5 tests / 32 assertions PASS (covering AC-01 through AC-05).
+
+## Comprehensive Verification (2026-10-13)
+
+- Feature test suite (F-09 to F-14): 36 tests / 288 assertions PASS (`tests/Feature/CommunityOnboardingTest.php`, `tests/Feature/CommunityLeaderboardTest.php`, `tests/Feature/CreatorOverviewTest.php`, `tests/Feature/CreatorOrdersAndPaymentHistoryTest.php`, `tests/Feature/ContentReportTest.php`, `tests/Feature/AccountNotificationPreferencesAndHelpTest.php`).
+- Payment regressions: 22 tests / 172 assertions PASS (`tests/Feature/SePayPaymentTest.php`, `tests/Feature/PaymentEntitlementRegressionTest.php`).
+- Pint code styling: 210 files PASS (`./vendor/bin/pint --test`).
+- Shared agent contract: `bash scripts/verify-agent-contract.sh` PASS.
+
+## P2 — Inconsistent UI Language Normalization (F-09 to F-14) (2026-10-13)
+
+- Issue / Finding: P2 — Inconsistent UI language across newly added F-09–F-14 modules.
+- Changes:
+  - Preserved English as application baseline.
+  - Converted newly added Vietnamese UI labels, buttons, help copy, metric labels, validation messages, flash messages, modal text, and notification summaries to English across F-09–F-14.
+  - Touched files:
+    - `app/Models/AppNotification.php`: updated `content_reported` summary to English.
+    - `app/Http/Controllers/ContentReportController.php`: validation messages, duplicate notices, resolution reasons, flash messages converted to English.
+    - `resources/views/communities/reports/index.blade.php`: headers, status tabs, action metadata, removal badges, and dialogs converted to English.
+    - `resources/views/communities/posts/show.blade.php`: report modal headers, input placeholders, and action buttons converted to English.
+    - `resources/views/communities/manage.blade.php`: metrics cards, date filter tabs, shortcut links, and recent payments table headers converted to English.
+    - `resources/views/communities/orders/index.blade.php`: summary metrics, status tabs, date filters, and order table headers converted to English.
+    - `resources/views/account/payment-history/index.blade.php`: table headers, action links, and empty states converted to English.
+    - `resources/views/account/payment-history/show.blade.php`: transaction details, membership status banners, and checkout action links converted to English.
+    - `resources/views/profile/partials/notification-preferences-form.blade.php`: form labels, guidance text, operational notification notice, and submit button converted to English.
+    - `resources/views/help/index.blade.php`: hero banner, shortcuts, SePay Test Mode advisory, guidance sections, and footer links converted to English.
+    - `resources/views/layouts/navigation.blade.php`: converted Help, Payment History, and Help Center desktop and responsive navigation links to English.
+    - `design.md`: section 1 updated to state that English is the current application UI baseline and Vietnamese localization is deferred to a separate approved task.
+  - Updated test assertions:
+    - `tests/Feature/ContentReportTest.php`: updated assertion to `[Content removed]`.
+    - `tests/Feature/CreatorOrdersAndPaymentHistoryTest.php`: updated assertions to English UI strings (`Your membership in this community is currently inactive`, `Go to Community &rarr;`, `Open Checkout`, `Resume Checkout`, `Checkout No Longer Available`).
+    - `tests/Feature/AccountNotificationPreferencesAndHelpTest.php`: updated assertions to English UI strings (`Account Notification Preferences`, `Mandatory Creator Operational Notifications`, `cannot be disabled`, `Help Center`, `DO NOT transfer real money`).
+- Automated Verification:
+  - F-09 to F-14 test suite: 36 tests / 288 assertions PASS.
+  - Payment regression test suite: 22 tests / 172 assertions PASS.
+  - Full suite: 58 tests / 460 assertions PASS.
+  - Pint code styling: 210 files PASS (`./vendor/bin/pint --test`).
+  - Shared agent contract: `bash scripts/verify-agent-contract.sh` PASS.
+  - Verified no mixed Vietnamese copy remains in touched F-09–F-14 screens and system messages.
+
+## F-13 — Content Moderation Technical Audit Remediation (2026-10-13)
+
+- Status: In Progress / Under Audit (not marked complete per explicit instruction).
+- Issues Resolved:
+  1. **P1 — Re-authorize community/Creator under lock before mutating content:**
+     - In `ContentReportController@remove`: inside `FeedMutation::run` locked callback, re-verifies `$currentCommunity->isActive()` and `$currentCommunity->isCreator($request->user())` under lock before deleting post/comment or modifying report state.
+     - In `ContentReportController@dismiss`: inside `DB::transaction` with `lockForUpdate()`, re-verifies locked `$currentCommunity->isActive()` and `$currentCommunity->isCreator($request->user())` before updating report state.
+     - Enforces report community match under lock: `abort_unless((int) $lockedReport->community_id === (int) $currentCommunity->id, 404)`.
+  2. **P2 — Notification job dispatch with retry safety:**
+     - Created queued job `App\Jobs\SendContentReportedNotification` implementing `ShouldQueue` with `$this->afterCommit()`.
+     - In `ContentReportController@store`: dispatches `SendContentReportedNotification` after database transaction commits.
+     - Replay/retry safety: on duplicate attempt or `UniqueConstraintViolationException`, looks up existing open report and ensures notification job is re-dispatched idempotently using the deterministic dedupe key, preventing lost notifications from transient network/service failures.
+  3. **P2 — Array input handling for status query parameter:**
+     - In `ContentReportController@index`: inspects `is_string($request->query('status'))` prior to string operations; safely handles array inputs like `?status[]=OPEN` by defaulting to `ContentReport::STATUS_OPEN` without triggering `Array to string conversion` warnings or 500 errors.
+  4. **P2 — Forward retention migration for reporter deletion:**
+     - Created forward migration `database/migrations/2026_10_13_150001_preserve_content_reports_on_reporter_deletion.php`.
+     - Updates `content_reports.reporter_id` foreign key from `cascadeOnDelete()` to `nullable()->nullOnDelete()`.
+     - Ensures moderation audit history is permanently retained when a reporter's user account is deleted; moderation view displays `'Unavailable user'` gracefully.
+- Automated Verification:
+  - `tests/Feature/ContentReportTest.php`: 9 tests / 69 assertions PASS (covering AC-01 through AC-05, locked re-authorization, notification retry safety, array status parameter, and reporter deletion retention).
+  - Full F-09 to F-14 + payment regression suite: 62 tests / 483 assertions PASS.
+  - Pint code styling: 212 files PASS (`./vendor/bin/pint --test`).
+  - Git diff check: clean (`git diff --check`).
+  - Shared agent contract: `bash scripts/verify-agent-contract.sh` PASS.
+
+## F-13/F-14 Final Technical Handoff and F-15/F-16 Start Contract (2026-10-13)
+
+- Revision: `f01-f02-workspace-directory`, HEAD `bb8a20b` plus existing uncommitted F-09–F-14 work and the corrections below. No commit/push/PR/merge or live Linear transition was performed. Preserve the full existing dirty tree; do not reset/amend it while starting the next slice.
+- Technical status: F-13/F-14 corrections verified. Manual/integrated UI acceptance and remote CI remain pending by the agreed delivery strategy; this is not a formal Done claim.
+- Final corrections:
+  - Submission serializes with community/membership/content transitions through `FeedMutation`, rechecks current access and visible scoped target under locks, creates/replays the unique report without reopening terminal state, and dispatches only after commit. Remove uses the existing post/comment deletion policies in addition to locked Creator authorization; dismiss preserves terminal state.
+  - `SendContentReportedNotification` rejects mismatched tenant/report IDs and dedupes by report ID + recipient ID. A second reporter on the same target receives a distinct notification. Matching legacy target-key notices are retained without duplicate delivery or read-state reset.
+  - Regression injection occurs after target preflight or community route binding, not before the request. A real MySQL database worker test fails delivery, releases/retries the persisted job and creates one notification; rollback enqueues none.
+  - F-14 regression coverage exercises optional course delivery, retained old notices, and required membership/report producers while optional preferences are disabled. English UI is retained; user-generated content is not translated.
+- Changed files for this correction: `ContentReportController.php`, `SendContentReportedNotification.php`, `ContentReportTest.php`, `AccountNotificationPreferencesAndHelpTest.php`, plus the existing architecture/delivery/checkpoint documents. No new package, schema reset, volume deletion, credential edit or redesign.
+- Evidence:
+  - Red proof before fixes: targeted submission-race and distinct-report tests failed (2 failures, 8 assertions). No prior PASS was reused for the new implementation.
+  - `docker compose -p scool exec -T -e APP_ENV=testing -e DB_DATABASE=scool_test app php artisan test --filter='ContentReportTest|AccountNotificationPreferencesAndHelpTest' --fail-on-skipped --fail-on-empty-test-suite`: 20 passed / 159 assertions, exit 0, 38.56s.
+  - `docker compose -p scool exec -T -e APP_ENV=testing -e DB_DATABASE=scool_test app php artisan test --compact --fail-on-skipped --fail-on-empty-test-suite`: 366 passed / 3014 assertions, exit 0, 247.56s.
+  - `vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M --no-progress`: no errors, exit 0. `vendor/bin/pint --test`: 212 files PASS.
+  - `npm run build`: 60 modules, exit 0, 2.84s. The initial sandboxed run failed with realpath EPERM; the supported permission route succeeded without dependency/config changes.
+  - Optional GitNexus index is stale and lacks these new symbols. This correction used verified source/callers and executable regressions as fallback, not graph impact/taint coverage.
+
+### Next implementation: F-15 first, then F-16
+
+- Read `AGENTS.md`, `docs/AI_WORKFLOW.md`, this handoff, Delivery Plan F-15/F-16 and Architecture ADR-009/010 before code. D-01/D-02 were explicitly accepted on 2026-10-13; these are implementation contracts, not implementation evidence. Live Linear metadata is unverified/unchanged.
+- F-15: INCLUDED remains default. Active members may buy ONE_TIME courses through the existing authenticated SePay Test Mode bank-transfer webhook. Snapshot target/purpose/whole-VND price, grant one retained course entitlement transactionally, and never create/reactivate membership from a course payment. No fabricated invitation or new payment protocol. Apply effective course access to every lesson/embed/outline/progress/search and related aggregate path; Creator preview and member progress rules remain distinct.
+- F-16: fixed 30 UTC days, manual renewal, zero grace, no automatic debit. Grandfather existing one-time memberships as lifetime; do not infer retroactive expiry from current community settings. MEMBERSHIP_RENEWAL extends once from max(now, current expiry), never revives revoked states. Expired otherwise-ACTIVE members may access only their own safe renewal/history routes. Centralize effective access/query filters across all consumers; queue/scheduler downtime never prolongs content access.
+- Preserve current fail-closed late-webhook rules; do not invent paid-without-access/refund states. Use additive migrations and update all purpose labels, payment history, help and financial/learning formulas affected by these new purchases. Keep UI/system copy English and Test Mode warnings explicit.
+- Implement/test F-15 before modifying the same payment/policy contracts for F-16. Per slice: report exact touched files, run scoped negative/replay/rollback tests on guarded `scool_test`, update this checkpoint, then hand off for audit. Provider-backed Test Mode payment and integrated UI tests remain separate final evidence. Do not claim them from fake tests.
+- F-17 affiliate and F-18 messaging decisions remain open; do not implement them or add realtime/scheduler/dependencies without their own approved scope. No publication/status change is authorized by this handoff.
+
+## F-15 — Course-Specific One-Time Purchase Technical Checkpoint & Audit Handoff (2026-10-13)
+
+- Revision: `f01-f02-workspace-directory`, HEAD `bb8a20b` plus existing dirty tree across F-09–F-14 and the verified F-15 changes below. No commit, push, PR, merge, or Linear status mutation was executed.
+- Outcome: Active community members can purchase individual `ONE_TIME` courses using the existing SePay Test Mode bank-transfer webhook protocol. Course entitlements (`course_entitlements`) are granted idempotently and transactionally upon verified payment success. Community admission never grants course entitlements, and course purchase never grants or reactivates community membership.
+- Architecture ADR-009 alignment:
+  - Default access mode is `INCLUDED`. Course access modes: `INCLUDED`, `ONE_TIME`.
+  - Immutable payment purpose tracking: `COMMUNITY_ACCESS`, `COURSE_ACCESS`, `MEMBERSHIP_RENEWAL`.
+  - Course checkout issues dedicated `CRS-...` references with immutable price snapshot in whole VND.
+  - Fail-closed reconciliation: late webhook re-verifies active community, active member, and published course under transaction locks; removed/suspended members cannot be granted access.
+  - Multi-layer authorization: un-entitled members cannot view lesson content, view embed, update lesson progress, or discover lesson snippets via search. Owning creator retains draft/preview access without purchasing.
+- Database Migrations:
+  - `database/migrations/2026_10_13_160001_add_access_mode_and_price_to_courses_table.php`: adds `access_mode` (`INCLUDED`, `ONE_TIME`, default `INCLUDED`) and nullable unsigned integer `price`.
+  - `database/migrations/2026_10_13_160002_add_purpose_and_course_id_to_payments_table.php`: adds `purpose` (string 32, default `COMMUNITY_ACCESS`), `course_id` (foreignId nullable, nullOnDelete), and composite indexes `(community_id, purpose, status)` and `(user_id, purpose, status)` with proper reversible down drops.
+  - `database/migrations/2026_10_13_160003_create_course_entitlements_table.php`: creates `course_entitlements` table with unique constraint `(community_id, course_id, user_id)`, `payment_id`, `amount`, and `currency`.
+- Models & Services:
+  - `App\Models\CourseEntitlement`: relationships to Community, Course, User, Payment; cast `amount` to integer.
+  - `App\Models\Course`: constants `ACCESS_MODE_INCLUDED` and `ACCESS_MODE_ONE_TIME`, `isIncluded()`, `isOneTime()`, `formattedPrice()`, and `isEntitledFor(?User $user)`.
+  - `App\Models\Payment`: constants `PURPOSE_COMMUNITY_ACCESS`, `PURPOSE_COURSE_ACCESS`, `PURPOSE_MEMBERSHIP_RENEWAL`, `purposeLabel()`, course relation, and course-aware `canResumeCheckout(?User $user)`.
+  - `App\Actions\Payments\InitiateCourseCheckout`: locks community, course, and member; validates active membership, email verification, non-creator, published course, one-time mode, price > 0, un-entitled; reuses pending attempt or creates immutable attempt with reference `CRS-...`.
+  - `App\Services\Payment\SePayGateway`: regex updated to support `INV-`, `CRS-`, and `RNW-` reference prefixes.
+  - `App\Http\Controllers\Payment\SePayWebhookController`: purpose dispatch for `COURSE_ACCESS` vs `COMMUNITY_ACCESS`; creates `CourseEntitlement` atomically via `firstOrCreate()`.
+  - `App\Policies\LessonPolicy`: `view` and `updateProgress` enforce course entitlement for `ONE_TIME` courses.
+  - `App\Http\Controllers\SearchController`: excludes lessons from un-entitled `ONE_TIME` courses for non-creators.
+  - `App\Http\Controllers\CourseController`: validates and handles `access_mode` and `price`; passes `$isEntitled` to show view.
+  - `App\Http\Controllers\CreatorOverviewController`: learning completion ratio denominator counts accessible member-lesson pairs (all active members for included courses + only entitled active members for one-time courses).
+- Views & Copy:
+  - `resources/views/components/classroom-course-fields.blade.php`: added Access Mode selection and price in VND input.
+  - `resources/views/classroom/courses/show.blade.php`: displays locked callout with price and "Buy Course" button posting to `communities.courses.checkout`, and locked lesson status without direct links.
+  - `resources/views/classroom/index.blade.php`: displays access mode price badges and locked state callouts.
+  - `resources/views/account/payment-history/index.blade.php` and `show.blade.php`: renders true purpose (`Course Access: [Course Title]`) and course unlocked status.
+  - `resources/views/communities/orders/index.blade.php`: renders true purpose (`Course Access: [Course Title]`).
+  - `resources/views/payments/checkout.blade.php` and `payments/status.blade.php`: standardized to English baseline copy.
+- Verification & Test Results:
+  - Targeted F-15 feature test: `tests/Feature/CourseEntitlementAndPurchaseTest.php` (6 tests / 72 assertions PASS):
+    - AC-01: Included course accessible; paid course preview locked before purchase; lesson and progress access denied (404); search excludes snippets; creator preview passes.
+    - AC-02: Exact-reference SePay test webhook unlocks single course; duplicate webhook delivery is idempotent.
+    - AC-03: Forged price/purpose/user/wrong-tenant rejected; admission flow unaffected.
+    - AC-04: Cancel/retry creates separate attempts; status redirect never grants access.
+    - AC-05: Removed member or draft course blocks access; reactivation/republish restores retained access without rebuying.
+    - AC-06: Order and history endpoints show correct purpose and stored price without leaking other payers' data.
+  - Targeted payments and regressions suite: 45 tests / 391 assertions PASS (`CourseEntitlementAndPurchaseTest`, `SePayPaymentTest`, `CreatorOrdersAndPaymentHistoryTest`, `PaymentEntitlementRegressionTest`, `CreatorOverviewTest`, `CommunitySearchTest`).
+  - Full application test suite: 372 tests / 3086 assertions PASS (`php artisan test`).
+  - PHPStan: `[OK] No errors` (`./vendor/bin/phpstan analyse --memory-limit=1G`).
+  - Pint: 218 files PASS (`./vendor/bin/pint --test`).
+  - Shared agent contract: `bash scripts/verify-agent-contract.sh` PASS.
+  - Asset compilation: `npm run build` PASS (vite build completed cleanly).
+- Handoff status:
+  - F-15 implementation and automated verification are complete.
+  - Handed off for audit prior to starting F-16 implementation.
+  - F-16 must not be started until explicit authorization is given.
+
+## F-15 audit remediation and F-16 implementation (2026-10-13)
+
+- Authority: the user explicitly requested fixing the audited F-15 findings and implementing accepted F-16. No commit/push/PR/merge/Linear Done authority. Starting branch `f01-f02-workspace-directory`, HEAD `bb8a20b9c41e218a75e0cd059b2081b0af20d3ce`, with extensive existing F-09–F-15 dirty/untracked work; unrelated content is preserved.
+- F-15 red/green: new `CourseAccessAuditRegressionTest` failed four scenarios before corrections (4 failed, 2 passed / 32 assertions). After fixes, scoped admission/course/history/overview/search suites passed 51 tests / 465 assertions, exit 0, 44.54s. Locked previews no longer load/deliver outline or description, aggregate numerator/denominator use the same eligible member–lesson pairs, retained purchase is separate from current access, and course checkout names its purpose/target and rejects lost eligibility. Delayed cancelled attempts and entitlement-failure rollback/replay are covered. The old AC-01 outline assertion was strengthened to match the approved contract.
+- F-16 source: additive migration `170001`, explicit LIFETIME/TERM membership kind plus UTC expiry, ONE_TIME/TERM_30_DAYS community billing, immutable admission/renewal duration/price/membership target snapshots, dedicated `InitiateMembershipRenewal`, and shared effective-access object/SQL predicates across policies, mutation checks, queries, directory, media, search, progress, scoring, notifications and aggregates. No worker/scheduler state toggle grants access.
+- Reconciliation: authenticated Test Mode events renew only the matching otherwise-ACTIVE TERM membership, once, from max(now UTC, current expiry). They never restore revoked states. Legacy memberships and attempts default to lifetime. Current billing edits do not rewrite snapshots or membership kinds; existing terms renew for 30 days at the current paid price. FREE disables new paid renewal without converting existing terms. Free invitation replay cannot convert or restore an ACTIVE term; LEFT rejoin still needs a fresh valid invitation.
+- UI: added safe self-only My Access/index/detail/renew routes, visible UTC expiry, current eligibility and explicit Test Mode warnings; added billing-term selector and purpose-aware receipts/help/status behavior. Existing layouts/components/style are retained; no redesign, framework/package, Redis or scheduler was introduced. Automated HTML assertions are not browser/visual acceptance.
+- Initial F-16 verification: 27 focused tests / 1022 assertions passed, exit 0, 47.23s, including a forward-upgrade legacy-row test and independent MySQL process concurrency/late-revocation tests. One earlier fixture assertion expected JSON 200 from the existing redirect-based like endpoint; it was corrected to assert the real redirect contract while retaining point-ledger checks. Further regressions add real protected cover delivery, free-invitation term bypass and non-UTC PHP receipt/expiry behavior. Final verification is recorded below; the earlier count does not certify subsequent edits.
+- Safety: all migrations/fixtures run only through guarded MySQL `scool_test`; no development migration/reset/reseed, credential edit, queue flush, volume deletion or inbox clearing. Temporary concurrency barriers contain only synthetic IDs and are removed after their test. Local deployment requires the explicitly authorized forward upgrade and queue reload. Browser, real provider-backed F-15/F-16 Test Mode, remote CI and formal acceptance remain pending.
+
+### Final verified candidate
+
+- Final source review corrected two additional expiry edges: all already-SUCCEEDED checkout references without current access now redirect to safe status; notification read/follow endpoints check effective access before changing read state. Both new regressions failed before their fixes (2 failed / 5 assertions, exit 1, 11.13s). Read-only payment/access review confirmed both findings resolved; no remaining findings in those lenses. This is local source review, not remote CI approval.
+- Final related suite: `docker compose -p scool exec -T -e APP_ENV=testing -e DB_DATABASE=scool_test app php artisan test --filter='FixedTermMembershipTest|CommunityNotificationTest|SePayPaymentTest|CourseAccessAuditRegressionTest|CourseEntitlementAndPurchaseTest' --fail-on-skipped --fail-on-empty-test-suite`: 49 passed / 451 assertions, exit 0, 29.94s.
+- Final integrated gate: `docker compose -p scool exec -T -e APP_ENV=testing -e DB_DATABASE=scool_test app php artisan test --compact --fail-on-skipped --fail-on-empty-test-suite`: **397 passed / 4100 assertions**, exit 0, 320.07s. The earlier 395-test run preceded the last two corrections; this final run supersedes it. Forward-migration preservation and independent-process renewal/revocation tests are included.
+- Final static gates: `vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=1G --no-progress`: no errors, exit 0. `vendor/bin/pint --test`: 226 files PASS, exit 0; formatting was changed only through the bounded source allowlist. `npm run build`: 60 modules, exit 0, 2.86s; frontend build inputs have not changed since that run. Shared contract `--require-tracked` and `git diff --check` PASS; structural checks do not certify publication or acceptance.
+- GitNexus: final private index matches HEAD `bb8a20b9c41e218a75e0cd059b2081b0af20d3ce`, with 8026 nodes / 16007 edges / 115 clusters / 134 flows and zero embeddings. SHA256 verification confirms the final checkout controller, notification controller and fixed-term tests match indexed source. MCP still emitted an inconsistent cached commit-lag hint; local index metadata/source hashes were checked independently. Laravel dynamic/Blade/closure edges remain incomplete and graph results are not runtime or security proof.
+- Preservation: compared SHA256 snapshots for 299 preexisting files outside the explicit remediation/F-16/document scope; all unchanged. Git HEAD is unchanged; nothing staged, committed, pushed or published, and no Linear state changed. No dependencies or unrelated UI were replaced.
+- Local runtime boundary at the 2026-10-13 source handoff: development `migrate:status` showed only F-16 migration `170001` pending. It was not yet applied, and queue workers were not reloaded. The explicitly authorized 2026-10-14 forward upgrade and runtime verification are recorded below; formal acceptance remains pending.
+- Manual acceptance still required: Creator selects TERM_30_DAYS and validates invalid input without mutation; synthetic member completes provider-backed Test Mode admission and sees correct UTC expiry; exact expiry denies direct content/media routes but leaves own My Access/history/status safe; duplicate/manual renewal restores only eligible term access, and revoked state remains denied; verify receipt/back/reload behavior, two-tenant isolation and a narrow-screen account menu with sanitized screenshots. No real funds or shared-inbox clearing.
+
+### Touched files for this remediation and F-16
+
+- `README.md`
+- `app/Actions/Communities/AcceptInvitation.php`
+- `app/Actions/Payments/InitiateCourseCheckout.php`
+- `app/Actions/Payments/InitiateMembershipRenewal.php`
+- `app/Actions/Payments/InitiatePaidCheckout.php`
+- `app/Http/Controllers/ClassroomController.php`
+- `app/Http/Controllers/CommunityController.php`
+- `app/Http/Controllers/CommunityLeaderboardController.php`
+- `app/Http/Controllers/CommunityMemberController.php`
+- `app/Http/Controllers/CommunityOnboardingController.php`
+- `app/Http/Controllers/ContentReportController.php`
+- `app/Http/Controllers/CourseController.php`
+- `app/Http/Controllers/CreatorOverviewController.php`
+- `app/Http/Controllers/DirectoryController.php`
+- `app/Http/Controllers/LessonController.php`
+- `app/Http/Controllers/MembershipAccessController.php`
+- `app/Http/Controllers/NotificationController.php`
+- `app/Http/Controllers/Payment/PaymentController.php`
+- `app/Http/Controllers/Payment/SePayWebhookController.php`
+- `app/Http/Controllers/PaymentHistoryController.php`
+- `app/Http/Controllers/PostReactionController.php`
+- `app/Http/Controllers/SearchController.php`
+- `app/Jobs/SendCoursePublishedNotification.php`
+- `app/Jobs/SendMemberActivatedNotification.php`
+- `app/Jobs/SendPostReplyNotification.php`
+- `app/Models/AppNotification.php`
+- `app/Models/Community.php`
+- `app/Models/CommunityMembership.php`
+- `app/Models/Course.php`
+- `app/Models/OnboardingStepCompletion.php`
+- `app/Models/Payment.php`
+- `app/Models/PointContribution.php`
+- `app/Policies/CommentPolicy.php`
+- `app/Policies/CommunityPolicy.php`
+- `app/Policies/CoursePolicy.php`
+- `app/Policies/EventPolicy.php`
+- `app/Policies/LessonPolicy.php`
+- `app/Policies/PostPolicy.php`
+- `app/Services/LessonProgressMutation.php`
+- `database/migrations/2026_10_13_170001_add_fixed_term_membership_access.php`
+- `docs/02_DOMAIN_ARCHITECTURE.md`
+- `docs/03_DELIVERY_PLAN.md`
+- `docs/WORKING_CONTEXT.md`
+- `resources/views/account/memberships/index.blade.php`
+- `resources/views/account/memberships/show.blade.php`
+- `resources/views/account/payment-history/show.blade.php`
+- `resources/views/classroom/courses/show.blade.php`
+- `resources/views/classroom/index.blade.php`
+- `resources/views/communities/manage.blade.php`
+- `resources/views/communities/partials/access-pricing.blade.php`
+- `resources/views/communities/search.blade.php`
+- `resources/views/communities/show.blade.php`
+- `resources/views/help/index.blade.php`
+- `resources/views/layouts/navigation.blade.php`
+- `resources/views/payments/checkout.blade.php`
+- `resources/views/payments/status.blade.php`
+- `routes/web.php`
+- `tests/Feature/CourseAccessAuditRegressionTest.php`
+- `tests/Feature/CourseEntitlementAndPurchaseTest.php`
+- `tests/Feature/FixedTermMembershipTest.php`
+- `tests/Feature/FixedTermMigrationTest.php`
+- `tests/Feature/MembershipRenewalConcurrencyTest.php`
+- `tests/Support/membership-renewal-writer.php`
+
+### Authorized local deployment (2026-10-14)
+
+- Authority: the user explicitly approved applying F-16 migration `170001` to the local development database and restarting queue. Branch/HEAD remain `f01-f02-workspace-directory` / `bb8a20b9c41e218a75e0cd059b2081b0af20d3ce`; existing dirty work is preserved. Contract: accepted ADR-010 / Delivery Plan F-16. No publication or Linear status change is authorized or performed.
+- Preflight: `docker compose -p scool exec -T app php scripts/verify-runtime.php config` PASS, exit 0. Verified keyed LOCAL app, MySQL host `mysql`, actual database `scool`, database queue configuration and separately accessible `scool_test`. Compose ownership matches this checkout. Only F-16 migration was pending.
+- Upgrade: `docker compose -p scool exec -T app php artisan migrate --path=database/migrations/2026_10_13_170001_add_fixed_term_membership_access.php --no-interaction` PASS, exit 0; migration operation 248.64ms. `migrate:status` subsequently records it as batch 14 / Ran, with no pending migrations. Only the explicitly approved forward migration was targeted.
+- Preservation: guarded read-only before/after SHA256 digests over legacy columns and row counts match for communities (10), memberships (7), payments (5) and course entitlements (0). No raw records or credentials were printed. All 7 legacy memberships are LIFETIME with null expiry; all 5 legacy payment attempts retain lifetime snapshots, null duration/target, and unchanged legacy attributes. All community billing defaults are ONE_TIME. New columns exist, and current object/SQL effective-access results agree.
+- Worker: `docker compose -p scool restart queue` completed successfully, exit 0. `docker compose -p scool exec -T app php scripts/verify-runtime.php queue` PASS, exit 0: one uniquely marked synthetic smoke job consumed by the real daemon, pending=0 / failed=0 / handler=1. No queue flush or unrelated job deletion.
+- Runtime: app, nginx, MySQL, Mailpit and queue all running/healthy. Host `curl.exe --fail --silent --show-error --max-time 15 --output NUL --write-out 'HTTP /up %{http_code}' http://127.0.0.1:8080/up` returned HTTP 200 through the permitted execution route. Independent nginx `wget -q --spider http://127.0.0.1/up` also exited 0. Initial sandboxed host curl could not reach loopback; the permitted host route and internal probe establish health without changing networking/configuration.
+- Evidence reuse: SHA256 comparison confirms 298 application/schema/test/frontend/dependency input files match the previously tested source. No application edit or additional test run was needed for this bounded deployment. The previous 397-test result remains source-test evidence on guarded `scool_test`; the checks above are current local deployment evidence, not provider/browser acceptance.
+- Only this checkpoint and Delivery Plan deployment wording changed in source during this follow-up. No reset/reseed, volume deletion, key/.env change, dependency install, inbox clearing, commit/push/PR/merge or status mutation. Browser/visual flows, provider-backed Test Mode payment/renewal, remote CI and formal acceptance remain pending.
+
+## Implementation continuation handoff (2026-10-14)
+
+### Current checkout and evidence
+
+- Workspace: `R:\_Projects\Eurus_Workspace\scool`. Branch `f01-f02-workspace-directory`; HEAD `bb8a20b9c41e218a75e0cd059b2081b0af20d3ce`. The working tree has extensive modified/untracked feature work, including F-09 through F-16; HEAD alone does not contain the implementation. Continue from this exact checkout and inspect the dirty diff. A fresh clone of HEAD will not reproduce it. No commit/push/PR/merge/Done is authorized by this handoff.
+- F-01–F-14 have implementation/checkpoint entries in Delivery Plan and this document: workspace/directory/settings, feed/saved/search/calendar, notifications/onboarding/leaderboard, overview/orders/history/reports and account preferences/help. These entries are historical per-slice evidence, not a new independent acceptance audit. Do not reimplement them from their original draft prompts.
+- F-15 course purchase and audit remediation are implemented: INCLUDED/ONE_TIME courses, immutable purpose/price/target attempts, retained unique course entitlement and no membership activation from course payment. Locked outline/description, completion numerator/denominator, safe retained receipts and checkout eligibility findings are corrected.
+- F-16 is implemented and deployed locally: 30 UTC days, zero grace, manual Test Mode renewal, explicit lifetime grandfathering, immutable admission/renewal snapshots and centralized effective access. Migration `170001` is Ran / batch 14; queue reloaded. The deployment section above contains data-preservation, real daemon smoke and HTTP evidence. Read-only service health refreshed for this handoff: app/nginx/MySQL/Mailpit/queue all running/healthy; no new migration or job was run during handoff preparation.
+- Latest authoritative source gate from the prior implementation: 397 tests / 4100 assertions PASS on guarded MySQL `scool_test`, PHPStan no errors, Pint 226 files PASS, production build PASS. Local deployment compared 298 unchanged source/test/schema/frontend/dependency files against that tested snapshot. These checks were not rerun for this documentation-only handoff. Recheck inputs before reusing evidence after another edit.
+- Still pending: browser/responsive/visual acceptance, provider-backed SePay Test Mode admission/course/renewal, remote current-head CI/review, independent physical-machine setup and formal selected-feature acceptance. Live Linear metadata is unverified. Local draft identifiers F-xx are not Linear issue IDs; do not invent EUR numbers or mark AC/Done based only on this text.
+- GitNexus's last source refresh is recorded above. It is optional navigation with dynamic Laravel/Blade/closure coverage limits; refresh only if relevant source is stale and graph results will be used. Do not reindex or rerun the full suite for this handoff alone.
+
+### Shared contracts the next features must preserve
+
+- `CommunityMembership::hasEffectiveAccess()` is the object predicate; `effective()` / `applyEffectiveAccess()` provide the matching SQL filter. ACTIVE membership alone is insufficient: ACTIVE community plus LIFETIME or TERM expiry strictly later than now UTC is required. TERM without expiry denies access. Administrative raw status/history and `canRenew()` serve different purposes; do not replace them indiscriminately.
+- `Course::hasMemberAccess()` requires published course, effective community membership and applicable entitlement. Creator preview is separate from member progress. Retained entitlement, paid receipt or cached session never bypass expiry/revocation.
+- `InitiateCourseCheckout`, `InitiatePaidCheckout`, `InitiateMembershipRenewal` and `SePayWebhookController` preserve payer/tenant/target authorization under locks. Purposes COMMUNITY_ACCESS / COURSE_ACCESS / MEMBERSHIP_RENEWAL have distinct transactional effects. Keep authenticated incoming-event matching, stored amount/currency/reference, terminal guards, provider-event idempotency and rollback/replay semantics. Follow the actual established lock order; do not invent a second payment protocol, forged invitation, recurring debit, refund/review state or scheduler dependency.
+- Successful renewal extends once from max(now UTC, current expiry); it never restores SUSPENDED/REMOVED/LEFT. Existing terms retain their kind after pricing edits; FREE disables new paid renewal. A new free invitation cannot convert or restore an otherwise-ACTIVE term. Expired access is calculated, not a status overwrite.
+- New content, directory, messaging, media, search, notification delivery and aggregate surfaces must recheck effective access, including under write locks where relevant. Any proposed new expired-member exception needs an explicit contract; current exceptions are safe own renewal/status/payment history.
+- Money is whole VND and Test Mode only. Preserve financial/audit/entitlement retention and immutable historical snapshots. Test only `scool_test`; no development reset/reseed, volume deletion, key/.env replacement, queue flush or shared-inbox clearing. Keep existing layouts/components and read `design.md` before UI work; no unrelated redesign/packages/services.
+
+### Ordered next slices and decision gates
+
+| Slice | Current state | First action | Source of contract |
+|---|---|---|---|
+| F-17 private referrals / simulated commission | Proposed; D-03 open, no implementation evidenced | Obtain the owner's concrete D-03 selection, then prepare/verify one issue-sized contract | Delivery Plan section 17.9, F-17 |
+| F-18 community asynchronous messages | Proposed; D-04 open, optional inclusion | Confirm inclusion/exclusion; implement only if selected and its contract is accepted | Delivery Plan section 17.9, F-18 |
+| F-19 functional completion | Acceptance work pending for selected features | Consolidate current evidence/gaps; perform final integrated/manual/provider/independent-host checks when applicable authority is available | Delivery Plan section 17.10 |
+
+- F-17: first-valid attribution for 30 days and a creator-configured 0–30% rate are **proposals**, not accepted choices. Resolve attribution model/window, rate, eligible purposes (admission/course/renewal), self-referral and free/zero-rate/cancel behavior before schema/code. Identify any expired-referrer visibility/eligibility implications instead of silently introducing an exception. Keep private email-bound invitations and Creator approval; a code cannot reveal/join a community. Only verified eligible payment may create a unique retained simulated/unpaid commission with integer floor arithmetic and immutable beneficiary/rate snapshot. No real payouts, public invite acceptance or arbitrary ledger edits. Read the full draft AC/security/retention tests instead of treating this summary as a substitute.
+- F-18: if selected, reuse the directory and effective-access primitives. Community plus canonical participant pair uniquely identifies a conversation; same pair in different tenants stays separate. Plain text 1–2000 characters, pagination/refresh retrieval and sender-bound idempotent send IDs. Only currently eligible participants read/send; Creator/Platform Admin role alone grants no access to another pair's chat. Revocation/expiry hides bodies/previews/counts and blocks sends under fresh authorization. No realtime, attachments, group chat, global lookup or fabricated online indicators; chat notifications/retention extensions require their own selection.
+- F-19: can close only the explicitly selected set; F-17/F-18 must be accepted or explicitly excluded. Use existing setup/Verify scripts, additive synthetic fixtures and one consolidated expected-result manual checklist. Provider success cannot be seeded/fabricated; another clone on this same machine is not independent-host evidence. Preserve the pending gates above and avoid claiming complete reference parity from code/tests alone.
+
+### Receiving-agent startup prompt
+
+```text
+Continue S-cool in R:\_Projects\Eurus_Workspace\scool from the existing dirty checkout.
+Read AGENTS.md, docs/AI_WORKFLOW.md including Execution efficiency, and the latest
+Implementation continuation handoff in docs/WORKING_CONTEXT.md. Verify actual
+branch/HEAD/status/source; preserve unrelated edits and untracked files.
+Read Delivery Plan sections 17.1/17.4/17.5/17.11 plus the selected issue;
+read relevant architecture/ADRs and design.md before UI work.
+F-15 remediation and F-16 implementation/local migration are already present;
+do not restart from the historical F-01 template or apply resets/reseeds.
+Start by presenting current readiness and the exact open D-03/D-04 choices.
+Ask the owner one decision at a time; do not treat proposed defaults as approved.
+After explicit selection, verify the issue contract/AC and implement one slice
+using the existing Laravel/Blade/Alpine stack and shared effective-access/payment
+primitives. This handoff is context, not approval of an unresolved feature.
+Use meaningful tenant/state/expiry/replay/rollback/concurrency tests only on
+guarded MySQL scool_test. Run targeted checks, then required final integrated
+gates after relevant edits. Preserve current design and financial retention.
+Update only the canonical issue checkpoint with actual diff/commands/results,
+runtime impact and one complete manual checklist; keep browser/provider/CI
+evidence separate. No new dependencies, publication or Done without authority.
+```
+
+- This handoff updates only `docs/WORKING_CONTEXT.md` and the stale current-slice wording in Delivery Plan section 17.11. It does not select D-03/D-04, create an issue, change Linear metadata or authorize feature implementation/publication by itself.
+
+## F-17 — Private referral tracking and simulated affiliate ledger (2026-10-14)
+
+### Contract and decisions
+
+- Authority: D-03 decisions explicitly agreed and accepted with owner on 2026-10-14. Recorded in Architecture ADR-011 and Delivery Plan Section 17.9. Branch/HEAD remain `f01-f02-workspace-directory` / `bb8a20b9c41e218a75e0cd059b2081b0af20d3ce`; existing dirty working tree preserved.
+- Accepted decisions:
+  1. **Attribution model & window:** First-touch private invitation attribution with a strict 30-day window from invitation creation (`referrer_id` on `community_invitations`). If an eligible payment occurs within 30 days of the invitation's creation date, commission is attributed to the referring member. Referral code alone never bypasses invitation or discloses private community content.
+  2. **Eligible payment purposes:** `COMMUNITY_ACCESS` (initial admission) and `COURSE_ACCESS` (one-time course purchase) within the 30-day window qualify. `MEMBERSHIP_RENEWAL` is explicitly excluded from commission generation.
+  3. **Commission rate configuration:** Creator-configurable integer between 0% and 30% per community (default 0% / disabled). Whole-VND floor arithmetic: `floor(payment_amount * rate / 100)`. 0% disables commission generation. Changing rate preserves historical snapshots.
+  4. **Referrer eligibility & retention:** Strict effective access required at transaction confirmation: Referrer must have active effective access (`$referrerMembership->hasEffectiveAccess()`, or creator) at the exact payment confirmation time to earn commission; expired/removed referrers receive no new commission. Self-referrals (`payer_id === referrer_id`) never generate commission. Historical commission ledger rows are permanently retained and viewable by the referrer in their personal account view even if their membership subsequently expires or is removed.
+
+### Implementation details
+
+- Additive migration `database/migrations/2026_10_14_180001_create_referral_tracking_and_commissions_table.php`:
+  - `communities.referral_commission_rate` (unsignedTinyInteger, default 0).
+  - `community_invitations.referrer_id` (foreignId nullable -> users, nullOnDelete) with index `['community_id', 'referrer_id']`.
+  - `community_memberships.referral_code` (string 32 nullable unique).
+  - `referral_invitation_requests` table (tracking member requests for friend invitations awaiting creator approval).
+  - `referral_commissions` table (immutable ledger storing payment_id unique, community_id, referrer_id, payer_id, community_invitation_id, purpose, commission_rate, payment_amount, commission_amount, currency VND, status SIMULATED_UNPAID, timestamps).
+- Models & Relations:
+  - `app/Models/ReferralCommission.php` and `app/Models/ReferralInvitationRequest.php`.
+  - `Community.php`: `referralCommissions()`, `referralRequests()`, `referral_commission_rate` fillable & integer cast.
+  - `CommunityInvitation.php`: `referrer()` relation.
+  - `CommunityMembership.php`: `getReferralCode()` helper.
+  - `User.php`: `earnedReferralCommissions()`, `referralRequests()` relations.
+  - `Payment.php`: `referralCommission()` relation.
+  - `database/factories/ReferralCommissionFactory.php`.
+- Domain actions & reconciliation:
+  - `app/Actions/Communities/CreateInvitation.php`: updated to accept optional referrer and reject self-referral.
+  - `app/Http/Controllers/Payment/SePayWebhookController.php`: `recordReferralCommission` verifies community rate > 0, 30-day invitation window, no self-referral, strict referrer effective access at payment confirmation time, and calculates integer floor commission for `COMMUNITY_ACCESS` and `COURSE_ACCESS`. Webhook replay idempotency preserved via `payment_id` unique constraint.
+  - `app/Http/Controllers/ReferralController.php`: creator overview, pending request approve/reject actions, member referral request submission, and member self-only simulated earnings dashboard.
+  - `app/Http/Controllers/CommunityController.php` & `CommunityInvitationController.php`: rate validation (0–30%) and optional referrer assignment on invitation.
+- Routes & Blade views:
+  - `routes/web.php`: registered `/account/referrals` and `/communities/{slug}/referrals/*`.
+  - `resources/views/communities/referrals.blade.php`: creator dashboard with rate status, attributed metrics, pending requests review, and commission table.
+  - `resources/views/account/referrals.blade.php`: member dashboard with simulated earnings, invitation request form, pending requests status, and safe privacy-respecting commission history (no payer email/secrets leaked).
+  - `resources/views/communities/partials/access-pricing.blade.php`: commission rate setting input (0–30%).
+  - `resources/views/components/community-workspace.blade.php` & `resources/views/layouts/navigation.blade.php`: added Referrals navigation tabs and dropdown links.
+
+### Verification evidence
+
+- Targeted test suite: `docker compose exec app php artisan test --filter=ReferralCommissionTest` PASS (11 tests, 54 assertions, 23.13s).
+- Payment/entitlement/term regression tests: `docker compose exec app php artisan test --filter="Payment|CourseEntitlement|FixedTerm"` PASS (60 tests, 524 assertions, 60.15s).
+- Full application test suite on guarded MySQL `scool_test`: `docker compose exec app php artisan test` PASS (408 tests, 4098 assertions, 330.80s).
+- Static analysis: `docker compose exec app ./vendor/bin/phpstan analyse --memory-limit=1G` PASS (0 errors across 105 files).
+- Code formatting: `docker compose exec app ./vendor/bin/pint --test` PASS (232 files clean).
+- Frontend assets: `npm run build` PASS (Vite production bundle built in 7.79s).
+- Agent contract verification: `& "C:\Program Files\Git\bin\bash.exe" scripts/verify-agent-contract.sh` PASS (11 shared files, privacy gates valid).
+
+### Current limitations & Next steps
+
+- Local development database migration `180001` has not been run against development database `scool` (running migrations against development database requires explicit user authorization, per project rules). Tests use guarded `scool_test` exclusively.
+- Visual/browser testing and real provider-backed SePay Test Mode verification remain pending.
+- No commit, push, or Linear status mutation performed.
+- At the original F-17 implementation handoff, D-04 was open. The user's subsequent F-18 selection and audited continuation are recorded below; do not reuse the earlier decision state.
+
+## F-17 scoped audit remediation and F-18 continuation (2026-10-14)
+
+### Authority, review surface and outcome
+
+- The user requested auditing the supplied F-17 implementation, fixing confirmed in-scope defects and preparing continuation. The user then explicitly selected F-18 according to the existing draft: one-to-one community-scoped asynchronous DB messages, no realtime/attachments. D-04 is recorded as accepted in ADR-012/Delivery Plan F-18. No F-18 source is implemented by this audit, and no live Linear metadata/status, publication or Done action is authorized or changed.
+- Target: local unstaged/untracked F-17 source described in the supplied handoff, including the new referral controller/models/migration/factory/views/tests and its invitation/payment/settings/navigation integration. Base/HEAD remain `bb8a20b9c41e218a75e0cd059b2081b0af20d3ce` on `f01-f02-workspace-directory`; no branch/range or PR comparison is claimed. Remote default HEAD was unavailable; configured `main` is a navigation fallback only. The earlier F-09–F-16 dirty work is context, not newly audited release evidence.
+- Contracts: accepted ADR-011 and Delivery Plan F-17, repository workflow/privacy rules and `design.md` interaction requirements. Seven concrete defects were corrected; no remaining findings were identified in the bounded payment/retention and request/access/UI source lenses. Verdict: **READY as a technically verified source candidate in the tested scope**, not deployed F-17 or formal browser/provider/CI acceptance.
+
+### Findings and corrections
+
+Original anchors below refer to the pre-remediation F-17 source, not the final line numbering.
+
+| Severity | Original anchor | Observed failing case | Correction |
+|---|---|---|---|
+| MEDIUM | `SePayWebhookController.php:299` | Course lookup skipped an initial accepted invitation without referrer and credited a later invitation | Select the initial accepted invitation including null referrer, ordered by acceptance time/ID |
+| MEDIUM | `SePayWebhookController.php:293` | Rejoin admission used the new invitation, creating commission after the first-touch window had expired | Admission and course dispatch share the same retained first-touch lookup; rejoin cannot restart the window |
+| MEDIUM | `SePayWebhookController.php:312` | Exact creation+30-day instant still earned commission | Exclude at/after cutoff; positive test covers one second before |
+| MEDIUM | `ReferralController.php:108` | Request-update exception left an already-created invitation behind | One outer transaction locks current community/request and atomically approves/links the invitation; after-commit delivery remains queued |
+| MEDIUM | `ReferralController.php:123` | A stale bound PENDING request overwrote concurrent APPROVED status with REJECTED | Reauthorize and reread the tenant-scoped request under locks, requiring current PENDING state |
+| MEDIUM | `communities/referrals.blade.php:5` | Existing pending invitation rejected approval, but Creator saw no reason after redirect | Existing error component renders a conditional alert; request/invitation remain unchanged |
+| MEDIUM | `CommunityController.php:77` | Shared creation form offered referral rate, but store ignored valid values and accepted invalid values silently | Creation validates integer 0–30 and persists the validated rate, matching update |
+
+- Related conformance/copy: use integer `intdiv(amount * rate, 100)` rather than float arithmetic; label successful approval as invitation queued, not sent. No new payment purpose, rate/window decision, package, schema change, access exception or broad UI redesign.
+- Changed files for this audit: `app/Http/Controllers/CommunityController.php`, `app/Http/Controllers/Payment/SePayWebhookController.php`, `app/Http/Controllers/ReferralController.php`, `resources/views/communities/referrals.blade.php`, new `tests/Feature/ReferralAuditRegressionTest.php`, and the existing architecture/delivery/working-context documents. Only the necessary Creator error panel changes appearance; browser/visual verification remains pending.
+- Preservation: SHA256 baseline comparison confirmed all 363 preexisting files outside that explicit allowlist are unchanged. Unrelated dirty/untracked work, dependencies, keys/configuration and prior migrations are preserved. Nothing staged, committed, pushed or merged.
+
+### Verification and graph limits
+
+- Red evidence: initial new audit suite 5 failed / 1 passed / 19 assertions, exit 1, 18.82s. Creator error-feedback test separately failed / 6 assertions, exit 1, 12.79s. Creation-rate tests separately failed 2 / 5 assertions, exit 1, 9.69s. These are observed pre-fix results; injected commission-write failure already rolled back payment/event/entitlement correctly.
+- Final scoped command: `docker compose -p scool exec -T -e APP_ENV=testing -e DB_DATABASE=scool_test app php artisan test --filter='ReferralAuditRegressionTest|ReferralCommissionTest|CommunityInvitationFlowTest|CommunityAboutSettingsTest|CourseEntitlementAndPurchaseTest|FixedTermMembershipTest' --fail-on-skipped --fail-on-empty-test-suite`: **62 passed / 672 assertions**, exit 0, 42.60s. The ten new audit tests also cover wrong Creator/tenant review writes and identical-event replay after rollback. The earlier 53-test run preceded final UI/rate fixes and is superseded.
+- Final integrated command: `docker compose -p scool exec -T -e APP_ENV=testing -e DB_DATABASE=scool_test app php artisan test --compact --fail-on-skipped --fail-on-empty-test-suite`: **418 passed / 4211 assertions**, exit 0, 371.23s. Source/test inputs were frozen for this final run; later edits are documentation only. No concurrent suites or development fixtures/reset were run.
+- Static/build: configured PHPStan (`--configuration=phpstan.neon --memory-limit=1G --no-progress`) no errors, exit 0. Read-only Pint PASS / 233 files; only the four audit PHP paths were eligible for formatting. `npm run build` PASS / 60 modules / 3.77s using existing dependencies. Shared agent contract `--require-tracked` and `git diff --check` PASS; neither is publication or compliance evidence.
+- GitNexus refreshed once for substantive F-17 review, `--pdg --index-only`, no embeddings: 8386 nodes / 16774 edges / 119 clusters / 136 flows. `recordReferralCommission` context identifies its two dispatch calls in `SePayWebhookController::handle`; upstream impact reaches that handler and route. Creator approve/reject reach their routes; creation impact is a lower bound because of unresolved receiver typing. Global `detect_changes(all)` includes unrelated preexisting dirty work, so its aggregate risk/counts are not an F-17 finding.
+- Taint checks on the F-17 controllers returned no modeled findings; helper PDG exposed the invitation/cutoff guards. Closure/callback/property/implicit paths and some Laravel dispatch are unsupported. Initial stale symbol-not-found results were discarded after refresh. Graph evidence describes the pre-remediation F-17 surface; final small patches were verified by actual source and red/green tests, without another index rebuild. Do not claim complete final graph/security coverage.
+
+### Runtime and remaining acceptance
+
+- Read-only current development status: `170001` is Ran / batch 14; F-17 `180001` remains Pending. app/nginx/MySQL/Mailpit/queue are running/healthy. No development migration or worker restart was executed during this audit. F-16's prior approved deployment is not authority to apply F-17/F-18 migrations.
+- Before exercising F-17 browser/provider flows, obtain the specific local forward-upgrade/reload authorization and use README/runtime guards. Do not reset/reseed or recreate volumes. Source/test acceptance does not prove these unmigrated development routes work.
+- Pending: browser/responsive/visual checks, real provider-backed SePay Test Mode admission/course/referral cases, current-head remote CI/review, independent-host setup and formal acceptance. F-17 AC boxes remain open for those gates; earlier local PASS is not Done.
+- Consolidated F-17 manual flow: select 0/15/30 rates in create/edit and verify invalid values do not mutate; member requests → Creator approves or sees the pending-invitation conflict visibly; verified eligible test payment yields exact whole-VND simulated/unpaid commission; original unattributed join/rejoin/cutoff/replay never replaces attribution; expired/revoked referrer earns no new commission but sees only retained own history; verify tenant/role direct URLs, reload and narrow-screen controls. Use unique synthetic recipients and sanitized screenshots; no real funds or shared-inbox clearing.
+
+### Next implementation: F-18 only
+
+- D-04 is now selected, not open: implement Delivery Plan F-18 / ADR-012 on this same dirty checkout. Verify current Git/source and actual issue metadata first; F-xx identifiers are local drafts, not invented EUR issue IDs. No selected F-18 behavior is implemented or marked passed here.
+- Reuse F-02 directory eligibility and F-16 `hasEffectiveAccess()` / effective SQL scopes. Owning Creator is an eligible participant, not a blanket reader. A Creator/Platform Admin who is not in a pair cannot enumerate/read/send its conversation. Check both participants and ACTIVE community on reads, inbox previews/counts and writes; expired/revoked participants cannot use retained messages as access.
+- Implement the bounded schema/routes/controller/action/policy/Blade slice with unique canonical community+pair identity, sender-bound retry IDs, escaped plain text 1–2000 characters, ordered pagination and page-refresh retrieval. Use fresh authorization under an established consistent lock order for sensitive writes. No payment/invitation rewrite, websocket, attachment, group chat, global lookup, online indicator, chat notification service, scheduler or new dependency.
+- Required tests: permitted pair, same pair across two tenants, outsider/nonparticipant/other Creator/Platform Admin denial, expired/SUSPENDED/REMOVED/LEFT or inactive community, spoofed actor/tenant/recipient, invalid body without mutation, duplicate/concurrent first conversation and repeated send, rollback/retry and revocation during send. Run only guarded `scool_test`, targeted checks first, then one required final integrated gate after final relevant edits.
+- Required manual sequence: two authorized sessions start → send → refresh → ordered page; switch tenant and verify separate inbox; duplicate submit/reload does not duplicate; unauthorized direct URL and expiry/revocation deny bodies/previews/counts; failure shows understandable feedback; narrow-screen controls remain usable. Record one checklist/results, not scattered prompts or invented evidence.
+
+```text
+Continue S-cool at R:\_Projects\Eurus_Workspace\scool on the existing dirty checkout.
+Read AGENTS.md, AI_WORKFLOW Execution efficiency, and the latest
+F-17 scoped audit remediation and F-18 continuation in WORKING_CONTEXT.md.
+Verify actual Git/source; preserve all unrelated edits and untracked files.
+F-17 fixes are already present; use the latest 418-test evidence with its limits.
+The user explicitly selected F-18 per the existing draft on 2026-10-14.
+Read Delivery Plan F-18, common issue/verification sections, ADR-012 and design.md.
+Report readiness, verify actual issue contract/metadata, then implement F-18 only.
+Keep participant-only tenant/expiry authorization, retries and transactions.
+No realtime/attachments/packages or broader admin rights; preserve current design.
+Tests use guarded scool_test. Development 180001 remains pending; obtain specific
+runtime-write authority before local upgrades. No reset/reseed or volume deletion.
+Update this canonical checkpoint with real diff/checks/manual gaps, then hand off.
+Publication, CI/review and Done retain their own authorization and acceptance gates.
+```
+
+## F-18 Community-scoped asynchronous messaging implementation (2026-10-14)
+
+### Authority, review surface and outcome
+
+- The user explicitly authorized F-18 continuation under ADR-012 and Delivery Plan Section 17.9 on 2026-10-14.
+- Target: local unstaged/untracked implementation on `f01-f02-workspace-directory` (HEAD `bb8a20b9c41e218a75e0cd059b2081b0af20d3ce`). All prior dirty working-tree files (F-09 through F-17) preserved without alteration or reset.
+- Scope implemented:
+  - Additive migration `2026_10_14_190001_create_community_messages_table.php` defining `community_conversations` (unique constraint `['community_id', 'user_one_id', 'user_two_id']` with canonical participant sorting) and `community_messages` (unique constraint `['conversation_id', 'sender_id', 'client_send_id']` for idempotent retry deduplication, `read_at` timestamp).
+  - Models: `app/Models/CommunityConversation.php` (canonical sorting, relations, helpers) and `app/Models/CommunityMessage.php`.
+  - Relationship added on `app/Models/Community.php` (`conversations(): HasMany`).
+  - Factories: `database/factories/CommunityConversationFactory.php` and `database/factories/CommunityMessageFactory.php`.
+  - Policy: `app/Policies/CommunityConversationPolicy.php` enforcing participant-only authorization with `denyAsNotFound()`. Explicit re-checking that community is ACTIVE and both participants currently hold effective membership access (`hasEffectiveAccess()`) or own the community. Non-participants, Creator (if not participant), and Platform Admin are denied as 404.
+  - Controller: `app/Http/Controllers/CommunityMessageController.php` implementing `index`, `start`, `show`, `store` with rate limiting (`throttle:30,1`) and transactional send locking.
+  - Navigation & Views:
+    - `resources/views/communities/messages/index.blade.php`: inbox with unread badges, last message previews, participant information, and link to directory.
+    - `resources/views/communities/messages/show.blade.php`: conversation thread with participant bubbles, timestamps, read receipts, and send form with client send ID.
+    - `resources/views/components/community-workspace.blade.php`: added "Messages" tab.
+    - `resources/views/communities/directory/show.blade.php`: added "Message" button on member profile.
+- Historical implementation verdict: source candidate in the then-tested scope; the later scoped F-18 audit below found and corrected defects. Its final evidence supersedes this verdict. No Git commit, push, PR, or Linear status mutation performed.
+
+### Key architectural decisions & invariants
+
+- **Canonical Participant Ordering:** `user_one_id = min($userA, $userB)` and `user_two_id = max($userA, $userB)`. Together with unique constraint `['community_id', 'user_one_id', 'user_two_id']`, concurrent or reverse initiation maps to the exact same conversation row without duplicates.
+- **Fail-Closed Effective Access on Every Interaction:** Access is checked live against both participants. If either participant lapses (F-16 fixed-term membership expired, revoked, suspended, or left) or if the community is suspended, both `show` and `store` fail with 404. Historical messages are preserved in the database but inaccessible to expired members.
+- **Strict Participant Privacy:** Conversations are completely private to the two participants. Creators cannot inspect member-to-member conversations unless they are directly participating. Platform Admins cannot read conversations.
+- **Idempotency & Network Retry Safety:** `client_send_id` is unique per `['conversation_id', 'sender_id', 'client_send_id']`. Form submissions provide a unique client send ID; duplicate submissions or reloaded POST requests deduplicate safely without creating double messages.
+- **No Realtime/WebSocket or External Dependencies:** Plain HTTP refresh-based retrieval with pagination (30 messages per page).
+
+### Verification evidence
+
+- **Feature Tests:**
+  - `tests/Feature/CommunityMessagingTest.php`: 5 tests / 52 assertions PASS.
+    - `test_ac01_participants_can_exchange_and_view_messages_with_tenant_isolation`: exchanges messages, verifies ordering, ensures same user pair in another community has an isolated conversation.
+    - `test_ac02_non_participants_and_platform_admin_are_denied_as_404`: confirms non-participant members, creators, and platform admins cannot view, start, or send to conversations they do not belong to.
+    - `test_ac03_first_conversation_and_send_id_are_idempotent`: checks sequential reverse/duplicate initiation and repeated send IDs. This implementation test did not prove concurrency; the later audit adds independent-process cases.
+    - `test_ac04_membership_lapse_and_tenant_suspension_block_messaging`: confirms expired membership, suspension, and removed status block viewing and sending with 404, with unread counts hidden.
+    - `test_ac05_message_validation_and_rate_limiting`: tests 1–2000 char validation, HTML entity escaping, empty body rejection, self-conversation rejection, and route throttling.
+  - `tests/Feature/MemberDirectoryProfileTest.php`: 8 tests / 77 assertions PASS (verifies directory profile "Message" button integration and permissions).
+- **Full Application Test Suite on Guarded MySQL `scool_test`:**
+  - `docker compose exec app php artisan test`: **423 passed (4221 assertions)**, 302.46s, exit 0.
+- **Static Analysis:**
+  - `docker compose exec app ./vendor/bin/phpstan analyse --memory-limit=1G`: **[OK] No errors** across 109 files.
+- **Code Formatting:**
+  - `docker compose exec app ./vendor/bin/pint --test`: **PASS** (241 files clean).
+- **Production Asset Build:**
+  - `npm run build`: Vite build PASS (7.79s).
+- **Shared Agent Contract:**
+  - `& "C:\Program Files\Git\bin\bash.exe" scripts/verify-agent-contract.sh`: **[PASS]** (11 shared files, privacy gates valid).
+
+### Runtime status & remaining acceptance
+
+- Local development database migrations `180001` and `190001` remain **Pending** on local development database `scool`. Running development migrations requires explicit authorization per project rules. Tests executed exclusively against guarded MySQL `scool_test`.
+- Visual/browser testing and real provider-backed SePay Test Mode verification remain pending.
+- Manual test sequence for F-18:
+  1. Member A navigates to Community Directory, clicks "Message" on Member B's profile.
+  2. Member A sends a message. The message displays with sent timestamp.
+  3. Member B logs in, clicks the "Messages" tab in community navigation, sees conversation listed with unread count badge (1) and last message snippet.
+  4. Member B opens conversation: message is marked as read, Member B replies.
+  5. Member A refreshes: sees Member B's reply and read indicator.
+  6. Non-participant Member C attempts to access conversation URL directly: receives 404.
+  7. Creator attempts to access conversation URL directly: receives 404.
+  8. Platform Admin attempts to access conversation URL directly: receives 404.
+  9. Member B's membership expires (or is removed): Member A and Member B visiting conversation URL receive 404; send attempts fail.
+  10. Fast double-clicking send button or refreshing POST request produces only one message record due to `client_send_id` deduplication.
+
+### Next step
+
+- This implementation checkpoint preceded the scoped audit corrections below; it is not formal F-18 acceptance.
+- The next step is **F-19 — Functional completion acceptance** (Delivery Plan Section 17.10), closing integrated acceptance across all features from F-01 through F-18.
+
+## F-18 scoped audit remediation and F-19 continuation (2026-10-14)
+
+### Authority, outcome and preservation
+
+- The user authorized auditing the F-18 implementation and fixing confirmed in-scope defects, then handing off the remaining work. They corrected "two remaining features": F-19 is the only remaining selected roadmap slice, not an additional feature or F-20.
+- AC source: Delivery Plan 17.9 / accepted ADR-012; F-19 contract is section 17.10. These F-xx identifiers are local drafts, not invented Linear IDs/status. Actual issue metadata, final remote CI and formal acceptance were not established by this audit.
+- Checkout: `f01-f02-workspace-directory`, HEAD `bb8a20b9c41e218a75e0cd059b2081b0af20d3ce`, extensive existing unstaged/untracked F-09 through F-18 implementation. HEAD alone does not reproduce this candidate. No staging, commit, push, PR, merge or status mutation is authorized/performed.
+- Audit edits: `app/Http/Controllers/CommunityMessageController.php`, `app/Models/CommunityConversation.php`, both `resources/views/communities/messages/*.blade.php`, the legitimate HTML-send fixture in `tests/Feature/CommunityMessagingTest.php`, new `CommunityMessagingAuditTest.php`, `CommunityMessagingConcurrencyTest.php`, `tests/Support/community-message-starter.php`, and the existing architecture/delivery/working-context docs. No schema, dependency, payment contract, shared instruction or unrelated view changes.
+- Final verdict: source candidate verified in the audited scope, ready for F-19 acceptance preparation. No remaining concrete findings from the bounded final reviews; deployment/browser/provider/CI/independent-host gates remain pending and no formal Done is implied.
+- SHA256 baseline: all 373 preexisting files outside the explicit 11-path audit allowlist remained unchanged; only the three listed audit test/helper files were added. Preserve the full dirty checkout for continuation. No development data reset/reseed, inbox deletion, key/configuration change or queue action.
+
+### Flow, defects and final behavior
+
+Directory start validates recipient shape and current eligibility, then serializes on the current community, locks both memberships in stable user-ID order and rechecks effective access before finding/creating the canonical pair. Show/send lock community → current conversation → memberships, bind tenant/actor from server state, and check both participants before reading bodies or writing read receipts/messages. Read receipts cover only incoming IDs selected for the current page. The default page selects the newest 30 messages and reverses that page for chronological display. Inbox SQL filters both participants before paginate(15), preloads row unread counts, and computes total unread across all eligible pages.
+
+| Severity | Original location | Confirmed defect | Correction |
+| --- | --- | --- | --- |
+| MEDIUM | `CommunityMessageController.php:91` | Start used stale preflight access; reverse concurrent start could throw a unique-constraint exception | Serialized current-state recheck and canonical first-or-create |
+| MEDIUM | `CommunityMessageController.php:114` | Revocation after policy preflight still allowed body retrieval/read mutation | Fresh locked participant checks before page read/mutation |
+| MEDIUM | `CommunityMessageController.php:114` | First page marked all 35 incoming messages read while displaying only 30 | Update only displayed incoming IDs; unseen page stays unread |
+| MEDIUM | `CommunityMessageController.php:119` | Default page selected oldest messages, hiding latest replies after 30 | Newest page by ID, chronological within page |
+| MEDIUM | `CommunityMessageController.php:147` | Missing/empty retry IDs permitted duplicate writes; `0` became null | Required nonempty key used directly, sender/conversation deduplication |
+| MEDIUM | `messages/show.blade.php:81` | JS-only retry key and lost draft/errors; array body after validation caused GET 500 | Server key, valid old key/draft preservation, visible errors, string-only draft normalization |
+| MEDIUM | `CommunityMessageController.php:29` | Unbounded inbox and per-row eligibility/unread queries | SQL eligibility before pagination, preloaded counts and whole-inbox total |
+| LOW | `CommunityMessageController.php:71` | Missing recipient returned validation error while existing outsider returned 404 | Missing/ineligible IDs both unavailable/404, self-recipient feedback retained |
+| LOW | `messages/show.blade.php:15,88` | Icon link/textarea lacked accessible names | Inbox aria-label and associated Message label |
+
+- The locking trade-off is short serialization of chat mutations/page-read marking within one community. This follows the existing transaction pattern and avoids new runtime services. It is not a performance/load-test claim.
+- `client_send_id` remains nullable in the unchanged schema for legacy/trusted fixture rows; the public send endpoint now requires it. Body HTML literals remain escaped plain text, not executable markup. No new Creator/Admin access, realtime, attachments, chat notifications or automatic purge.
+- New audit tests cover required/zero retry IDs, page-read boundaries/order, server form/old input, unavailable recipient parity, malformed array validation, filtered pagination/unread totals and injected rollback/retry. Five independent-process cases on committed `scool_test` fixtures cover reverse start, revocation during start/show/send and duplicate concurrent send. These are real MySQL transaction barriers, not sequential requests presented as concurrency. Barrier polling now reports only failures, so final assertion counts are deterministic.
+
+### Verification and evidence limits
+
+- Pre-fix: initial audit suite **6 failed / 1 passed / 18 assertions**, exit 1, 34.76s. Independent start races **2 failed / 685 assertions**, exit 1, 26.14s: stale removal yielded 302 and reverse start threw `UniqueConstraintViolationException`. Missing recipient was observed as JSON 422 instead of 404. Corrected show harness then observed **200 instead of 404** after committed removal (1 failed / 310 assertions, 13.36s). Malformed draft reproduced **GET 500 instead of 200** (1 failed / 5 assertions, 29.13s).
+- Probe limits: initial show-harness argument/CLI Blade-session failures were corrected and discarded as source-defect evidence. No test harness failure is presented as an application finding. Initial per-poll assertion counts varied with scheduling; final barriers avoid that metric inflation.
+- Final scoped command: `docker compose -p scool exec -T -e APP_ENV=testing -e DB_DATABASE=scool_test app php artisan test --filter='CommunityMessagingTest|CommunityMessagingAuditTest|CommunityMessagingConcurrencyTest|MemberDirectoryProfileTest|FixedTermMembershipTest' --fail-on-skipped --fail-on-empty-test-suite`: **43 passed / 388 assertions**, exit 0, **86.53s**. Earlier 40/42-test intermediate runs precede final corrections and are superseded.
+- Final integrated command: `docker compose -p scool exec -T -e APP_ENV=testing -e DB_DATABASE=scool_test app php artisan test --compact --fail-on-skipped --fail-on-empty-test-suite`: **437 passed / 4328 assertions**, exit 0, **439.87s**. Source/test inputs were frozen for this one final integrated run; subsequent edits are documentation only. No concurrent database suites or development fixtures/reset. This supersedes the earlier 423-test implementation result for the current candidate.
+- Static/build: configured PHPStan (`--configuration=phpstan.neon --memory-limit=1G --no-progress`) no errors, exit 0; final read-only Pint **244 files PASS**, exit 0 (formatting restricted to six audit PHP paths). Final `npm run build`: **60 modules / 2.17s**, exit 0, existing dependencies. Shared agent contract `--require-tracked` and final `git diff --check` PASS. Final SHA256 comparisons verify the preserved 373 files and unchanged tested source/test inputs; no publication or agent-compliance claim follows from these checks.
+- GitNexus refreshed once for substantive pre-remediation F-18, `--pdg --index-only`, no embeddings: **8791 nodes / 17637 edges / 124 clusters / 140 flows**. Start/store context/impact identify route/controller/membership/canonical-pair paths; unresolved receivers make impact a lower bound. Controller taint returned no modeled findings and PDG exposed body/key guards. Closure/callback/property/implicit framework paths remain unsupported; no-finding is not security proof. Global `detect_changes(all)` covers the whole older dirty tree, not just F-18. Final small patches were checked through actual source and regressions, without another rebuild.
+- Two focused read-only review lenses checked final transaction/privacy/query/UI behavior. The malformed-draft issue found during final review was reproduced and fixed; final source reviews report no remaining findings in those bounded surfaces. Browser behavior, load/performance and remote review remain separate evidence.
+
+### Runtime and F-19 acceptance handoff
+
+- Current read-only development `migrate:status`: `170001` Ran / batch 14; `180001` (F-17) and `190001` (F-18) **Pending**. This audit did not apply either, restart workers or alter development fixtures. Earlier F-16 migration authority does not authorize these upgrades. Before browser/provider flows, obtain specific forward-upgrade/reload authority and use the existing README/scripts; never migrate:fresh/reset/reseed development data or delete volumes.
+- F-01…F-18 have source candidates and local technical evidence, not blanket acceptance. F-19 should map selected AC to current dirty candidate/PR/CI/manual evidence, explicitly retaining unknowns. Do not count a historical same-host clone as the required second physical machine. Do not fabricate provider success, revenue, online metrics, screenshots or review status.
+- Prepare one consolidated README manual checklist covering two tenants/two sessions/deep links/back/reload; onboarding/feed/notifications/likes/ranks/learning/calendar; Creator overview/orders/report resolution; preferences/help and distinct roles; admission/course/renewal/referral exact-purpose/replay/state boundaries; messaging latest-page/read/retry/validation and nonparticipant/expired/SUSPENDED/REMOVED/LEFT denial. Use unique synthetic recipients, safe screenshots and existing additive/idempotent demo patterns. Check persisted totals against fixtures rather than placeholders.
+- F-19 verification boundaries: use guarded `scool_test` for targeted defect iteration; rerun integrated gates only after relevant source/runtime changes or the required authoritative Verify. Current-head remote CI/security/review require actual published revision and separate publication authority. Record independent-machine setup and data-preserving forward upgrade separately. Mark unresolved gates pending; keep AC unchecked until its evidence exists.
+- F-19 may prepare/fix confirmed integrated defects within its accepted scope. It does not authorize unrelated redesign, new packages/payment contracts, data deletion, publication or Done. Design work remains separately labelled.
+
+```text
+Continue S-cool at R:\_Projects\Eurus_Workspace\scool on this existing dirty checkout.
+Read AGENTS.md, AI_WORKFLOW including Execution efficiency/UI scope, and the latest
+F-18 scoped audit remediation and F-19 continuation in WORKING_CONTEXT.md.
+Verify actual Git/source and issue metadata; HEAD bb8a20b alone omits F-09…F-18.
+Preserve all existing edits/untracked files. F-18 audit fixes are already present.
+The user corrected the count: F-19 is the only remaining selected roadmap slice.
+Read Delivery Plan 17.10/common issue+verification sections and relevant ADRs/design.
+Report readiness, then prepare F-19 integrated acceptance: evidence map, one README
+manual checklist, safe additive demo/setup gaps and confirmed in-scope fixes.
+Keep implementation, local tests, browser/provider, CI/review and independent-host
+evidence distinct. Do not turn source candidates or the suite count into Done.
+Development 180001 and 190001 are pending: obtain specific forward-upgrade/reload
+authority before writing local development data/runtime; never reset/reseed/delete
+volumes or clear the shared inbox. Tests use only guarded MySQL scool_test.
+Use real SePay Test Mode evidence, no real funds/fabricated success. A second
+physical machine remains required. Publication/review/merge/Done retain their gates.
+Use the completed final audit results in this checkpoint as the source baseline;
+do not rerun discovery/full gates solely for documentation edits. Update this
+canonical checkpoint with actual diff/results/pending gates and hand off once.
+```
+
+## F-19 Functional completion acceptance and integrated evidence (2026-10-14)
+
+### Authority, scope and runtime upgrade
+
+- Authority: The implementation report records user approval for forward migrations `180001`/`190001` on local `scool`. This audit is authorized to review/fix the F-19 candidate; it does not independently establish that earlier approval or execute another upgrade.
+- Runtime upgrade: the report records migrate/queue:restart. Read-only audit confirms both migrations Ran / batch 15 and app/nginx/MySQL/Mailpit/queue healthy, with 6 users, 10 communities and 7 memberships. Matching aggregate counts alone do not prove every retained row was unchanged; pre/post retention evidence remains required for AC-07. A restart signal/container health is not proof of specific mail delivery.
+- Scope: F-19 acceptance preparation covering F-01 through F-18. Reported browser journeys and reused local test evidence are partial; formal integrated completion is pending.
+- Working checkout: `f01-f02-workspace-directory` (HEAD `bb8a20b9c41e218a75e0cd059b2081b0af20d3ce`). All dirty changes from F-09 through F-18 and their respective audit remediations are preserved. No commit, push, PR, or Linear status mutation performed.
+
+### Integrated browser verification evidence
+
+The implementation report describes browser runs against `http://localhost:8080`.
+The canonical local origin remains `http://127.0.0.1:8080`; use it consistently for
+future sessions and generated links. Local private recordings listed below are not
+portable PR/CI evidence. The audit inspected their initial images and frame metadata,
+not every frame or a fresh replay of the reported journeys. Reported observations
+must not be read as independent audit PASS or proof of two simultaneous sessions.
+
+1. **Creator Journey & Workspace Navigation (`creator_journey_1791958894007.webp`):**
+   - Logged in as `creator@scool.local`.
+   - Verified dashboard displays multiple private communities (`Demo Free Learning`, `Demo Paid Learning`).
+   - Inspected `Demo Free Learning` workspace navigation: Feed, Classroom, Events, Members/Directory, Leaderboard, Messages, About, Search, Notifications, Overview, Orders, Reports.
+   - Verified Classroom view: course modules, lesson display.
+   - Configured referral commission rate to 15% in community settings and verified persistence.
+2. **Member Messaging & Tenant Isolation (`member_messaging_1791959082149.webp`):**
+   - Logged in as `member@scool.local`.
+   - Opened `Demo Free Learning` Directory, located `Nguyen Creator`, clicked **Message**.
+   - Sent message: *"Hello Creator, this is a test message from Demo Member for F-18."*
+   - Verified message rendered chronologically in conversation thread with timestamp.
+   - Verified Messages inbox lists conversation with `Nguyen Creator`.
+   - Reported checking the paid-tenant Messages URL. The audit finds Demo Member has no effective paid-tenant access; expected behavior is denial, not proof of an authorized empty inbox. Same-pair/two-eligible-tenant isolation has automated baseline evidence and still needs the matching manual fixture.
+3. **Creator Reply, Referral Request & Approval (`referral_and_revocation_1791959405807.webp` & `approval_and_admin_1791959700565.webp`):**
+   - The first recording is a single 960x960 frame saying **Error generating recording**. It cannot evidence reply, referral or revocation success. The narrative below is reported behavior requiring separate usable evidence.
+   - Logged in as `creator@scool.local`, opened Messages inbox in `Demo Free Learning`: verified unread badge (1), read Member's message, replied: *"Received your message loud and clear. Welcome to Demo Free Learning!"*. Reply rendered in thread.
+   - Member (`member@scool.local`) submitted referral invitation request for `new-referral-student@example.com` under `Demo Free Learning`.
+   - Creator opened `/communities/demo-free-learning/referrals`, verified pending request in Pending Requests table, clicked **Approve & Invite**. Verified request transitioned to Approved with queued invitation delivery.
+4. **Platform Administration:**
+   - Logged in as `admin@scool.local`.
+   - Navigated to `/admin/communities`.
+   - Verified dashboard displays platform metrics (10 communities, 10 active), status filter tabs (`All`, `Active`, `Suspended`, `Archived`), and audit log table.
+
+### Consolidated manual acceptance checklist (README.md)
+
+The initial six scenarios mislabelled F-03/F-05/F-06/F-07/F-14 and omitted selected
+engagement, calendar, preferences and renewal/purchase checks. The audit corrected
+the existing README section to eight groups covering F-01 through F-18 plus baseline
+learning/admin. It fixes the member-management URL, demo eligibility, inbox badge,
+locked-course teaser semantics, unique recipients and payment/invitation prerequisites.
+Each group includes expected results and failure cases; writing a checklist is not
+evidence that its steps were executed. Nothing was merged or published.
+
+### AC Status Mapping & Outstanding Gates (Section 17.10)
+
+| AC | Current evidence | Remaining gate / status |
+| --- | --- | --- |
+| AC-01 | Source/spec/test routing below; accepted commercial ADRs | Published candidate/PR, actual issue metadata, CI and complete manual links **PENDING** |
+| AC-02 | Automated tenant checks; reported navigation/classroom observations | Two tabs/back/reload, directory/About/category/search and complete deep-link script **PARTIAL** |
+| AC-03 | Unchanged 437-test baseline covers module boundaries | Integrated onboarding/notices/likes/ranks/calendar and all revoked surfaces on browser **PARTIAL** |
+| AC-04 | Automated Creator/role checks; reported admin listing | Persisted-fixture overview/orders/report resolution, preferences and role flows **PARTIAL** |
+| AC-05 | Local authenticated webhook/referral/purpose tests and rendered checkout | Genuine provider-backed **Test Mode** success and sanitized evidence **PENDING** |
+| AC-06 | F-18 baseline and subsequently reported post-upgrade Verify 437/4365; Composer timeout fix audited below | Current-revision CI/security/review **PENDING**; reported Verify is distinct from this audit's bounded checks |
+| AC-07 | Both forward migrations currently Ran / batch 15; aggregate counts match report | Pre/post retained content/payment/audit evidence and setup on second physical machine **PENDING** |
+| AC-08 | Corrected consolidated README checklist; visual redesign labelled separate | Complete required review/evidence links and observed checklist results **PARTIAL** |
+
+The implementation report's 62-test financial result belongs to the prior F-17 scoped
+audit, not a fresh F-19 provider run. The 437-test/2.17s results belong to the prior
+F-18 final audit. SHA256 comparison confirms source/test/dependency inputs unchanged;
+reuse is explicit and does not prove the newly upgraded development runtime or CI.
+F-19 remains **NOT READY for formal release acceptance**; its Delivery Plan AC boxes
+remain unchecked. No issue status or milestone was changed.
+
+### Feature-to-evidence routing for the current candidate
+
+All slices use their Delivery Plan draft AC; this table routes to existing source and
+actual test classes, not fictional PRs or new PASS claims. The current coverage matrix
+in Delivery Plan 17.2 now distinguishes implemented candidates from pending acceptance.
+
+| Slice | Primary source | Existing test evidence routing |
+| --- | --- | --- |
+| F-01 | CommunityController / community-workspace | CommunityWorkspaceSwitcherTest |
+| F-02 | DirectoryController / ProfileController | MemberDirectoryProfileTest |
+| F-03 | CommunityController / communities/show/edit | CommunityAboutSettingsTest |
+| F-04 | PostController / PostCategory | CommunityFeedCategoriesTest |
+| F-05 | PostReactionController | CommunityPostReactionsTest |
+| F-06 | SearchController | CommunitySearchTest |
+| F-07 | EventController / EventWallTime | CommunityEventCalendarTest |
+| F-08 | NotificationController / AppNotification | CommunityNotificationTest |
+| F-09 | CommunityOnboardingController | CommunityOnboardingTest |
+| F-10 | CommunityLeaderboardController / PointContribution | CommunityLeaderboardTest |
+| F-11 | CreatorOverviewController | CreatorOverviewTest |
+| F-12 | CommunityOrderController / PaymentHistoryController | CreatorOrdersAndPaymentHistoryTest |
+| F-13 | ContentReportController / FeedMutation | ContentReportTest |
+| F-14 | ProfileController / HelpController / notice jobs | AccountNotificationPreferencesAndHelpTest |
+| F-15 | InitiateCourseCheckout / SePayWebhookController | CourseEntitlementAndPurchaseTest / CourseAccessAuditRegressionTest |
+| F-16 | InitiateMembershipRenewal / CommunityMembership | FixedTermMembershipTest / FixedTermMigrationTest / MembershipRenewalConcurrencyTest |
+| F-17 | ReferralController / SePayWebhookController | ReferralCommissionTest / ReferralAuditRegressionTest |
+| F-18 | CommunityMessageController / CommunityConversationPolicy | CommunityMessagingTest / CommunityMessagingAuditTest / CommunityMessagingConcurrencyTest |
+
+### Scoped audit findings and verification (2026-10-14)
+
+- Target is the local F-19 continuation since the verified F-18 candidate at the same
+  HEAD `bb8a20b9c41e218a75e0cd059b2081b0af20d3ce`, unstaged/untracked checkout. A 384-file
+  SHA256 comparison identifies only README/WORKING_CONTEXT changes before this audit.
+  Staging is empty. Remote HEAD is unavailable; `origin/main` is the stated fallback
+  default at `2996aa6a24e4f8821d9351c0beb6460b554b8d6e`, not the scope's diff base.
+- **MEDIUM**, original README checklist: `/manage/members` does not exist. Live status-only
+  GET returns 404; registered `/members` returns the expected unauthenticated 302. Referral
+  instructions selected paid community where read-only current demo eligibility is false.
+  Corrected routes/preconditions and kept state-changing cases on dedicated synthetic fixtures.
+- **MEDIUM**, original F-19 AC map: local tests/menu screens were marked complete despite
+  required provider/CI/independent-host/full manual gaps. Replaced with the exact AC map
+  above, retained old test evidence with its real provenance, corrected the stale coverage
+  matrix, and expanded the incomplete/mislabelled manual script.
+- **MEDIUM**, reported recording evidence: two filenames were wrong and the referral/revocation
+  recording is a one-frame error artifact. Corrected names; invalid recording earns no PASS.
+  Usable local files have 455 creator frames, 1301 member frames and 1114 approval/admin
+  frames at 1920x960. Existence/initial-frame review does not independently verify each journey.
+- **LOW**, README expected behavior: corrected Messages inbox-versus-tab badges, safe HTTP-200
+  locked-course teaser versus denied lesson, remaining-progress semantics and webhook API-key
+  authentication wording. These are documentation corrections, not application defects.
+- Read-only runtime probes: migrations `180001`/`190001` Ran / batch 15; database `scool`,
+  6/10/7 aggregate users/communities/memberships; five services healthy; canonical HTTP root
+  returns 200. Initial restricted-loopback connection failure was discarded after the
+  permitted probe succeeded. No development migrations/restart/seed or provider writes in audit.
+- GitNexus registry is pinned to the same HEAD but the index predates final F-18 patches.
+  Reused only as limited navigation: creatorIndex context reaches the referral route and
+  community referral queries, verified in current source. `detect_changes(all)` counts
+  258 symbols / 104 affected / 67 files across the older dirty tree; aggregate critical
+  is not a new F-19 finding. Private artifact-path query produced no relevant execution flow.
+  No changed application symbol/trust boundary exists in F-19; no new impact/taint pass or
+  rebuild is claimed. Single documentation-domain/cross-cutting review ran inline.
+- Audit changes are restricted to README, Delivery Plan coverage matrix and this checkpoint.
+  No new tests or full suite/build were run for documentation-only fixes; baseline input
+  hashes support reuse. Final shared contract `--require-tracked` PASS, and all 13 explicit
+  GET URLs in the manual script match actual registered routes. Final SHA256 comparison
+  confirms all 381 preexisting files outside the three-document allowlist unchanged, with
+  no new files. `git diff --check` initially flagged a trailing blank line, corrected before
+  the final PASS. No dependency, UI implementation, configuration, staging or publication changes.
+
+### Remaining acceptance gates
+
+1. Independent setup on a second physical machine.
+2. Provider-backed **SePay Test Mode** success; no production payment or real transfer is selected.
+3. Push to remote, GitHub Actions CI verification on PR merge-ref, and formal maintainer review before merge.
+4. Complete the corrected integrated manual script, retaining failures and exact fixture/revision
+   evidence; verify forward-upgrade retention beyond aggregate counts. The subsequent Verify
+   execution is reported below and does not close these manual/retention gates.
+
+### Authoritative Verify execution & Acceptance status update (2026-10-14)
+
+Provenance: the supplied execution report records a completed Verify after the timeout
+failure and remediation. The command/output/timings below are implementation-reported,
+not a fresh full run performed by the follow-up audit. The audit directly validated
+the current Composer manifest and exercised the actual configured timeout hooks.
+
+- **Composer Timeout Remediation:**
+  Initial `composer verify` execution failed at 300s due to Composer's default process timeout against the expanded 437-test suite. Remediated by adding `"Composer\\Config::disableProcessTimeout"` to `"test"` and `"verify"` script arrays in `composer.json` (validated via `composer validate --strict` exit 0, no lockfile change required).
+- **Authoritative Verify Result:**
+  Executed: `bash scripts/verify-fresh-setup.sh --mode verify`
+  Output: `[PASS] verify on this host; HEAD=bb8a20b9c41e218a75e0cd059b2081b0af20d3ce; dirty=true; elapsed=466s; project=scool.`
+  - Prerequisite tools, Docker engine, Compose contract, Node/npm: PASS
+  - Service inventory & health (app, nginx, mysql, mailpit, queue): PASS
+  - Production asset build (`npm run build`): PASS (60 modules, 2.17s)
+  - HTTP health probe (`http://127.0.0.1:8080/up`): PASS (HTTP 200)
+  - Real daemon queue worker smoke test: PASS
+  - Composer manifest/lock validation (`composer validate --strict`): PASS
+  - Pint code style check: PASS (244 files)
+  - Guarded MySQL `scool_test` test suite: **437 passed (4365 assertions)** in 413.06s: PASS
+- **Static Analysis:**
+  Executed: `vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=1G --no-progress`
+  Output: **[OK] No errors** across 109 files.
+- **Git Diff & Whitespace Cleanliness:**
+  Executed: `git diff --check` PASS (0 whitespace errors).
+- **Agent Contract:**
+  Executed: `bash scripts/verify-agent-contract.sh` PASS (11 shared files, privacy gates valid).
+
+### Acceptance Criteria (Section 17.10) Status Table
+
+| AC | Requirement | Status | Detailed Evidence / Gaps |
+|---|---|---|---|
+| **AC-01** | Every selected F-xx issue has mapped AC, implementation, CI and manual evidence | **PARTIAL** | Mapped in Delivery Plan 17.2 & 17.10; local automated tests PASS. Remote GitHub PR/CI and formal maintainer acceptance remain PENDING. |
+| **AC-02** | Creator creates/maintains two private communities; switcher, directory/About, categories/search remain tenant-correct in two tabs/back/reload | **PARTIAL** | Automated coverage and the earlier reported navigation remain; the new execution trace contains no new browser run or complete two-tab/back/reload/category/search evidence. |
+| **AC-03** | Member onboarding/notices/likes/leaderboard/learning/calendar operate together; revoked/suspended access blocks every new surface | **PARTIAL** | Automated coverage remains; the referenced referral/revocation recording is still a single error frame. Complete the integrated browser script with usable evidence. |
+| **AC-04** | Creator overview/orders/reports agree with persisted fixtures; account preferences/help and admin permissions remain distinct | **PARTIAL** | Local tests and reported admin listing remain; persisted-fixture/manual report-resolution/preferences and distinct-role journeys are not fully evidenced. |
+| **AC-05** | Commerce workflows pass exact-purpose/amount/authentication/duplicate/delayed-state tests and SePay Test Mode | **PARTIAL** | Local simulated Test Mode, checkout screens, QR code, webhook idempotency and referral ledger PASS (62 tests). Live provider-backed webhook verification remains PENDING. |
+| **AC-06** | Guarded MySQL suite, style, production asset build and configured CI/security checks pass on final revision | **LOCAL PASS REPORTED / REMOTE PENDING** | Reported completed Verify: 437/4365, Pint, build and PHPStan; manifest/hook checks directly pass in this audit. Remote CI/security and review are still required. |
+| **AC-07** | Fresh clone and setup pass on second physical machine; upgrade preserves content/payment/audit history | **PARTIAL** | Forward migrations Ran / batch 15 and matching 6/10/7 counts were verified previously; counts do not prove retained row-level history. Second physical machine and retention evidence remain PENDING. |
+| **AC-08** | Consolidated manual checklist in README with expected results; review evidence linked | **PARTIAL** | Corrected 8-group checklist is present in the unstaged candidate. Required review/observed manual evidence links are incomplete; no Git merge/publication occurred. |
+
+### Follow-up audit of Verify remediation (2026-10-14)
+
+- Target/readiness: local continuation on `f01-f02-workspace-directory`, HEAD
+  `bb8a20b9c41e218a75e0cd059b2081b0af20d3ce`. A 384-file baseline comparison identifies
+  only `composer.json` and this checkpoint changed since the previous audit. All
+  application/test/migration/dependency-lock inputs match that baseline; staging is empty.
+  AC source remains Delivery Plan 17.10. Actual remote issue/CI status is unverified.
+- Composer change is a valid scoped fix: both `test` and `verify` start with
+  `Composer\Config::disableProcessTimeout`. It disables the Composer subprocess limit
+  for those script invocations; it does not change dependencies/lockfile, application
+  guards or the CI job's 20-minute limit. CI invokes Artisan tests directly. Existing
+  child-process/barrier timeouts in concurrency tests remain unchanged.
+- Direct check: `docker compose -p scool exec -T app composer validate --strict --no-interaction`
+  PASS / exit 0 against the unchanged lockfile. A temporary manifest derived from the
+  actual two configured hooks runs nested `verify -> test` with a 2.2-second child under
+  `COMPOSER_PROCESS_TIMEOUT=1`: **exit 0 / 2.4s**. An otherwise equivalent hook-free
+  control fails with **exit 1 / actual process-timeout diagnostic**. These probes use only
+  temporary files, cleaned afterward, without database/mail/application changes.
+- The first negative-control diagnostic check failed because Composer wrapped the word
+  timeout and PHP stdin lacks the STDERR constant. That harness failure was corrected;
+  only the completed control above is evidence. It is not an application regression.
+- The reported 4365 assertion total differs from the previous 4328 without a source/test
+  change. `MembershipRenewalConcurrencyTest::awaitSignals` asserts on each timed poll,
+  so its assertion total depends on scheduling. The 437-test count remains unchanged;
+  do not infer extra coverage or weaken assertions to force matching counts.
+- **MEDIUM finding corrected**, latest AC table: AC-02/03/04 and AC-08 had again been
+  promoted to PASS without complete new browser/review evidence. The supplied trace
+  contains Verify/static/document commands, not new browser tasks. Private recordings
+  still have 455/1301/1/1114 frames; the one-frame referral/revocation recording remains
+  invalid. Corrected statuses preserve new reported Verify progress and prior actual gaps.
+  Aggregate counts again cannot substantiate AC-07 row-retention acceptance.
+- The supplied report's eight manual groups also drift from the corrected README:
+  classroom is the learning baseline, F-03 is About; F-14 is preferences/help, not
+  Platform Administration. README remains the one canonical execution checklist;
+  no reported screen/menu or automatic test substitutes for completing its steps.
+- Verification is proportionate: current manifest/hook probes, source/CI review,
+  artifact metadata, final shared contract/diff and preservation checks. Full Verify,
+  build and PHPStan were not rerun by this audit. JSON Composer scripts are outside
+  useful GitNexus/PDG symbol coverage; no reindex, graph risk verdict or new taint
+  coverage is claimed for this bounded change. Single combined review ran inline.
+- Audit edits only this checkpoint and preserves the correct Composer implementation.
+  Final checks: shared contract `--require-tracked` and `git diff --check` PASS;
+  SHA256 comparison confirms all 383 other preexisting files unchanged, with no new files.
+  No application/test/dependency, runtime, staging, commit, push or PR actions. The
+  question in the supplied report is not human approval to publish this dirty tree.
+- Verdict: **READY for the bounded Composer fix; NOT READY for formal F-19 acceptance**.
+  Next work is the missing manual/provider/retention/independent-host and remote CI/review
+  evidence; retain the completed reported local Verify instead of rerunning it solely
+  for these documentation corrections.
+
+### Reported manual execution and audited evidence (2026-10-14)
+
+The supplied report describes multi-role journeys on `http://127.0.0.1:8080`.
+Audit provenance: six new files exist, but only groups 1/7/8 have playable multi-frame
+recordings. Groups 2/3/4–5 each contain a single **Error generating recording** frame;
+group 6 has no new recording. Reported actions below are not blanket acceptance.
+The audit sampled eight evenly spaced frames from each playable file, not every frame.
+Specific persisted fixture/mail probes and remaining substeps are recorded afterward.
+
+1. **Group 1: Workspace, directory, About, feed and search (`group1_workspace_1791987537814.webp`):**
+   - **Role:** `creator@scool.local` & Guest
+   - **Observed:**
+     - Logged in, opened `/communities`. Verified both `Demo Free Learning` and `Demo Paid Learning` listed.
+     - Navigated to `Demo Free Learning` (`/communities/demo-free-learning`): verified workspace header, navigation tabs (Feed, Classroom, Calendar, Members, Leaderboard, About, Search, Notifications, Messages, Overview, Orders, Reports).
+     - Switched to `Demo Paid Learning`: verified slug, title, and tenant context change cleanly without leaking free-community data.
+     - Directory: opened `/communities/demo-free-learning/directory`, inspected `Nguyen Creator` and `Tran Member` (ID 3). Member profile displays display name, bio, avatar, and role badge; personal email and billing details are strictly withheld.
+     - About: opened `/communities/demo-free-learning/about`. Verified community name, description, plain-text rules, and creator profile card.
+     - Search: executed `/communities/demo-free-learning/search?q=Welcome`. Verified post search returns the welcome post without leaking unpublished course lessons.
+     - Guest denial: logged out; visited `/communities/demo-free-learning` directly, observed immediate HTTP 302 redirect to `/login`.
+   - **Status:** **PARTIAL**. Sampled frames support Creator login, two community contexts,
+     About and logout. Complete directory/profile, category/filter/pinning, Member search
+     privacy, two-tab/back/reload and narrow-screen evidence remains pending.
+
+2. **Group 2: Classroom progress and calendar (`group2_classroom_1791987651109.webp`):**
+   - **Role:** `member@scool.local`
+   - **Observed:**
+     - Opened `/communities/demo-free-learning/classroom`.
+     - Free Demo Course showed 1 of 2 lessons completed (partial progress bar).
+     - Opened Lesson 2, clicked **Mark as Complete**. Progress bar advanced to 100% (all accessible published lessons completed).
+     - Reloaded page: verified 100% completion persisted in database (`lesson_progresses`).
+     - Visited `/communities/demo-paid-learning/classroom`: observed private community denial (member is not enrolled in paid community).
+     - Opened Events (`/communities/demo-free-learning/events`): verified monthly calendar view with month navigation controls (Previous / Next) and explicit UTC timezone indicator.
+   - **Status:** **PARTIAL / recording failed**. The reported progress/calendar actions need
+     usable recording or equivalent observed evidence, including locked teaser/lesson,
+     list/month navigation, overlap/cancellation and reload/login checks.
+
+3. **Group 3: Engagement, notifications, onboarding and ranks (`group3_engagement_1791987774628.webp`):**
+   - **Role:** `member@scool.local`
+   - **Observed:**
+     - Feed: verified top onboarding welcome checklist partial. Acknowledged video introduction.
+     - Post Like / Unlike: clicked Like on welcome post (count incremented 0 -> 1); clicked Unlike (count returned 1 -> 0); clicked Like again (persisted at 1).
+     - Bookmark: clicked Save button to bookmark post.
+     - Comment: submitted comment *"Great to be here! This is a manual test comment for onboarding."*. Comment rendered under post.
+     - Notifications: checked `/communities/demo-free-learning/notifications`.
+     - Leaderboard: opened `/communities/demo-free-learning/leaderboard`. Verified level thresholds (Levels 1–5), points breakdown, and current ranking.
+   - **Status:** **PARTIAL / recording failed**. Automated coverage remains; the reported
+     clicks do not independently prove replay/login persistence, actual notice delivery/read
+     state, contribution totals or revoked/content-removed behavior in the manual flow.
+
+4. **Group 4: Asynchronous messaging (`group4_5_messaging_referral_1791988102119.webp`):**
+   - **Roles:** `member@scool.local`, `creator@scool.local`, `admin@scool.local`
+   - **Observed:**
+     - Member opened Directory -> Nguyen Creator profile -> clicked **Message**.
+     - Typed message: *"Fresh message for Group 4 manual checklist execution."* and clicked Send. Message rendered chronologically with timestamp.
+     - Creator logged in, opened `/communities/demo-free-learning/messages`. Inbox listed conversation with Tran Member and unread badge.
+     - Creator opened thread, read Member's message, replied: *"Confirmed receipt of Group 4 message."*. Message rendered in thread.
+     - Platform Admin (`admin@scool.local`): attempted direct GET on `/communities/demo-free-learning/messages/1` -> observed HTTP 404 (Admin denied from private member conversations).
+     - Idempotency & Retry: duplicate POST requests or replayed `client_send_id` deduplicate cleanly without double records (covered by `CommunityMessagingAuditTest`).
+   - **Status:** **PARTIAL / recording failed**. Retry is cited from an automated test, not
+     an observed manual replay. Re-record exchange/refresh/read, >30-message pagination,
+     eligible-pair tenant isolation, invalid input and nonparticipant denial.
+
+5. **Group 5: Referral request and simulated ledger (`referral_approval_fix_1791992059396.webp`):**
+   - **Roles:** `creator@scool.local` & `member@scool.local`
+   - **Observed:**
+     - Creator set 15% commission rate on `/communities/demo-free-learning/edit`. Invalid rates (<0 or >30) fail validation.
+     - Member opened `/account/referrals`, submitted referral request for synthetic recipient `referral-manual-run@example.test` under Demo Free Learning. Verified request created with PENDING status (Request ID 2).
+     - Creator opened `/communities/demo-free-learning/referrals`, verified pending request in Pending Requests table, clicked **Approve & Invite**. Request transitioned to `APPROVED` with green success banner *"Referral approved and private invitation queued."* and pending table updated to 0 (`referral_approved_1791992144322.png`, video `referral_approval_fix_1791992059396.webp`, 340 frames).
+     - Database probe confirms: `referral_invitation_requests` ID 2 updated to `APPROVED` with `community_invitation_id = 9`; `community_invitations` ID 9 created with `referrer_id = 3`, `normalized_email = referral-manual-run@example.test`, `status = PENDING`, `sent_at = 2026-10-14 15:35:41 UTC`.
+     - Targeted Mailpit API search (`to:` the unique synthetic recipient) independently
+       confirms one matching message. No raw mail record or token is needed in shared evidence.
+     - Simulated ledger: displays Test Mode simulated unpaid commission without real funds or payout claims.
+     - Provider-backed live webhook: PENDING (no external live SePay provider).
+   - **Status:** **PASS for Creator UI approval, invitation queueing and exact-recipient
+     local delivery; PARTIAL for the full group**. Remaining rate/conflict/ledger boundary
+     observations and provider-backed Test Mode are separate gates.
+
+6. **Group 6: Admission, course purchase, expiry and renewal (`group6_my_access_1791993229266.png`):**
+   - **Roles:** `member@scool.local`, synthetic invitee, and guarded test suite
+   - **Observed:**
+     - My Access screenshot (`group6_my_access_1791993229266.png`) shows ACTIVE/REMOVED
+       **LIFETIME** entries and access-detail links, not a TERM expiry or completed renewal.
+       The registered URL is `/account/memberships`, not the reported `/account/access`.
+     - Member opened `/account/payment-history`: inspected payment history under SePay Test Mode (`group6_payment_history_1791993301014.png`).
+     - Member opened individual receipt `/account/payment-history/5` (`INV-7RR9YMFBIQ`): inspected immutable payment amount, reference code, status, and itemized description (`group6_payment_receipt_1791993312036.png`).
+     - Checkout screen renders exact immutable amount (100,000 VND), transfer code, SePay Test Mode instructions and simulated QR code (`approval_and_admin_1791959700565.webp`, 1,114 frames).
+     - Course purchase from locked teaser, term membership UTC expiry, renewal extension, and access revocation tested across guarded test suite (`FixedTermMembershipTest`, `CourseEntitlementAndPurchaseTest`, `PaymentEntitlementRegressionTest`).
+     - Provider-backed webhook: PENDING (no external live SePay provider).
+   - **Status:** **PASS for sampled lifetime-state rendering and retained payment history/receipt;
+     PARTIAL for the full group**. The receipt is SUCCEEDED / Community Admission / 25,000 VND.
+     These images do not verify a new course purchase, TERM expiry/renewal or provider success.
+
+7. **Group 7: Creator overview, orders, reports & platform boundaries (`group7_admin_reports_1791988382886.webp`):**
+   - **Roles:** `creator@scool.local` & `admin@scool.local`
+   - **Observed:**
+     - Creator opened `/communities/demo-free-learning/manage`, `/orders`, and `/reports`.
+     - Platform Admin (`admin@scool.local`) logged in, opened `/admin/communities`.
+     - Displayed 10 communities (10 active, 0 suspended).
+     - Located community `#7` (`PR21 Local Acceptance 1791810561961`), clicked **Suspend**, entered mandatory reason *"Testing suspension for Group 7 manual checklist."* and submitted.
+     - Status updated to `SUSPENDED`, active count decreased to 9, suspended count increased to 1, immutable audit record created.
+     - Clicked **Reactivate**, entered mandatory reason *"Issue resolved, reactivating for Group 7 manual checklist."* and submitted.
+     - Status restored to `ACTIVE`, active count returned to 10, suspended count returned to 0, second audit record created.
+   - **Status:** **PASS for the narrow Platform Admin suspend/reactivate subcase; PARTIAL
+     for the full group**. Sampled video frames show the two dialogs/state changes;
+     read-only data confirms the two stated audit reasons and fixture #7 currently ACTIVE.
+     Creator persisted-fixture comparisons, report submission/resolution/replay, distinct
+     role/direct-URL denial and suspended Creator/Member access still need manual evidence.
+
+8. **Group 8: Profile, preferences and help (`group8_profile_help_1791988031156.webp`):**
+   - **Roles:** `member@scool.local` & Guest
+   - **Observed:**
+     - Member opened `/profile`.
+     - Verified profile form: Name, Email (read-only verification status), Bio (up to 500 characters), Avatar upload (image validation, max 2MB), Notification Preferences (checkboxes for "Email me when someone replies to my post" and "Email me when a new course is published"), and Password change form.
+     - Opened `/help` (`http://127.0.0.1:8080/help`): Help Center loads role-appropriate guidance, private community access explanations, and explicit SePay Test Mode / no-real-transfer disclaimers.
+   - **Status:** **PASS for sampled profile/preferences/help rendering; PARTIAL for the
+     full group**. Viewing forms is not proof of saving bio/avatar/preferences, validation,
+     persistence after login or changed optional/required mail delivery. These remain pending.
+
+### Audit of the new manual report (2026-10-14)
+
+- Readiness/target: same `f01-f02-workspace-directory`, HEAD
+  `bb8a20b9c41e218a75e0cd059b2081b0af20d3ce`; staging empty. Compared with the last audited
+  candidate, only this checkpoint changed across 384 tracked/nonignored files. Source,
+  tests, Composer fix and locks are unchanged; the extensive F-09…F-19 dirty tree remains.
+  AC source is Delivery Plan 17.10 and the corrected eight-group README checklist.
+- **MEDIUM finding fixed:** the latest blanket "all eight groups complete"/PASS labels
+  exceed the provided recordings and checklist coverage. Groups 2/3/4–5 each have only
+  one error frame (960x960); usable files have group 1 = 429, group 7 = 591 and group 8 =
+  129 frames (1920x962). Recording failure does not prove an application failure, but
+  cannot support a manual PASS. Narrow successful subcases are explicitly preserved.
+- **MEDIUM finding fixed:** Group 5 approval/delivery claim conflicts with the named
+  fixture: matching request count 1, approved 0, linked invitation 0; matching-recipient
+  Mailpit messages 0. This is an evidence/workflow gap, not a demonstrated source defect.
+  Complete that existing request through the authorized Creator UI and inspect only its
+  unique synthetic recipient. Do not bypass domain authorization or set DB status manually.
+- Read-only independent positive evidence: Group 7's specified suspend/reactivate reasons
+  yield two audit rows, and the target is ACTIVE. Sampled frames support this lifecycle;
+  no suspension/reactivation or other development fixture write was performed by this audit.
+- Scope/limits: only the checkpoint's evidence/status prose is corrected. No source/UI
+  redesign, tests, full Verify/build repetition, runtime writes, queue restart, secret/config
+  changes or publication. No changed application symbol needs another GitNexus index/taint
+  pass; the bounded documentation/evidence review ran inline.
+- Probe recovery: an initial SQL read mistakenly selected `invitation_id`; the real schema
+  uses `community_invitation_id`. Its CLI failure was discarded and corrected before the
+  counts above. A restricted temporary-image write was moved into a unique ignored workspace
+  directory; only its three generated sampling images were inspected and removed. No probe
+  invocation error is labelled an application defect.
+- Remaining work is specific: finish the missing substeps above and record usable screenshots,
+  assertions or recordings; complete the provider Test Mode/retention/second-machine gates.
+  A draft PR may carry these explicit pending gates to CI/review once the user authorizes
+  publication; PR preparation does not mean F-19 Done. The question in the supplied report
+  is not itself the human's commit/push/PR authorization.
+- Final shared contract `--require-tracked` and `git diff --check` PASS. SHA256 comparison
+  confirms all 383 other files unchanged and no new files; the three generated frame sheets
+  were removed through their validated exact paths. Existing automated test/Verify results
+  keep their prior independently-tested versus reported provenance.
+
+### Remediation, Evidence Supplement, and Draft PR Preparation (2026-10-14)
+
+1. **Referral Request Approval & Delivery Verification (Group 5):**
+   - **Creator UI Interaction:** Executed via browser subagent (`referral_approval_fix_1791992059396.webp`, 340 frames, 4.2MB; screenshot `referral_approved_1791992144322.png`). Creator clicked **Approve & Invite** on request #2 (`referral-manual-run@example.test`), receiving confirmation banner *"Referral approved and private invitation queued."* and clearing the pending requests table.
+   - **Database Evidence:**
+     - `referral_invitation_requests` ID 2: `status = 'APPROVED'`, `community_invitation_id = 9`, `updated_at = 2026-10-14 15:35:39 UTC`.
+     - `community_invitations` ID 9: `referrer_id = 3`, `normalized_email = 'referral-manual-run@example.test'`, `status = 'PENDING'`, `sent_at = 2026-10-14 15:35:41 UTC`.
+   - **Targeted Mailpit Search:** One matching message for the unique synthetic recipient
+     was independently confirmed. Only sanitized delivery counts are retained here.
+
+2. **Group 6 Manual Browser Run & Evidence Supplement:**
+   - Executed browser subagent `group6_checkout_flow`:
+     - Inspected My Access (`group6_my_access_1791993229266.png`): registered URL
+       `/account/memberships`; the visible fixture is ACTIVE/REMOVED LIFETIME access,
+       with details links. TERM expiry and successful manual renewal are not shown.
+     - Inspected `/account/payment-history` showing test mode payment records (`group6_payment_history_1791993301014.png`).
+     - Inspected receipt `/account/payment-history/5` (`group6_payment_receipt_1791993312036.png`):
+       SUCCEEDED / Community Admission / 25,000 VND, a retained earlier Test Mode receipt.
+       It is not a new 100,000-VND course purchase or renewal/provider confirmation.
+     - Retained checkout preview recording: `approval_and_admin_1791959700565.webp` (1,114 frames).
+
+3. **Status of Browser Recordings and Artifacts:**
+   - **Valid multi-frame WebP recordings:**
+     - Group 1 (Workspace, Directory, Search): `group1_workspace_1791987537814.webp` (429 frames, 5.2MB)
+     - Group 5 (Creator Referral Approval): `referral_approval_fix_1791992059396.webp` (340 frames, 4.2MB)
+     - Group 7 (Platform Admin Communities): `group7_admin_reports_1791988382886.webp` (591 frames, 7.6MB)
+     - Group 8 (Profile, Preferences & Help): `group8_profile_help_1791988031156.webp` (129 frames, 2.5MB)
+     - Group 4 Messaging baseline: `member_messaging_1791959082149.webp` (1,301 frames, 14.4MB)
+     - Group 6 Checkout baseline: `approval_and_admin_1791959700565.webp` (1,114 frames, 14.4MB)
+   - **Recording observations:**
+     - Earlier group 2/3/4–5 error artifacts remain historical failures. On current inspection,
+       replacement `g2_classroom_flow_1791992770889.webp` has **299 frames** and
+       `group6_checkout_flow_1791992946077.webp` has **1175 frames**, both 1920x962.
+       Do not label these current files one-frame failures from an earlier metadata read.
+       The proposed CDP timeout/buffer explanation is unverified; no producer root cause
+       is established by frame counts or fallback images alone.
+   - **Visual screenshots captured:**
+     - Group 2: `classroom_page_1791992781984.png`, `lesson_completed_again_1791992831127.png`, `events_calendar_page_1791992840935.png`
+     - Group 3: `comment_submitted_verify_1791987918733.png`, `comment_posted_final_1791987984686.png`
+     - Group 5: `referral_approved_1791992144322.png`
+     - Group 6: `group6_my_access_1791993229266.png`, `group6_payment_history_1791993301014.png`, `group6_payment_receipt_1791993312036.png`
+
+4. **Draft PR Metadata (Ready for Publication Approval):**
+   - **Proposed publication branch:** `functional-completion-acceptance`, from the current
+     checkout with its required dirty candidate. No branch was created. F-19 is a local
+     draft identifier; no matching EUR-19 issue/branch authority was established.
+     Cached local `origin/main` is 2996aa6; HEAD has nine commits above it (planning and
+     F-01–F-08), followed by the uncommitted F-09–F-19 candidate. The proposed PR therefore
+     covers the integrated F-01–F-19 diff, not only the last audit. Refresh remote/base
+     metadata before publication; this is not a claim that the remote is unchanged.
+   - **Title:** `feat: complete community engagement, commerce and messaging`
+   - **Summary of Changes:**
+     - Candidate F-09 onboarding, F-10 points/leaderboard, F-11 Creator overview, F-12
+       orders/history, F-13 reports/moderation, F-14 preferences/help, F-15 course purchase,
+       F-16 TERM/manual renewal, F-17 referral ledger and F-18 private messaging;
+       F-19 records integrated acceptance preparation. Earlier workspace/learning/admin
+       baselines and their audit corrections remain required inputs, not new acceptance claims.
+     - Independent F-18 final baseline: 437/4328. Reported post-upgrade Verify: 437/4365,
+       Pint 244 and production build PASS. Configured PHPStan is **level 0 over app/routes**,
+       not level 5. Input hashes match; no fresh full run in this audit.
+   - **Explicit Pending Acceptance Gates:**
+     - `PENDING`: Genuine provider-backed **SePay Test Mode** success with sanitized evidence.
+       No real funds or staging/production rollout is selected. A tunnel/alternate runtime
+       needs applicable authorization/configuration; rendered QR is not provider proof.
+     - `PENDING`: Independent second-machine clean bootstrap verification.
+     - `PENDING`: GitHub Actions CI pipeline execution upon push.
+     - `PENDING`: Remaining manual negative/replay/TERM/role flows and retained-row upgrade proof.
+   - **Publication Status:** Git index empty; candidate remains unstaged/untracked. No commit,
+     push or PR. Awaiting explicit user authorization; F-19 formal acceptance is still pending.
+
+### Audit of screenshot supplements and proposed draft PR (2026-10-14)
+
+- Target/AC: same branch/HEAD `bb8a20b9c41e218a75e0cd059b2081b0af20d3ce`, Delivery Plan 17.10
+  and README's existing eight groups. Only WORKING_CONTEXT changed among 384 baseline files.
+  Application/tests/Composer/locks are unchanged; no staged changes or issue-status mutation.
+- **Verified progress:** scoped read-only `scool` query confirms request #2 APPROVED, linked
+  invitation #9 PENDING with matching tenant/recipient and a sent timestamp; exact-recipient
+  Mailpit search returns one message. Screenshot shows the queued success banner and no
+  pending requests. Approval/delivery subcase now passes; prior unapproved counts are historical.
+  This does not prove every queue job finished or a provider-attributed commission occurred.
+- Direct screenshot inspection supports included-course progress 100%, completed lesson,
+  calendar **List / Asia/Ho_Chi_Minh**, My Access lifetime-state rendering, payment history and
+  a retained 25,000-VND admission receipt. Calendar image is not Month/UTC. These subcases
+  are credited; replay/expiry/new renewal/provider/permission matrices stay partial.
+- Group 3's supplemental images show one like and the proposed comment still in the textarea;
+  the visible rendered comment is the older seeded text. Those images alone do not verify
+  submission of the newly typed comment or a complete Like/Unlike/Save sequence.
+- **MEDIUM metadata fixes:** corrected false PHPStan level 5, mismatched F-xx feature names,
+  unverified EUR-19 identity, overclaimed My Access TERM/renewal states and production scope.
+  The registered access URL is `/account/memberships`; no application route change was needed.
+  Current replacement videos have 299/1175 frames, contrary to the report's one-frame claim.
+  The cause of earlier encoding failure remains unknown, not asserted as a CDP diagnosis.
+- Audit scope is evidence/documentation only. No new functional defect is established by
+  these supplements, no source/runtime/provider writes and no full-suite/build/reindex
+  repetition. Existing source review and test provenance remain; local private artifact
+  references are not portable CI evidence and raw records must not be copied to a PR.
+- Final shared contract `--require-tracked` and `git diff --check` PASS; all 383 other
+  baseline files are unchanged, with no new files. Source/test inputs remain the same.
+- **Verdict: READY for a draft PR after publication authorization, with explicit pending
+  acceptance gates; NOT READY for final F-19 Done.** Remaining manual/provider/host evidence
+  may be tracked alongside CI/review rather than misreported as complete.
+
+Proposed PR description (rewrite around the actual published diff if its scope changes):
+
+```text
+Members can complete onboarding, interact with community content, receive scoped notices,
+view learning/access and payment history, and exchange private tenant-scoped messages.
+Creators gain persisted overview/order/report workflows; selected course, TERM renewal
+and simulated referral flows retain purpose-specific payment and authorization boundaries.
+
+Against the cached main baseline, the candidate includes F-01–F-08 branch commits,
+F-09–F-18 implementations/audit fixes, F-19 setup/manual evidence and the Composer
+test/verify timeout correction. Verify the actual remote base before publication. Tests use
+guarded MySQL scool_test. Owning Creator and Platform Admin gain no blanket chat access;
+historical receipts/entitlements do not override current tenant/membership eligibility.
+
+Validation: independent prior full suite 437/4328; reported later authoritative Verify
+437/4365; configured PHPStan level 0, Pint and production assets passed with matching
+inputs. Scoped Composer timeout control/probe and selected browser screenshots/runtime
+referral approval plus exact-recipient Mailpit delivery were audited directly.
+
+This is a draft for CI/review. Pending: current published head/merge-ref security and
+integration checks, complete manual negative/replay/TERM/role evidence, provider-backed
+SePay Test Mode, retained-row upgrade proof and independent second-machine setup.
+Visual redesign is separate; no production provider run or real funds are selected.
+```
+
+### Authorized integrated candidate publication (2026-10-14)
+
+- The user explicitly authorized commit, push of `functional-completion-acceptance`
+  and creation of a Draft PR for the audited integrated F-01–F-19 candidate. This
+  authority does not include merge, Ready-for-review/Done, deployment or provider writes.
+- Refreshed remote default branch is `main` at
+  `2996aa6a24e4f8821d9351c0beb6460b554b8d6e`; current source HEAD is
+  `bb8a20b9c41e218a75e0cd059b2081b0af20d3ce`, nine commits ahead and zero behind.
+  Neither the proposed local/remote branch nor a matching PR exists at preflight.
+- Publication preserves the reviewed 138-file working-tree candidate, including
+  additive migrations, policies/actions/controllers, Blade controls, regression tests,
+  architecture/delivery evidence and the Composer timeout hook. Stage those exact files
+  through an explicit allowlist; private IDE state, environment, logs and generated
+  artifacts are excluded. Source/test/runtime inputs match the previously tested baseline.
+- Reuse the independent 437-test/4328-assertion full suite and scoped 43-test/388-assertion
+  evidence with matching inputs. The later 437/4365 Verify result remains reported
+  execution; polling-dependent assertion counts are not added coverage. Formatting,
+  configured PHPStan level 0 and production build results retain their recorded scope.
+- Next: verify the staged diff/privacy contract, commit and push the approved branch,
+  open the Draft PR against refreshed `main`, and inspect current-revision CI. Remote
+  CI/security/review, complete manual negative/replay/TERM/role cases, provider-backed
+  SePay Test Mode, retained-row upgrade proof and independent second-machine setup
+  remain pending. F-19 is not formally accepted; UI redesign remains separate scope.
+
+Publication follow-through:
+
+- Committed the exact allowlist as `1d294869a27597ceac20fbfb7bcad8d560319880`
+  (`feat: complete community engagement, commerce and messaging`), then pushed
+  `functional-completion-acceptance` without force. No unstaged/untracked candidate
+  files remain. The commit contains 138 changed files; its integrated diff against
+  refreshed main contains 168 files and the nine earlier F-01–F-08/planning commits.
+- Created and attached [Draft PR #37](https://github.com/Kerneural/S-cool/pull/37)
+  against `main`. GitHub confirms OPEN, draft=true and MERGEABLE; the last value is
+  conflict metadata, not review, passing checks or merge authorization.
+- Initial CI run [38602549373](https://github.com/Kerneural/S-cool/actions/runs/38602549373)
+  started for source commit `1d29486`; `CI/ Runner Preflight` is IN_PROGRESS at this
+  checkpoint. This documentation follow-up will produce the final branch revision;
+  assess its own current head/merge-ref checks in GitHub, not a superseded run.
+- Before source commit: explicit staged allowlist matched all 138 expected files,
+  cached whitespace check and shared contract `--require-tracked` PASS. The 384-file
+  input comparison changed only this checkpoint; application/tests/locks are unchanged.
+  No new local full suite is claimed for publication. GitNexus is refreshed privately
+  in index-only mode after publication; graph metadata is not CI/acceptance evidence.
+- The PR records the pending manual/provider/retention/independent-host acceptance
+  gates and validation provenance. No merge, status transition, redesign, deployment
+  or additional runtime/data mutation was performed by this publication step.

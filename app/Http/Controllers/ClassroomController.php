@@ -15,7 +15,7 @@ class ClassroomController extends Controller
 
         $user = $request->user();
         $isCreator = $community->isCreator($user);
-        $isActiveMember = $community->memberships()->where('user_id', $user->id)->where('status', 'ACTIVE')->exists();
+        $isActiveMember = $community->memberships()->where('user_id', $user->id)->effective()->exists();
 
         $coursesQuery = $community->courses()->ordered();
 

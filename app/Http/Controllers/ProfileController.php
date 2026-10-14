@@ -9,8 +9,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class ProfileController extends Controller
 {
@@ -29,15 +31,92 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $validated = $request->validated();
+        $user = $request->user();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        $disk = Storage::disk('local');
+        $newAvatarPath = null;
+        $oldAvatarPath = $user->avatar_path;
+
+        if ($request->hasFile('avatar')) {
+            $newAvatarPath = $request->file('avatar')->store('avatars', 'local');
+            if (! is_string($newAvatarPath)) {
+                throw new \RuntimeException('Avatar storage failed.');
+            }
+            $validated['avatar_path'] = $newAvatarPath;
         }
 
-        $request->user()->save();
+        try {
+            DB::transaction(function () use ($user, $validated): void {
+                $user->fill($validated);
+
+                if ($user->isDirty('email')) {
+                    $user->email_verified_at = null;
+                }
+
+                $user->save();
+            });
+        } catch (\Throwable $exception) {
+            if (is_string($newAvatarPath) && $disk->exists($newAvatarPath)) {
+                $disk->delete($newAvatarPath);
+            }
+            throw $exception;
+        }
+
+        if (is_string($newAvatarPath) && is_string($oldAvatarPath) && $disk->exists($oldAvatarPath)) {
+            $disk->delete($oldAvatarPath);
+        }
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    }
+
+    /**
+     * Update user notification preferences (F-14).
+     */
+    public function updateNotifications(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'notify_replies' => ['nullable', 'boolean'],
+            'notify_courses' => ['nullable', 'boolean'],
+        ]);
+
+        $user = $request->user();
+        $user->notify_replies = $request->boolean('notify_replies');
+        $user->notify_courses = $request->boolean('notify_courses');
+        $user->save();
+
+        return Redirect::route('profile.edit')->with('status', 'notification-preferences-updated');
+    }
+
+    /**
+     * Stream or display the authenticated user's avatar.
+     */
+    public function avatar(Request $request): SymfonyResponse
+    {
+        $user = $request->user();
+        $path = $user?->avatar_path;
+        $disk = Storage::disk('local');
+
+        if (is_string($path) && preg_match('/\Aavatars\/[a-zA-Z0-9_\-\.]+\.(?:jpg|jpeg|png|webp)\z/D', $path) === 1 && $disk->exists($path)) {
+            $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+            $mime = in_array($extension, ['jpg', 'jpeg'], true) ? 'image/jpeg' : 'image/'.$extension;
+
+            return $disk->response($path, 'avatar.'.$extension, [
+                'Content-Type' => $mime,
+                'Cache-Control' => 'private, no-store',
+                'X-Content-Type-Options' => 'nosniff',
+            ], 'inline');
+        }
+
+        return response(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>',
+            200,
+            [
+                'Content-Type' => 'image/svg+xml',
+                'Cache-Control' => 'private, no-store',
+                'X-Content-Type-Options' => 'nosniff',
+            ]
+        );
     }
 
     /**

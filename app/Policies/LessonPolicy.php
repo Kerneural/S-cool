@@ -29,7 +29,11 @@ class LessonPolicy
 
         // Active members require BOTH course and lesson to be PUBLISHED
         if ($course->isPublished() && $lesson->isPublished()
-            && $community->memberships()->where('user_id', $user->id)->where('status', 'ACTIVE')->exists()) {
+            && $community->memberships()->where('user_id', $user->id)->effective()->exists()) {
+            if ($course->isOneTime() && ! $course->isEntitledFor($user)) {
+                return Response::denyAsNotFound();
+            }
+
             return Response::allow();
         }
 
@@ -85,13 +89,6 @@ class LessonPolicy
             return Response::denyAsNotFound();
         }
 
-        $isActiveMember = $community->memberships()
-            ->where('user_id', $user->id)
-            ->where('status', 'ACTIVE')
-            ->exists();
-
-        return $isActiveMember
-            ? Response::allow()
-            : Response::denyAsNotFound();
+        return $course->hasMemberAccess($user) ? Response::allow() : Response::denyAsNotFound();
     }
 }

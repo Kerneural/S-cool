@@ -1,14 +1,10 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Edit Community: ') }} {{ $community->name }}
-        </h2>
-    </x-slot>
-
     <div class="py-12">
-        <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            <x-community-workspace :community="$community" active-tab="settings" />
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">{{ __('Edit Community: ') }} {{ $community->name }}</h3>
                     @if (session('status'))<p class="mb-4 text-green-700">{{ session('status') }}</p>@endif
                     <form method="POST" enctype="multipart/form-data" action="{{ route('communities.cover.store', $community) }}" class="mb-8 space-y-4 border-b pb-6">
                         @csrf
@@ -49,6 +45,53 @@
                             <x-input-label for="description" :value="__('Description')" />
                             <textarea id="description" name="description" rows="4" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('description', $community->description) }}</textarea>
                             <x-input-error class="mt-2" :messages="$errors->get('description')" />
+                        </div>
+
+                        <!-- Community Rules -->
+                        <div>
+                            <x-input-label for="rules" :value="__('Community Rules (max 5,000 characters)')" />
+                            <textarea id="rules" name="rules" rows="6" maxlength="5000" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('rules', $community->rules) }}</textarea>
+                            <x-input-error class="mt-2" :messages="$errors->get('rules')" />
+                            <p class="mt-1 text-xs text-gray-500">{{ __('Plain-text guidelines and rules visible to all community members.') }}</p>
+                        </div>
+
+                        <!-- Introduction Video URL -->
+                        <div>
+                            <x-input-label for="intro_video_url" :value="__('Introduction Video URL (YouTube or Vimeo)')" />
+                            <x-text-input id="intro_video_url" name="intro_video_url" type="url" class="mt-1 block w-full" :value="old('intro_video_url', $community->intro_video_url)" placeholder="https://www.youtube.com/watch?v=..." />
+                            <x-input-error class="mt-2" :messages="$errors->get('intro_video_url')" />
+                            <p class="mt-1 text-xs text-gray-500">{{ __('Optional video displayed on the community About page.') }}</p>
+                        </div>
+
+                        <!-- Onboarding Checklist Settings -->
+                        <div class="border-t border-gray-100 pt-5 space-y-4">
+                            <h3 class="text-sm font-semibold text-gray-800">{{ __('Member Onboarding Checklist') }}</h3>
+
+                            <div class="flex items-start">
+                                <div class="flex items-center h-5">
+                                    <input id="onboarding_enabled" name="onboarding_enabled" type="checkbox" value="1" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" {{ old('onboarding_enabled', $community->onboarding_enabled) ? 'checked' : '' }}>
+                                </div>
+                                <div class="ml-3 text-sm">
+                                    <label for="onboarding_enabled" class="font-medium text-gray-700">{{ __('Enable Welcome Checklist') }}</label>
+                                    <p class="text-xs text-gray-500">{{ __('Display a persistent welcome checklist to new members on the community feed.') }}</p>
+                                </div>
+                            </div>
+
+                            @if ($community->categories->isNotEmpty())
+                                <div>
+                                    <x-input-label for="introduction_category_id" :value="__('Designated Introductions Category')" />
+                                    <select id="introduction_category_id" name="introduction_category_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                                        <option value="">{{ __('-- Default (Category with slug "introductions") --') }}</option>
+                                        @foreach ($community->categories as $category)
+                                            <option value="{{ $category->id }}" {{ (int) old('introduction_category_id', $community->introduction_category_id) === $category->id ? 'selected' : '' }}>
+                                                {{ $category->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <x-input-error class="mt-2" :messages="$errors->get('introduction_category_id')" />
+                                    <p class="mt-1 text-xs text-gray-500">{{ __('Members will be guided to post in this category to complete their introduction task.') }}</p>
+                                </div>
+                            @endif
                         </div>
 
                         @include('communities.partials.access-pricing', ['community' => $community])

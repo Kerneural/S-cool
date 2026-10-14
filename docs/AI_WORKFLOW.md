@@ -12,6 +12,7 @@ This contract applies to all team members and IDE agents. The person accepting a
 | Product roles, golden flow and scope | `docs/01_PRODUCT_SCOPE.md` |
 | Domain, authorization, architecture and ADRs | `docs/02_DOMAIN_ARCHITECTURE.md` |
 | Delivery ownership, milestones and DoR/DoD | `docs/03_DELIVERY_PLAN.md` |
+| Visual tokens, component/interaction rules and UI acceptance | `design.md` |
 | Reproducible setup and operational commands | `README.md`, `scripts/`, `docker-compose.yml`, `docker/` |
 
 Do not create parallel roadmaps, specs, archives or memory files that duplicate these sources. Personal agent configuration and upstream caches are optional local tools, not shared runtime instructions.
@@ -115,6 +116,8 @@ These are historical observations, not a claim that every machine has these rest
 ## UI scope and conflict resolution
 
 These rules apply equally to implementation, audits and authorized fixes.
+
+- Read root `design.md` before UI work. It is the canonical design reference; adopt its target tokens/font only within an approved UI scope. Use optional UI/UX tooling as advice consistent with that document, not as authority to change product scope or generate competing design specifications. Current feature implementation remains functionality-first.
 
 - UI work is in scope when required by the issue outcome/AC or a reported UI defect: necessary controls, state indicators, validation/error feedback and usable responsive behavior. Use existing layouts, components and styling conventions; a functional issue is not blanket permission to redesign its screens.
 - During an authorized audit-and-fix workflow, correct confirmed in-scope defects without repeated approval requests, including minimal shared-component fixes that preserve appearance, public contracts and security boundaries. Verify affected consumers and report the impact. Scope expansion, redesign, dependencies, destructive/data operations, privilege changes and publication still require their applicable authorization.

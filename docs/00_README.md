@@ -6,8 +6,10 @@
 - [Product Scope](01_PRODUCT_SCOPE.md): problem, actors, golden flow, MVP and exclusions.
 - [Domain & Architecture](02_DOMAIN_ARCHITECTURE.md): domain model, tenancy, authorization, workflows and ADRs.
 - [Delivery Plan](03_DELIVERY_PLAN.md): milestones, slices, ownership and acceptance gates.
+- [Functional completion handoff](03_DELIVERY_PLAN.md#17-functional-completion-release--implementation-handoff): mentor-reference coverage, ordered issue drafts, contracts and verification; part of the canonical Delivery Plan, not a separate progress tracker.
 - [README](../README.md) and checked-in runtime scripts/configuration: reproducible setup and operations.
 - [AI workflow](AI_WORKFLOW.md): tool-neutral working rules.
+- [Design system](../design.md): shared visual/interaction direction, component rules, UI/UX reference integration and rendered acceptance; design adoption remains a scoped UI change.
 - [Working context](WORKING_CONTEXT.md): issue-specific technical plans and checkpoints, not authoritative progress.
 
 Root `AGENTS.md` routes agents to the shared contract. Linear owns delivery status and assignments; Git/GitHub owns code/review/CI evidence. Personal IDE configuration, upstream caches and the local operations notebook are ignored, optional and never prerequisites for teammates.

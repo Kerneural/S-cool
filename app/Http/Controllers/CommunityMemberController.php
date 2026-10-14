@@ -30,7 +30,7 @@ class CommunityMemberController extends Controller
             'memberships' => $memberships,
             'counts' => [
                 'total' => $community->memberships()->count(),
-                'active' => $community->memberships()->where('status', 'ACTIVE')->count(),
+                'active' => $community->memberships()->effective()->count(),
                 'suspended' => $community->memberships()->where('status', 'SUSPENDED')->count(),
                 'removed' => $community->memberships()->where('status', 'REMOVED')->count(),
             ],

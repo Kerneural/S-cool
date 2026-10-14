@@ -38,6 +38,11 @@ class CommunityInvitation extends Model
         return $this->belongsTo(User::class, 'inviter_id');
     }
 
+    public function referrer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'referrer_id');
+    }
+
     public function isPending(): bool
     {
         return $this->status === 'PENDING' && $this->expires_at->isFuture();

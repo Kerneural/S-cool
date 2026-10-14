@@ -15,23 +15,43 @@ class Course extends Model
     /** @use HasFactory<CourseFactory> */
     use HasFactory;
 
+    public const ACCESS_MODE_INCLUDED = 'INCLUDED';
+
+    public const ACCESS_MODE_ONE_TIME = 'ONE_TIME';
+
     /**
      * @var list<string>
      */
     protected $fillable = [
         'title',
         'description',
+        'access_mode',
+        'price',
         'status',
         'order',
+        'published_revision',
     ];
 
     /**
      * @var array<string, mixed>
      */
     protected $attributes = [
+        'access_mode' => self::ACCESS_MODE_INCLUDED,
         'status' => 'DRAFT',
         'order' => 0,
+        'published_revision' => 0,
     ];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'price' => 'integer',
+            'published_revision' => 'integer',
+        ];
+    }
 
     public function community(): BelongsTo
     {
@@ -48,6 +68,16 @@ class Course extends Model
         return $this->hasManyThrough(Lesson::class, CourseSection::class);
     }
 
+    public function entitlements(): HasMany
+    {
+        return $this->hasMany(CourseEntitlement::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
     public function isPublished(): bool
     {
         return $this->status === 'PUBLISHED';
@@ -56,6 +86,52 @@ class Course extends Model
     public function isDraft(): bool
     {
         return $this->status === 'DRAFT';
+    }
+
+    public function isIncluded(): bool
+    {
+        return ($this->access_mode ?? self::ACCESS_MODE_INCLUDED) === self::ACCESS_MODE_INCLUDED;
+    }
+
+    public function isOneTime(): bool
+    {
+        return $this->access_mode === self::ACCESS_MODE_ONE_TIME;
+    }
+
+    public function formattedPrice(): string
+    {
+        return $this->price ? number_format($this->price, 0, ',', '.').' VND' : 'Included';
+    }
+
+    public function isEntitledFor(?User $user): bool
+    {
+        if ($user === null) {
+            return false;
+        }
+
+        if ($this->community && $this->community->isCreator($user)) {
+            return true;
+        }
+
+        if ($this->isIncluded()) {
+            return true;
+        }
+
+        return $this->entitlements()->where('user_id', $user->id)->exists();
+    }
+
+    public function hasMemberAccess(?User $user): bool
+    {
+        return $user !== null && $this->isPublished() && $this->community?->isActive()
+            && $this->community->isActiveMember($user) && $this->isEntitledFor($user);
+    }
+
+    public function scopeEntitledTo(Builder $query, User $user): Builder
+    {
+        return $query->where(function (Builder $query) use ($user): void {
+            $query->where('access_mode', self::ACCESS_MODE_INCLUDED)
+                ->orWhereHas('entitlements', fn ($entitlements) => $entitlements->where('user_id', $user->id));
+        });
     }
 
     public function publishedLessons(): HasManyThrough
