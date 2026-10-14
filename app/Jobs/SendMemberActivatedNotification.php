@@ -32,7 +32,7 @@ class SendMemberActivatedNotification implements ShouldQueue
         }
 
         $membership = CommunityMembership::query()->find($this->membershipId);
-        if (! $membership || $membership->status !== 'ACTIVE') {
+        if (! $membership || ! $membership->hasEffectiveAccess()) {
             return;
         }
 

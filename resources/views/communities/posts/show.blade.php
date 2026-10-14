@@ -86,6 +86,26 @@
                                 </button>
                             </form>
                         @endcan
+                        @if (auth()->check() && $community->hasAccess(auth()->user()))
+                            <div x-data="{ open: false }" class="relative">
+                                <button @click="open = !open" type="button" class="text-xs text-gray-400 hover:text-rose-600 font-medium">
+                                    {{ __('Report') }}
+                                </button>
+                                <div x-show="open" @click.outside="open = false" class="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-50 text-left" style="display: none;">
+                                    <form method="POST" action="{{ route('communities.reports.store', $community) }}">
+                                        @csrf
+                                        <input type="hidden" name="target_type" value="POST">
+                                        <input type="hidden" name="target_id" value="{{ $post->id }}">
+                                        <label class="block text-xs font-semibold text-gray-700 mb-1">{{ __('Report Post') }}</label>
+                                        <textarea name="reason" rows="3" required minlength="10" maxlength="1000" placeholder="{{ __('Reason for report (minimum 10 characters)...') }}" class="w-full text-xs border-gray-300 rounded p-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                                        <div class="mt-2 flex justify-end gap-2">
+                                            <button @click="open = false" type="button" class="px-2 py-1 text-xs text-gray-500 hover:text-gray-700">{{ __('Cancel') }}</button>
+                                            <button type="submit" class="px-2.5 py-1 text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium rounded">{{ __('Submit Report') }}</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
 
@@ -201,6 +221,26 @@
                                             </button>
                                         </form>
                                     @endcan
+                                    @if (auth()->check() && $community->hasAccess(auth()->user()))
+                                        <div x-data="{ open: false }" class="relative inline-block ml-2">
+                                            <button @click="open = !open" type="button" class="text-xs text-gray-400 hover:text-rose-600">
+                                                {{ __('Report') }}
+                                            </button>
+                                            <div x-show="open" @click.outside="open = false" class="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-50 text-left" style="display: none;">
+                                                <form method="POST" action="{{ route('communities.reports.store', $community) }}">
+                                                    @csrf
+                                                    <input type="hidden" name="target_type" value="COMMENT">
+                                                    <input type="hidden" name="target_id" value="{{ $comment->id }}">
+                                                    <label class="block text-xs font-semibold text-gray-700 mb-1">{{ __('Report Comment') }}</label>
+                                                    <textarea name="reason" rows="3" required minlength="10" maxlength="1000" placeholder="{{ __('Reason for report (minimum 10 characters)...') }}" class="w-full text-xs border-gray-300 rounded p-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                                                    <div class="mt-2 flex justify-end gap-2">
+                                                        <button @click="open = false" type="button" class="px-2 py-1 text-xs text-gray-500 hover:text-gray-700">{{ __('Cancel') }}</button>
+                                                        <button type="submit" class="px-2.5 py-1 text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium rounded">{{ __('Submit Report') }}</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
                                 <div class="text-sm text-gray-700 whitespace-pre-line leading-relaxed">
                                     {{ $comment->body }}

@@ -86,7 +86,7 @@ class SePayGateway implements PaymentGateway
         $rawContent = $payload['content'];
         $externalReference = '';
 
-        if (preg_match_all('/(?<![A-Z0-9_-])(INV-[A-Z0-9]{10})(?![A-Z0-9_-])/', $rawContent, $matches) === 1) {
+        if (preg_match_all('/(?<![A-Z0-9_-])((?:INV|CRS|RNW)-[A-Z0-9]{10})(?![A-Z0-9_-])/', $rawContent, $matches) === 1) {
             $externalReference = $matches[1][0];
         } else {
             throw ValidationException::withMessages(['content' => 'A single valid payment reference is required.']);

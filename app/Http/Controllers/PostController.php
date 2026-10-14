@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\CommunityContent\FeedMutation;
 use App\Models\Community;
+use App\Models\OnboardingStepCompletion;
 use App\Models\Post;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -110,7 +111,12 @@ class PostController extends Controller
 
         app(FeedMutation::class)->run($request->user(), $community, null, null, function (Community $current) use ($request, $validated): void {
             Gate::authorize('create', [Post::class, $current]);
-            $current->posts()->create(['user_id' => $request->user()->id, ...$validated]);
+            $post = $current->posts()->create(['user_id' => $request->user()->id, ...$validated]);
+
+            $introCategory = $current->getIntroductionCategory();
+            if ($introCategory && (int) $post->category_id === (int) $introCategory->id) {
+                OnboardingStepCompletion::markStep($current, $request->user(), 'post');
+            }
         });
 
         return redirect()->route('communities.posts.index', $community)->with('status', 'post-created');

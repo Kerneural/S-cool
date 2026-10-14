@@ -25,6 +25,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'bio',
         'avatar_path',
+        'notify_replies',
+        'notify_courses',
     ];
 
     /**
@@ -48,6 +50,8 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_platform_admin' => 'boolean',
+            'notify_replies' => 'boolean',
+            'notify_courses' => 'boolean',
         ];
     }
 
@@ -115,5 +119,15 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(AppNotification::class, 'notifiable_id')
             ->where('notifiable_type', self::class);
+    }
+
+    public function earnedReferralCommissions(): HasMany
+    {
+        return $this->hasMany(ReferralCommission::class, 'referrer_id');
+    }
+
+    public function referralRequests(): HasMany
+    {
+        return $this->hasMany(ReferralInvitationRequest::class, 'referrer_id');
     }
 }

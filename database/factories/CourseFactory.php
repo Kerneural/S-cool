@@ -37,4 +37,20 @@ class CourseFactory extends Factory
             'status' => 'PUBLISHED',
         ]);
     }
+
+    public function oneTime(int $price = 500000): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'access_mode' => Course::ACCESS_MODE_ONE_TIME,
+            'price' => $price,
+        ]);
+    }
+
+    public function included(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'access_mode' => Course::ACCESS_MODE_INCLUDED,
+            'price' => null,
+        ]);
+    }
 }

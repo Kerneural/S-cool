@@ -73,9 +73,12 @@ class EventController extends Controller
         $eventsQuery->orderBy('starts_at')->orderBy('id');
 
         $calendarGrid = [];
+        $hasMoreEvents = false;
         if ($view === 'month') {
-            // Cap month grid payload to prevent memory exhaustion (max 100 events)
-            $events = $eventsQuery->take(100)->get();
+            // Fetch up to 101 events to detect overflow without unbounded payload
+            $rawEvents = $eventsQuery->take(101)->get();
+            $hasMoreEvents = $rawEvents->count() > 100;
+            $events = $rawEvents->slice(0, 100);
 
             $daysInMonth = $startOfMonth->daysInMonth;
             $startOfWeekIso = $startOfMonth->dayOfWeekIso; // 1 = Mon, 7 = Sun
@@ -129,6 +132,7 @@ class EventController extends Controller
             'displayTimezone' => $displayTimezone,
             'timezones' => DateTimeZone::listIdentifiers(),
             'calendarGrid' => $calendarGrid,
+            'hasMoreEvents' => $hasMoreEvents,
         ]);
     }
 

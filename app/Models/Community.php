@@ -27,7 +27,23 @@ class Community extends Model
         'description',
         'rules',
         'intro_video_url',
+        'onboarding_enabled',
+        'introduction_category_id',
+        'referral_commission_rate',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'onboarding_enabled' => 'boolean',
+            'referral_commission_rate' => 'integer',
+        ];
+    }
 
     /**
      * Baseline defaults; access/state transitions require explicit trusted actions.
@@ -37,6 +53,7 @@ class Community extends Model
     protected $attributes = [
         'visibility' => 'PRIVATE',
         'access_mode' => 'FREE',
+        'billing_period' => 'ONE_TIME',
         'status' => 'ACTIVE',
     ];
 
@@ -96,6 +113,11 @@ class Community extends Model
         return $this->hasMany(AppNotification::class);
     }
 
+    public function reports(): HasMany
+    {
+        return $this->hasMany(ContentReport::class);
+    }
+
     public function platformAdminActions(): HasMany
     {
         return $this->hasMany(PlatformAdminAction::class);
@@ -106,13 +128,28 @@ class Community extends Model
         return $this->hasOne(PlatformAdminAction::class)->latestOfMany();
     }
 
+    public function referralCommissions(): HasMany
+    {
+        return $this->hasMany(ReferralCommission::class);
+    }
+
+    public function referralRequests(): HasMany
+    {
+        return $this->hasMany(ReferralInvitationRequest::class);
+    }
+
+    public function conversations(): HasMany
+    {
+        return $this->hasMany(CommunityConversation::class);
+    }
+
     public function scopeAccessibleTo(Builder $query, User $user): Builder
     {
         return $query->where(function (Builder $query) use ($user): void {
             $query->where('creator_id', $user->id)
                 ->orWhere(function (Builder $query) use ($user): void {
                     $query->where('status', 'ACTIVE')->whereHas('memberships', function (Builder $query) use ($user): void {
-                        $query->where('user_id', $user->id)->where('status', 'ACTIVE');
+                        $query->where('user_id', $user->id)->effective();
                     });
                 });
         });
@@ -150,10 +187,66 @@ class Community extends Model
     }
 
     /**
+     * Determine if the given user is an active member of the community.
+     */
+    public function isActiveMember(?User $user): bool
+    {
+        if ($user === null || ! $this->isActive()) {
+            return false;
+        }
+
+        return $this->memberships()
+            ->where('user_id', $user->id)
+            ->effective()
+            ->exists();
+    }
+
+    /**
+     * Determine if the given user has authorized access (creator or active member).
+     */
+    public function hasAccess(?User $user): bool
+    {
+        if ($user === null) {
+            return false;
+        }
+
+        return $this->isActive() && ($this->isCreator($user) || $this->isActiveMember($user));
+    }
+
+    /**
      * Get the embedded player URL for the community intro video, if valid.
      */
     public function getIntroEmbedUrlAttribute(): ?string
     {
         return VideoEmbedService::getEmbedUrl($this->intro_video_url);
+    }
+
+    public function introductionCategory(): BelongsTo
+    {
+        return $this->belongsTo(PostCategory::class, 'introduction_category_id');
+    }
+
+    public function getIntroductionCategory(): ?PostCategory
+    {
+        if (! $this->introduction_category_id) {
+            return null;
+        }
+
+        $cat = $this->introductionCategory;
+        if ($cat && (int) $cat->community_id === (int) $this->id) {
+            return $cat;
+        }
+
+        return null;
+    }
+
+    public function onboardingCompletions(): HasMany
+    {
+        return $this->hasMany(OnboardingStepCompletion::class);
+    }
+
+    public function pointContributions(): HasMany
+    {
+        return $this->hasMany(PointContribution::class);
     }
 }

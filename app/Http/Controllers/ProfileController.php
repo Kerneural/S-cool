@@ -71,6 +71,24 @@ class ProfileController extends Controller
     }
 
     /**
+     * Update user notification preferences (F-14).
+     */
+    public function updateNotifications(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'notify_replies' => ['nullable', 'boolean'],
+            'notify_courses' => ['nullable', 'boolean'],
+        ]);
+
+        $user = $request->user();
+        $user->notify_replies = $request->boolean('notify_replies');
+        $user->notify_courses = $request->boolean('notify_courses');
+        $user->save();
+
+        return Redirect::route('profile.edit')->with('status', 'notification-preferences-updated');
+    }
+
+    /**
      * Stream or display the authenticated user's avatar.
      */
     public function avatar(Request $request): SymfonyResponse

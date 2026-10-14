@@ -13,6 +13,7 @@ use App\Models\CommunityMembership;
 use App\Models\Course;
 use App\Models\Post;
 use App\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -431,5 +432,122 @@ class CommunityNotificationTest extends TestCase
 
         $this->assertEquals(0, DB::table('jobs')->count());
         $this->assertEquals(1, AppNotification::where('notifiable_id', $author->id)->count());
+    }
+
+    public function test_non_duplicate_query_exception_is_not_swallowed_and_re_thrown(): void
+    {
+        $creator = User::factory()->create();
+        $community = Community::factory()->create(['creator_id' => $creator->id, 'status' => 'ACTIVE']);
+
+        AppNotification::saving(function () {
+            throw new QueryException(
+                'mysql',
+                'insert into `notifications` ...',
+                [],
+                new \Exception('Simulated database connection loss', 2002)
+            );
+        });
+
+        $this->expectException(QueryException::class);
+        $this->expectExceptionMessage('Simulated database connection loss');
+
+        try {
+            AppNotification::createNotification(
+                userId: $creator->id,
+                communityId: $community->id,
+                type: 'course_published',
+                dedupeKey: 'unique_key_test',
+                data: ['course_id' => 1],
+            );
+        } finally {
+            AppNotification::flushEventListeners();
+        }
+    }
+
+    public function test_foreign_key_exception_1452_is_not_swallowed_and_throws(): void
+    {
+        $creator = User::factory()->create();
+        $community = Community::factory()->create(['creator_id' => $creator->id, 'status' => 'ACTIVE']);
+
+        AppNotification::saving(function () {
+            $driverException = new \Exception('Cannot add or update a child row: a foreign key constraint fails');
+            $queryException = new QueryException(
+                'mysql',
+                'insert into `notifications` ...',
+                [],
+                $driverException
+            );
+            $queryException->errorInfo = ['23000', 1452, 'Cannot add or update a child row: a foreign key constraint fails'];
+
+            throw $queryException;
+        });
+
+        $this->expectException(QueryException::class);
+        $this->expectExceptionMessage('foreign key constraint fails');
+
+        try {
+            AppNotification::createNotification(
+                userId: $creator->id,
+                communityId: $community->id,
+                type: 'course_published',
+                dedupeKey: 'fk_test_dedupe_key',
+                data: ['course_id' => 1],
+            );
+        } finally {
+            AppNotification::flushEventListeners();
+        }
+    }
+
+    public function test_concurrent_publish_race_detects_status_change_in_locked_transaction_and_avoids_duplicate_revision(): void
+    {
+        $creator = User::factory()->create();
+        $community = Community::factory()->create(['creator_id' => $creator->id, 'status' => 'ACTIVE']);
+        $member = User::factory()->create();
+        CommunityMembership::factory()->create([
+            'community_id' => $community->id,
+            'user_id' => $member->id,
+            'status' => 'ACTIVE',
+        ]);
+
+        $course = Course::factory()->create([
+            'community_id' => $community->id,
+            'status' => 'DRAFT',
+            'published_revision' => 0,
+        ]);
+
+        $this->actingAs($creator);
+
+        // Hook after route binding: when Course is retrieved by router, simulate concurrent
+        // commit changing database record to PUBLISHED before controller transaction runs
+        $injected = false;
+        Course::retrieved(function (Course $retrievedCourse) use ($course, &$injected) {
+            if ($retrievedCourse->id === $course->id && ! $injected) {
+                $injected = true;
+                // Behind the back of route model binding, DB status is updated to PUBLISHED
+                DB::table('courses')->where('id', $course->id)->update([
+                    'status' => 'PUBLISHED',
+                    'published_revision' => 1,
+                ]);
+            }
+        });
+
+        try {
+            // Request sends status=PUBLISHED while route model binding saw DRAFT
+            $this->put(route('communities.courses.update', [$community, $course]), [
+                'title' => 'Updated Course Concurrent Test',
+                'status' => 'PUBLISHED',
+            ])->assertRedirect();
+
+            // Locked course inside ClassroomMutation reloads fresh record and sees status was already PUBLISHED:
+            // revision must remain 1 (no duplicate revision bump)
+            $this->assertEquals(1, $course->fresh()->published_revision);
+            $this->assertEquals('Updated Course Concurrent Test', $course->fresh()->title);
+
+            // Verify zero notifications were queued or created because transition was not from DRAFT
+            $this->assertEquals(0, AppNotification::where('notifiable_id', $member->id)->count());
+            $this->assertEquals(0, DB::table('jobs')->count());
+        } finally {
+            Course::flushEventListeners();
+        }
     }
 }

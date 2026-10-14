@@ -192,6 +192,32 @@ Changing FREE/PAID does not retroactively grant/revoke existing memberships.
 The `SEPAY_SANDBOX` database provider label is retained for compatibility; the
 active integration is bank webhooks in Test Mode, **not** Payment Gateway `ORDER_PAID`.
 
+### Course purchases and manual 30-day renewal
+
+Included courses require current community access. ONE_TIME courses additionally
+require the matching retained course entitlement. Before purchase, only the
+published title/price preview is delivered; outline, lesson content, embeds,
+progress and lesson search remain locked. Course payments never activate membership.
+
+Creators select **One-time lifetime access** or **30 UTC days** in access settings.
+Existing memberships remain lifetime after the forward upgrade; changing pricing
+never retroactively converts them. New term admission snapshots its 30-day duration
+and whole-VND price. Access stops exactly at expiry, including when queue/scheduler
+processes are offline. No automatic debit or grace period is provided.
+
+Open **My Access** from the account menu to inspect your own expiry and start an
+eligible manual Test Mode renewal, including after expiry. Verified renewal extends
+from the later of payment time/current expiry by exactly 30 UTC days, once per
+attempt. Revoked states cannot be restored through renewal. Pending attempts retain
+their original price/term. Existing term members keep their term if billing changes;
+new renewals use the current paid price, and FREE communities do not offer paid renewal.
+Use the SePay simulator only; never send real funds.
+
+The forward migration `2026_10_13_170001_add_fixed_term_membership_access.php`
+adds these fields without resetting data. Apply it through the normal authorized
+upgrade below and restart the queue so workers load the updated access predicates.
+No new scheduler or dependency is required.
+
 After pulling new migrations into an existing installation, run the forward upgrade
 below, then the normal Verify command. Bootstrap already applies them on fresh setup.
 
@@ -326,6 +352,131 @@ bash scripts/test-setup-verification.sh                # Setup guard regressions
 
 Verify requires the running stack with Vite stopped; it does not migrate/seed the development DB.
 If `public/hot` remains, confirm Vite has stopped before removing that file.
+
+## Consolidated manual acceptance checklist (F-01–F-18)
+
+This is an execution script, not a PASS report. Record actual observations and pending
+steps in the active F-19 checkpoint. Use the canonical `http://127.0.0.1:8080` origin
+throughout; keep Creator, Member and Platform Admin in separate browser sessions.
+Use the Local demo accounts above, whose existing passwords and display names may
+have changed. Fresh fixtures enroll Demo Member only in Demo Free Learning and start
+with one of two lessons complete. Inspect current fixtures before assuming access,
+progress, totals or a commission rate. Apply only authorized forward upgrades.
+
+Use unique run IDs and synthetic recipients such as `referral-<run-id>@example.test`;
+never clear shared mail, reseed/reset development data or remove the shared Demo Member.
+State-changing negative cases use dedicated synthetic participants/communities. Inspect
+only the matching Mailpit message and keep invitation tokens, cookies, payment credentials
+and raw webhook payloads out of evidence. No real transfer or production provider run.
+
+### 1. Workspace, directory, About, feed and search (F-01–F-04, F-06)
+
+1. As Creator, open `/communities`, then the free and paid communities in two tabs.
+   Exercise switcher, Back and Reload; each header, URL and result must stay tenant-correct.
+2. Open `/communities/demo-free-learning/directory`, a member profile and the community
+   About page. Verify name/bio/avatar, hidden email/billing fields, escaped rules, cover and role.
+3. Create a uniquely named category/post in an authorized synthetic fixture. Filter,
+   search and pin/unpin; verify ordering, empty/no-result states and another tenant's
+   exclusion. Search must withhold drafts/locked lesson content from an ordinary member.
+4. Use an outsider session on saved directory/About/feed/search URLs: expect private
+   denial without names, bodies or counts. Repeat relevant controls at a narrow viewport.
+
+### 2. Classroom progress and calendar (existing learning baseline, F-07)
+
+1. As Member, open `/communities/demo-free-learning/classroom`, then an included
+   published lesson. Complete an unfinished lesson; verify persisted per-user progress
+   after reload/login. 100% means all currently accessible published lessons completed.
+2. An effective member without a paid-course entitlement may see its safe locked teaser
+   and purchase control (HTTP 200); the outline/body/video and direct lesson URL remain
+   inaccessible. An outsider, wrong tenant or expired/revoked member gets private denial.
+3. Open Events, switch month/list and previous/next month, and check the displayed IANA
+   timezone. Verify overlapping events and cancelled-event meeting-link privacy.
+
+### 3. Engagement, notifications, onboarding and ranks (F-05, F-08–F-10)
+
+1. Like/unlike and save/unsave a fixture post; duplicate submit/reload must not duplicate
+   likes or points. Saved posts are self-only and remain tenant-scoped.
+2. Perform the selected onboarding actions and refresh/login; completed tasks persist.
+   Video acknowledgment is not proof of having watched a video.
+3. Trigger a permitted reply notice with distinct actors; inspect Notifications, mark it
+   read and reload. Ordinary members cannot read another user's notice or hidden content.
+4. Compare Leaderboard/level totals to persisted eligible contributions. Revocation and
+   content removal must follow the selected points/access contract, without invented ranks.
+
+### 4. Asynchronous messaging (F-18)
+
+1. As Member, open the free community Directory, open the owning Creator's profile and
+   click Message. Send once; the latest page shows chronological messages and timestamps.
+2. In Creator's separate session, open `/communities/demo-free-learning/messages`.
+   Unread badges are in the inbox; the workspace Messages tab has no unread badge.
+   Open the thread, reply, then refresh Member's session to see reply/read state.
+3. With more than 30 incoming fixture messages, only the displayed page becomes read;
+   older pages remain unread until opened. The inbox paginates and totals eligible pages.
+4. Change the URL's tenant and use a nonparticipant/Platform Admin session: expect 404
+   with no bodies/previews/counts. Enroll the same pair in a separate authorized fixture
+   if needed to prove distinct conversations; an inaccessible tenant's 404 also passes.
+5. Retry the same POST/client send ID: exactly one message. Submit blank/oversize/invalid
+   input: visible errors, preserved valid draft/retry ID and no new message or server error.
+
+### 5. Referral request and simulated ledger (F-17)
+
+1. As Creator, set a positive rate, such as 15%, on `/communities/demo-free-learning/edit`;
+   reject invalid rates without mutation. Use this tenant because the fresh Demo Member
+   has effective access here; a paid-tenant request needs its own eligible membership.
+2. As Member, open `/account/referrals`, select that eligible community and submit the
+   unique synthetic recipient. Creator opens `/communities/demo-free-learning/referrals`
+   and approves. Expect Approved/queued, or visible conflict feedback without an orphan invite.
+3. Check only that recipient's Mailpit delivery; queued is not delivered. Approval alone
+   earns no commission. The ledger stays Simulated/Unpaid and retains safe own history.
+4. Provider-backed Test Mode admission/course success for an eligible first-touch referrer
+   within the selected 30-day window must create the exact integer commission once.
+   Renewal, self-referral, rejoin/replaced attribution and cutoff replay earn no new commission.
+
+### 6. Admission, course purchase, expiry and renewal (F-12, F-15, F-16)
+
+1. Creator invites a unique verified synthetic student to a paid fixture. In that student's
+   session, open its own Mailpit invitation, accept and follow the checkout control.
+   Verify exact immutable amount/purpose/reference and visible SePay Test Mode instructions.
+2. Use the existing SePay Test Mode setup for a genuine provider-backed success. Confirm
+   persisted payment/access and safe receipt/history; a local fake callback or rendered
+   QR alone does not pass the provider gate. Test authentication/amount/purpose/destination,
+   duplicate/delayed-state and rollback boundaries on guarded `scool_test`; never publish tokens.
+3. Buy a selected paid course from its locked teaser. Confirm only that course entitlement
+   is granted and retry creates no duplicate payment/entitlement; another course stays locked.
+4. In a dedicated TERM-membership fixture, check exact UTC expiry and `/account/memberships`.
+   Successful renewal extends the selected term once and does not revive a revoked/inactive
+   membership. Existing lifetime membership stays lifetime; retained receipts grant no access.
+5. Creator's member-management URL is `/communities/{slug}/members`. On dedicated synthetic
+   users exercise SUSPENDED/REMOVED/LEFT; then saved URLs/refresh/new writes must deny every
+   internal module. Test tenant suspension separately and preserve financial/content history.
+
+### 7. Creator overview/orders/reports and platform boundaries (F-11–F-13, admin baseline)
+
+1. As Creator, open `/communities/demo-free-learning/manage`,
+   `/communities/demo-free-learning/orders` and `/communities/demo-free-learning/reports` separately.
+   Compare totals/filters with known persisted fixtures; payments are labelled Test Mode.
+2. Member reports a fixture post/comment; Creator dismisses or resolves it with a reason.
+   Duplicate submission/resolution is idempotent; other tenants/members cannot read the queue.
+3. As Platform Admin, open `/admin/communities`. Suspend/reactivate a dedicated community
+   with a reason; verify retained audit entries and both Creator/Member access changes.
+   Ordinary Creator gets no global admin rights; Platform Admin gets no private-content bypass.
+
+### 8. Profile, preferences and help (F-02, F-14)
+
+1. Edit Profile, bio/avatar and optional notice preferences; verify validation, private
+   avatar access and persistence after login. Invalid identity/role fields cannot grant rights.
+2. Disable optional reply/course notices: future optional delivery stops, existing notices
+   remain and required membership/report notices still work. Re-enable without backfill.
+3. Open Help as guest/member/Creator. Follow the role's available controls and confirm the
+   explicit Test Mode/no-real-transfer copy; saved unauthorized links remain denied.
+
+For each scenario record role/tenant, fixture/run ID, expected and observed results,
+PASS/FAIL/PENDING, exact candidate revision/dirty diff and sanitized artifact reference.
+Include reload/back, invalid/empty/unauthorized and narrow-screen results; do not infer
+full acceptance from a menu or a single screenshot. Visual redesign remains separate.
+F-19 also requires current-revision CI/security/review, verified forward-upgrade retention
+and the existing fresh-setup procedure on a second physical machine. Keep these gates
+pending until their evidence exists.
 
 ## CI and merge gate
 

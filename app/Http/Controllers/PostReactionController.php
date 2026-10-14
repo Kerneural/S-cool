@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Community;
+use App\Models\PointContribution;
 use App\Models\Post;
 use App\Models\PostBookmark;
 use App\Models\PostLike;
@@ -25,7 +26,7 @@ class PostReactionController extends Controller
         }
 
         $isCreator = $community->isCreator($user);
-        $isMember = $community->memberships()->where('user_id', $user->id)->where('status', 'ACTIVE')->exists();
+        $isMember = $community->memberships()->where('user_id', $user->id)->effective()->exists();
 
         if (! $isCreator && ! $isMember) {
             abort(404);
@@ -69,13 +70,28 @@ class PostReactionController extends Controller
                     $like->update(['is_active' => true]);
                 }
             } else {
-                PostLike::create([
+                $like = PostLike::create([
                     'community_id' => $lockedCommunity->id,
                     'post_id' => $lockedPost->id,
                     'user_id' => $user->id,
                     'is_active' => true,
                 ]);
             }
+
+            PointContribution::updateOrCreate(
+                [
+                    'source_type' => 'post_like',
+                    'source_id' => $like->id,
+                ],
+                [
+                    'community_id' => $lockedCommunity->id,
+                    'beneficiary_id' => $lockedPost->user_id,
+                    'actor_id' => $user->id,
+                    'points' => 1,
+                    'is_active' => true,
+                    'contributed_at' => $like->created_at ?? now(),
+                ]
+            );
         });
 
         return back()->with('status', 'post-liked');
@@ -103,6 +119,10 @@ class PostReactionController extends Controller
 
             if ($like && $like->is_active) {
                 $like->update(['is_active' => false]);
+
+                PointContribution::where('source_type', 'post_like')
+                    ->where('source_id', $like->id)
+                    ->update(['is_active' => false]);
             }
         });
 

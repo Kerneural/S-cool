@@ -7,7 +7,6 @@ use App\Models\Community;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\View\View;
 
 class NotificationController extends Controller
@@ -21,31 +20,13 @@ class NotificationController extends Controller
 
         $user = $request->user();
 
-        // Fresh retrieval and access filtering (AC-04)
-        $all = AppNotification::query()
-            ->where('notifiable_type', User::class)
-            ->where('notifiable_id', $user->id)
-            ->where('community_id', $community->id)
+        // Fresh database-level visibility filtering, SQL pagination, and SQL unread count (AC-03, AC-04)
+        $unreadCount = AppNotification::unreadCountFor($user, $community);
+
+        $notifications = AppNotification::query()
+            ->visibleFor($user, $community)
             ->latest()
-            ->get();
-
-        $visible = $all->filter(fn (AppNotification $n) => $n->isAvailableFor($user));
-        $unreadCount = $visible->whereNull('read_at')->count();
-
-        $page = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = 15;
-        $items = $visible->slice(($page - 1) * $perPage, $perPage)->values();
-
-        $notifications = new LengthAwarePaginator(
-            $items,
-            $visible->count(),
-            $perPage,
-            $page,
-            [
-                'path' => LengthAwarePaginator::resolveCurrentPath(),
-                'query' => $request->query(),
-            ]
-        );
+            ->paginate(15);
 
         return view('communities.notifications.index', compact('community', 'notifications', 'unreadCount'));
     }
@@ -55,7 +36,7 @@ class NotificationController extends Controller
      */
     public function markAsRead(Request $request, Community $community, AppNotification $notification): RedirectResponse
     {
-        abort_unless($community->isActive(), 404);
+        $this->authorizeCommunityAccess($request, $community);
 
         $user = $request->user();
 
@@ -80,18 +61,11 @@ class NotificationController extends Controller
 
         $user = $request->user();
 
-        // Bounded strictly to viewer's visible unread notifications in this community
-        $visibleUnread = AppNotification::query()
-            ->where('notifiable_type', User::class)
-            ->where('notifiable_id', $user->id)
-            ->where('community_id', $community->id)
+        // Bounded strictly to viewer's visible unread notifications in this community via SQL bulk update (AC-03)
+        AppNotification::query()
+            ->visibleFor($user, $community)
             ->whereNull('read_at')
-            ->get()
-            ->filter(fn (AppNotification $n) => $n->isAvailableFor($user));
-
-        foreach ($visibleUnread as $item) {
-            $item->markAsRead();
-        }
+            ->update(['read_at' => now()]);
 
         return back()->with('status', 'All notifications marked as read.');
     }
@@ -101,7 +75,7 @@ class NotificationController extends Controller
      */
     public function follow(Request $request, Community $community, AppNotification $notification): RedirectResponse
     {
-        abort_unless($community->isActive(), 404);
+        $this->authorizeCommunityAccess($request, $community);
 
         $user = $request->user();
 
@@ -134,7 +108,7 @@ class NotificationController extends Controller
         $isCreator = $community->isCreator($user);
         $isActiveMember = $community->memberships()
             ->where('user_id', $user->id)
-            ->where('status', 'ACTIVE')
+            ->effective()
             ->exists();
 
         abort_unless($isCreator || $isActiveMember, 404);

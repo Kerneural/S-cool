@@ -28,6 +28,8 @@ class ProfileUpdateRequest extends FormRequest
             ],
             'bio' => ['nullable', 'string', 'max:500'],
             'avatar' => ['nullable', 'image', 'mimes:jpeg,png,webp', 'max:2048'],
+            'notify_replies' => ['nullable', 'boolean'],
+            'notify_courses' => ['nullable', 'boolean'],
         ];
     }
 }

@@ -29,7 +29,7 @@ class LessonController extends Controller
 
         $user = $request->user();
         $isCreator = $community->isCreator($user);
-        $isActiveMember = $community->memberships()->where('user_id', $user->id)->where('status', 'ACTIVE')->exists();
+        $isActiveMember = $community->memberships()->where('user_id', $user->id)->effective()->exists();
 
         // Non-creators cannot view if either course or lesson is DRAFT
         if (! $isCreator && (! $course->isPublished() || ! $lesson->isPublished())) {

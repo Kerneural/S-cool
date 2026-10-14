@@ -162,7 +162,7 @@
                                             {{ $course->title }}
                                         </a>
                                     </h3>
-                                    @if ($course->description)
+                                    @if ($course->description && ($isCreator || $course->hasMemberAccess(auth()->user())))
                                         <p class="text-sm text-gray-600 line-clamp-3 leading-relaxed">
                                             {{ Str::limit(strip_tags($course->description), 160) }}
                                         </p>

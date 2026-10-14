@@ -269,4 +269,63 @@ class CommunityEventCalendarTest extends TestCase
         $this->actingAs($suspendedMember);
         $this->get(route('communities.events.index', $community))->assertNotFound();
     }
+
+    public function test_month_view_with_more_than_100_events_caps_grid_and_renders_overflow_warning_with_list_link(): void
+    {
+        $creator = User::factory()->create();
+        $community = Community::factory()->create([
+            'creator_id' => $creator->id,
+            'status' => 'ACTIVE',
+        ]);
+
+        $member = User::factory()->create();
+        CommunityMembership::factory()->create([
+            'community_id' => $community->id,
+            'user_id' => $member->id,
+            'status' => 'ACTIVE',
+        ]);
+
+        // Bulk insert 105 events in the same month (Oct 2026)
+        $eventsData = [];
+        $baseDate = Carbon::createFromFormat('Y-m-d H:i:s', '2026-10-05 10:00:00', 'UTC');
+        for ($i = 1; $i <= 105; $i++) {
+            $eventsData[] = [
+                'community_id' => $community->id,
+                'creator_id' => $creator->id,
+                'title' => "Batch Event #{$i}",
+                'description' => "Description for event {$i}",
+                'starts_at' => $baseDate->copy()->addMinutes($i * 10)->format('Y-m-d H:i:s'),
+                'ends_at' => $baseDate->copy()->addMinutes($i * 10 + 30)->format('Y-m-d H:i:s'),
+                'timezone' => 'Asia/Ho_Chi_Minh',
+                'status' => 'SCHEDULED',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+        Event::insert($eventsData);
+
+        $this->actingAs($member);
+
+        $response = $this->get(route('communities.events.index', [
+            'community' => $community,
+            'view' => 'month',
+            'month' => '2026-10',
+            'display_timezone' => 'Asia/Ho_Chi_Minh',
+        ]));
+
+        $response->assertOk();
+        $this->assertTrue($response->viewData('hasMoreEvents'));
+
+        // Distinct events passed to view are capped at 100
+        $this->assertCount(100, $response->viewData('events'));
+
+        // Warning message and switch to list link are present
+        $response->assertSee('This month has more than 100 events. The calendar grid displays the first 100 events.');
+        $response->assertSee(route('communities.events.index', [
+            'community' => $community,
+            'view' => 'list',
+            'month' => '2026-10',
+            'display_timezone' => 'Asia/Ho_Chi_Minh',
+        ]));
+    }
 }

@@ -106,6 +106,11 @@
                     {{ __('Members') }}
                 </a>
 
+                <a href="{{ route('communities.leaderboard', $community) }}"
+                   class="inline-flex items-center py-2 px-1 border-b-2 font-medium text-sm transition {{ $activeTab === 'leaderboard' ? 'border-indigo-600 text-indigo-600 font-semibold' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                    {{ __('Leaderboard') }}
+                </a>
+
                 <a href="{{ route('communities.show', $community) }}"
                    class="inline-flex items-center py-2 px-1 border-b-2 font-medium text-sm transition {{ $activeTab === 'about' ? 'border-indigo-600 text-indigo-600 font-semibold' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
                     {{ __('About') }}
@@ -126,10 +131,35 @@
                     @endif
                 </a>
 
+                <a href="{{ route('communities.messages.index', $community) }}"
+                   class="inline-flex items-center gap-1.5 py-2 px-1 border-b-2 font-medium text-sm transition {{ $activeTab === 'messages' ? 'border-indigo-600 text-indigo-600 font-semibold' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                    <span>{{ __('Messages') }}</span>
+                </a>
+
                 @can('update', $community)
+                    <a href="{{ route('communities.manage', $community) }}"
+                       class="inline-flex items-center py-2 px-1 border-b-2 font-medium text-sm transition {{ $activeTab === 'overview' ? 'border-indigo-600 text-indigo-600 font-semibold' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                        {{ __('Overview') }}
+                    </a>
+
+                    <a href="{{ route('communities.orders.index', $community) }}"
+                       class="inline-flex items-center py-2 px-1 border-b-2 font-medium text-sm transition {{ $activeTab === 'orders' ? 'border-indigo-600 text-indigo-600 font-semibold' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                        {{ __('Orders') }}
+                    </a>
+
+                    <a href="{{ route('communities.reports.index', $community) }}"
+                       class="inline-flex items-center py-2 px-1 border-b-2 font-medium text-sm transition {{ $activeTab === 'reports' ? 'border-indigo-600 text-indigo-600 font-semibold' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                        {{ __('Reports') }}
+                    </a>
+
                     <a href="{{ route('communities.invitations.index', $community) }}"
                        class="inline-flex items-center py-2 px-1 border-b-2 font-medium text-sm transition {{ $activeTab === 'invitations' ? 'border-indigo-600 text-indigo-600 font-semibold' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
                         {{ __('Invitations') }}
+                    </a>
+
+                    <a href="{{ route('communities.referrals.index', $community) }}"
+                       class="inline-flex items-center py-2 px-1 border-b-2 font-medium text-sm transition {{ $activeTab === 'referrals' ? 'border-indigo-600 text-indigo-600 font-semibold' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                        {{ __('Referrals') }}
                     </a>
 
                     <a href="{{ route('communities.members.index', $community) }}"

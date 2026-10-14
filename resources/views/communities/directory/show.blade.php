@@ -25,10 +25,22 @@
                                 </div>
                             </div>
 
-                            <a href="{{ route('communities.directory.index', $community) }}"
-                               class="inline-flex items-center px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-md text-xs font-semibold text-gray-700 uppercase tracking-wider transition">
-                                &larr; {{ __('Back to Directory') }}
-                            </a>
+                            <div class="flex items-center gap-2">
+                                @if (auth()->id() !== $member->id)
+                                    <form method="POST" action="{{ route('communities.messages.start', $community) }}">
+                                        @csrf
+                                        <input type="hidden" name="recipient_id" value="{{ $member->id }}">
+                                        <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-xs font-semibold uppercase tracking-wider transition">
+                                            {{ __('Message') }}
+                                        </button>
+                                    </form>
+                                @endif
+
+                                <a href="{{ route('communities.directory.index', $community) }}"
+                                   class="inline-flex items-center px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-md text-xs font-semibold text-gray-700 uppercase tracking-wider transition">
+                                    &larr; {{ __('Back to Directory') }}
+                                </a>
+                            </div>
                         </div>
 
                         <div class="pt-4 border-t border-gray-100">

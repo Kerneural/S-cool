@@ -391,7 +391,7 @@ class SePayPaymentTest extends TestCase
         $user = User::factory()->create();
         $payment = Payment::factory()->create(['user_id' => $user->id]);
         $this->actingAs($user)->get('/payments/'.$payment->external_reference.'/status')
-            ->assertOk()->assertSee('SePay Test Mode')->assertSee('Không chuyển tiền thật.')
+            ->assertOk()->assertSee('SePay Test Mode')->assertSee('Do not make a real transfer.')
             ->assertDontSee('Vui lòng hoàn tất chuyển khoản.');
         $this->assertSame(Payment::STATUS_PENDING, $payment->fresh()->status);
         $this->assertDatabaseCount('community_memberships', 0);

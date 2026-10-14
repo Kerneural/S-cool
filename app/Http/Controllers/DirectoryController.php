@@ -26,7 +26,7 @@ class DirectoryController extends Controller
             ->where(function ($query) use ($community): void {
                 $query->where('id', $community->creator_id)
                     ->orWhereHas('memberships', function ($q) use ($community): void {
-                        $q->where('community_id', $community->id)->where('status', 'ACTIVE');
+                        $q->where('community_id', $community->id)->effective();
                     });
             });
 
@@ -52,7 +52,7 @@ class DirectoryController extends Controller
         Gate::authorize('view', $community);
 
         $isCreator = $community->creator_id === $user->id;
-        $membership = $community->memberships()->where('user_id', $user->id)->where('status', 'ACTIVE')->first();
+        $membership = $community->memberships()->where('user_id', $user->id)->effective()->first();
 
         if (! $isCreator && ! $membership) {
             abort(404);
@@ -77,7 +77,7 @@ class DirectoryController extends Controller
         Gate::authorize('view', $community);
 
         $isCreator = $community->creator_id === $user->id;
-        $isMember = $community->memberships()->where('user_id', $user->id)->where('status', 'ACTIVE')->exists();
+        $isMember = $community->memberships()->where('user_id', $user->id)->effective()->exists();
 
         if (! $isCreator && ! $isMember) {
             abort(404);

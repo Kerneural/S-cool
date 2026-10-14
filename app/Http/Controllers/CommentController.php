@@ -6,6 +6,7 @@ use App\Actions\CommunityContent\FeedMutation;
 use App\Jobs\SendPostReplyNotification;
 use App\Models\Comment;
 use App\Models\Community;
+use App\Models\OnboardingStepCompletion;
 use App\Models\Post;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -32,6 +33,8 @@ class CommentController extends Controller
             if ($currentPost->user_id !== $request->user()->id) {
                 SendPostReplyNotification::dispatch($comment->id);
             }
+
+            OnboardingStepCompletion::markStep($current, $request->user(), 'comment');
         });
 
         return redirect()->route('communities.posts.show', [$community, $post])->with('status', 'comment-created');

@@ -9,6 +9,8 @@
                 </div>
             @endif
 
+            @include('communities.partials.onboarding-checklist', ['community' => $community])
+
             <!-- Category Filter and Sorting Controls -->
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                 <!-- Categories Pills -->

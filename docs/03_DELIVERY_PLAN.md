@@ -436,29 +436,33 @@ Execution constraints:
 
 ### 17.2 Reference coverage and honest parity
 
-| Reference surface | Evidence level | Current baseline/gap | Completion slice | Parity boundary |
+The current-source column was refreshed during the 2026-10-14 F-19 audit. Candidate
+implementation is distinct from formal acceptance; the latest F-19 checkpoint maps
+each slice to source/tests and records manual/provider/CI/independent-host gaps.
+
+| Reference surface | Evidence level | Current source / acceptance gap | Completion slice | Parity boundary |
 |---|---|---|---|---|
-| Multi-community switcher | Observed switching header/feed | Dashboard lists permitted groups; no contextual dropdown | F-01 | Private permitted groups only |
-| Community/Classroom/Calendar tabs | Observed | Core routes exist; workspace navigation is fragmented | F-01 | Preserve current content and direct links |
-| Members and member profile | Tab/profile menu observed; detail workflow unverified | Creator-only management list; account settings are basic | F-02, F-14 | Separate member directory from creator controls |
-| About and community settings | Tab/admin menu observed | Metadata/cover/edit exist; no dedicated About/rules workflow | F-03 | About is private, not a public sales landing page |
-| Feed/categories/community information | Screenshot reference | Posts/comments exist; categories, pinning and sidebar context missing | F-04 | Plain text; no arbitrary HTML editor |
-| Reactions and saved posts | Proposed community improvement | Missing | F-05 | Not claimed observed on mentor backend |
-| Header search | Screenshot reference; execution unverified | Missing | F-06 | Search only authorized content in selected community |
-| Calendar month/list | Observed | Paginated chronological event list exists | F-07 | Keep UTC, IANA zones, cancellation privacy |
-| Notifications | Icon in screenshot; workflow unverified | No product notification center | F-08 | Database notifications first; no push/realtime claim |
-| Welcome/onboarding tasks | Screenshot reference | Missing | F-09 | Persist verified actions; video acknowledgment is not watch proof |
-| Levels/points/leaderboard | Tab/card reference; scoring not audited | Missing | F-10 | Explicit local scoring contract, not a copied unknown formula |
-| Community admin overview/statistics | Observed cards/charts | Platform Admin status counts exist, not creator business analytics | F-11 | Real queries; Test Mode amounts labelled simulated |
-| Orders and member purchase history | Admin menu observed; order workflow unverified | Payment attempts/status exist; no history/creator list | F-12 | Immutable payment evidence, no manual success button |
-| Content/reports | Admin menu observed; moderation workflow unverified | Creator can delete content; no report queue | F-13 | Creator handles tenant content; platform privilege unchanged |
-| Profile/settings/help | Member menu observed | Name/email/password settings exist; help/preferences limited | F-02, F-14 | Extend existing account workflow |
-| Individual course purchase | Course purchase button observed; transaction unverified | Current payment grants community access only | F-15 | New entitlement/payment purpose needs a decision first |
-| Monthly community price | Discovery card observed; charging unverified | One-time membership payment only | F-16 | Term renewal is not automatic recurring billing |
-| Affiliate | Member/admin menus observed; attribution/payout unverified | Missing | F-17 | Test accounting only; no real payout or public access |
-| Messaging | Icon in screenshot; functionality not surveyed | Missing | F-18 | Proposed asynchronous tenant chat; optional pending decision |
-| Discover/explore | Observed two public listing cards | Public listing conflicts with confirmed private scope | F-01 private variant | Search/filter My Communities; full public parity requires scope reversal |
-| End-to-end functional acceptance | Our release requirement | Per-module MVP baseline exists | F-19 | Prove integrated behavior, not only number of menus |
+| Multi-community switcher | Observed switching header/feed | Implemented candidate; full two-tab/back/reload acceptance pending | F-01 | Private permitted groups only |
+| Community/Classroom/Calendar tabs | Observed | Shared workspace navigation implemented; integrated manual acceptance pending | F-01 | Preserve current content and direct links |
+| Members and member profile | Tab/profile menu observed; detail workflow unverified | Private directory/profile/avatar candidate; formal acceptance pending | F-02, F-14 | Separate member directory from creator controls |
+| About and community settings | Tab/admin menu observed | Private About/rules/settings candidate; formal acceptance pending | F-03 | About is private, not a public sales landing page |
+| Feed/categories/community information | Screenshot reference | Categories/filter/pinning candidate; integrated manual acceptance pending | F-04 | Plain text; no arbitrary HTML editor |
+| Reactions and saved posts | Proposed community improvement | Implemented candidate; integrated retry/revocation acceptance pending | F-05 | Not claimed observed on mentor backend |
+| Header search | Screenshot reference; execution unverified | Scoped search candidate; integrated visibility acceptance pending | F-06 | Search only authorized content in selected community |
+| Calendar month/list | Observed | Month/list/timezone candidate; integrated manual acceptance pending | F-07 | Keep UTC, IANA zones, cancellation privacy |
+| Notifications | Icon in screenshot; workflow unverified | In-app notice/read-state candidate; integrated delivery acceptance pending | F-08 | Database notifications first; no push/realtime claim |
+| Welcome/onboarding tasks | Screenshot reference | Persisted action-based candidate; integrated acceptance pending | F-09 | Persist verified actions; video acknowledgment is not watch proof |
+| Levels/points/leaderboard | Tab/card reference; scoring not audited | Scoped contribution/level/rank candidate; integrated acceptance pending | F-10 | Explicit local scoring contract, not a copied unknown formula |
+| Community admin overview/statistics | Observed cards/charts | Creator-query candidate; persisted-fixture/manual acceptance pending | F-11 | Real queries; Test Mode amounts labelled simulated |
+| Orders and member purchase history | Admin menu observed; order workflow unverified | Creator orders/self-history candidate; integrated acceptance pending | F-12 | Immutable payment evidence, no manual success button |
+| Content/reports | Admin menu observed; moderation workflow unverified | Private moderation candidate; integrated resolution/retention acceptance pending | F-13 | Creator handles tenant content; platform privilege unchanged |
+| Profile/settings/help | Member menu observed | Profile/preferences/help candidate; integrated delivery/role acceptance pending | F-02, F-14 | Extend existing account workflow |
+| Individual course purchase | Course purchase button observed; transaction unverified | Entitlement/purpose candidate under accepted ADR-009; provider/manual acceptance pending | F-15 | One-time course entitlement, no real-funds claim |
+| Monthly community price | Discovery card observed; charging unverified | TERM/manual-renewal candidate under accepted ADR-010; provider/manual acceptance pending | F-16 | Term renewal is not automatic recurring billing |
+| Affiliate | Member/admin menus observed; attribution/payout unverified | Simulated ledger candidate under ADR-011; provider/manual acceptance pending | F-17 | Test accounting only; no real payout or public access |
+| Messaging | Icon in screenshot; functionality not surveyed | Audited asynchronous candidate under ADR-012; full browser/CI acceptance pending | F-18 | Participant-only tenant chat; no realtime/attachment service |
+| Discover/explore | Observed two public listing cards | Private My Communities variant implemented; public discovery explicitly excluded | F-01 private variant | Confirmed private scope; public parity requires scope reversal |
+| End-to-end functional acceptance | Our release requirement | Local source/test evidence exists; F-19 release acceptance remains pending | F-19 | Prove integrated behavior, not only number of menus |
 
 The target is a complete set of agreed workflows, not artificial parity claims. Public discovery, automatic subscriptions, real affiliate payouts and messaging cannot be represented as implemented merely by drawing a button. Resolve the explicit choices below; this plan accounts for them without silently dropping them.
 
@@ -492,8 +496,8 @@ Suggested metadata, not live assignments or elapsed-time promises: Priority High
 | F-12 | M | Existing Payments | Read-only order/history views; no artificial wait for F-11 |
 | F-13 | L | Existing Feed, F-08 | Creator report queue and safe report notification |
 | F-14 | S | F-08 | Account notification preferences and help entry |
-| F-15 | L | Decision D-01, F-12 | Course entitlement and payment-purpose contract |
-| F-16 | L | Decision D-02, F-12 | Term expiry/renewal access contract and real scheduler behavior |
+| F-15 | L | Accepted D-01, F-12 | Course entitlement and purpose-specific payment contract |
+| F-16 | L | Accepted D-02, F-12, F-15 purpose dispatch | Fixed-term access/renewal; enforcement independent of scheduler |
 | F-17 | L | Decision D-03, F-12; F-15/16 only if their purchases are commissionable | Referral attribution and simulated commission ledger |
 | F-18 | L | Decision D-04, F-02 | Conversation/message isolation and inbox contract |
 | F-19 | M | All selected slices merged and their AC evidenced | Release acceptance with the final coverage matrix |
@@ -576,7 +580,7 @@ Each issue's Evidence section contains: Pending implementation commit/PR; Pendin
 
 **Security/failure cases:** Query from `accessibleTo`, then apply workspace eligibility; authorize every destination independently. No global session tenant controlling a second tab.
 
-**Implementation/verification:** Implemented `<x-community-workspace>` component, switcher dropdown, and dashboard filtering/search in `CommunityController@index`. Tests: `tests/Feature/CommunityWorkspaceSwitcherTest.php` (6 tests / 38 assertions PASS). Evidence: candidate branch `f01-f02-workspace-directory`, manual and automated verification complete.
+**Implementation/verification:** Implemented `<x-community-workspace>` component, switcher dropdown, and dashboard filtering/search in `CommunityController@index`. Tests: `tests/Feature/CommunityWorkspaceSwitcherTest.php` (6 tests / 38 assertions PASS). Evidence: candidate branch `f01-f02-workspace-directory`, automated verification complete; manual verification pending.
 
 #### F-02 — Member directory and community-visible profiles
 
@@ -598,7 +602,7 @@ Each issue's Evidence section contains: Pending implementation commit/PR; Pendin
 
 **Security/failure cases:** Add dedicated directory/profile authorization; never weaken creator-only CommunityMemberController to serve members. Preserve email verification/password behavior. File replacement cleans old images only after commit; no remote avatar fetching.
 
-**Implementation/verification:** Added forward migration for bio/avatar_path; implemented `DirectoryController` (`index`, `show`, `avatar`), `ProfileUpdateRequest`, and `ProfileController@update` with transactional file cleanup and `private, no-store` caching. Tests: `tests/Feature/MemberDirectoryProfileTest.php` (8 tests / 94 assertions PASS). Evidence: candidate branch `f01-f02-workspace-directory`, manual and automated verification complete.
+**Implementation/verification:** Added forward migration for bio/avatar_path; implemented `DirectoryController` (`index`, `show`, `avatar`), `ProfileUpdateRequest`, and `ProfileController@update` with transactional file cleanup and `private, no-store` caching. Tests: `tests/Feature/MemberDirectoryProfileTest.php` (8 tests / 94 assertions PASS). Evidence: candidate branch `f01-f02-workspace-directory`, automated verification complete; manual verification pending.
 
 #### F-03 — About, rules and functional community settings
 
@@ -620,7 +624,7 @@ Each issue's Evidence section contains: Pending implementation commit/PR; Pendin
 
 **Security/failure cases:** Creator-only settings; do not mass-assign ownership/visibility/state. No URL fetch/iframe HTML. Do not modify pending payment amounts when changing prices.
 
-**Implementation/verification:** Added forward migration for `rules` and `intro_video_url`; implemented `communities.about` route/view, `CommunityController@about`, rules validation and `VideoEmbedService` embed rendering. Tests: `tests/Feature/CommunityAboutSettingsTest.php` (5 tests / 41 assertions PASS). Evidence: candidate branch `f01-f02-workspace-directory`, manual and automated verification complete.
+**Implementation/verification:** Added forward migration for `rules` and `intro_video_url`; implemented `communities.about` route/view, `CommunityController@about`, rules validation and `VideoEmbedService` embed rendering. Tests: `tests/Feature/CommunityAboutSettingsTest.php` (5 tests / 41 assertions PASS). Evidence: candidate branch `f01-f02-workspace-directory`, automated verification complete; manual verification pending.
 
 #### F-04 — Feed categories, filters and pinned posts
 
@@ -642,7 +646,7 @@ Each issue's Evidence section contains: Pending implementation commit/PR; Pendin
 
 **Security/failure cases:** Reuse FeedMutation and soft-delete/policy contracts. Never trust category ownership from form options; parameterize ordering through an allowlist.
 
-**Implementation/verification:** Added forward migration for `post_categories` and `posts.category_id`/`pinned_at`; implemented `PostCategoryController`, seeded default categories, read-only GET feed, locked community guards, announcements creator-write restriction, and creator category management UI. Tests: `tests/Feature/CommunityFeedCategoriesTest.php` (8 tests / 75 assertions PASS). Evidence: candidate branch `f01-f02-workspace-directory`, manual and automated verification complete.
+**Implementation/verification:** Added forward migration for `post_categories` and `posts.category_id`/`pinned_at`; implemented `PostCategoryController`, seeded default categories, read-only GET feed, locked community guards, announcements creator-write restriction, and creator category management UI. Tests: `tests/Feature/CommunityFeedCategoriesTest.php` (8 tests / 75 assertions PASS). Evidence: candidate branch `f01-f02-workspace-directory`, automated verification complete; manual verification pending.
 
 ### 17.7 Issue drafts — member engagement and learning experience
 
@@ -666,7 +670,7 @@ Each issue's Evidence section contains: Pending implementation commit/PR; Pendin
 
 **Security/failure cases:** Scoped post binding; fresh transaction access checks; unique constraint is the concurrency backstop. Avoid double optimistic increments.
 
-**Implementation/verification:** Implemented PostReactionController (`like`, `unlike`, `save`, `unsave`, `saved`), PostLike, PostBookmark, scoped eager-loading (`likes` loads only viewer active like, `active_likes_count` counts all active likes), and button/saved views. Tests: `tests/Feature/CommunityPostReactionsTest.php` (11 tests / 101 assertions PASS). Evidence: candidate branch `f01-f02-workspace-directory`, manual and automated verification complete.
+**Implementation/verification:** Implemented PostReactionController (`like`, `unlike`, `save`, `unsave`, `saved`), PostLike, PostBookmark, scoped eager-loading (`likes` loads only viewer active like, `active_likes_count` counts all active likes), and button/saved views. Tests: `tests/Feature/CommunityPostReactionsTest.php` (11 tests / 101 assertions PASS). Evidence: candidate branch `f01-f02-workspace-directory`, automated verification complete; manual verification pending.
 
 #### F-06 — Community-scoped search
 
@@ -688,7 +692,7 @@ Each issue's Evidence section contains: Pending implementation commit/PR; Pendin
 
 **Security/failure cases:** Authorization on both query and destination; profile field allowlist; no global search fallback.
 
-**Implementation/verification:** Implemented SearchController (`index`), route `communities.search`, tabbed view `communities.search`, and workspace navigation tab. Tests: `tests/Feature/CommunitySearchTest.php` (5 tests / 62 assertions PASS). Evidence: candidate branch `f01-f02-workspace-directory`, manual and automated verification complete.
+**Implementation/verification:** Implemented SearchController (`index`), route `communities.search`, tabbed view `communities.search`, and workspace navigation tab. Tests: `tests/Feature/CommunitySearchTest.php` (5 tests / 62 assertions PASS). Evidence: candidate branch `f01-f02-workspace-directory`, automated verification complete; manual verification pending.
 
 #### F-07 — Calendar month and list navigation
 
@@ -710,7 +714,7 @@ Each issue's Evidence section contains: Pending implementation commit/PR; Pendin
 
 **Security/failure cases:** Server-authorized range queries; no client dump of all events/meeting URLs. Preserve existing EventWallTime conversion and cancellation semantics.
 
-**Implementation/verification:** Updated `EventController@index`, `Event` model (`startsAtInTimezone`, `endsAtInTimezone`), and `resources/views/communities/events/index.blade.php` with month grid, list navigation, bounded range queries, and timezone conversion. Tests: `tests/Feature/CommunityEventCalendarTest.php` (4 tests / 24 assertions PASS), `tests/Feature/CommunityEventTest.php`, and `tests/Feature/CommunityEventRegressionTest.php` (28 tests total / 147 assertions PASS). Evidence: candidate branch `f01-f02-workspace-directory`, manual and automated verification complete.
+**Implementation/verification:** Updated `EventController@index`, `Event` model (`startsAtInTimezone`, `endsAtInTimezone`), and `resources/views/communities/events/index.blade.php` with month grid, list navigation, bounded range queries, and timezone conversion. Tests: `tests/Feature/CommunityEventCalendarTest.php` (5 tests / 38 assertions PASS), `tests/Feature/CommunityEventTest.php`, and `tests/Feature/CommunityEventRegressionTest.php` (29 tests total / 161 assertions PASS). Evidence: candidate branch `f01-f02-workspace-directory`, automated verification complete; manual verification pending.
 
 #### F-08 — In-app notification center
 
@@ -733,7 +737,7 @@ Each issue's Evidence section contains: Pending implementation commit/PR; Pendin
 
 **Security/failure cases:** No raw content/tokens/email snapshots in job payload. Optional side effects cannot roll back completed payment or grant access. New inbox routes authorize ownership, not only UUID secrecy.
 
-**Implementation/verification:** Created forward migration for `notifications` table with unique `dedupe_key` and `courses.published_revision`; implemented `AppNotification` model (availability filter, summaries, target URL, and deduplicated creation), queued jobs (`SendPostReplyNotification`, `SendMemberActivatedNotification`, `SendCoursePublishedNotification`), `NotificationController` (`index`, `markAsRead`, `markAllAsRead`, `follow`), inbox view, and workspace notification tab with unread count badge. Producers wired into `CommentController@store`, `AcceptInvitation@handle`, `TransitionCommunityMembership@handle`, `SePayWebhookController`, and `CourseController` (`store`/`update`). Tests: `tests/Feature/CommunityNotificationTest.php` (7 tests / 59 assertions PASS, including real database queue worker probe). Evidence: candidate branch `f01-f02-workspace-directory`, manual and automated verification complete.
+**Implementation/verification:** Created forward migration for `notifications` table with unique `dedupe_key` and `courses.published_revision`; implemented `AppNotification` model (availability filter, summaries, target URL, and deduplicated creation), queued jobs (`SendPostReplyNotification`, `SendMemberActivatedNotification`, `SendCoursePublishedNotification`), `NotificationController` (`index`, `markAsRead`, `markAllAsRead`, `follow`), inbox view, and workspace notification tab with unread count badge. Producers wired into `CommentController@store`, `AcceptInvitation@handle`, `TransitionCommunityMembership@handle`, `SePayWebhookController`, and `CourseController` (`store`/`update`). Tests: `tests/Feature/CommunityNotificationTest.php` (10 tests / 68 assertions PASS, including real database queue worker probe). Evidence: candidate branch `f01-f02-workspace-directory`, automated verification complete; manual verification pending.
 
 #### F-09 — Persistent community onboarding
 
@@ -745,17 +749,17 @@ Each issue's Evidence section contains: Pending implementation commit/PR; Pendin
 
 **AC:**
 
-- [ ] AC-01: Fresh active member sees relevant incomplete steps; successful actions complete only matching steps.
-- [ ] AC-02: Refresh/new login and repeated actions preserve one completion per step; another tenant's comment cannot complete A.
-- [ ] AC-03: Invalid/rolled-back comment creates no completion; deleted source does not erase historical completion.
-- [ ] AC-04: Disabled/missing-video/deleted-category settings have defined display/denominator behavior without dead links.
-- [ ] AC-05: Outsider/removed member cannot read or mark tasks; Creator preview does not silently create membership.
+- [x] AC-01: Fresh active member sees relevant incomplete steps; successful actions complete only matching steps.
+- [x] AC-02: Refresh/new login and repeated actions preserve one completion per step; another tenant's comment cannot complete A.
+- [x] AC-03: Invalid/rolled-back comment creates no completion; deleted source does not erase historical completion.
+- [x] AC-04: Disabled/missing-video/deleted-category settings have defined display/denominator behavior without dead links.
+- [x] AC-05: Outsider/removed member cannot read or mark tasks; Creator preview does not silently create membership.
 
 **Dependencies:** F-03 settings and F-04 introduction category. Related F-10 but no points awarded for this checklist.
 
 **Security/failure cases:** Derive automatic completions server-side after successful facts; enforce tenant/user uniqueness and fresh access. No forced content mutations merely to populate demo progress.
 
-**Implementation/verification:** Proposed OnboardingStepCompletion model/action plus a Feed welcome partial; minimal producer hooks. Test action-to-step mapping/settings/replay. Manual: acknowledge → comment → introduction → reload/relogin → second community. Evidence: Pending.
+**Implementation/verification:** Implemented `OnboardingStepCompletion` model, migrations for onboarding fields on communities and completions ledger, `CommunityOnboardingController@acknowledgeVideo`, automatic producers in `CommentController@store` and `PostController@store`, feed welcome partial, and creator onboarding configuration in community settings. Tests: `tests/Feature/CommunityOnboardingTest.php` (5 tests / 39 assertions PASS). Evidence: candidate branch `f01-f02-workspace-directory`, automated verification complete; manual verification pending.
 
 #### F-10 — Points, levels and community leaderboard
 
@@ -767,18 +771,18 @@ Each issue's Evidence section contains: Pending implementation commit/PR; Pendin
 
 **AC:**
 
-- [ ] AC-01: Valid Like yields exactly +1 for the correct A author, no points for liker and no B contribution.
-- [ ] AC-02: Duplicate/concurrent Like, Unlike and re-like preserve one contribution and the expected 1→0→1 total.
-- [ ] AC-03: Self-like/forged point value cannot award points; direct client total/level input has no effect.
-- [ ] AC-04: Delete post or remove liker/author excludes its contribution; reactivation restores eligibility without duplicate rewards.
-- [ ] AC-05: Lifetime/month boundaries, stable ties, zero points, thresholds and final-level state render correctly.
-- [ ] AC-06: Backfill run twice preserves exact totals; ranking pagination and personal rank do not leak B/removed users.
+- [x] AC-01: Valid Like yields exactly +1 for the correct A author, no points for liker and no B contribution.
+- [x] AC-02: Duplicate/concurrent Like, Unlike and re-like preserve one contribution and the expected 1→0→1 total.
+- [x] AC-03: Self-like/forged point value cannot award points; direct client total/level input has no effect.
+- [x] AC-04: Delete post or remove liker/author excludes its contribution; reactivation restores eligibility without duplicate rewards.
+- [x] AC-05: Lifetime/month boundaries, stable ties, zero points, thresholds and final-level state render correctly.
+- [x] AC-06: Backfill run twice preserves exact totals; ranking pagination and personal rank do not leak B/removed users.
 
 **Dependencies:** F-05 valid Like fact and uniqueness contract. F-09 is related, not required. Blocks only gamification display in final acceptance.
 
 **Security/failure cases:** Explain that querying eligibility avoids unsafe mass-reversal writes when membership changes. Add indexes and bounded SQL aggregation; do not loop through all users/posts in PHP. Immutable source identity prevents replay awards. Record this shared contract in Domain & Architecture with its implementation.
 
-**Implementation/verification:** Proposed contribution model/action/query and Leaderboard page; extend reaction transaction minimally. Test lifecycle, replay, backfill and eligibility concurrency. Manual: A likes B's post → author's level/progress → Unlike/re-like → remove liker → switch tenant → rankings. Evidence: Pending.
+**Implementation/verification:** Implemented `PointContribution` ledger with eligible query scope (non-deleted posts, non-self likes, active members/creator), level calculation (levels 1-5 with thresholds 0/5/15/30/60), transaction integration in `PostReactionController@like` and `@unlike`, idempotent `BackfillPointContributions` artisan command, `CommunityLeaderboardController`, leaderboard view with lifetime and current UTC month tabs, personal progress card, and workspace tab. Tests: `tests/Feature/CommunityLeaderboardTest.php` (6 tests / 48 assertions PASS). Evidence: candidate branch `f01-f02-workspace-directory`, automated verification complete; manual verification pending.
 
 ### 17.8 Issue drafts — creator operations and account support
 
@@ -792,17 +796,17 @@ Each issue's Evidence section contains: Pending implementation commit/PR; Pendin
 
 **AC:**
 
-- [ ] AC-01: Fixed fixture with active/pending/removed members, drafts/deleted posts and success/cancel attempts yields exact stated counts.
-- [ ] AC-02: Pending/cancelled/failed payments never contribute to successful receipts; currency/Test Mode label is explicit.
-- [ ] AC-03: Draft/unpublished lessons and ineligible members do not affect the completion ratio; zero denominator never divides by zero.
-- [ ] AC-04: A Creator cannot read B statistics; member/Platform Admin role alone cannot read this workspace.
-- [ ] AC-05: Date boundaries/max range, empty state and pagination/table links work without per-member N+1 queries.
+- [x] AC-01: Fixed fixture with active/pending/removed members, drafts/deleted posts and success/cancel attempts yields exact stated counts.
+- [x] AC-02: Pending/cancelled/failed payments never contribute to successful receipts; currency/Test Mode label is explicit.
+- [x] AC-03: Draft/unpublished lessons and ineligible members do not affect the completion ratio; zero denominator never divides by zero.
+- [x] AC-04: A Creator cannot read B statistics; member/Platform Admin role alone cannot read this workspace.
+- [x] AC-05: Date boundaries/max range, empty state and pagination/table links work without per-member N+1 queries.
 
 **Dependencies:** Existing modules only; F-01 integration when available. F-12/13 add workspace links as each merges; do not render premature routes.
 
 **Security/failure cases:** Creator-only aggregate query; no raw provider payload or member private data in metrics. Additional commercial purposes must update metric definitions explicitly, not silently count new money as old membership receipts.
 
-**Implementation/verification:** Proposed CreatorOverviewController/query/view; no migration unless demonstrated necessary. Tests assert exact formulas from synthetic data. Manual: compare cards to known records → range filter → member denial → B URL. Evidence: Pending.
+**Implementation/verification:** Implemented `CreatorOverviewController`, route `GET /communities/{slug}/manage`, truthful statistics (active memberships, non-deleted posts, published courses, simulated test mode receipts in VND within UTC range, completion ratio formula with zero-denominator safety and eligible membership query scope), date range selector (7/30/90 days clamped to max 90), overview cards, navigation shortcuts, and paginated recent payments table. Tests: `tests/Feature/CreatorOverviewTest.php` (4 tests / 24 assertions PASS). Evidence: candidate branch `f01-f02-workspace-directory`, automated verification complete; manual verification pending.
 
 #### F-12 — Creator orders and personal payment history
 
@@ -814,17 +818,17 @@ Each issue's Evidence section contains: Pending implementation commit/PR; Pendin
 
 **AC:**
 
-- [ ] AC-01: Creator sees only A attempts; filters/pagination by status/date preserve tenant scope.
-- [ ] AC-02: Payer sees only its own attempts; a guessed reference/ID from another payer returns 404.
-- [ ] AC-03: Price change leaves past amount unchanged; cancelled retry remains a separate attempt and successful payment counts once.
-- [ ] AC-04: Safe history after removal exposes no raw payload/secrets/other payer data and grants no community access.
-- [ ] AC-05: All order views are read-only; query params/client POST cannot modify status, amount or entitlement.
+- [x] AC-01: Creator sees only A attempts; filters/pagination by status/date preserve tenant scope.
+- [x] AC-02: Payer sees only its own attempts; a guessed reference/ID from another payer returns 404.
+- [x] AC-03: Price change leaves past amount unchanged; cancelled retry remains a separate attempt and successful payment counts once.
+- [x] AC-04: Safe history after removal exposes no raw payload/secrets/other payer data and grants no community access.
+- [x] AC-05: All order views are read-only; query params/client POST cannot modify status, amount or entitlement.
 
 **Dependencies:** Existing payment source/authorization; blocks F-15/16/17 history integration. Related F-11 only.
 
 **Security/failure cases:** Explicit response column allowlist; no `Payment::toArray()` dump of payload. Ensure creator historical access and payer receipt policy are different from member content access.
 
-**Implementation/verification:** Proposed OrderController/PaymentHistoryController/views/policies or bounded reuse. Existing SePayPaymentTest and PaymentEntitlementRegressionTest remain required regressions for affected access logic. Manual: two users → own history → creator orders → filter/retry → other payer URL → removal. Evidence: Pending.
+**Implementation/verification:** Implemented `CommunityOrderController` (`GET /communities/{slug}/orders`) with tenant-scoped filtering and summary metrics, and `PaymentHistoryController` (`GET /account/payment-history`, `GET /account/payment-history/{payment}`) with safe read-only receipt details, 404 on mismatched payer ID, removal retention without leaking community access or secrets, and no mutations. Regressions: `tests/Feature/CreatorOrdersAndPaymentHistoryTest.php` (5 tests / 39 assertions PASS), `tests/Feature/SePayPaymentTest.php` and `tests/Feature/PaymentEntitlementRegressionTest.php` (22 tests / 172 assertions PASS). Evidence: candidate branch `f01-f02-workspace-directory`, automated verification complete; manual verification pending.
 
 #### F-13 — Content reports and creator moderation queue
 
@@ -836,17 +840,17 @@ Each issue's Evidence section contains: Pending implementation commit/PR; Pendin
 
 **AC:**
 
-- [ ] AC-01: Report A content creates one OPEN record and one deduplicated creator notification; duplicate does not multiply rows.
-- [ ] AC-02: Report B target, invisible/deleted source, empty reason or spoofed reporter is rejected without mutation.
-- [ ] AC-03: A Creator removes/dismisses its report with reason; member cannot resolve/read queue and B Creator cannot act.
-- [ ] AC-04: Remove retains report/history and existing soft-delete behavior; repeated/conflicting resolution cannot overwrite terminal outcome.
-- [ ] AC-05: Removed reporter/closed target has defined unavailable display; sensitive report text is escaped and not leaked via notifications.
+- [x] AC-01: Report A content creates one OPEN record and one deduplicated creator notification; duplicate does not multiply rows.
+- [x] AC-02: Report B target, invisible/deleted source, empty reason or spoofed reporter is rejected without mutation.
+- [x] AC-03: A Creator removes/dismisses its report with reason; member cannot resolve/read queue and B Creator cannot act.
+- [x] AC-04: Remove retains report/history and existing soft-delete behavior; repeated/conflicting resolution cannot overwrite terminal outcome.
+- [x] AC-05: Removed reporter/closed target has defined unavailable display; sensitive report text is escaped and not leaked via notifications.
 
 **Dependencies:** Existing Feed plus F-08 delivery service. Related F-11 workspace navigation.
 
 **Security/failure cases:** Durable moderation records need restrictive retention and a clear profile-deletion guard where appropriate; do not add cascading deletion of history. Throttle report submissions. Do not create a generic unguarded polymorphic target lookup.
 
-**Implementation/verification:** Proposed report model/actions/policy/controller/views and forward migrations; integrate safe F-08 producer. Test target ancestry, duplicate/terminal races, rollback, retention and moderation permissions. Manual: report → creator queue → dismiss one/remove another → re-submit → outsider/Platform Admin denial. Evidence: Pending.
+**Implementation/verification:** Implemented `ContentReport`, forward reporter-retention migration, creator-only moderation queue, safe status filter and English system copy. Submission uses `FeedMutation` to re-read/authorize tenant, membership and target under locks; moderation re-authorizes under locks and applies existing deletion policies. Report-ID/recipient-ID notification dedupe permits distinct reports while retaining legacy notices and supporting after-commit database-worker retry. Final targeted F-13/F-14 verification: 20 tests / 159 assertions PASS, including real worker failure/retry and post-preflight/post-route-binding races. Final full suite: 366 tests / 3014 assertions PASS; PHPStan and Pint PASS. Evidence: `bb8a20b` plus working diff on `f01-f02-workspace-directory`; technical implementation verified, manual/integrated UI acceptance and remote CI pending. Linear status is not changed by this checkpoint.
 
 #### F-14 — Account notification preferences and contextual help
 
@@ -858,28 +862,28 @@ Each issue's Evidence section contains: Pending implementation commit/PR; Pendin
 
 **AC:**
 
-- [ ] AC-01: User disables replies; future reply notice is not delivered, while another user's preference is unchanged.
-- [ ] AC-02: Re-enable applies to future events without backfilling every historical reply; saved preference persists after login.
-- [ ] AC-03: Required creator operational notices cannot be silently disabled; settings explain the distinction.
-- [ ] AC-04: Invalid/spoofed user/preference fields cannot change account ownership/roles or bypass existing email verification.
-- [ ] AC-05: Help links work in the user's role, mobile navigation is usable and payment instructions explicitly prohibit real transfer in Test Mode.
+- [x] AC-01: User disables replies; future reply notice is not delivered, while another user's preference is unchanged.
+- [x] AC-02: Re-enable applies to future events without backfilling every historical reply; saved preference persists after login.
+- [x] AC-03: Required creator operational notices cannot be silently disabled; settings explain the distinction.
+- [x] AC-04: Invalid/spoofed user/preference fields cannot change account ownership/roles or bypass existing email verification.
+- [x] AC-05: Help links work in the user's role, mobile navigation is usable and payment instructions explicitly prohibit real transfer in Test Mode.
 
 **Dependencies:** F-08; F-02 profile integration is related. Does not block unrelated functional modules.
 
 **Security/failure cases:** Allowlisted preferences; no private support logs/emails dumped into help. Existing password/email/deletion retention tests remain valid.
 
-**Implementation/verification:** Minimal ProfileUpdateRequest/ProfileController/settings and delivery preference check; forward schema if needed. Test default/off/on and role-field rejection. Manual: disable → produce new reply → check inbox → re-enable → help. Evidence: Pending.
+**Implementation/verification:** Implemented global reply/course preferences, allowlisted account updates, English profile/help/navigation copy and explicit SePay Test Mode real-transfer prohibition. Tests verify optional reply/course delivery, unchanged existing notices after disabling, and actual required membership/report producers regardless of optional settings. Final targeted F-13/F-14 verification: 20 tests / 159 assertions PASS; full suite: 366 tests / 3014 assertions PASS. PHPStan/Pint and production asset build PASS. Evidence: `bb8a20b` plus working diff; technical implementation verified, manual responsive/navigation acceptance and remote CI pending. No dependency or framework was added.
 
 ### 17.9 Decision-gated issue drafts — complete commerce and messaging coverage
 
-These are represented because the reference contains their surfaces. They are not Ready until the decision recorded below is resolved and the full contract is moved into Domain & Architecture/Linear. Core completion work may continue independently. Do not implement a fake feature in place of the unresolved contract.
+These are represented because the reference contains their surfaces. D-01/D-02 were accepted on 2026-10-13 and recorded in Architecture ADR-009/010. D-03 and D-04 were accepted on 2026-10-14 and recorded in Architecture ADR-011/012. F-15 through F-18 may be implemented against their selected contracts; this does not update live Linear status or certify acceptance.
 
 | Decision | Recommended bounded contract | What must be explicitly selected |
 |---|---|---|
-| D-01 — Individual course sale | Active community membership remains required; courses are INCLUDED or ONE_TIME purchase; paid entitlement is course-specific and current publish/community/member state still gates reading | Adopt this contract and payment-purpose/retention changes, or explicitly exclude separate course sales from release acceptance |
-| D-02 — Monthly access | If needed, use time-limited access plus manual SePay Test Mode renewal; display renew-by/expiry clearly | Term duration, whether existing one-time members are grandfathered, grace period (recommended none), and whether manual renewal is acceptable. Automatic recurring billing is a separate provider decision |
-| D-03 — Affiliate | Creator enables test-only referral tracking and a fixed commission rate; attribution applies only to valid private invitations and verified successful test payment | Attribution window/last-or-first model, rate, eligible purchase purposes, self-referral/cancellation rules; real payouts remain deferred |
-| D-04 — Messaging | Community-scoped two-person asynchronous messages with database storage; fetch on page refresh, no realtime or attachments | Include messaging in this release or leave it explicitly outside the reference-completion commitment, since the mentor functionality was not surveyed |
+| D-01 — Individual course sale | Accepted 2026-10-13: active members may buy a ONE_TIME course through SePay Test Mode; INCLUDED stays the default; course entitlement never grants community membership | Closed: approved course entitlement, payment-purpose and retention changes; real payments remain deferred |
+| D-02 — Monthly access | Accepted 2026-10-13: fixed 30-day UTC term, manual SePay Test Mode renewal, no automatic debit and no grace period | Closed: existing one-time memberships remain lifetime; no retroactive expiry; no scheduler prerequisite for access enforcement |
+| D-03 — Affiliate | Accepted 2026-10-14: first-touch private invitation with 30-day window; creator-configured 0–30% rate; eligible purposes COMMUNITY_ACCESS and COURSE_ACCESS; MEMBERSHIP_RENEWAL excluded; strict referrer effective access required at payment time; self-referrals ineligible; historical snapshots preserved; simulated/unpaid Test Mode ledger | Closed: approved attribution model, rate bounds, eligible purposes, effective-access check, and simulated ledger; real payouts remain deferred |
+| D-04 — Messaging | Accepted 2026-10-14: implement the existing F-18 draft, community-scoped one-to-one asynchronous DB messages, refresh retrieval, participant-only access, no realtime or attachments | Closed: F-18 selected; implementation/provider-independent browser/CI acceptance remains pending |
 
 #### F-15 — Course-specific one-time purchase
 
@@ -887,30 +891,30 @@ These are represented because the reference contains their surfaces. They are no
 
 **Scope:** INCLUDED/ONE_TIME course access and whole-VND price, payment purpose/target, unique course entitlement, checkout/history and locked-course preview. No subscriptions, bundles, coupons, guest purchase, entitlement transfer or production money.
 
-**Workflow/contracts (PROPOSED, blocked by D-01):** Active member sees published course title/price but no paid lesson body/embed/sidebar until entitlement exists. Owning creator can manage/preview drafts without buying. Payment distinguishes COMMUNITY_ACCESS and COURSE_ACCESS with explicit target validation and immutable amount/purpose snapshot; do not reuse invitation-based checkout by forging an invitation. Verified success issues unique `(community_id,course_id,user_id)` entitlement in the same payment transaction. Membership and course entitlement are separate facts. Admission payment never unlocks paid course; course payment never creates/reactivates community membership. Unpublish/revoke blocks reads but retains entitlement/progress. Price/mode changes preserve successful historical entitlements; mode ONE_TIME→INCLUDED permits current active members, INCLUDED→ONE_TIME requires explicit configured access without inventing paid rows.
+**Workflow/contracts (ACCEPTED D-01, 2026-10-13):** Active member sees published course title/price but no paid lesson body/embed/sidebar until entitlement exists. Owning creator can manage/preview drafts without buying. Payment distinguishes COMMUNITY_ACCESS and COURSE_ACCESS with explicit target validation and immutable amount/purpose snapshot; do not reuse invitation-based checkout by forging an invitation. Verified success issues unique `(community_id,course_id,user_id)` entitlement in the same payment transaction. Membership and course entitlement are separate facts. Admission payment never unlocks paid course; course payment never creates/reactivates community membership. Unpublish/revoke blocks reads but retains entitlement/progress. Price/mode changes preserve successful historical entitlements; mode ONE_TIME→INCLUDED permits current active members, INCLUDED→ONE_TIME requires explicit configured access without inventing paid rows. Use the existing authenticated SePay Test Mode bank-transfer webhook, not Payment Gateway checkout or ORDER_PAID. Preserve fail-closed reconciliation for ineligible late events; do not invent refund/review states. Authorization must cover direct reads, progress, search/snippets, outline and analytics, not only hide UI buttons.
 
 **AC:**
 
-- [ ] AC-01: Included course works unchanged; paid course card is visible but lessons/embed are locked before verified success.
-- [ ] AC-02: Successful exact-reference/amount/currency test webhook unlocks exactly one course; duplicate delivery creates no duplicate entitlement.
-- [ ] AC-03: Forged client price/purpose/course/user and wrong-tenant target never unlock; existing admission flow still passes.
-- [ ] AC-04: Cancel/retry and delayed success follow immutable attempt rules; no client redirect grants entitlement.
-- [ ] AC-05: Removed member or draft course blocks access despite entitlement; reactivation/republish restores retained eligible access.
-- [ ] AC-06: Order/history shows purchase purpose and stored price; neither endpoint exposes another payer's course/payment data.
+- [x] AC-01: Included course works unchanged; paid course card is visible but lessons/embed are locked before verified success.
+- [x] AC-02: Successful exact-reference/amount/currency test webhook unlocks exactly one course; duplicate delivery creates no duplicate entitlement.
+- [x] AC-03: Forged client price/purpose/course/user and wrong-tenant target never unlock; existing admission flow still passes.
+- [x] AC-04: Cancel/retry and delayed success follow immutable attempt rules; no client redirect grants entitlement.
+- [x] AC-05: Removed member or draft course blocks access despite entitlement; reactivation/republish restores retained eligible access.
+- [x] AC-06: Order/history shows purchase purpose and stored price; neither endpoint exposes another payer's course/payment data.
 
 **Dependencies:** D-01 closed, F-12; affects course/lesson policies, progress, search, notifications, analytics and paid provider reconciliation. Blocks commercial acceptance, not basic Classroom.
 
 **Security/failure cases:** Significant shared authorization/financial contract; explicit impact review and purpose-specific dispatch. Do not add course access by weakening community authorization. Preserve financial records on deletion. Document unsupported delayed/refunded states honestly.
 
-**Implementation/verification:** Forward schema and purpose-specific actions behind current gateway; update every reading/progress/search path affected. Automated admission+course negative matrix, webhook replay/cancel races; real provider-backed Test Mode success for this new purpose. Manual: card lock → pay test → unlock → duplicate → suspend member → denial → reactivate. Evidence: Pending.
+**Implementation/verification:** Forward migrations, immutable course purchase attempts, the unique retained entitlement ledger and purpose-specific SePay Test Mode dispatch implement the accepted contract. The latest audit remediation additionally withholds locked outline/description, aligns completion numerator/denominator, separates retained receipts from current access, and rechecks checkout eligibility. F-16 now supplies the shared effective-membership predicate. Final combined verification: 397 tests / 4100 assertions PASS, PHPStan/Pint and assets PASS; exact commands, revision and evidence are in `WORKING_CONTEXT.md`. Earlier F-15-only counts remain historical in its checkpoint. Provider-backed Test Mode, manual UI acceptance and remote CI remain pending; no Linear status change.
 
 #### F-16 — Time-limited membership and manual renewal
 
-**Outcome:** Member sees an access expiry and renews a selected membership term through SePay Test Mode, if D-02 is adopted.
+**Outcome:** Member sees an access expiry and renews a fixed 30-day membership term manually through SePay Test Mode.
 
-**Scope:** Creator-configured term duration/price, access expiry, renewal attempt and visible expired/renewable state. Excludes automatic bank charging and inventing a subscription provider API.
+**Scope:** Creator selects one-time access or a fixed 30-day paid term and configures its whole-VND price; access expiry, renewal attempt and visible expired/renewable state. No configurable term lengths, automatic bank charging, grace period or production money.
 
-**Workflow/contracts (PROPOSED, blocked by D-02):** Preserve existing one-time admission unless an explicit grandfathering/migration decision changes it. Recommended term: 30 calendar days as UTC instants; successful renewal extends from `max(now, current_expiry)` by the purchased immutable term. One paid attempt/event extends once. Expired is an access calculation (`expires_at <= now`), not permission to overwrite SUSPENDED/REMOVED/LEFT. Creator suspension stays authoritative; renewal must never restore a removed/suspended membership. Define whether late payment against an ineligible attempt is recorded as paid-without-access requiring review; do not silently reactivate. Rejoin still follows valid invitation policy. Every content/media/search/notification/directory path evaluates current expiry even if scheduler is late/stopped. Scheduler is for reminders/housekeeping only; a new runtime scheduler must be documented and tested. Pending notifications recheck expiry at delivery.
+**Workflow/contracts (ACCEPTED D-02, 2026-10-13):** Preserve existing one-time memberships as lifetime access (no retroactive expiry); changing community billing settings must not convert them. New term admission and renewal snapshot 30 days and whole-VND price into immutable attempts. Successful renewal extends from `max(now('UTC'), current_expiry)` by exactly 30 UTC days, once per verified attempt/event. Zero grace: `expires_at <= now('UTC')` denies content access. Expired is an access calculation, not permission to overwrite SUSPENDED/REMOVED/LEFT; renewal never restores a revoked membership. An expired otherwise-ACTIVE term member may use its own safe renewal/history routes, not internal content routes. Preserve existing fail-closed handling for ineligible late webhooks; no new refund/review state or automatic activation. Rejoin follows valid invitation policy. Every content/media/search/notification/directory path evaluates current expiry even if scheduler/queue is stopped. Use one central predicate/query scope; do not add a scheduler merely to flip expired states. Pending notifications recheck expiry at delivery. Add MEMBERSHIP_RENEWAL to the purpose-specific dispatch established in F-15; admission, course purchase and renewal effects remain separate.
 
 **AC:**
 
@@ -921,11 +925,11 @@ These are represented because the reference contains their surfaces. They are no
 - [ ] AC-05: Term/price edits do not change pending snapshots or old receipts; boundary/time-travel tests cover month/day cases.
 - [ ] AC-06: Scheduler/queue offline cannot prolong unauthorized content access; Test Mode renewal and expiry feedback work on web.
 
-**Dependencies:** D-02 closed, F-12; F-15 only if one unified payment-purpose schema is adopted first. Blocks final term-access acceptance.
+**Dependencies:** D-02 closed, F-12 and the unified purpose-specific payment dispatch from F-15. Implement F-15 first, then F-16; do not concurrently rewrite the shared payment/policy contracts. Blocks final term-access acceptance.
 
 **Security/failure cases:** Broadest tenant-access impact: add one reviewed access predicate and update all consumers, not scattered expiry checks. No fake recurring success from cron. Record billing semantics in an ADR before implementation.
 
-**Implementation/verification:** Forward membership/attempt fields; approved purpose handling; expiry-aware policy/action/query integration and scheduler setup only if needed. Automated clock-boundary/provider replay/revocation tests; a live manual renewal test and offline-scheduler access probe. Manual: active term → expiry → denial → test renewal → restored eligible access → suspend → renewal cannot restore. Evidence: Pending.
+**Implementation/verification:** Candidate source implements additive migration `170001`, centralized effective membership object/SQL predicates, immutable term/price/membership snapshots, purpose-specific admission/renewal dispatch, self-only My Access renewal/history UI and expiry-aware module/job/aggregate consumers. Verification commands/results and current limitations are recorded in `WORKING_CONTEXT.md`; source existence or local tests do not close provider/browser/CI acceptance. No scheduler is required. Final local suite: 397 tests / 4100 assertions PASS, including exact expiry, provider-event replay, rollback, independent-process concurrency/revocation and legacy forward upgrade. PHPStan/Pint/assets PASS. Development migration 170001 and queue reload completed on 2026-10-14, with legacy-row preservation and current health/daemon probes PASS; deployment evidence is in `WORKING_CONTEXT.md`. Provider-backed Test Mode and browser/offline-worker acceptance remain pending. Manual: active term → expiry → denial → test renewal → restored eligible access → suspend → renewal cannot restore. Formal acceptance/remote CI: Pending.
 
 #### F-17 — Private referral tracking and simulated affiliate ledger
 
@@ -933,7 +937,7 @@ These are represented because the reference contains their surfaces. They are no
 
 **Scope:** Optional creator-enabled affiliate rate, opaque referral code, attribution via email-bound invitation and read-only commission ledger. No mass mailing, shared public invite acceptance, real payout/refund/tax workflow or arbitrary commission edits.
 
-**Workflow/contracts (PROPOSED, blocked by D-03):** Recommended first valid referral attribution for 30 days, fixed percentage 0–30% configured by Creator. A referrer requests an invitation for a target email; Creator approves using the existing invitation contract before any delivery/access. Referral code alone never grants membership or reveals group metadata to outsiders. Persist inviter/referrer attribution at approved invitation time; successful payment snapshots the rate/beneficiary. Only verified successful eligible purpose generates one commission per payment; cancelled/failed/replayed attempts generate none. Self-referral and same payer/beneficiary are ineligible. Store whole-VND commission using floor(amount × rate / 100); do not use float money. Label all values simulated/unpaid. Define exclusion of zero-rate/free invitations explicitly.
+**Workflow/contracts (ACCEPTED D-03, 2026-10-14):** First-touch private invitation attribution with a strict 30-day window from invitation creation (`referrer_id` on `community_invitations`). Fixed whole-percentage commission rate (0–30%) configured by Creator per community (0% disables commission). Eligible purposes are initial admission (`COMMUNITY_ACCESS`) and one-time course purchase (`COURSE_ACCESS`) within 30 days of the member's initial accepted invitation. `MEMBERSHIP_RENEWAL` is explicitly excluded. Strict referrer effective access required at payment confirmation time: referrer must have active effective access (`$referrerMembership->hasEffectiveAccess()`, or creator) at the exact moment of payment to earn commission; expired/removed referrers receive no new commission. Self-referrals (`payer_id === referrer_id`) never earn commission. A referrer requests an invitation for a target email; Creator approves using the existing invitation contract before delivery/access. Referral code alone never grants membership or reveals private community metadata to outsiders. Only verified successful eligible payment creates one immutable commission per payment attempt; replay, cancelled, or failed attempts generate none. Commission arithmetic uses integer floor: `floor(payment_amount * rate / 100)` in VND; no float money. Changing community commission rate preserves historical snapshots. Historical commission rows are permanently retained and viewable in the referrer's personal account view even if their membership subsequently lapses. All amounts explicitly labeled "Simulated / Unpaid" (Test Mode); no real payouts, refunds, tax handling or external banking.
 
 **AC:**
 
@@ -943,19 +947,19 @@ These are represented because the reference contains their surfaces. They are no
 - [ ] AC-04: Referrer sees only its safe totals/records; Creator sees only own tenant; member cannot edit attribution/rate/status.
 - [ ] AC-05: No UI claims payout completed or real earnings; retention survives account/content lifecycle without deleting ledger history.
 
-**Dependencies:** D-03 closed and F-12; other payment-purpose slices only if their purposes are selected as eligible. Existing invitation delivery/security remains required.
+**Dependencies:** D-03 closed and F-12, F-15 (for COURSE_ACCESS purposes), F-16 (for referrer effective access checking). Existing invitation delivery/security remains required.
 
 **Security/failure cases:** Throttle invitation requests; creator approval prevents using the feature to spam arbitrary emails. No raw invite token/payment payload/payer email in affiliate views. Attribution is a financial fact, not a browser-local variable.
 
-**Implementation/verification:** Proposed ReferralAttribution/Commission models/actions and creator/member pages, forward migrations and restrictive financial retention. Test approval/email binding/window/rate rounding/unique payment. Manual: request → approve → invited email accepts/pays test → ledger → replay → unrelated tenant. Evidence: Pending.
+**Implementation/verification:** Candidate source implements additive migration `2026_10_14_180001_create_referral_tracking_and_commissions_table.php`, retained commission/request models and purpose-specific SePay Test Mode attribution. The scoped audit corrected initial-invitation selection/rejoin/window boundaries, atomic locked approval/rejection, visible Creator validation errors and referral-rate creation validation/persistence. Commission arithmetic uses integer `intdiv`; successful approval says queued, not delivered. Final scoped verification: 62 tests / 672 assertions PASS; full suite: 418 tests / 4211 assertions PASS on guarded MySQL `scool_test`; PHPStan no errors, Pint 233 files PASS, Vite build PASS (3.77s) and shared contract PASS. Exact revision, commands, red/green cases and review limitations are in `WORKING_CONTEXT.md`; earlier counts are historical. AC remains open for formal acceptance: development migration `180001`, provider-backed Test Mode, browser/visual flows and remote CI are pending. Manual: request → approval/conflict feedback → verified test payment → exact commission → boundary/rejoin/replay denial → retained safe history. F-18 is selected as the next source slice under ADR-012.
 
 #### F-18 — Community-scoped asynchronous messaging
 
-**Outcome:** Two currently eligible users in one community exchange private plain-text messages, if D-04 is selected.
+**Outcome:** Two currently eligible users in one community exchange private plain-text messages. F-18 was selected by the user on 2026-10-14.
 
 **Scope:** One-to-one tenant conversation, inbox, paginated messages, send/read and refresh-based retrieval. No realtime/websocket, attachments, group chat, global contact lookup or online-status indicator.
 
-**Workflow/contracts (PROPOSED, blocked by D-04):** Start conversation from F-02 directory. Community ID plus canonical sorted participant pair identifies a conversation with a unique constraint. Both participants must currently be active members or owning creator of the ACTIVE tenant. Same participants in A/B have separate conversations. Message body 1–2,000 escaped plain-text characters; client send ID is bound to sender/conversation and unique to avoid duplicate network retries. Only participants read; Creator/Platform Admin have no blanket access to others' chats. Revocation hides content and blocks send; retained messages do not authorize access. No body preview/unread counts for inaccessible conversations. No retention/purge claim without a separate decision.
+**Workflow/contracts (ACCEPTED D-04, 2026-10-14):** Start conversation from F-02 directory. Community ID plus canonical sorted participant pair identifies a conversation with a unique constraint. Both participants must currently have effective membership access or be the owning creator of the ACTIVE tenant; raw ACTIVE status does not bypass F-16 expiry. Same participants in A/B have separate conversations. Message body 1–2,000 escaped plain-text characters; client send ID is bound to sender/conversation and unique to avoid duplicate network retries. Only participants read; Creator/Platform Admin have no blanket access to others' chats. Revocation/expiry hides content and blocks send; retained messages do not authorize access. No body preview/unread counts for inaccessible conversations. No retention/purge claim without a separate decision.
 
 **AC:**
 
@@ -965,11 +969,11 @@ These are represented because the reference contains their surfaces. They are no
 - [ ] AC-04: Remove participant/suspend tenant blocks reads/sends and hides inbox previews/counts; failure never appears sent.
 - [ ] AC-05: Oversize/HTML/spoofed sender and invalid recipient fail without mutation; throttled sends produce understandable feedback.
 
-**Dependencies:** D-04 and F-02; F-08 only if chat notifications are separately selected, otherwise not a blocker.
+**Dependencies:** D-04 closed; F-02 directory and the shared effective-access contract established in F-16. F-08 only if chat notifications are separately selected, otherwise not a blocker.
 
 **Security/failure cases:** Fresh participant/state recheck under locks; directory eligibility does not replace conversation authorization. Sensitive content must not be published in logs or audit screenshots.
 
-**Implementation/verification:** Proposed Conversation/Message models/policies/actions/controller/views. Targeted participant/tenant/replay tests and two-session browser flow. Manual: start → reply → refresh → other participant denial → remove access. Evidence: Pending.
+**Implementation/verification:** Candidate source implements migration `2026_10_14_190001_create_community_messages_table.php`, participant-only policy, messaging controller/models/Blade and directory/workspace integration. The scoped audit additionally corrected concurrent/revoked start, locked page-only read receipts, latest-page retrieval, mandatory retry keys including `0`, bounded SQL-filtered inbox/counts, recipient existence disclosure and validation draft/error handling. Final scoped verification: 43 tests / 388 assertions PASS on guarded MySQL `scool_test`, including five independent-process concurrency cases; full suite: 437 tests / 4328 assertions PASS, configured PHPStan no errors, read-only Pint 244 files PASS, Vite build PASS and shared contract PASS. Earlier 423-test implementation evidence is historical; exact final commands/revision/results are in `WORKING_CONTEXT.md`. AC remains open: development migrations `180001`/`190001`, browser/visual/provider flows and current-head remote CI/review are pending. Manual: directory start → send/refresh → newest page with page-only read receipts → tenant/nonparticipant/expiry denial → duplicate/retry → validation feedback. F-19 is the only remaining selected roadmap slice after the user's correction; no additional feature is implied.
 
 ### 17.10 F-19 — Functional completion acceptance
 
@@ -1025,4 +1029,4 @@ Replace F-01/section with the selected slice. The receiving agent should not ind
 
 Audit handoff should contain the exact base/head and dirty diff, issue contract, actual touched paths, proposed-vs-implemented decisions, targeted/full/CI results, migration/runtime impact, screenshot/manual script and evidence limits. Review findings use severity and a concrete reproduction. Fix confirmed in-scope defects, then rerun affected checks; do not repeat complete discovery/tests after documentation-only edits. Audit priorities: access/tenant consistency → transactional correctness → data/financial retention → user flow/error feedback → query limits → cosmetic concerns only if in scope.
 
-The next implementation slice is F-01. Its dependencies are already in source; establish its Linear contract/metadata and branch before coding. The rest remains ordered backlog rather than simultaneous In Progress work.
+The F-01 prompt above is a reusable template, not the current implementation position. Current source/checkpoint evidence covers F-01 through F-18, including scoped F-17/F-18 audit corrections; source existence does not imply formal acceptance. Consult the latest F-18 audit and F-19 continuation in `docs/WORKING_CONTEXT.md`, verify actual issue metadata, and prepare only F-19 acceptance for the selected feature set. The user corrected the earlier reference to two remaining features; do not invent F-20 or reopen unrelated design decisions. Keep outstanding runtime/provider/manual/CI/independent-host evidence explicit.

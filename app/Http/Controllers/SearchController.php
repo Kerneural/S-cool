@@ -25,7 +25,7 @@ class SearchController extends Controller
 
         $user = $request->user();
         $isCreator = $community->isCreator($user);
-        $isActiveMember = $community->memberships()->where('user_id', $user->id)->where('status', 'ACTIVE')->exists();
+        $isActiveMember = $community->memberships()->where('user_id', $user->id)->effective()->exists();
 
         if (! $isCreator && ! $isActiveMember) {
             abort(404);
@@ -80,21 +80,27 @@ class SearchController extends Controller
 
             // 2. Courses Query (Tenant-scoped, published only for non-creators)
             $coursesQuery = $community->courses()
-                ->where(function ($q) use ($escaped): void {
+                ->where(function ($q) use ($escaped, $isCreator, $user): void {
                     $q->where('title', 'like', "%{$escaped}%")
-                        ->orWhere('description', 'like', "%{$escaped}%");
+                        ->orWhere(function ($description) use ($escaped, $isCreator, $user): void {
+                            $description->where('description', 'like', "%{$escaped}%");
+                            if (! $isCreator) {
+                                $description->entitledTo($user);
+                            }
+                        });
                 });
 
             if (! $isCreator) {
                 $coursesQuery->published();
             }
 
-            // 3. Lessons Query (Ancestry-checked within community, published only for non-creators)
+            // 3. Lessons Query (Ancestry-checked within community, published only for non-creators, excluding locked paid courses)
             $lessonsQuery = Lesson::query()
-                ->whereHas('courseSection.course', function ($q) use ($community, $isCreator): void {
+                ->whereHas('courseSection.course', function ($q) use ($community, $isCreator, $user): void {
                     $q->where('community_id', $community->id);
                     if (! $isCreator) {
                         $q->where('status', 'PUBLISHED');
+                        $q->entitledTo($user);
                     }
                 })
                 ->where(function ($q) use ($escaped): void {
@@ -111,7 +117,7 @@ class SearchController extends Controller
                 ->where(function ($query) use ($community): void {
                     $query->where('id', $community->creator_id)
                         ->orWhereHas('memberships', function ($q) use ($community): void {
-                            $q->where('community_id', $community->id)->where('status', 'ACTIVE');
+                            $q->where('community_id', $community->id)->effective();
                         });
                 })
                 ->where(function ($q) use ($escaped): void {

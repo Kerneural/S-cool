@@ -390,11 +390,13 @@ canAccessInternalContent =
     community.status == ACTIVE
     AND (
         user.id == community.creator_id
-        OR membership.status == ACTIVE
+        OR (membership.status == ACTIVE
+            AND (membership.access_kind == LIFETIME
+                OR (membership.access_kind == TERM AND membership.expires_at > now_UTC)))
     )
 ```
 
-Với lesson còn phải thỏa `lesson.status == PUBLISHED`. Platform Admin dùng policy riêng, không đi qua biểu thức member/creator này.
+Member lesson reads/progress additionally require published course and lesson plus effective course entitlement. Creator preview is separate from member progress; Platform Admin has no content bypass.
 
 ### Webhook sequence
 
@@ -643,6 +645,7 @@ Invalid authentication/reference/amount/currency returns an error, changes no me
 ### ADR-004 — Membership-derived access
 
 - Status: Accepted
+- Baseline remains implemented; ADR-009/010 below approve its extension for F-15/F-16. Those future entitlements/expiry are not implemented merely by updating this document.
 - Decision: Quyền nội bộ suy ra từ community state + creator ownership hoặc ACTIVE membership; không tạo entitlement table riêng.
 - Consequence: Ít state hơn; recurring plan/course-level entitlement phải thiết kế lại sau.
 - Revisit: Khi có tier, subscription, private course hoặc bundle.
@@ -681,6 +684,47 @@ Invalid authentication/reference/amount/currency returns an error, changes no me
 - Decision: Community không public/discoverable; Creator mời email cụ thể bằng token một lần có expiry/revoke.
 - Consequence: Giảm exposure và đúng mô hình nhóm riêng; tăng invitation lifecycle/email flow và không có organic discovery.
 - Revisit: Chỉ khi mentor/product owner thay đổi rõ privacy/legal boundary.
+
+### ADR-009 — Course-specific one-time access (F-15)
+
+- Status: Accepted on 2026-10-13; source implementation and local audit corrections exist. Provider-backed, browser and remote acceptance are tracked separately in `WORKING_CONTEXT.md`.
+- Courses default to INCLUDED; Creator may select ONE_TIME with a positive whole-VND price. Current active community access is still required for purchase and learning. Creator preview remains separate from member progress authorization.
+- Introduce immutable payment purpose/target/amount snapshots and purpose-specific reconciliation. COMMUNITY_ACCESS never unlocks a paid course; COURSE_ACCESS never creates or reactivates membership. Do not fabricate an invitation for a course purchase.
+- A verified authenticated SePay Test Mode bank-transfer event grants one retained course entitlement in the payment transaction. Provider reference/amount/currency, tenant, payer, target, current eligibility and terminal state must all be checked under the established locks. Preserve existing fail-closed behavior for ineligible late events; no real payments, refunds or new review states are authorized.
+- Central course access checks must cover lesson body/embed/outline, progress, search/snippets and relevant notification/analytics consumers. Published title/price is a permitted locked-course preview only for current community members. Unpublishing/revocation blocks reading without deleting progress or entitlement.
+- Forward migrations preserve existing INCLUDED behavior, legacy admission attempts and successful receipts. Order/history show the true purpose; financial aggregates must not silently label course receipts as membership-only revenue. Learning completion aggregates must exclude inaccessible member/lesson pairs.
+- Trade-off: a small retained entitlement ledger increases policy/query coupling, but avoids mixing course ownership with community membership. No bundles, coupons, subscriptions or entitlement transfers.
+
+### ADR-010 — Fixed-term access with manual Test Mode renewal (F-16)
+
+- Status: Accepted on 2026-10-13; implementation candidate authorized after F-15 audit remediation. Current verification evidence is recorded in `WORKING_CONTEXT.md`.
+- Fixed term: 30 UTC days, zero grace, manual renewal using SePay Test Mode. No automatic debit, recurring provider API or scheduler prerequisite.
+- Existing one-time memberships are grandfathered as lifetime; no migration or subsequent community billing edit retroactively expires them. New term admission/renewal stores an immutable duration/price snapshot.
+- Effective member access requires ACTIVE membership, ACTIVE community and an unexpired term (or grandfathered lifetime access). At `expires_at <= now('UTC')`, deny internal access immediately even if every worker/scheduler is offline. Keep Creator ownership rules and administrative revocation authoritative.
+- MEMBERSHIP_RENEWAL extends an eligible term from `max(now('UTC'), current_expiry)` by the purchased 30 days, exactly once in the verified payment transaction. It never restores SUSPENDED/REMOVED/LEFT access. Preserve existing fail-closed late-event handling; do not add unsupported review/refund states.
+- Expired otherwise-ACTIVE term members retain only their own safe renewal/status/history routes; course entitlements do not bypass community expiry. Rejoin still needs the existing valid invitation contract.
+- Use one shared access predicate and SQL scope across policies, list queries, media, feed mutations, Classroom/progress, search, directory, onboarding, scoring, notifications and checkout. Queued deliveries recheck effective access. Regression tests must preserve legacy behavior and exact expiry/replay/revocation boundaries.
+- Implemented fields: `communities.billing_period` (ONE_TIME/TERM_30_DAYS), `community_memberships.access_kind` (LIFETIME/TERM) and UTC `expires_at`; immutable attempt fields `membership_access_kind`, `term_days`, and `community_membership_id`. `CommunityMembership::hasEffectiveAccess()` and `effective()`/`applyEffectiveAccess()` share the state/term/community rules. A TERM record without expiry fails closed.
+- Existing TERM memberships retain their expiry when community billing configuration changes. Their manual renewal buys 30 days at the current configured paid price; pending renewals keep the original price/term. Switching to FREE makes new paid renewal unavailable without converting existing terms. A new free invitation cannot convert an ACTIVE term into lifetime or restore an expired term; LEFT rejoin follows the existing new-invitation contract.
+- Trade-off: manual renewal is simpler and testable without a subscription provider, but is not automatic recurring billing. Label it accurately in English UI/help and retain Test Mode warnings.
+
+### ADR-011 — Private referral tracking and simulated affiliate ledger (F-17)
+
+- Status: Accepted on 2026-10-14 following D-03 decision alignment; source implementation and scoped audit corrections are recorded in `WORKING_CONTEXT.md`. Local deployment, browser/provider and formal acceptance remain separate pending gates.
+- Private attribution model & window: First-touch uses the payer's initial ACCEPTED invitation in this community, ordered by acceptance time then ID, including an invitation without a referrer. A later invitation/rejoin cannot replace attribution or restart the window. The window ends at creation time plus 30 days; a payment at or after that instant is excluded. Referral code alone never grants membership or reveals private community metadata to outsiders.
+- Eligible payment purposes: `COMMUNITY_ACCESS` (initial admission) and `COURSE_ACCESS` (one-time course purchase) within the 30-day window qualify. `MEMBERSHIP_RENEWAL` is explicitly excluded from commission generation.
+- Commission rate configuration: Creator-configurable integer between 0% and 30% per community (default 0% / disabled). Whole-VND floor arithmetic: `floor(amount * rate / 100)`. 0% disables commission generation. Changing rate preserves historical snapshots.
+- Referrer eligibility & retention: Strict effective access required at transaction confirmation: Referrer must have active effective access (`$referrerMembership->hasEffectiveAccess()`, or creator) at the exact payment confirmation time to earn commission. Self-referrals (`payer_id === referrer_id`) never generate commission. Historical commission ledger rows are permanently retained and viewable by the referrer in their personal account view even if their membership subsequently expires or is removed.
+- Privacy & Tenancy: Referrer view is private and self-only, showing only safe simulated totals without exposing payer personal data or payment credentials. Creator view shows tenant-aggregated referrals. All figures explicitly labeled "Simulated / Unpaid" (Test Mode). No real payouts, refunds, tax handling, or external banking integrations.
+
+### ADR-012 — Community-scoped asynchronous messaging (F-18)
+
+- Status: Accepted on 2026-10-14. The user explicitly selected implementing F-18 according to the existing Delivery Plan draft; this is a scope decision, not implementation or acceptance evidence.
+- One-to-one private conversations belong to an ACTIVE community and a canonical sorted participant pair, with a unique constraint. Both participants must currently have effective membership access or be the owning Creator. Same participants in two communities have distinct conversations.
+- Start from the authorized directory; show inbox and paginated ordered messages through page refresh. Messages are escaped plain text, 1–2000 characters. Require a nonempty client send ID bound to sender/conversation so retries cannot duplicate messages; ignore spoofed sender/tenant identity and return the same unavailable response for missing/ineligible recipients. Filter eligible pairs before inbox pagination and unread aggregation. The default message page contains the newest 30 messages, ordered chronologically within the page; only displayed incoming messages become read.
+- Only eligible participants can read/send or see conversation metadata/previews/counts. Creator and Platform Admin roles grant no blanket access to another pair's messages. Recheck eligibility under locks for writes; expiry, revocation or inactive community denies access immediately, including saved URLs. Retained messages are never an access grant.
+- No realtime/websocket, attachments, group chat, global contact lookup or online-status claims. Chat notifications and automatic retention/purge are not selected; do not add them or a scheduler/runtime service incidentally. No new dependency or payment contract change is implied.
+- Source and scoped tenant/state/retry/rollback/independent-process concurrency tests are verified in the latest F-18 audit checkpoint. Browser flows, development forward upgrades, remote CI/review and formal acceptance remain pending. Delivery Plan F-18 owns the AC; current technical routing and evidence remain in `WORKING_CONTEXT.md`.
 
 ## 15. Architecture completion checklist
 

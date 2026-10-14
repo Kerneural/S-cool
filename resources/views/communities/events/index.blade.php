@@ -87,6 +87,21 @@
 
             <!-- Main Content Area -->
             @if ($view === 'month')
+                @if (! empty($hasMoreEvents))
+                    <div class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <span>{{ __('This month has more than 100 events. The calendar grid displays the first 100 events.') }}</span>
+                        </div>
+                        <a href="{{ route('communities.events.index', [$community, 'view' => 'list', 'month' => $month, 'display_timezone' => $displayTimezone]) }}"
+                           class="inline-flex items-center text-xs font-semibold text-amber-900 underline hover:text-amber-700 shrink-0">
+                            {{ __('Switch to List view to see all events &rarr;') }}
+                        </a>
+                    </div>
+                @endif
+
                 <!-- Month Grid -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <!-- Day of week headers -->

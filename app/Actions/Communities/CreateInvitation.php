@@ -12,14 +12,17 @@ use Illuminate\Validation\ValidationException;
 
 class CreateInvitation
 {
-    public function handle(Community $community, User $creator, string $email): CommunityInvitation
+    public function handle(Community $community, User $creator, string $email, ?User $referrer = null): CommunityInvitation
     {
-        return DB::transaction(function () use ($community, $creator, $email): CommunityInvitation {
+        return DB::transaction(function () use ($community, $creator, $email, $referrer): CommunityInvitation {
             $current = Community::query()->whereKey($community->id)->lockForUpdate()->firstOrFail();
             Gate::forUser($creator)->authorize('update', $current);
             $normalized = strtolower(trim($email));
             if ($normalized === strtolower($creator->email)) {
                 throw ValidationException::withMessages(['email' => 'The creator already has access.']);
+            }
+            if ($referrer && $normalized === strtolower($referrer->email)) {
+                throw ValidationException::withMessages(['email' => 'Referrers cannot refer themselves.']);
             }
             $existing = $current->invitations()->where('normalized_email', $normalized)->where('status', 'PENDING')->get();
             if ($existing->contains(fn ($invite) => $invite->isPending())) {
@@ -33,6 +36,7 @@ class CreateInvitation
             $invite->forceFill([
                 'community_id' => $current->id,
                 'inviter_id' => $creator->id,
+                'referrer_id' => $referrer?->id,
                 'normalized_email' => $normalized,
                 'expires_at' => now()->addDays(7),
             ])->save();

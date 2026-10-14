@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Payment;
 
+use App\Actions\Payments\InitiateCourseCheckout;
 use App\Actions\Payments\InitiatePaidCheckout;
 use App\Contracts\PaymentGateway;
 use App\Http\Controllers\Controller;
+use App\Models\Community;
+use App\Models\Course;
 use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -29,11 +32,21 @@ class PaymentController extends Controller
     }
 
     /**
+     * Initiate checkout for a paid course purchase.
+     */
+    public function initiateCourse(Request $request, Community $community, Course $course, InitiateCourseCheckout $action): RedirectResponse
+    {
+        $payment = $action->handle($community, $course, $request->user());
+
+        return redirect()->route('payments.checkout', $payment->external_reference);
+    }
+
+    /**
      * Display checkout screen with SePay Sandbox transfer details and QR code.
      */
     public function checkout(Request $request, string $reference, PaymentGateway $gateway): View|RedirectResponse
     {
-        $payment = Payment::with(['community', 'user'])
+        $payment = Payment::with(['community', 'user', 'course'])
             ->where('external_reference', $reference)
             ->firstOrFail();
 
@@ -44,10 +57,22 @@ class PaymentController extends Controller
         }
 
         if ($payment->isSucceeded()) {
+            if (! $payment->grantsCurrentAccess($request->user())) {
+                return redirect()->route('payments.status', $reference);
+            }
+
+            if ($payment->isCourseAccess() && $payment->course) {
+                return redirect()
+                    ->route('communities.courses.show', [$payment->community, $payment->course])
+                    ->with('status', 'Course unlocked! Welcome to the course.');
+            }
+
             return redirect()
                 ->route('communities.show', $payment->community)
                 ->with('status', 'Payment completed. Welcome to the community!');
         }
+
+        abort_if(($payment->isCourseAccess() || $payment->isMembershipRenewal()) && ! $payment->canResumeCheckout($request->user()), 404);
 
         $checkoutData = $gateway->generateCheckoutData($payment);
 
@@ -63,29 +88,43 @@ class PaymentController extends Controller
      */
     public function status(Request $request, string $reference): View|JsonResponse|RedirectResponse
     {
-        $payment = Payment::with(['community'])
+        $payment = Payment::with(['community', 'course'])
             ->where('external_reference', $reference)
             ->firstOrFail();
 
         abort_unless($payment->user_id === $request->user()->id, 404);
 
+        $succeededRedirectUrl = null;
+        if ($payment->isSucceeded() && $payment->grantsCurrentAccess($request->user())) {
+            $succeededRedirectUrl = ($payment->isCourseAccess() && $payment->course)
+                ? route('communities.courses.show', [$payment->community, $payment->course])
+                : route('communities.show', $payment->community);
+        }
+
         if ($request->wantsJson()) {
             return response()->json([
                 'status' => $payment->status,
                 'is_succeeded' => $payment->isSucceeded(),
-                'redirect_url' => $payment->isSucceeded() ? route('communities.show', $payment->community) : null,
+                'redirect_url' => $succeededRedirectUrl,
             ]);
         }
 
-        if ($payment->isSucceeded()) {
+        if ($payment->isSucceeded() && $payment->grantsCurrentAccess($request->user())) {
+            if ($payment->isCourseAccess() && $payment->course) {
+                return redirect()
+                    ->route('communities.courses.show', [$payment->community, $payment->course])
+                    ->with('status', 'Payment confirmed. Course unlocked!');
+            }
+
             return redirect()
                 ->route('communities.show', $payment->community)
-                ->with('status', 'Payment confirmed. Membership activated!');
+                ->with('status', $payment->isMembershipRenewal() ? 'Payment confirmed. Membership term renewed!' : 'Payment confirmed. Membership activated!');
         }
 
         return view('payments.status', [
             'payment' => $payment,
             'community' => $payment->community,
+            'accessAvailable' => $payment->grantsCurrentAccess($request->user()),
         ]);
     }
 

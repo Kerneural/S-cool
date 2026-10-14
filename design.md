@@ -20,9 +20,10 @@ Design for these three experiences:
 
 Use a light canvas, white surfaces, dark text and restrained teal accents. Community
 covers/avatars provide local identity inside a consistent application shell. Primary
-UI copy should be Vietnamese when localization is implemented; retain existing
-translation keys and migrate related copy together in a scoped localization change.
-Shared technical documentation remains English.
+UI copy currently uses English as the baseline with existing translation keys and
+helpers (`__()`). Vietnamese localization is deferred to a separate approved task
+and must migrate related copy together in a scoped localization change. Shared
+technical documentation remains English.
 
 Required stack: Laravel Blade, Alpine.js, Tailwind CSS and Vite. Prefer existing
 components. Do not add a frontend framework, UI/icon/chart package or remote service

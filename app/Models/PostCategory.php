@@ -47,7 +47,7 @@ class PostCategory extends Model
     }
 
     /**
-     * Seed default categories for a community in an idempotent fashion.
+     * Seed default categories for a community in an idempotent fashion without overriding introduction settings.
      */
     public static function seedDefaultsFor(Community $community): void
     {
@@ -63,6 +63,21 @@ class PostCategory extends Model
                 ['community_id' => $community->id, 'slug' => $cat['slug']],
                 ['name' => $cat['name']]
             );
+        }
+    }
+
+    /**
+     * Initialize default categories and assign initial introduction category on community creation.
+     */
+    public static function initializeDefaultsFor(Community $community): void
+    {
+        self::seedDefaultsFor($community);
+
+        if (! $community->introduction_category_id) {
+            $introCat = self::where('community_id', $community->id)->where('slug', 'introductions')->first();
+            if ($introCat) {
+                $community->update(['introduction_category_id' => $introCat->id]);
+            }
         }
     }
 }

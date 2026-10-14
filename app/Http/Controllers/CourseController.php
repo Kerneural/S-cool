@@ -9,6 +9,7 @@ use App\Services\ClassroomMutation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class CourseController extends Controller
@@ -24,29 +25,36 @@ class CourseController extends Controller
 
         $user = $request->user();
         $isCreator = $community->isCreator($user);
-        $isActiveMember = $community->memberships()->where('user_id', $user->id)->where('status', 'ACTIVE')->exists();
+        $isActiveMember = $community->memberships()->where('user_id', $user->id)->effective()->exists();
 
-        $course->load([
-            'sections' => function ($query) use ($isCreator) {
-                $query->ordered();
-                if (! $isCreator) {
-                    $query->whereHas('lessons', fn ($q) => $q->published());
-                }
-            },
-            'sections.lessons' => function ($query) use ($isCreator, $user) {
-                $query->ordered();
-                if (! $isCreator) {
-                    $query->published();
-                }
-                $query->with(['progresses' => function ($q) use ($user) {
-                    $q->where('user_id', $user->id);
-                }]);
-            },
-        ]);
+        $isEntitled = $isCreator || $course->hasMemberAccess($user);
 
-        $progressSummary = $isActiveMember ? $course->progressSummaryFor($user) : null;
+        if ($isEntitled) {
+            $course->load([
+                'sections' => function ($query) use ($isCreator) {
+                    $query->ordered();
+                    if (! $isCreator) {
+                        $query->whereHas('lessons', fn ($q) => $q->published());
+                    }
+                },
+                'sections.lessons' => function ($query) use ($isCreator, $user) {
+                    $query->ordered();
+                    if (! $isCreator) {
+                        $query->published();
+                    }
+                    $query->with(['progresses' => function ($q) use ($user) {
+                        $q->where('user_id', $user->id);
+                    }]);
+                },
+            ]);
 
-        return view('classroom.courses.show', compact('community', 'course', 'isCreator', 'isActiveMember', 'progressSummary'));
+        } else {
+            $course->setRelation('sections', collect());
+        }
+
+        $progressSummary = $isActiveMember && $isEntitled ? $course->progressSummaryFor($user) : null;
+
+        return view('classroom.courses.show', compact('community', 'course', 'isCreator', 'isActiveMember', 'progressSummary', 'isEntitled'));
     }
 
     public function store(Request $request, Community $community): RedirectResponse
@@ -56,12 +64,25 @@ class CourseController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:2000'],
+            'access_mode' => ['nullable', 'in:INCLUDED,ONE_TIME'],
+            'price' => ['nullable', 'required_if:access_mode,ONE_TIME', 'integer', 'min:1', 'max:4294967295'],
             'status' => ['required', 'in:DRAFT,PUBLISHED'],
         ]);
 
-        ClassroomMutation::run($community, null, null, null, function ($community) use ($validated) {
+        $mode = $validated['access_mode'] ?? Course::ACCESS_MODE_INCLUDED;
+        $price = $mode === Course::ACCESS_MODE_ONE_TIME ? (int) ($validated['price'] ?? 0) : null;
+        if ($mode === Course::ACCESS_MODE_ONE_TIME && ($price === null || $price <= 0)) {
+            throw ValidationException::withMessages(['price' => 'Set a positive whole-VND price for individual course purchase.']);
+        }
+
+        ClassroomMutation::run($community, null, null, null, function ($community) use ($validated, $mode, $price) {
             $publishedRevision = $validated['status'] === 'PUBLISHED' ? 1 : 0;
-            $course = $community->courses()->create($validated + [
+            $course = $community->courses()->create([
+                'title' => $validated['title'],
+                'description' => $validated['description'] ?? null,
+                'access_mode' => $mode,
+                'price' => $price,
+                'status' => $validated['status'],
                 'order' => (int) $community->courses()->max('order') + 1,
                 'published_revision' => $publishedRevision,
             ]);
@@ -86,21 +107,35 @@ class CourseController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:2000'],
+            'access_mode' => ['nullable', 'in:INCLUDED,ONE_TIME'],
+            'price' => ['nullable', 'required_if:access_mode,ONE_TIME', 'integer', 'min:1', 'max:4294967295'],
             'status' => ['required', 'in:DRAFT,PUBLISHED'],
         ]);
 
-        $oldStatus = $course->status;
-        $newStatus = $validated['status'];
+        $mode = $validated['access_mode'] ?? $course->access_mode ?? Course::ACCESS_MODE_INCLUDED;
+        $price = $mode === Course::ACCESS_MODE_ONE_TIME ? (int) ($validated['price'] ?? $course->price ?? 0) : null;
+        if ($mode === Course::ACCESS_MODE_ONE_TIME && ($price === null || $price <= 0)) {
+            throw ValidationException::withMessages(['price' => 'Set a positive whole-VND price for individual course purchase.']);
+        }
 
-        ClassroomMutation::run($community, $course, null, null, function ($community, $course) use ($validated, $oldStatus, $newStatus) {
+        ClassroomMutation::run($community, $course, null, null, function ($community, $course) use ($validated, $mode, $price) {
+            $newStatus = $validated['status'];
+            $currentLockedStatus = $course->status;
             $publishedRevision = (int) $course->published_revision;
-            $transitionedToPublished = $oldStatus !== 'PUBLISHED' && $newStatus === 'PUBLISHED';
+            $transitionedToPublished = $currentLockedStatus !== 'PUBLISHED' && $newStatus === 'PUBLISHED';
 
             if ($transitionedToPublished) {
                 $publishedRevision++;
             }
 
-            $course->update($validated + ['published_revision' => $publishedRevision]);
+            $course->update([
+                'title' => $validated['title'],
+                'description' => $validated['description'] ?? null,
+                'access_mode' => $mode,
+                'price' => $price,
+                'status' => $newStatus,
+                'published_revision' => $publishedRevision,
+            ]);
 
             if ($transitionedToPublished) {
                 SendCoursePublishedNotification::dispatch($course->id, $publishedRevision);

@@ -99,7 +99,7 @@ class DemoContentSeeder extends Seeder
             'status' => 'ACTIVE',
         ])->save();
 
-        PostCategory::seedDefaultsFor($community);
+        PostCategory::initializeDefaultsFor($community);
 
         return $community;
     }

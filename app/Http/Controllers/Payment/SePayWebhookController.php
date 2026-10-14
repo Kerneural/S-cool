@@ -8,8 +8,11 @@ use App\Jobs\SendMemberActivatedNotification;
 use App\Models\Community;
 use App\Models\CommunityInvitation;
 use App\Models\CommunityMembership;
+use App\Models\Course;
+use App\Models\CourseEntitlement;
 use App\Models\Payment;
 use App\Models\ProcessedWebhookEvent;
+use App\Models\ReferralCommission;
 use App\Models\User;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\JsonResponse;
@@ -85,7 +88,7 @@ class SePayWebhookController extends Controller
                     'provider_event_id' => $providerEventId,
                     'external_reference' => $reference,
                     'payload' => $parsed,
-                    'processed_at' => now(),
+                    'processed_at' => now('UTC'),
                 ]);
             } catch (UniqueConstraintViolationException) {
                 $event = ProcessedWebhookEvent::query()->where('provider', Payment::PROVIDER_SEPAY_SANDBOX)
@@ -141,6 +144,73 @@ class SePayWebhookController extends Controller
                 return ['status' => 200, 'body' => ['message' => 'Payment result recorded without granting access.']];
             }
 
+            if ($payment->isMembershipRenewal()) {
+                if (! $membership || ! $actor || ! $membership->canRenew($actor)
+                    || (int) $payment->community_membership_id !== (int) $membership->id
+                    || $payment->membership_access_kind !== CommunityMembership::ACCESS_TERM
+                    || $payment->term_days !== CommunityMembership::TERM_DAYS) {
+                    return ['status' => 409, 'body' => ['error' => 'Membership is no longer eligible for renewal.']];
+                }
+                $now = now('UTC');
+                $base = $membership->expires_at->greaterThan($now) ? $membership->expires_at->copy() : $now->copy();
+                $membership->forceFill(['expires_at' => $base->addDays($payment->term_days)])->save();
+                $payment->update(['status' => Payment::STATUS_SUCCEEDED,
+                    'gateway_transaction_id' => $parsed['gateway_transaction_id'] ?? null,
+                    'paid_at' => $now, 'payload' => $parsed]);
+
+                return ['status' => 200, 'body' => ['message' => 'Payment verified and membership term renewed.']];
+            }
+
+            // Purpose-specific reconciliation (ADR-009 / F-15)
+            if ($payment->isCourseAccess()) {
+                $course = Course::where('id', $payment->course_id)
+                    ->where('community_id', $community->id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (! $community || ! $community->isActive()
+                    || ! $actor || ! $actor->hasVerifiedEmail() || $community->isCreator($actor)
+                    || ! $course || ! $course->isPublished() || ! $course->isOneTime()) {
+                    return ['status' => 409, 'body' => ['error' => 'Course is no longer eligible for purchase.']];
+                }
+
+                // Active community membership is required for course access; late IPN cannot grant access to removed/suspended users
+                if (! $membership || ! $membership->hasEffectiveAccess()) {
+                    return ['status' => 409, 'body' => ['error' => 'Active membership is required for course purchase.']];
+                }
+
+                // Transition payment to SUCCEEDED
+                $payment->update([
+                    'status' => Payment::STATUS_SUCCEEDED,
+                    'gateway_transaction_id' => $parsed['gateway_transaction_id'] ?? null,
+                    'paid_at' => now('UTC'),
+                    'payload' => $parsed,
+                ]);
+
+                // Issue unique course entitlement transactionally (idempotent, single row)
+                CourseEntitlement::firstOrCreate([
+                    'community_id' => $community->id,
+                    'course_id' => $course->id,
+                    'user_id' => $actor->id,
+                ], [
+                    'payment_id' => $payment->id,
+                    'amount' => $payment->amount,
+                    'currency' => $payment->currency,
+                ]);
+
+                $this->recordReferralCommission($payment, $community, $actor);
+
+                return [
+                    'status' => 200,
+                    'body' => ['message' => 'Payment verified and course access granted.'],
+                ];
+            }
+
+            if (! $payment->isCommunityAccess()) {
+                return ['status' => 409, 'body' => ['error' => 'Unsupported payment purpose.']];
+            }
+
+            // Community admission reconciliation (legacy & PURPOSE_COMMUNITY_ACCESS)
             // A late IPN must not undo moderation or a member's departure.
             if (! $community || ! $community->isActive() || $community->access_mode !== 'PAID'
                 || ! $actor || ! $actor->hasVerifiedEmail() || $community->isCreator($actor)
@@ -157,12 +227,19 @@ class SePayWebhookController extends Controller
             $payment->update([
                 'status' => Payment::STATUS_SUCCEEDED,
                 'gateway_transaction_id' => $parsed['gateway_transaction_id'] ?? null,
-                'paid_at' => now(),
+                'paid_at' => now('UTC'),
                 'payload' => $parsed,
             ]);
 
             // Activate matching membership transactionally (AC-01, AC-05)
-            $membership->forceFill(['status' => 'ACTIVE'])->save();
+            if (! in_array($payment->membership_access_kind, [CommunityMembership::ACCESS_LIFETIME, CommunityMembership::ACCESS_TERM], true)
+                || ($payment->membership_access_kind === CommunityMembership::ACCESS_TERM && $payment->term_days !== CommunityMembership::TERM_DAYS)) {
+                throw new \RuntimeException('Invalid stored membership term snapshot.');
+            }
+            $membership->forceFill([
+                'status' => 'ACTIVE', 'access_kind' => $payment->membership_access_kind,
+                'expires_at' => $payment->membership_access_kind === CommunityMembership::ACCESS_TERM ? now('UTC')->addDays($payment->term_days) : null,
+            ])->save();
 
             // Complete invitation if linked
             if ($payment->community_invitation_id) {
@@ -186,6 +263,8 @@ class SePayWebhookController extends Controller
                 SendMemberActivatedNotification::dispatch($payment->community_id, $membership->id, 'payment', $payment->id);
             }
 
+            $this->recordReferralCommission($payment, $community, $actor);
+
             return [
                 'status' => 200,
                 'body' => ['message' => 'Payment verified and membership activated.'],
@@ -193,5 +272,78 @@ class SePayWebhookController extends Controller
         }, 3);
 
         return response()->json(['success' => $result['status'] === 200] + $result['body'], $result['status']);
+    }
+
+    /**
+     * Attribute and generate simulated referral commission according to ADR-011 (F-17).
+     */
+    protected function recordReferralCommission(Payment $payment, Community $community, User $payer): void
+    {
+        $rate = (int) $community->referral_commission_rate;
+        if ($rate <= 0 || $rate > 30) {
+            return;
+        }
+
+        // Only COMMUNITY_ACCESS and COURSE_ACCESS qualify (D-03.2)
+        if (! $payment->isCommunityAccess() && ! $payment->isCourseAccess()) {
+            return;
+        }
+
+        // Preserve the initial accepted invitation, including unattributed admission.
+        // Rejoin and later referral invitations never reset first-touch attribution.
+        $invite = CommunityInvitation::where('community_id', $community->id)
+            ->where('accepted_by_user_id', $payer->id)
+            ->where('status', 'ACCEPTED')
+            ->orderBy('accepted_at')->orderBy('id')
+            ->first();
+
+        if (! $invite || ! $invite->referrer_id) {
+            return;
+        }
+
+        // Attribution window: strict 30-day window from invitation creation (D-03.1)
+        $now = now('UTC');
+        if ($invite->created_at->copy()->addDays(30)->lessThanOrEqualTo($now)) {
+            return;
+        }
+
+        // Self-referral protection (D-03.4)
+        if ((int) $invite->referrer_id === (int) $payer->id) {
+            return;
+        }
+
+        // Strict effective access check at payment confirmation time (D-03.4)
+        $referrer = User::find($invite->referrer_id);
+        if (! $referrer) {
+            return;
+        }
+
+        $referrerHasAccess = $community->isCreator($referrer)
+            || ($community->memberships()->where('user_id', $referrer->id)->first()?->hasEffectiveAccess() ?? false);
+
+        if (! $referrerHasAccess) {
+            return;
+        }
+
+        // Integer floor arithmetic: floor(amount * rate / 100) (D-03.3)
+        $commissionAmount = intdiv($payment->amount * $rate, 100);
+        if ($commissionAmount <= 0) {
+            return;
+        }
+
+        ReferralCommission::firstOrCreate([
+            'payment_id' => $payment->id,
+        ], [
+            'community_id' => $community->id,
+            'referrer_id' => $referrer->id,
+            'payer_id' => $payer->id,
+            'community_invitation_id' => $invite->id,
+            'purpose' => $payment->purpose,
+            'commission_rate' => $rate,
+            'payment_amount' => $payment->amount,
+            'commission_amount' => $commissionAmount,
+            'currency' => $payment->currency ?? 'VND',
+            'status' => ReferralCommission::STATUS_SIMULATED_UNPAID,
+        ]);
     }
 }

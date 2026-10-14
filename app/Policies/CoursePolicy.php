@@ -26,7 +26,7 @@ class CoursePolicy
         }
 
         // Active members can only view PUBLISHED courses
-        if ($course->isPublished() && $community->memberships()->where('user_id', $user->id)->where('status', 'ACTIVE')->exists()) {
+        if ($course->isPublished() && $community->memberships()->where('user_id', $user->id)->effective()->exists()) {
             return Response::allow();
         }
 

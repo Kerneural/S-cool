@@ -14,7 +14,7 @@ class CommunityPolicy
     public function view(User $user, Community $community): Response
     {
         return $community->isActive() && ($community->isCreator($user)
-            || $community->memberships()->where('user_id', $user->id)->where('status', 'ACTIVE')->exists())
+            || $community->memberships()->where('user_id', $user->id)->effective()->exists())
             ? Response::allow()
             : Response::denyAsNotFound();
     }

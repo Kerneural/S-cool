@@ -42,11 +42,16 @@ class SendPostReplyNotification implements ShouldQueue
             return;
         }
 
+        $author = $post->author;
+        if (! $author || ! $author->notify_replies) {
+            return;
+        }
+
         $authorId = $post->user_id;
         $isCreator = (int) $community->creator_id === (int) $authorId;
         $isActiveMember = $community->memberships()
             ->where('user_id', $authorId)
-            ->where('status', 'ACTIVE')
+            ->effective()
             ->exists();
 
         if (! $isCreator && ! $isActiveMember) {

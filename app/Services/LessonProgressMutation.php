@@ -22,7 +22,7 @@ class LessonProgressMutation
             $section = $course->sections()->lockForUpdate()->findOrFail($lesson->course_section_id);
             $lesson = $section->lessons()->lockForUpdate()->findOrFail($lesson->id);
             $membership = $community->memberships()->where('user_id', $user->id)->lockForUpdate()->first();
-            abort_unless($membership?->status === 'ACTIVE', 404);
+            abort_unless($membership?->hasEffectiveAccess(), 404);
 
             $course->setRelation('community', $community);
             $section->setRelation('course', $course);

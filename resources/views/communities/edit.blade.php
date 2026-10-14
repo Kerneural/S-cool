@@ -63,6 +63,37 @@
                             <p class="mt-1 text-xs text-gray-500">{{ __('Optional video displayed on the community About page.') }}</p>
                         </div>
 
+                        <!-- Onboarding Checklist Settings -->
+                        <div class="border-t border-gray-100 pt-5 space-y-4">
+                            <h3 class="text-sm font-semibold text-gray-800">{{ __('Member Onboarding Checklist') }}</h3>
+
+                            <div class="flex items-start">
+                                <div class="flex items-center h-5">
+                                    <input id="onboarding_enabled" name="onboarding_enabled" type="checkbox" value="1" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" {{ old('onboarding_enabled', $community->onboarding_enabled) ? 'checked' : '' }}>
+                                </div>
+                                <div class="ml-3 text-sm">
+                                    <label for="onboarding_enabled" class="font-medium text-gray-700">{{ __('Enable Welcome Checklist') }}</label>
+                                    <p class="text-xs text-gray-500">{{ __('Display a persistent welcome checklist to new members on the community feed.') }}</p>
+                                </div>
+                            </div>
+
+                            @if ($community->categories->isNotEmpty())
+                                <div>
+                                    <x-input-label for="introduction_category_id" :value="__('Designated Introductions Category')" />
+                                    <select id="introduction_category_id" name="introduction_category_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                                        <option value="">{{ __('-- Default (Category with slug "introductions") --') }}</option>
+                                        @foreach ($community->categories as $category)
+                                            <option value="{{ $category->id }}" {{ (int) old('introduction_category_id', $community->introduction_category_id) === $category->id ? 'selected' : '' }}>
+                                                {{ $category->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <x-input-error class="mt-2" :messages="$errors->get('introduction_category_id')" />
+                                    <p class="mt-1 text-xs text-gray-500">{{ __('Members will be guided to post in this category to complete their introduction task.') }}</p>
+                                </div>
+                            @endif
+                        </div>
+
                         @include('communities.partials.access-pricing', ['community' => $community])
 
                         <div class="flex items-center justify-end gap-4">

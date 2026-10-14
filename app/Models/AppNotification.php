@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -61,7 +62,7 @@ class AppNotification extends DatabaseNotification
         $isCreator = $community->isCreator($viewer);
         $isActiveMember = $community->memberships()
             ->where('user_id', $viewer->id)
-            ->where('status', 'ACTIVE')
+            ->effective()
             ->exists();
 
         if (! $isCreator && ! $isActiveMember) {
@@ -74,8 +75,26 @@ class AppNotification extends DatabaseNotification
             'post_reply' => $this->isPostReplyAvailable($community),
             'member_activated' => $this->isMemberActivatedAvailable($community, $isCreator),
             'course_published' => $this->isCoursePublishedAvailable($community),
+            'content_reported' => $this->isContentReportedAvailable($community, $isCreator),
             default => false,
         };
+    }
+
+    protected function isContentReportedAvailable(Community $community, bool $isCreator): bool
+    {
+        if (! $isCreator) {
+            return false;
+        }
+
+        $reportId = $this->data['report_id'] ?? null;
+        if (! $reportId) {
+            return false;
+        }
+
+        return ContentReport::query()
+            ->where('id', $reportId)
+            ->where('community_id', $community->id)
+            ->exists();
     }
 
     protected function isPostReplyAvailable(Community $community): bool
@@ -127,7 +146,7 @@ class AppNotification extends DatabaseNotification
         $membership = CommunityMembership::query()
             ->where('id', $membershipId)
             ->where('community_id', $community->id)
-            ->where('status', 'ACTIVE')
+            ->effective()
             ->first();
 
         if (! $membership) {
@@ -167,6 +186,7 @@ class AppNotification extends DatabaseNotification
             'post_reply' => $this->postReplySummary(),
             'member_activated' => $this->memberActivatedSummary(),
             'course_published' => $this->coursePublishedSummary(),
+            'content_reported' => 'A new content report requires moderation.',
             default => 'You have a new notification.',
         };
     }
@@ -204,6 +224,7 @@ class AppNotification extends DatabaseNotification
             'post_reply' => route('communities.posts.show', [$community, $this->data['post_id'] ?? 0]),
             'member_activated' => route('communities.members.index', $community),
             'course_published' => route('communities.classroom.index', $community),
+            'content_reported' => route('communities.reports.index', $community),
             default => null,
         };
     }
@@ -229,9 +250,116 @@ class AppNotification extends DatabaseNotification
                 'data' => $data,
                 'read_at' => null,
             ]);
-        } catch (UniqueConstraintViolationException|QueryException $e) {
-            return self::where('dedupe_key', $dedupeKey)->first();
+        } catch (UniqueConstraintViolationException $e) {
+            $existing = self::where('dedupe_key', $dedupeKey)->first();
+            if ($existing) {
+                return $existing;
+            }
+
+            throw $e;
+        } catch (QueryException $e) {
+            $isDuplicate = (int) ($e->errorInfo[1] ?? 0) === 1062;
+            if ($isDuplicate) {
+                $existing = self::where('dedupe_key', $dedupeKey)->first();
+                if ($existing) {
+                    return $existing;
+                }
+            }
+
+            throw $e;
         }
+    }
+
+    /**
+     * Query scope to filter notifications visible and authorized for viewer in community (AC-04).
+     */
+    public function scopeVisibleFor(Builder $query, User $viewer, Community $community): Builder
+    {
+        if (! $community->isActive()) {
+            return $query->whereRaw('0 = 1');
+        }
+
+        $isCreator = $community->isCreator($viewer);
+        $isActiveMember = $community->memberships()
+            ->where('user_id', $viewer->id)
+            ->effective()
+            ->exists();
+
+        if (! $isCreator && ! $isActiveMember) {
+            return $query->whereRaw('0 = 1');
+        }
+
+        return $query->where('notifiable_type', User::class)
+            ->where('notifiable_id', $viewer->id)
+            ->where('community_id', $community->id)
+            ->where(function (Builder $sub) use ($community, $isCreator) {
+                // 1. post_reply: post and comment not deleted, commenter exists
+                $sub->where(function (Builder $q) use ($community) {
+                    $q->where('type', 'post_reply')
+                        ->whereExists(function ($ex) use ($community) {
+                            $ex->selectRaw('1')
+                                ->from('posts')
+                                ->whereRaw('posts.id = CAST(JSON_UNQUOTE(JSON_EXTRACT(notifications.data, "$.post_id")) AS UNSIGNED)')
+                                ->where('posts.community_id', $community->id)
+                                ->whereNull('posts.deleted_at');
+                        })
+                        ->whereExists(function ($ex) {
+                            $ex->selectRaw('1')
+                                ->from('comments')
+                                ->whereRaw('comments.id = CAST(JSON_UNQUOTE(JSON_EXTRACT(notifications.data, "$.comment_id")) AS UNSIGNED)')
+                                ->whereNull('comments.deleted_at');
+                        })
+                        ->whereExists(function ($ex) {
+                            $ex->selectRaw('1')
+                                ->from('users')
+                                ->whereRaw('users.id = CAST(JSON_UNQUOTE(JSON_EXTRACT(notifications.data, "$.commenter_id")) AS UNSIGNED)');
+                        });
+                });
+
+                // 2. member_activated: only creator sees, membership is ACTIVE, user exists
+                if ($isCreator) {
+                    $sub->orWhere(function (Builder $q) use ($community) {
+                        $q->where('type', 'member_activated')
+                            ->whereExists(function ($ex) use ($community) {
+                                $ex->selectRaw('1')
+                                    ->from('community_memberships')
+                                    ->whereRaw('community_memberships.id = CAST(JSON_UNQUOTE(JSON_EXTRACT(notifications.data, "$.membership_id")) AS UNSIGNED)')
+                                    ->where('community_memberships.community_id', $community->id)
+                                    ->where(fn ($memberships) => CommunityMembership::applyEffectiveAccess($memberships));
+                            })
+                            ->whereExists(function ($ex) {
+                                $ex->selectRaw('1')
+                                    ->from('users')
+                                    ->whereRaw('users.id = CAST(JSON_UNQUOTE(JSON_EXTRACT(notifications.data, "$.member_id")) AS UNSIGNED)');
+                            });
+                    });
+                }
+
+                // 3. course_published: course is PUBLISHED in this community
+                $sub->orWhere(function (Builder $q) use ($community) {
+                    $q->where('type', 'course_published')
+                        ->whereExists(function ($ex) use ($community) {
+                            $ex->selectRaw('1')
+                                ->from('courses')
+                                ->whereRaw('courses.id = CAST(JSON_UNQUOTE(JSON_EXTRACT(notifications.data, "$.course_id")) AS UNSIGNED)')
+                                ->where('courses.community_id', $community->id)
+                                ->where('courses.status', 'PUBLISHED');
+                        });
+                });
+
+                // 4. content_reported: only creator sees, report exists in this community
+                if ($isCreator) {
+                    $sub->orWhere(function (Builder $q) use ($community) {
+                        $q->where('type', 'content_reported')
+                            ->whereExists(function ($ex) use ($community) {
+                                $ex->selectRaw('1')
+                                    ->from('content_reports')
+                                    ->whereRaw('content_reports.id = CAST(JSON_UNQUOTE(JSON_EXTRACT(notifications.data, "$.report_id")) AS UNSIGNED)')
+                                    ->where('content_reports.community_id', $community->id);
+                            });
+                    });
+                }
+            });
     }
 
     /**
@@ -239,13 +367,9 @@ class AppNotification extends DatabaseNotification
      */
     public static function unreadCountFor(User $user, Community $community): int
     {
-        $unread = self::query()
-            ->where('notifiable_type', User::class)
-            ->where('notifiable_id', $user->id)
-            ->where('community_id', $community->id)
+        return self::query()
+            ->visibleFor($user, $community)
             ->whereNull('read_at')
-            ->get();
-
-        return $unread->filter(fn ($notification) => $notification->isAvailableFor($user))->count();
+            ->count();
     }
 }

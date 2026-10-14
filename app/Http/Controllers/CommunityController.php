@@ -32,7 +32,7 @@ class CommunityController extends Controller
             $query->where('status', 'ACTIVE')
                 ->where('creator_id', '!=', $user->id)
                 ->whereHas('memberships', function ($q) use ($user): void {
-                    $q->where('user_id', $user->id)->where('status', 'ACTIVE');
+                    $q->where('user_id', $user->id)->effective();
                 });
         } else {
             $query->accessibleTo($user);
@@ -81,6 +81,8 @@ class CommunityController extends Controller
             'description' => ['nullable', 'string', 'max:1000'],
             'access_mode' => ['sometimes', 'required', Rule::in(['FREE', 'PAID'])],
             'price_vnd' => ['nullable', 'required_if:access_mode,PAID', 'integer', 'min:1', 'max:4294967295'],
+            'billing_period' => ['sometimes', 'required', Rule::in(['ONE_TIME', 'TERM_30_DAYS'])],
+            'referral_commission_rate' => ['sometimes', 'integer', 'min:0', 'max:30'],
         ]);
 
         try {
@@ -91,8 +93,11 @@ class CommunityController extends Controller
                 'description' => $validated['description'] ?? null,
             ]);
             $mode = $validated['access_mode'] ?? 'FREE';
-            $community->forceFill(['access_mode' => $mode, 'price_vnd' => $mode === 'PAID' ? $validated['price_vnd'] : null])->save();
-            PostCategory::seedDefaultsFor($community);
+            $community->forceFill(['access_mode' => $mode, 'price_vnd' => $mode === 'PAID' ? $validated['price_vnd'] : null,
+                'billing_period' => $mode === 'PAID' ? ($validated['billing_period'] ?? 'ONE_TIME') : 'ONE_TIME',
+                'referral_commission_rate' => $validated['referral_commission_rate'] ?? 0,
+            ])->save();
+            PostCategory::initializeDefaultsFor($community);
         } catch (UniqueConstraintViolationException) {
             // The slug is the only client-controlled unique key on this insert.
             throw ValidationException::withMessages(['slug' => 'The slug is not available.']);
@@ -108,7 +113,7 @@ class CommunityController extends Controller
     {
         Gate::authorize('view', $community);
 
-        $activeMemberCount = $community->memberships()->where('status', 'ACTIVE')->count();
+        $activeMemberCount = $community->memberships()->effective()->count();
 
         return view('communities.show', [
             'community' => $community,
@@ -150,6 +155,14 @@ class CommunityController extends Controller
             'intro_video_url' => ['nullable', 'string', 'max:500'],
             'access_mode' => ['sometimes', 'required', Rule::in(['FREE', 'PAID'])],
             'price_vnd' => ['nullable', 'required_if:access_mode,PAID', 'integer', 'min:1', 'max:4294967295'],
+            'billing_period' => ['sometimes', 'required', Rule::in(['ONE_TIME', 'TERM_30_DAYS'])],
+            'onboarding_enabled' => ['sometimes', 'boolean'],
+            'referral_commission_rate' => ['sometimes', 'integer', 'min:0', 'max:30'],
+            'introduction_category_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('post_categories', 'id')->where('community_id', $community->id),
+            ],
         ]);
 
         if (! empty($validated['intro_video_url']) && ! VideoEmbedService::isValid($validated['intro_video_url'])) {
@@ -163,8 +176,23 @@ class CommunityController extends Controller
         if ($mode === 'PAID' && ! $price) {
             throw ValidationException::withMessages(['price_vnd' => 'Set a positive whole-VND price for paid access.']);
         }
-        $community->fill(array_intersect_key($validated, array_flip(['name', 'description', 'rules', 'intro_video_url'])));
-        $community->forceFill(['access_mode' => $mode, 'price_vnd' => $price])->save();
+
+        $fillFields = ['name', 'description', 'rules', 'intro_video_url'];
+        if ($request->has('onboarding_enabled')) {
+            $fillFields[] = 'onboarding_enabled';
+            $validated['onboarding_enabled'] = $request->boolean('onboarding_enabled');
+        }
+        if (array_key_exists('referral_commission_rate', $validated)) {
+            $fillFields[] = 'referral_commission_rate';
+        }
+        if (array_key_exists('introduction_category_id', $validated)) {
+            $fillFields[] = 'introduction_category_id';
+        }
+
+        $community->fill(array_intersect_key($validated, array_flip($fillFields)));
+        $community->forceFill(['access_mode' => $mode, 'price_vnd' => $price,
+            'billing_period' => $mode === 'PAID' ? ($validated['billing_period'] ?? $community->billing_period) : 'ONE_TIME',
+        ])->save();
 
         return redirect()->route('communities.show', $community)->with('status', 'community-updated');
     }

@@ -1,0 +1,188 @@
+<x-app-layout>
+    <div class="py-12">
+        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            <x-community-workspace :community="$community" active-tab="leaderboard" />
+
+            <!-- Scoring Rule & UTC Explanation Banner -->
+            <div class="bg-gradient-to-r from-indigo-50/80 via-white to-amber-50/60 rounded-xl p-4 border border-indigo-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-gray-600">
+                <div class="flex items-center gap-2.5">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-500 text-white font-bold shadow-sm">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    </span>
+                    <div>
+                        <span class="font-bold text-gray-900">{{ __('How points work:') }}</span>
+                        <span>{{ __('Authors receive +1 point per valid like from another member. Unliking removes the point. Self-likes do not count. Monthly leaderboard resets at 00:00 UTC.') }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current User Progress Card -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="relative">
+                            @if (auth()->user()->avatar_path)
+                                <img src="{{ route('communities.directory.avatar', [$community, auth()->user()]) }}" alt="{{ auth()->user()->name }}" class="w-14 h-14 rounded-full object-cover border-2 border-indigo-200">
+                            @else
+                                <div class="w-14 h-14 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xl border-2 border-indigo-200">
+                                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                </div>
+                            @endif
+                            <span class="absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold shadow-sm {{ $userProgress['level'] === 5 ? 'bg-amber-500 text-white' : ($userProgress['level'] >= 3 ? 'bg-indigo-600 text-white' : 'bg-gray-700 text-white') }}">
+                                L{{ $userProgress['level'] }}
+                            </span>
+                        </div>
+
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-lg font-bold text-gray-900">{{ auth()->user()->name }}</h3>
+                                <span class="px-2 py-0.5 text-xs font-semibold rounded-full {{ $userProgress['level'] === 5 ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-indigo-50 text-indigo-700 border border-indigo-200' }}">
+                                    {{ __('Level :level', ['level' => $userProgress['level']]) }}
+                                </span>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-0.5">
+                                {{ __('Lifetime: :pts points', ['pts' => $lifetimePoints]) }} &bull;
+                                {{ __('This Month (UTC): :pts points', ['pts' => $monthPoints]) }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-6 sm:text-right">
+                        <div>
+                            <span class="block text-xs uppercase tracking-wider font-semibold text-gray-400">{{ __('Your Rank') }}</span>
+                            <span class="text-2xl font-black text-gray-900">
+                                {{ $userRank ? '#' . $userRank : __('Unranked') }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Level Progress Bar -->
+                <div class="mt-5 pt-4 border-t border-gray-100">
+                    <div class="flex items-center justify-between text-xs mb-1.5 font-medium">
+                        <span class="text-gray-600">
+                            @if ($userProgress['level'] === 5)
+                                <span class="text-amber-600 font-bold">{{ __('Maximum Level Reached (60+ points)') }}</span>
+                            @else
+                                {{ __('Progress to Level :next (:needed points needed)', ['next' => $userProgress['level'] + 1, 'needed' => $userProgress['points_needed']]) }}
+                            @endif
+                        </span>
+                        <span class="text-gray-900 font-bold">{{ $userProgress['progress_pct'] }}%</span>
+                    </div>
+                    <div class="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+                        <div class="h-2.5 rounded-full transition-all duration-500 {{ $userProgress['level'] === 5 ? 'bg-gradient-to-r from-amber-400 to-amber-500' : 'bg-gradient-to-r from-indigo-500 to-indigo-600' }}"
+                             style="width: {{ $userProgress['progress_pct'] }}%"></div>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-gray-400 mt-1 font-mono">
+                        <span>L1 (0)</span>
+                        <span>L2 (5)</span>
+                        <span>L3 (15)</span>
+                        <span>L4 (30)</span>
+                        <span>L5 (60+)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leaderboard Table and Period Tabs -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <!-- Period Toggle Tabs -->
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                    <h3 class="font-bold text-gray-900 text-base">{{ __('Rankings') }}</h3>
+                    <div class="inline-flex rounded-lg bg-gray-100 p-1 text-xs">
+                        <a href="{{ route('communities.leaderboard', [$community, 'period' => 'lifetime']) }}"
+                           class="px-3 py-1.5 rounded-md font-semibold transition {{ $period === 'lifetime' ? 'bg-white text-indigo-700 shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
+                            {{ __('All Time (Lifetime)') }}
+                        </a>
+                        <a href="{{ route('communities.leaderboard', [$community, 'period' => 'month']) }}"
+                           class="px-3 py-1.5 rounded-md font-semibold transition {{ $period === 'month' ? 'bg-white text-indigo-700 shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
+                            {{ __('This Month (UTC)') }}
+                        </a>
+                    </div>
+                </div>
+
+                @if ($leaderboard->isEmpty())
+                    <div class="p-12 text-center">
+                        <div class="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 mx-auto flex items-center justify-center mb-3">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        </div>
+                        <h4 class="text-sm font-bold text-gray-900">{{ __('No points recorded for this period yet') }}</h4>
+                        <p class="text-xs text-gray-500 mt-1">{{ __('When community members like posts, author rankings will appear here.') }}</p>
+                    </div>
+                @else
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="border-b border-gray-100 bg-gray-50/50 text-[11px] uppercase tracking-wider font-semibold text-gray-500">
+                                    <th class="py-3 px-6 w-16 text-center">{{ __('Rank') }}</th>
+                                    <th class="py-3 px-6">{{ __('Member') }}</th>
+                                    <th class="py-3 px-6 text-center">{{ __('Level') }}</th>
+                                    <th class="py-3 px-6 text-right">{{ __('Points') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                @foreach ($leaderboard as $entry)
+                                    <tr class="hover:bg-gray-50/50 transition {{ $entry->user && auth()->id() === $entry->user->id ? 'bg-indigo-50/30' : '' }}">
+                                        <td class="py-4 px-6 text-center font-bold">
+                                            @if ($entry->rank === 1)
+                                                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-amber-100 text-amber-800 text-xs shadow-sm font-black">
+                                                    🥇 1
+                                                </span>
+                                            @elseif ($entry->rank === 2)
+                                                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-200 text-slate-800 text-xs shadow-sm font-black">
+                                                    🥈 2
+                                                </span>
+                                            @elseif ($entry->rank === 3)
+                                                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-amber-50 text-amber-900 border border-amber-200 text-xs shadow-sm font-black">
+                                                    🥉 3
+                                                </span>
+                                            @else
+                                                <span class="text-xs text-gray-500 font-mono">
+                                                    #{{ $entry->rank }}
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td class="py-4 px-6">
+                                            <div class="flex items-center gap-3">
+                                                @if ($entry->user && $entry->user->avatar_path)
+                                                    <img src="{{ route('communities.directory.avatar', [$community, $entry->user]) }}" alt="{{ $entry->user->name }}" class="w-9 h-9 rounded-full object-cover">
+                                                @else
+                                                    <div class="w-9 h-9 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center font-semibold text-xs">
+                                                        {{ strtoupper(substr($entry->user->name ?? '?', 0, 1)) }}
+                                                    </div>
+                                                @endif
+                                                <div>
+                                                    <div class="font-semibold text-gray-900">
+                                                        {{ $entry->user->name ?? __('Unknown Member') }}
+                                                        @if ($entry->user && auth()->id() === $entry->user->id)
+                                                            <span class="ml-1.5 text-[10px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">
+                                                                {{ __('You') }}
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="py-4 px-6 text-center">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold {{ $entry->level === 5 ? 'bg-amber-100 text-amber-800 border border-amber-200' : ($entry->level >= 3 ? 'bg-indigo-50 text-indigo-700' : 'bg-gray-100 text-gray-700') }}">
+                                                {{ __('Level :l', ['l' => $entry->level]) }}
+                                            </span>
+                                        </td>
+                                        <td class="py-4 px-6 text-right font-black text-gray-900 text-base">
+                                            {{ $entry->points }} <span class="text-xs font-normal text-gray-400">pts</span>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+
+                    @if ($leaderboard->hasPages())
+                        <div class="p-4 border-t border-gray-100">
+                            {{ $leaderboard->links() }}
+                        </div>
+                    @endif
+                @endif
+            </div>
+        </div>
+    </div>
+</x-app-layout>

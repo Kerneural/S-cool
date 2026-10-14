@@ -31,7 +31,7 @@
                                 </div>
                                 <div>
                                     <span class="font-medium text-gray-700">{{ __('Active Members:') }}</span>
-                                    <span class="ml-1 font-semibold text-gray-900">{{ $activeMemberCount ?? $community->memberships()->where('status', 'ACTIVE')->count() }}</span>
+                                    <span class="ml-1 font-semibold text-gray-900">{{ $activeMemberCount ?? $community->memberships()->effective()->count() }}</span>
                                 </div>
                                 <div>
                                     <span class="font-medium text-gray-700">{{ __('Created:') }}</span>
