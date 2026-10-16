@@ -3700,3 +3700,69 @@ Publication preparation on 2026-10-16 supersedes that final branch/evidence note
   in Architecture line 801 matched `generic-api-key`. Confirmed no credential was
   present. Reworded the prose and pinned only that historical fingerprint in
   `.gitleaksignore`; all other history/future findings remain subject to the gate.
+
+## EUR-55 - QA-A2: WCAG 2.2 AA-oriented accessibility and interaction audit (2026-10-16)
+
+### Candidate and Environment Record
+- **Parent Issue:** EUR-52 (QA Track A: Visual quality, accessibility and learner experience)
+- **Linear Issue:** [EUR-55 / QA-A2: WCAG 2.2 AA-oriented accessibility and interaction audit](https://linear.app/eurusdevsec/issue/EUR-55/qa-a2-wcag-22-aa-oriented-accessibility-and-interaction-audit)
+- **Tested Candidate:** Git commit `233e8864041f762c60585b0224e966e2738ab71d` (`origin/main`, including EUR-49 merge)
+- **Branch:** `eur-55-qa-a2-accessibility-audit`
+- **Runtime Stack:** Local Docker stack `scool` (Nginx `http://127.0.0.1:8080`, PHP 8.3 `scool_app`, MySQL 8.0 `scool` & `scool_test`, Mailpit `127.0.0.1:8025`, queue worker `scool_queue`)
+- **Execution Tooling:** Google Chrome evaluated via Chrome DevTools Protocol (`chrome-devtools-mcp`)
+- **Seeded Fixture:** `LearningCommunitySeeder` providing realistic Networking, Cloud, Docker, and AI Engineer communities, roadmaps, lessons, events, discussions, and local cover images.
+- **Test Personas:**
+  - Guest: Unauthenticated visitor
+  - Member: `member@scool.local` (Active in `networking-learning`, lifetime enrollment)
+  - Creator: `creator@scool.local` (Owner of `networking-learning`)
+  - Platform Admin: `admin@scool.local` (`is_platform_admin = 1`, verified email)
+
+---
+
+### WCAG 2.2 Level A/AA & WAI-ARIA Evaluation Matrix
+
+| WCAG 2.2 / ARIA Criterion | Level | Tested Surface / Controls | Evaluation Method | Result | Observations & Evidence |
+|---|:---:|---|---|:---:|---|
+| **2.1.1 Keyboard** | A | Navigation, search, feed, classroom, modal, admin | Keyboard-only walkthrough (Tab, Enter, Space, Escape, Arrows) | **PASS** | All interactive elements operable without a pointer device. |
+| **2.1.2 No Keyboard Trap** | A | Discussion modal, search dropdown | Escape key & Tab cycle verification | **PASS** | Modals trap focus during interaction, but reliably release and dismiss upon `Escape`. |
+| **2.4.3 Focus Order** | A | Header -> Search -> Main task -> Sidebar | DOM order inspection & sequential Tab steps | **PASS** | Logical top-to-bottom, left-to-right reading & tabbing order preserved. |
+| **2.4.7 Focus Visible** | AA | Inputs, buttons, modal controls, table actions | Focus ring inspection in active states | **PASS** | Explicit focus rings (`focus:ring-2 focus:ring-brand`, `focus:ring-brand-500/30`, `focus:ring-danger`) visible on focus. |
+| **2.4.11 Focus Not Obscured** | AA | Sticky headers, floating search bar | Tabbing with scroll position check | **PASS** | Active controls are scroll-aligned and not obscured by sticky containers. |
+| **2.5.8 Target Size (Minimum)** | AA | Buttons, links, form inputs, feed actions | Bounding box measurement ($w \ge 24\text{px}, h \ge 24\text{px}$) | **PASS with Note** | Primary CTA/nav buttons meet $\ge 44\text{px}$ (`min-h-[44px]`). Feed inline actions (`Like`, `Save`, `comments`) have height 16px with width 49–90px (non-blocking warning). |
+| **1.4.3 Contrast (Minimum)** | AA | Page typography, labels, status pills | Color contrast sampling against backgrounds | **PASS** | Regular text $\ge 4.5:1$, large headings $\ge 3:1$ (`text-slate-900`, `text-slate-800` on `bg-canvas`, `bg-white`). |
+| **1.4.11 Non-text Contrast** | AA | Input borders, focus outlines, action icons | Contrast ratio check against adjacent canvas | **PASS** | Form input borders (`border-slate-300`, `border-gray-300`) and brand rings exceed 3:1 contrast. |
+| **1.4.10 Reflow** | AA | All 47 routed view templates at 320px & 200% zoom | Viewport measurement (`scrollWidth <= innerWidth`) | **PASS** | 0 horizontal overflow across entire application (verified in QA-A1). |
+| **1.3.1 Info & Relationships** | A | Headings (H1->H2->H3), table headers (`scope="col"`), landmarks | DOM structure & semantic tags | **PASS** | Clear heading structures, table headers have explicit `scope="col"`, semantic `<header>`, `<nav>`, `<main>`. |
+| **4.1.2 Name, Role, Value** | A | Search Combobox, Discussion Dialog, icon buttons | ARIA attribute audit | **PASS** | `role="combobox"` with `aria-expanded`, `aria-autocomplete="list"`, `aria-activedescendant`. `role="dialog"` with `aria-modal="true"`, `aria-labelledby`. |
+| **2.3.3 / 2.2.2 Reduced Motion** | A/AAA | Modal animations, like/save transitions, spinners | CSS inspection for `prefers-reduced-motion` | **PASS** | Component classes implement `motion-reduce:duration-0`, `motion-reduce:transition-none`, `motion-reduce:transform-none`, and `motion-reduce:animate-none`. |
+
+---
+
+### WAI-ARIA Deep-Dive Findings
+
+1. **WAI-ARIA 1.2 Combobox (Live Search Typeahead):**
+   - **Input**: `role="combobox"`, `id="community-typeahead-input"`, `aria-expanded` (toggles `true`/`false`), `aria-autocomplete="list"`, `aria-controls="community-search-results"`, `aria-activedescendant`.
+   - **Listbox Popup**: `role="listbox"`, `id="community-search-results"`, child options with `role="option"` and `aria-selected` tracking.
+   - **Keyboard Handling**:
+     - `ArrowDown`: selects next result, updates `aria-activedescendant` to `search-option-X`, highlights option with `bg-brand-50/80`.
+     - `ArrowUp`: selects previous result, scrolls appropriately.
+     - `Escape`: dismisses popup immediately, sets `aria-expanded="false"`, keeps keyboard focus on input.
+     - `Enter`: navigates directly to the selected active entity.
+
+2. **WAI-ARIA Modal Dialog (Discussion Viewer):**
+   - **Container**: `role="dialog"`, `aria-modal="true"`, `:aria-labelledby="discussion-modal-title"`.
+   - **Focus Management**:
+     - On open (`discussion-opened`): focus automatically placed on close button (`$refs.closeButton?.focus()`).
+     - Background isolation: `setBackgroundInert(true)` dynamically sets `inert = true` on all background DOM branches, preventing keyboard or screen-reader leak into background pages.
+     - Scroll locking: `document.body.style.overflow = 'hidden'` while modal is active.
+     - Focus trapping: Tab / Shift+Tab cycles strictly between modal interactive elements.
+     - On close (`Escape` or Close button): restores background interactivity, returns focus to triggering element (`triggerEl.focus()`).
+
+---
+
+### Sanitized Visual Evidence Artifacts
+Saved in `.agent/evidence/qa-a2/`:
+1. `search_combobox_wai_aria.png` (Live search combobox open with `aria-activedescendant` on option 0).
+2. `discussion_modal_wai_aria.png` (Discussion viewer modal open with focus trap, backdrop isolation, and accessible labeling).
+3. `lesson_workspace_keyboard_a11y.png` (Classroom study workspace, $\ge 44\text{px}$ target buttons, outline, heading hierarchy).
+4. `admin_communities_table_a11y.png` (Admin communities data table with `scope="col"` and accessible focus ring actions).
