@@ -6,53 +6,7 @@
         </div>
         <x-classroom-feedback />
 
-        @if ($isActiveMember && $courses->isNotEmpty())
-            @php
-                $accessibleCourses = $courses->getCollection()->filter(
-                    fn ($course) => $isCreator || $course->hasMemberAccess(auth()->user())
-                );
-                $totalCompleted = $accessibleCourses->sum('progress_completed');
-                $totalLessons = $accessibleCourses->sum('progress_total');
-                $overallPercent = $totalLessons > 0 ? (int) round(100 * $totalCompleted / $totalLessons) : 0;
-                $nextUpCourse = $accessibleCourses->first(function ($c) {
-                    return $c->progress_total > 0 && $c->progress_completed < $c->progress_total;
-                }) ?? $accessibleCourses->first();
-            @endphp
-            @if ($nextUpCourse)
-                <div class="bg-gradient-to-br from-white via-slate-50/50 to-brand-50/30 rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div class="space-y-2 max-w-xl">
-                    <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-200">
-                        <span class="w-1.5 h-1.5 rounded-full bg-brand-600"></span>
-                        <span>{{ __('Next Learning Step') }}</span>
-                    </div>
-                    <h2 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
-                        {{ $nextUpCourse->title }}
-                    </h2>
-                    <p class="text-xs sm:text-sm text-slate-600 line-clamp-2">
-                        {{ $nextUpCourse->description ?? __('Continue your learning journey in this course.') }}
-                    </p>
-                </div>
-
-                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 shrink-0">
-                    <div class="bg-white px-4 py-3 rounded-xl border border-slate-200/80 shadow-xs min-w-[140px]">
-                        <span class="block text-[11px] uppercase tracking-wider font-semibold text-slate-400">{{ __('Overall Progress') }}</span>
-                        <div class="flex items-baseline gap-2 mt-0.5">
-                            <span class="text-xl font-black text-slate-900">{{ $overallPercent }}%</span>
-                            <span class="text-xs font-medium text-slate-500">({{ $totalCompleted }}/{{ $totalLessons }})</span>
-                        </div>
-                    </div>
-
-                    <a href="{{ route('communities.courses.show', [$community, $nextUpCourse]) }}"
-                       class="inline-flex items-center justify-center px-5 py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-xs transition active:scale-[0.99] whitespace-nowrap">
-                        <span>{{ $nextUpCourse->progress_completed > 0 ? __('Resume Learning') : __('Start Learning') }}</span>
-                        <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                        </svg>
-                    </a>
-                </div>
-                </div>
-            @endif
-        @endif
+        <x-learning-focus :community="$community" :learning-focus="$learningFocus" />
 
         @if ($isCreator)
             <details class="rounded-2xl bg-white p-6 shadow-xs border border-slate-200/80" @if ($errors->any() && old('_form') === 'create-course') open @endif>
@@ -89,7 +43,7 @@
                 <p class="text-sm text-slate-500 max-w-sm mx-auto">{{ __('There are no published courses in this community classroom yet.') }}</p>
             </div>
         @else
-            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div id="courses-list" class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 scroll-mt-6">
                 @foreach ($courses as $course)
                     <article class="min-w-0 flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xs hover:border-brand-500/30 hover:shadow-lg transition-all group">
                         <div class="space-y-3">

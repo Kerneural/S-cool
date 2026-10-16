@@ -741,3 +741,82 @@ Invalid authentication/reference/amount/currency returns an error, changes no me
 - [x] Architecture decisions.
 - [ ] Migration-level schema và index được xác nhận khi implement từng vertical slice.
 - [ ] Threat review của Khoa được ghi nhận trước local readiness gate.
+
+## 16. Approved forward contracts for EUR-50/51 (2026-10-16)
+
+These are approved implementation boundaries, not an implemented schema or runtime
+claim. Inspect the merged EUR-49 contract before introducing forward migrations.
+Exact table/service names and command evidence belong in each issue checkpoint.
+Keep existing lock order and access predicates; presentation is never a grant.
+
+### 16.1 Course covers and private practical evidence — EUR-50
+
+- Add optional course-cover persistence without changing INCLUDED/ONE_TIME access.
+  Creator alone manages the cover. Deliver through an authorized course route:
+  active eligible members can view a published course's catalog cover/title/price,
+  even when locked; draft covers remain creator-only. Never expose locked
+  description/outline/lesson data or raw storage paths. Recheck effective access.
+- Course covers: JPEG/PNG/WebP up to 5 MiB and 4096px per side, content/dimension
+  validation, generated private-local filenames, no SVG or URL/path import.
+  Stage new uploads, roll back/clean on failure, retain old files until successful
+  persistence, and clean replacements safely. Use private no-store/nosniff responses.
+- Practical evidence belongs to community + lesson + learner, with one current
+  submission and immutable revision history. Required summary/result-link checks
+  apply at submission; partial drafts still obey bounded field/media validation.
+  Result/profile links must be absolute HTTPS without credentials/control characters;
+  reject javascript/data schemes. Never fetch, proxy, unfurl or execute them.
+- Optional evidence images follow the same bounded JPEG/PNG/WebP validation and
+  private delivery rules as covers, but are visible only to their eligible owner
+  and the owning community creator, never catalog viewers or another member.
+- A practical lesson has a creator-assigned nonempty skill label (maximum 80
+  characters). Snapshot the label with the verified revision for deterministic
+  provenance; later label edits do not relabel historical verified work silently.
+- Lifecycle: Draft -> Waiting for feedback; creator -> Needs revision/Verified/
+  Rejected; Needs revision -> new Waiting revision. Verify/reject only the current
+  waiting revision under locks. Terminal revisions are immutable; no terminal
+  correction endpoint in this increment. Feedback is required for Needs revision
+  and Rejected. Repeated/concurrent transitions cannot duplicate the current record.
+- Loss of membership/entitlement or unpublication blocks reads/writes/media
+  immediately. Retention does not restore access. Preserve audit history and follow
+  existing deletion/anonymization rules; safe unavailable context replaces links.
+- Lesson progress and evidence verification remain independent. Enhanced progress
+  and composer mutations reuse existing validation/CSRF/idempotency/authorization,
+  preserve server forms, and must not bypass EUR-49 hierarchy/context checks.
+
+### 16.2 Scoped activity, skills and helpful answers — EUR-51
+
+- Profile/activity/skills are authorized within the current community. Never expose
+  all memberships, another learner's evidence summary/link/image, or private email.
+  Optional self-managed GitHub/portfolio URLs are nullable HTTPS fields, maximum
+  2048 characters each, rendered escaped with safe external-link attributes.
+- Activity chart: currently visible authored posts/comments in this tenant, grouped
+  by creation date for the last 90 UTC calendar days including today. Use bounded
+  aggregates and explicit UTC labels. No new tracking/presence/streak event stream;
+  deleted/hidden/inaccessible source records are excluded, not retrospectively guessed.
+- Verified-skill signals derive idempotently from current eligible Verified evidence
+  and its skill-label snapshot. Show permitted label/count/context only; never grant
+  evidence access from a profile/leaderboard signal. Hide inaccessible provenance.
+- Implement one current creator-accepted helpful answer per eligible contextual
+  post. Reuse the existing comment/viewer hierarchy; creator cannot accept their own
+  answer. Under parent/access locks, each acceptance, replacement or revocation
+  records an audited transition and updates or revokes the old derived signal exactly once. Deleted or
+  inaccessible sources stop contributing; history is retained without metadata leaks.
+- Preserve the F-10 engagement ledger. Rank engagement, verified practice and
+  helpful answers as distinct filters/columns; sort each metric descending, then
+  user ID ascending for ties. Count distinct valid source records, not event retries.
+  A mini ranking labels the same metric/window; no invented weighted composite.
+
+### 16.3 Shell, settings and unchanged domain boundaries — EUR-51
+
+- Header context is resolved from the authorized current route, not mutable global
+  session state. One typeahead/utility instance per page, tenant-correct unread
+  counts, no cross-community search/inbox, and no privilege inferred from a badge.
+- Preserve existing route names or explicit compatibility redirects for settings.
+  Sensitive account writes retain existing validation, re-verification and retention.
+  No global handle/name restriction/session-revocation capability is introduced.
+- Async preference mutation is self-only and allowlists notify_replies/notify_courses.
+  Updating one preserves the other, including retries and concurrent/rapid changes;
+  confirm persistence and expose failure. Keep delivery semantics unchanged.
+- ADR-009–012 continue to govern entitlement, term expiry, simulated referral
+  attribution and asynchronous messaging. Do not add payouts, presence, followers,
+  per-group notification/chat settings or new background services through UI work.

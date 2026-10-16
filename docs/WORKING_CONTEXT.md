@@ -2,6 +2,47 @@
 
 A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
+## EUR-50/51 experience-completion planning amendment (2026-10-16)
+
+- Authority: user approved normalizing the Skool reference, placing suitable
+  adaptations in the canonical delivery/product/design/architecture documents,
+  and updating existing EUR-50/51 on Linear. No application implementation,
+  Git publication or Done transition is part of this planning task.
+- Starting checkout: `eur-49-learning-focus`, HEAD
+  `4261c54b86e3e9ebdb4357b1a81ee80546b97696`. Concurrent EUR-49 controller/model/
+  Livewire/view/service/DTO/migration/test edits and its existing checkpoint are
+  preserved. Do not stage this checkout wholesale or attribute those changes to
+  the planning amendment.
+- Scope map: Delivery Plan section 18 owns sequencing and work packages;
+  Product Scope section 21 owns capability decisions; Architecture section 16
+  owns forward media/evidence/activity/settings contracts; design.md section
+  11.7 owns visual adaptations. Need_update_analysis.md is the normalized reference
+  and full adopted/deferred disposition, not another backlog/design system.
+- EUR-49's active AC and implementation scope remain unchanged. EUR-50 adds
+  Feed/Classroom/Lesson and cover/composer completion to private Proof of Work;
+  EUR-51 adds shell/account/activity/routed completion to verified contributions.
+  Preserve the original AC and all unrelated Linear metadata/QA assignments.
+- Linear writeback verified by readback:
+  [EUR-50](https://linear.app/eurusdevsec/issue/EUR-50/f-23-learning-workspace-completion-and-proof-of-work-feedback)
+  now has 15 numbered AC;
+  [EUR-51](https://linear.app/eurusdevsec/issue/EUR-51/f-24-s-cool-shell-account-experience-and-verified-contribution-profiles)
+  has 17. Each retains its original AC-01–07 verbatim. Both remain Todo; assignee,
+  project/milestone, priority/estimate, cycle/due date, labels and dependency/related
+  IDs match the pre-update snapshot. Generated issue-link markup/list whitespace
+  was normalized for content comparison. EUR-49 description is unchanged.
+- Verification: selected documentation diff check PASS; normalized analysis local
+  links/anchors/whitespace PASS; issue template/AC preservation/content/metadata
+  readback PASS. `bash scripts/verify-agent-contract.sh` PASS for 11 shared files
+  through the approved execution route; the initial sandboxed Git Bash invocation
+  exited 1 without diagnostics and is not counted as successful evidence.
+- Evidence limits: planning only. Application tests, browser/visual review, schema
+  deployment and implementation CI were not run or upgraded by this amendment.
+  New AC remain unchecked. No application file was edited by this task; concurrent
+  EUR-49 development continues independently. No Git staging/publication or Done.
+- Next: finish/review EUR-49, then read the live EUR-50 contract, Delivery Plan 18.2,
+  design 11.7 and Architecture 16 before implementing its packages. EUR-51 follows
+  the reviewed EUR-50 handoff and closes its full route/state evidence matrix.
+
 ## Shared execution workflow checkpoint (2026-10-10)
 
 - Authorized scope: relocate durable execution lessons to `docs/AI_WORKFLOW.md`, section **Execution efficiency**, and correct entrypoint routing. No application, runtime, dependency, data or publication change is authorized.
@@ -3506,3 +3547,156 @@ Publication preparation on 2026-10-16 supersedes that final branch/evidence note
 - The local correction limits next-step/progress data to courses the member can access, adds a negative regression for a fully locked classroom, and gives the typeahead fixture deterministic nonmatching names.
 - A full local application run after those corrections passed the two reported CI failures but exposed an unrelated order-tie flake in `LearningCommunitySeederTest` (461 passed, 1 failed, 4,890 assertions). The assertion now uses lesson ID as a deterministic secondary order; the three affected suites then passed together (16 tests, 336 assertions).
 - The two broader Classroom suites also pass (20 tests, 342 assertions). Targeted Pint, `git diff --check`, the shared agent-contract check, and GitNexus low-risk change detection pass. A post-correction full remote CI run, visual confirmation of the locked-only Classroom state, commit/push, merge, and Linear Done remain pending.
+
+## EUR-49 - S-cool Learning Focus and contextual discussions (2026-10-16)
+
+### Contract and readiness
+- **Linear Issue:** [EUR-49 / F-22: S-cool Learning Focus and contextual discussions](https://linear.app/eurusdevsec/issue/EUR-49/f-22-s-cool-learning-focus-and-contextual-discussions)
+- **Branch:** `eur-49-learning-focus`
+- **Starting Base Revision:** `4261c54b86e3e9ebdb4357b1a81ee80546b97696` (PR #39 merge commit on `origin/main`; hash corrected during the scoped audit)
+- **Outcome:**
+  1. Reusable server-side `LearningFocusService` determining the next accessible, published, incomplete lesson across permitted courses using stable ordering (`course order, course id -> section order, section id -> lesson order, lesson id`) with four distinct states: `CONTINUE`, `COMPLETE`, `LOCKED`, and `EMPTY`. Includes upcoming non-cancelled event metadata with explicit timezone and access-gated meeting URLs.
+  2. Contextual discussions allowing members and creators to attach questions/posts to courses and lessons via additive nullable `course_id` and `lesson_id` on `posts`, strictly enforcing tenant isolation, publishing, and entitlement on both read and write, with safe fallback when context becomes inaccessible.
+
+### Technical Plan
+1. **Database Migration:**
+   - Add nullable `course_id` and `lesson_id` foreign keys with cascade/null-on-delete and indexed lookups `(community_id, course_id)` and `(community_id, lesson_id)` to `posts`.
+2. **Service Layer (`App\Services\LearningFocusService`):**
+   - Implements pure server-side deterministic resolution of learner next step and 4 state classifications without leaking unentitled content.
+3. **Model & Policy Enforcement:**
+   - Update `App\Models\Post` relationships (`course()`, `lesson()`), accessor/helpers for contextual badge resolution.
+   - Update `PostController::store` and `update` with strict validation: lesson must belong to course, both must belong to the active community, non-creators must be entitled to the course and lesson must be published.
+4. **Livewire & Views:**
+   - Update `DiscussionViewer` Livewire component and Blade template to display safe breadcrumbs linking to course/lesson when permitted, or *"Learning context unavailable"* badge if unentitled/unpublished.
+   - Update `resources/views/classroom/index.blade.php` to consume `LearningFocusService` replacing inline calculations.
+   - Add contextual discussion affordances ("Ask a question") to `classroom/courses/show.blade.php` and `classroom/lessons/show.blade.php`.
+5. **Testing & Verification:**
+   - Feature tests covering all 4 Learning Focus states, negative tests for unentitled/draft/cross-community access, and contextual post mutations.
+
+### Progress and Implementation Evidence
+1. **Migration & Data Layer:**
+   - Migration `2026_10_16_130001_add_learning_context_to_posts_table.php` added nullable `course_id` (foreign key `courses.id`, `nullOnDelete()`) and `lesson_id` (foreign key `lessons.id`, `nullOnDelete()`) with composite indexes `['community_id', 'course_id']` and `['community_id', 'lesson_id']`.
+   - `App\Models\Post`: updated `$fillable`, added `course()`, `lesson()` relations, `hasLearningContext()`, and security check `isLearningContextAccessibleFor(?User $user)`.
+
+2. **Server-Side Learning Focus (`App\Services\LearningFocusService` & `App\DTOs\LearningFocusData`):**
+   - Pure server-side resolution supporting 4 states: `CONTINUE` (with `nextLesson`, `nextCourse`, `hasStarted`), `COMPLETE`, `LOCKED` (no leak of private lesson titles or descriptions), and `EMPTY`.
+   - Strict hierarchical ordering: `course.order, course.id -> section.order, section.id -> lesson.order, lesson.id`.
+   - Upcoming event metadata: extracts next scheduled non-cancelled event, formats with stored IANA timezone, and gates `meeting_url` exclusively for active members and creators.
+
+3. **Contextual Discussions (`PostController`, `DiscussionViewer`, Views):**
+   - `PostController`: validation for `course_id` and `lesson_id` in `store()` and `update()`, enforcing tenant isolation, publishing, and entitlement. Supports course filtering via `?course_id=`.
+   - `resources/views/communities/posts/index.blade.php`: composer displays attached context banner with remove action; post feed cards render clickable context pills or safe fallback `"Learning context unavailable"`.
+   - `resources/views/communities/posts/show.blade.php`: renders context breadcrumb or safe fallback badge.
+   - `resources/views/classroom/courses/show.blade.php` & `classroom/lessons/show.blade.php`: contextual "Ask a Question / Discuss Course" and "Ask a Question about this Lesson" CTA buttons.
+   - `resources/views/livewire/discussion-viewer.blade.php` & `app/Livewire/DiscussionViewer.php`: modal header renders learning context badge or fallback without leaking sensitive details.
+
+4. **Automated Verification:**
+   - `LearningFocusTest`: 6 passed (28 assertions) testing all 4 states, hierarchical ordering, upcoming event timezone formatting, meeting URL protection, and view rendering.
+   - `ContextualDiscussionTest`: 9 passed (65 assertions) testing valid post creation, cross-tenant rejection, cross-course lesson mismatch rejection, unentitled paid course rejection, safe fallback badges, course feed filtering, and Livewire discussion viewer integration.
+   - Combined regression test suites (`ClassroomRegressionTest`, `ClassroomPublishingTest`, `LessonProgressRegressionTest`, `CommunityFeedRegressionTest`, `LivewireFeedInteractionsTest`): 64 passed (764 assertions).
+   - Code Style: `pint --test` PASS (257 files checked, 0 issues).
+   - Static Analysis: `phpstan analyse --memory-limit=512M` [OK] No errors (115 files).
+   - Asset Build: `npm run build` PASS (built in 2.77s).
+   - Agent Contract: `scripts/verify-agent-contract.sh` [PASS] (11 shared files).
+   - Whitespace: `git diff --check` PASS (clean, 0 warnings).
+
+5. **Visual Parity & Browser Verification:**
+   - Responsive viewports audited: 1280px (`classroom_1280px.png`), 768px (`classroom_768px.png`), 375px (`classroom_375px.png`), 320px (`classroom_320px.png`).
+   - Contextual composer audited: 1280px (`feed_composer_context_1280px.png`).
+   - Browser interaction session video recording: `eur49_learning_focus_audit_1792129772966.webp`.
+   - Layout observations: 0 horizontal overflow, fully responsive card layout, clear typography, intuitive action flow.
+
+### Handoff and Next Actions
+- Implementation is complete on neutral branch `eur-49-learning-focus`.
+- Existing EUR-50/51 planning changes, including the normalized `docs/Need_update_analysis.md`, remain separate and must be preserved.
+- Branch is ready for user review, commit authorization, and pull request creation.
+
+### EUR-49 focused audit and authorized corrections (2026-10-16)
+
+- Authority/target: audit and fix EUR-49 only, against the live original AC-01–07.
+  Local unstaged/untracked implementation on `eur-49-learning-focus`; HEAD and
+  `origin/main` both resolve to `4261c54b86e3e9ebdb4357b1a81ee80546b97696`.
+  `origin/HEAD` is not configured, so `origin/main` is the explicit comparison
+  fallback. No staged changes/feature commits were included. Existing EUR-50/51
+  design/product/architecture/delivery/reference changes were not altered.
+- Reproduced six failures before source corrections: missing Feed/empty-state
+  Learning Focus; loading lesson bodies into catalog focus; stale context in an
+  already-open viewer; context unpublication between preflight and transaction;
+  update bypass through omitted context fields; malformed composer query causing
+  HTTP 500. These failures are separate from the earlier implementation PASS report.
+- Corrections:
+  - Extracted the existing Learning Focus presentation into
+    `resources/views/components/learning-focus.blade.php`, reused by Classroom
+    and community Feed. Empty state remains visible with upcoming event context;
+    completion copy describes accessible lessons only. Locked links resolve to
+    Classroom from Feed. Removed continuous pulse and allowed narrow-screen wrapping.
+  - `LearningFocusService` rechecks current community/access before any event data,
+    selects only necessary course/section/lesson/progress metadata, preserves stable
+    hierarchy/ID ordering across the full catalog, and selects scheduled events only.
+    Visitor data now contains no private event metadata.
+  - `PostController` validates GET context types, validates/locks the current course/
+    lesson hierarchy inside FeedMutation for create/update, and rechecks retained
+    context when fields are omitted. The edit form supports explicit detachment
+    with field errors, allowing a community discussion to survive unavailable context.
+  - Composer initialization uses JavaScript-safe serialization rather than interpolated
+    quoted input; hidden IDs also have server-rendered fallback values. Context
+    validation resolves lessons through the selected course, not global existence.
+  - `DiscussionViewer` refreshes context on every open render. On community/post
+    access loss it clears displayed content/context and closes the modal while
+    retaining a valid component response; mutation authorization remains independent.
+    An initial stricter abort broke the existing multi-request revoked-access test;
+    the final handling restores that contract without revealing new content.
+  - Fixed a Feed footer overflow observed at 320px by wrapping its action groups;
+    wider layouts retain their existing composition. No EUR-50/51 redesign was started.
+- Current completed verification (guarded MySQL `scool_test`, no parallel DB suites):
+  - Final command: `docker compose -p scool exec -T app php artisan test tests/Feature/LearningFocusTest.php tests/Feature/ContextualDiscussionTest.php tests/Feature/ClassroomRegressionTest.php tests/Feature/ClassroomPublishingTest.php tests/Feature/LessonProgressRegressionTest.php tests/Feature/CourseAccessAuditRegressionTest.php tests/Feature/CommunityFeedRegressionTest.php tests/Feature/LivewireFeedInteractionsTest.php --compact`.
+    Result: **76 passed, 875 assertions, 35.91s**, exit 0 on the final source.
+  - Targeted Pint `--test` on the six edited PHP implementation/test files: PASS.
+    Configured PHPStan (`--memory-limit=512M --no-progress`, testing/scool_test
+    environment): no errors on final modal handling. `npm run build`: PASS;
+    existing font-URL resolution warnings remain (assets exist locally; no new
+    font setup was attempted). `git diff --check` and agent-contract check: PASS.
+  - Browser: documented local demo member; read-only Feed -> Start Lesson ->
+    Ask a Question -> correct contextual composer, then Classroom. Feed/composer
+    and Classroom measurements at 320/375/768/1280px had document widths
+    305/360/753/1265 respectively, all within the viewport after the footer fix.
+    Browser error log was empty. No live post/progress/payment data was changed;
+    temporary viewport override was reset and the original discussion tab restored.
+- Evidence limits: GitNexus workspace index is stale (indexed `c9ecde3` on EUR-48;
+  current HEAD `4261c54`). No current graph/PDG/taint completeness is claimed;
+  this quick audit used direct diff/source and reproducible negative tests.
+  Browser checks covered the populated demo flow, not every role/state, 200% zoom
+  or a complete reduced-motion/keyboard matrix. Screenshots were inspected in the
+  browser session; a saved comparable before/after artifact remains pending.
+  Full application suite, remote CI, independent review and formal visual acceptance
+  were not rerun or inferred from the scoped PASS. No development migration, reseed,
+  queue restart, Git publication, Linear status change or Done was performed.
+- Handoff: no remaining blocker found in this focused code/test review. Prepare a
+  reviewed EUR-49 PR with an explicit implementation file allowlist; retain the
+  separate planning amendments. After its merge/required acceptance, start the
+  live expanded EUR-50 contract and Delivery Plan 18.2, then EUR-51. Publication
+  and Done still require current authorization and required checks.
+
+### EUR-49 publication preparation (2026-10-16)
+
+- Current authorization: commit, push and open a PR for owner approval/merge;
+  reconcile completed Linear issues against GitHub evidence. This does not waive
+  required checks or authorize self-approval.
+- Fetched `origin/main`; it remains `4261c54b86e3e9ebdb4357b1a81ee80546b97696`,
+  equal to the feature branch starting HEAD. Preserve the complete authorized diff.
+- Publish the EUR-49 implementation/tests and this checkpoint as one commit;
+  publish the previously approved EUR-50/51 planning documents separately in the
+  same PR so the next handoff has versioned source. No EUR-50/51 application code
+  is included. The live EUR-49 AC remains unchanged.
+- Reuse the completed 76-test / 875-assertion verification above: implementation
+  inputs have not changed since that run. Required full remote CI and independent
+  review are pending on the published revision. Visual evidence limits remain.
+- Linear reconciliation: PR #39 is merged with successful CI on its final head.
+  F-19 retains explicit provider/second-machine/manual acceptance gaps; QA-A1 has
+  a submitted report awaiting review. Neither is accepted merely because it is
+  In Review. EUR-50 follows EUR-49 merge and its live dependency contract.
+- Published PR: https://github.com/Kerneural/S-cool/pull/40. Initial head `71dfe00`
+  failed Gitleaks before application checks: ordinary slash-separated action prose
+  in Architecture line 801 matched `generic-api-key`. Confirmed no credential was
+  present. Reworded the prose and pinned only that historical fingerprint in
+  `.gitleaksignore`; all other history/future findings remain subject to the gate.

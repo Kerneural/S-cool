@@ -547,3 +547,37 @@ Nếu mentor thay đổi một quyết định làm ảnh hưởng Must scope, n
 - `OPEN`: Separate course sales, time-limited membership/renewal and affiliate accounting need their business contracts resolved before implementation. They are represented in the completion plan, not silently excluded. A monthly price shown in the reference does not establish automatic recurring billing.
 - `PROPOSED`: Community-scoped asynchronous messaging is a reference-adjacent option; the visible messaging icon is not verified evidence of the mentor implementation.
 - The canonical mentor observations remain in section 19. The delivery plan distinguishes observed UI, screenshot references, proposed improvements and behavior still requiring a decision. It does not claim backend parity or acceptance completion.
+
+## 21. Approved experience-completion direction (2026-10-16)
+
+This later decision extends the selected post-F19 experience phase. Earlier MVP
+and mentor-reference exclusions remain historical; they are superseded only by
+explicit accepted contracts, not by a competitor screenshot.
+
+- `ACCEPTED`: Retain S-cool's private community model and light/slate/white/teal,
+  Be Vietnam Pro identity. Layout follows the task: readable Feed, visual course
+  grid, focused Lesson, navigable Settings and compact Creator operations.
+- `ACCEPTED`: Keep EUR-49 Learning Focus/contextual discussion scope unchanged
+  while it is implemented. Extend EUR-50 with course-cover lifecycle, contextual
+  composer/feed and study-workspace completion alongside private practical
+  evidence/review. Extend EUR-51 with contextual shell, account/settings, activity/
+  skill profiles, meaningful contribution and complete routed visual acceptance.
+- `ACCEPTED`: Practical evidence uses explicit creator-assigned skill labels,
+  private learner revisions and creator review. Self-marked completion is separate
+  from verified practical work. Skills are source-derived summaries, not credentials.
+- `ACCEPTED`: Community profiles may show visible post/comment history and a
+  90-day UTC contribution heatmap plus separate verified/helpful-answer signals.
+  Profile editing may add optional safe GitHub/portfolio links. No public profile,
+  membership graph, global reputation, follower count or online-status claim.
+- `ACCEPTED`: Settings reorganize existing profile/security/access/history/referral
+  destinations. Improve acknowledged saves for current notification preferences;
+  do not invent per-group/email/push/chat settings or change notification delivery.
+- `PRESERVED`: Current course/member access, role separation, plain-text content,
+  external embeds, participant-only asynchronous chat and simulated payment/
+  affiliate contracts remain authoritative. No real payout or new recurring model.
+- `DEFERRED`: Other reference capabilities remain listed with rationale in
+  `Need_update_analysis.md` section 6. A menu or visual pattern does not authorize
+  its missing backend. No new dependency or runtime service is selected.
+- Implementation routing is in Delivery Plan section 18; visual rules are in
+  `design.md` section 11.7; new data/access boundaries are in Architecture section
+  16. Live Linear AC and issue evidence determine acceptance, not this decision log.

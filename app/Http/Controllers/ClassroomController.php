@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Community;
+use App\Services\LearningFocusService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
@@ -36,6 +37,8 @@ class ClassroomController extends Controller
             }
         }])->paginate(12);
 
-        return view('classroom.index', compact('community', 'courses', 'isCreator', 'courseOrder', 'isActiveMember'));
+        $learningFocus = LearningFocusService::resolve($community, $user);
+
+        return view('classroom.index', compact('community', 'courses', 'isCreator', 'courseOrder', 'isActiveMember', 'learningFocus'));
     }
 }

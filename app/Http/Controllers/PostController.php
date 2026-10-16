@@ -4,8 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Actions\CommunityContent\FeedMutation;
 use App\Models\Community;
+use App\Models\Course;
+use App\Models\Lesson;
 use App\Models\OnboardingStepCompletion;
 use App\Models\Post;
+use App\Models\User;
+use App\Services\LearningFocusService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -24,6 +28,11 @@ class PostController extends Controller
 
         $currentCategorySlug = $request->query('category');
         $currentSort = $request->query('sort', 'newest');
+        $contextQuery = $request->validate([
+            'course_id' => ['nullable', 'integer', 'min:1'],
+            'lesson_id' => ['nullable', 'integer', 'min:1'],
+        ]);
+        $currentCourseId = isset($contextQuery['course_id']) ? (int) $contextQuery['course_id'] : null;
 
         if ($currentSort !== null && ! in_array($currentSort, ['newest', 'most_commented'], true)) {
             throw ValidationException::withMessages([
@@ -36,6 +45,8 @@ class PostController extends Controller
             ->with([
                 'author:id,name',
                 'category',
+                'course',
+                'lesson.section',
                 'likes' => fn ($q) => $user ? $q->where('is_active', true)->where('user_id', $user->id) : $q->whereRaw('0 = 1'),
                 'bookmarks' => fn ($q) => $user ? $q->where('user_id', $user->id) : $q->whereRaw('0 = 1'),
             ])
@@ -43,6 +54,10 @@ class PostController extends Controller
                 'comments',
                 'likes as active_likes_count' => fn ($q) => $q->where('is_active', true),
             ]);
+
+        if ($currentCourseId !== null) {
+            $query->where('course_id', $currentCourseId);
+        }
 
         if (is_string($currentCategorySlug) && $currentCategorySlug !== '' && $currentCategorySlug !== 'all') {
             if ($currentCategorySlug === 'uncategorized') {
@@ -79,7 +94,9 @@ class PostController extends Controller
             'categories' => $categories,
             'currentCategory' => $currentCategorySlug,
             'currentSort' => $currentSort,
+            'currentCourseId' => $currentCourseId ? (int) $currentCourseId : null,
             'isCreator' => $community->isCreator($request->user()),
+            'learningFocus' => LearningFocusService::resolve($community, $user),
         ]);
     }
 
@@ -98,6 +115,16 @@ class PostController extends Controller
                 'integer',
                 Rule::exists('post_categories', 'id')->where('community_id', $community->id),
             ],
+            'course_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('courses', 'id')->where('community_id', $community->id),
+            ],
+            'lesson_id' => [
+                'nullable',
+                'integer',
+                'min:1',
+            ],
         ]);
 
         if (! empty($validated['category_id'])) {
@@ -111,6 +138,11 @@ class PostController extends Controller
 
         app(FeedMutation::class)->run($request->user(), $community, null, null, function (Community $current) use ($request, $validated): void {
             Gate::authorize('create', [Post::class, $current]);
+            $this->validateLearningContext(
+                $current, $request->user(),
+                isset($validated['course_id']) ? (int) $validated['course_id'] : null,
+                isset($validated['lesson_id']) ? (int) $validated['lesson_id'] : null,
+            );
             $post = $current->posts()->create(['user_id' => $request->user()->id, ...$validated]);
 
             $introCategory = $current->getIntroductionCategory();
@@ -133,6 +165,8 @@ class PostController extends Controller
         $post->load([
             'author:id,name',
             'category',
+            'course',
+            'lesson.section',
             'likes' => fn ($q) => $user ? $q->where('is_active', true)->where('user_id', $user->id) : $q->whereRaw('0 = 1'),
             'bookmarks' => fn ($q) => $user ? $q->where('user_id', $user->id) : $q->whereRaw('0 = 1'),
         ]);
@@ -179,7 +213,21 @@ class PostController extends Controller
                 'integer',
                 Rule::exists('post_categories', 'id')->where('community_id', $community->id),
             ],
+            'course_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('courses', 'id')->where('community_id', $community->id),
+            ],
+            'lesson_id' => [
+                'nullable',
+                'integer',
+                'min:1',
+            ],
+            'remove_learning_context' => ['nullable', 'boolean'],
         ]);
+
+        $removeContext = $request->boolean('remove_learning_context');
+        unset($validated['remove_learning_context']);
 
         if (! empty($validated['category_id'])) {
             $category = $community->categories()->findOrFail($validated['category_id']);
@@ -190,12 +238,72 @@ class PostController extends Controller
             }
         }
 
-        app(FeedMutation::class)->run($request->user(), $community, $post->id, null, function (Community $current, Post $currentPost) use ($validated): void {
+        app(FeedMutation::class)->run($request->user(), $community, $post->id, null, function (Community $current, Post $currentPost) use ($request, $validated, $removeContext): void {
             Gate::authorize('update', $currentPost);
-            $currentPost->update($validated);
+            $attributes = $validated + ['course_id' => $currentPost->course_id, 'lesson_id' => $currentPost->lesson_id];
+            if ($removeContext) {
+                $attributes['course_id'] = null;
+                $attributes['lesson_id'] = null;
+            }
+            $this->validateLearningContext(
+                $current, $request->user(),
+                isset($attributes['course_id']) ? (int) $attributes['course_id'] : null,
+                isset($attributes['lesson_id']) ? (int) $attributes['lesson_id'] : null,
+            );
+            $currentPost->update($attributes);
         });
 
         return redirect()->route('communities.posts.index', $community)->with('status', 'post-updated');
+    }
+
+    /**
+     * Validate the learning context (course and lesson) against tenant, entitlement, and published status.
+     */
+    protected function validateLearningContext(Community $community, ?User $user, ?int $courseId, ?int $lessonId): void
+    {
+        if ($courseId === null && $lessonId !== null) {
+            throw ValidationException::withMessages([
+                'lesson_id' => 'A course must be selected when specifying a lesson context.',
+            ]);
+        }
+
+        if ($courseId !== null) {
+            /** @var Course|null $course */
+            $course = $community->courses()->lockForUpdate()->find($courseId);
+            if (! $course) {
+                throw ValidationException::withMessages([
+                    'course_id' => 'The selected course does not exist in this community.',
+                ]);
+            }
+
+            $isCreator = $user && $community->isCreator($user);
+            $course->setRelation('community', $community);
+
+            if (! $isCreator) {
+                if (! $course->isPublished() || ! $course->hasMemberAccess($user)) {
+                    throw ValidationException::withMessages([
+                        'course_id' => 'You do not have access to this course context.',
+                    ]);
+                }
+            }
+
+            if ($lessonId !== null) {
+                /** @var Lesson|null $lesson */
+                $lesson = Lesson::whereHas('section', fn ($query) => $query->where('course_id', $course->id))
+                    ->lockForUpdate()->find($lessonId);
+                if (! $lesson || ! $lesson->section || (int) $lesson->section->course_id !== (int) $course->id) {
+                    throw ValidationException::withMessages([
+                        'lesson_id' => 'The selected lesson does not belong to this course.',
+                    ]);
+                }
+
+                if (! $isCreator && ! $lesson->isPublished()) {
+                    throw ValidationException::withMessages([
+                        'lesson_id' => 'You do not have access to this lesson context.',
+                    ]);
+                }
+            }
+        }
     }
 
     /**
