@@ -28,5 +28,7 @@
                 {{ $slot }}
             </main>
         </div>
+        {{-- Alpine-only study/forms also need the single runtime bundled with Livewire. --}}
+        @livewireScripts
     </body>
 </html>

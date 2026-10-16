@@ -43,7 +43,9 @@ class PostController extends Controller
         $user = $request->user();
         $query = $community->posts()
             ->with([
-                'author:id,name',
+                'author:id,name,avatar_path',
+                'latestVisibleComment' => fn ($q) => $q->select(['comments.id', 'comments.post_id', 'comments.user_id', 'comments.body', 'comments.created_at']),
+                'latestVisibleComment.author:id,name',
                 'category',
                 'course',
                 'lesson.section',
@@ -98,6 +100,24 @@ class PostController extends Controller
             'isCreator' => $community->isCreator($request->user()),
             'learningFocus' => LearningFocusService::resolve($community, $user),
         ]);
+    }
+
+    /**
+     * Show the direct form for creating a new post.
+     */
+    public function create(Request $request, Community $community): View
+    {
+        Gate::authorize('create', [Post::class, $community]);
+
+        $categories = $community->categories()->get();
+        $context = $request->validate([
+            'course_id' => ['nullable', 'integer', 'min:1'],
+            'lesson_id' => ['nullable', 'integer', 'min:1'],
+        ]);
+        $courseId = isset($context['course_id']) ? (int) $context['course_id'] : null;
+        $lessonId = isset($context['lesson_id']) ? (int) $context['lesson_id'] : null;
+
+        return view('communities.posts.create', compact('community', 'categories', 'courseId', 'lessonId'));
     }
 
     /**

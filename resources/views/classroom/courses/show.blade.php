@@ -64,6 +64,12 @@
 
         <!-- Course Header Card -->
         <div class="space-y-4 rounded-2xl bg-white p-6 sm:p-8 shadow-xs border border-slate-200/80">
+            @if ($course->cover_path)
+                <div class="aspect-video w-full max-h-72 overflow-hidden rounded-xl bg-slate-950 shadow-sm border border-slate-800">
+                    <img src="{{ route('communities.courses.cover', [$community, $course]) }}" alt="{{ $course->title }}" class="w-full h-full object-cover">
+                </div>
+            @endif
+
             <div class="flex flex-wrap items-center gap-2.5">
                 <h1 class="break-words text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">{{ $course->title }}</h1>
                 @if ($course->isOneTime())
@@ -106,11 +112,50 @@
         @endif
 
         @if ($isCreator)
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <details class="rounded-2xl bg-white p-5 shadow-xs border border-slate-200/80" @if ($errors->has('cover')) open @endif>
+                    <summary class="cursor-pointer font-bold text-sm text-brand-600 hover:text-brand-700 flex items-center justify-between">
+                        <span>{{ __('Course Cover') }}</span>
+                        <span class="text-xs text-slate-400 font-normal">{{ __('Manage') }}</span>
+                    </summary>
+                    <div class="mt-4 space-y-4 pt-3 border-t border-slate-100">
+                        @if ($course->cover_path)
+                            <div class="space-y-2">
+                                <span class="text-xs font-semibold text-slate-500 block">{{ __('Current Cover:') }}</span>
+                                <div class="aspect-video max-w-xs overflow-hidden rounded-xl border border-slate-200 bg-slate-900">
+                                    <img src="{{ route('communities.courses.cover', [$community, $course]) }}" alt="{{ $course->title }}" class="w-full h-full object-cover">
+                                </div>
+                                <form method="POST" action="{{ route('communities.courses.cover.destroy', [$community, $course]) }}" onsubmit="return confirm('{{ __('Remove this course cover?') }}');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-xs font-semibold text-rose-600 hover:text-rose-700 underline">
+                                        {{ __('Remove Cover') }}
+                                    </button>
+                                </form>
+                            </div>
+                        @endif
+
+                        <form method="POST" action="{{ route('communities.courses.cover.store', [$community, $course]) }}" enctype="multipart/form-data" class="space-y-3">
+                            @csrf
+                            <div>
+                                <label for="course-cover-input" class="block text-xs font-bold text-ink uppercase tracking-wider mb-1.5">{{ __('Upload New Cover') }}</label>
+                                <input id="course-cover-input" type="file" name="cover" accept=".jpg,.jpeg,.png,.webp" required class="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100 cursor-pointer">
+                                <span class="block text-xs text-muted mt-1">{{ __('JPEG, PNG, or WebP. Max 5 MiB, max 4096px.') }}</span>
+                                <x-input-error :messages="$errors->get('cover')" class="mt-1" />
+                            </div>
+                            <div class="flex justify-end">
+                                <x-primary-button>
+                                    {{ __('Save Cover') }}
+                                </x-primary-button>
+                            </div>
+                        </form>
+                    </div>
+                </details>
+
                 <details class="rounded-2xl bg-white p-5 shadow-xs border border-slate-200/80" @if ($errors->any() && old('_form') === 'edit-course') open @endif>
                     <summary class="cursor-pointer font-bold text-sm text-brand-600 hover:text-brand-700 flex items-center justify-between">
                         <span>{{ __('Edit Course') }}</span>
-                        <span class="text-xs text-slate-400 font-normal">{{ __('Click to expand') }}</span>
+                        <span class="text-xs text-slate-400 font-normal">{{ __('Settings') }}</span>
                     </summary>
                     <form method="POST" action="{{ route('communities.courses.update', [$community, $course]) }}" class="mt-4 space-y-4 pt-3 border-t border-slate-100">
                         @csrf @method('PUT')

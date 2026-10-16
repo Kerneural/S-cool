@@ -130,4 +130,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(ReferralInvitationRequest::class, 'referrer_id');
     }
+
+    public function proofOfWorks(): HasMany
+    {
+        return $this->hasMany(LessonProofOfWork::class);
+    }
 }

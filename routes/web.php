@@ -13,6 +13,7 @@ use App\Http\Controllers\CommunityOnboardingController;
 use App\Http\Controllers\CommunityOrderController;
 use App\Http\Controllers\ContentReportController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\CourseCoverController;
 use App\Http\Controllers\CourseSectionController;
 use App\Http\Controllers\CreatorOverviewController;
 use App\Http\Controllers\DirectoryController;
@@ -29,6 +30,8 @@ use App\Http\Controllers\PostCategoryController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PostReactionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProofOfWorkController;
+use App\Http\Controllers\ProofOfWorkReviewController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Route;
@@ -103,6 +106,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/communities/{community:slug}/directory/{user}/avatar', [DirectoryController::class, 'avatar'])->withoutScopedBindings()->name('communities.directory.avatar');
 
         Route::get('/communities/{community:slug}/posts', [PostController::class, 'index'])->name('communities.posts.index');
+        Route::get('/communities/{community:slug}/posts/create', [PostController::class, 'create'])->name('communities.posts.create');
         Route::post('/communities/{community:slug}/posts', [PostController::class, 'store'])->name('communities.posts.store');
         Route::get('/communities/{community:slug}/posts/{post}', [PostController::class, 'show'])->name('communities.posts.show');
         Route::get('/communities/{community:slug}/posts/{post}/edit', [PostController::class, 'edit'])->name('communities.posts.edit');
@@ -149,6 +153,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/communities/{community:slug}/courses', [CourseController::class, 'store'])->name('communities.courses.store');
         Route::post('/communities/{community:slug}/courses/reorder', [CourseController::class, 'reorder'])->name('communities.courses.reorder');
         Route::get('/communities/{community:slug}/courses/{course}', [CourseController::class, 'show'])->name('communities.courses.show');
+        Route::get('/communities/{community:slug}/courses/{course}/cover', [CourseCoverController::class, 'show'])->name('communities.courses.cover');
+        Route::post('/communities/{community:slug}/courses/{course}/cover', [CourseCoverController::class, 'store'])->name('communities.courses.cover.store');
+        Route::delete('/communities/{community:slug}/courses/{course}/cover', [CourseCoverController::class, 'destroy'])->name('communities.courses.cover.destroy');
         Route::post('/communities/{community:slug}/courses/{course}/checkout', [PaymentController::class, 'initiateCourse'])->middleware('verified')->name('communities.courses.checkout');
         Route::put('/communities/{community:slug}/courses/{course}', [CourseController::class, 'update'])->name('communities.courses.update');
         Route::delete('/communities/{community:slug}/courses/{course}', [CourseController::class, 'destroy'])->name('communities.courses.destroy');
@@ -160,6 +167,14 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/communities/{community:slug}/courses/{course}/lessons/{lesson}', [LessonController::class, 'show'])->name('communities.lessons.show');
         Route::post('/communities/{community:slug}/courses/{course}/lessons/{lesson}/progress', [LessonProgressController::class, 'update'])->name('communities.lessons.progress.update');
+        Route::post('/communities/{community:slug}/courses/{course}/lessons/{lesson}/proof-of-work', [ProofOfWorkController::class, 'store'])->name('communities.lessons.proof-of-work.store');
+        Route::get('/communities/{community:slug}/proof-of-work/{proofOfWork}/image', [ProofOfWorkController::class, 'image'])->name('communities.proof-of-work.image');
+
+        // Creator Proof of Work Review Queue
+        Route::get('/communities/{community:slug}/manage/proof-of-work', [ProofOfWorkReviewController::class, 'index'])->name('communities.manage.proof-of-work.index');
+        Route::get('/communities/{community:slug}/manage/proof-of-work/{proofOfWork}', [ProofOfWorkReviewController::class, 'show'])->name('communities.manage.proof-of-work.show');
+        Route::post('/communities/{community:slug}/manage/proof-of-work/{proofOfWork}/review', [ProofOfWorkReviewController::class, 'review'])->name('communities.manage.proof-of-work.review');
+
         Route::post('/communities/{community:slug}/courses/{course}/sections/{section}/lessons', [LessonController::class, 'store'])->name('communities.lessons.store');
         Route::put('/communities/{community:slug}/courses/{course}/sections/{section}/lessons/{lesson}', [LessonController::class, 'update'])->name('communities.lessons.update');
         Route::delete('/communities/{community:slug}/courses/{course}/sections/{section}/lessons/{lesson}', [LessonController::class, 'destroy'])->name('communities.lessons.destroy');

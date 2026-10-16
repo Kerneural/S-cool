@@ -138,6 +138,11 @@ class Community extends Model
         return $this->hasMany(ReferralInvitationRequest::class);
     }
 
+    public function proofOfWorks(): HasMany
+    {
+        return $this->hasMany(LessonProofOfWork::class);
+    }
+
     public function conversations(): HasMany
     {
         return $this->hasMany(CommunityConversation::class);

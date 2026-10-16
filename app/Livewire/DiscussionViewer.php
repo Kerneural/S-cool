@@ -10,6 +10,7 @@ use App\Models\OnboardingStepCompletion;
 use App\Models\Post;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
@@ -202,6 +203,21 @@ class DiscussionViewer extends Component
         })->toArray();
 
         $this->hasEarlierComments = $this->commentsCount > count($this->comments);
+
+        // Reuse the authorized, bounded comment page to refresh the Feed card.
+        $latest = $comments->last();
+        $this->dispatch('discussion-comments-updated',
+            communityId: $community->id,
+            postId: $post->id,
+            count: $this->commentsCount,
+            latestComment: $latest ? [
+                'id' => $latest->id,
+                'author' => $latest->author->name ?? __('Unknown'),
+                'body' => Str::limit($latest->body, 140),
+                'datetime' => $latest->created_at->toIso8601String(),
+                'time' => $latest->created_at->diffForHumans(),
+            ] : null,
+        );
     }
 
     public function loadEarlierComments(): void

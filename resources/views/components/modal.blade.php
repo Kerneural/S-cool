@@ -3,6 +3,7 @@
     'show' => false,
     'maxWidth' => '2xl',
     'labelledby' => null,
+    'beforeClose' => 'true',
 ])
 
 @php
@@ -19,6 +20,7 @@ $maxWidth = [
     x-data="{
         show: @js($show),
         returnFocus: null,
+        closeModal() { if ({{ $beforeClose }}) this.show = false },
         focusables() {
             // All focusable element types...
             let selector = 'a, button, input:not([type=\'hidden\']), textarea, select, details, [tabindex]:not([tabindex=\'-1\'])'
@@ -58,9 +60,9 @@ $maxWidth = [
         }
     })"
     x-on:open-modal.window="if ($event.detail == '{{ $name }}') { returnFocus = document.activeElement; show = true }"
-    x-on:close-modal.window="$event.detail == '{{ $name }}' ? show = false : null"
-    x-on:close.stop="show = false"
-    x-on:keydown.escape.window="if (show) { show = false }"
+    x-on:close-modal.window="if ($event.detail == '{{ $name }}') closeModal()"
+    x-on:close.stop="closeModal()"
+    x-on:keydown.escape.window="if (show) closeModal()"
     x-on:keydown.tab.prevent="if (show) { ($event.shiftKey ? prevFocusable() : nextFocusable()).focus() }"
     x-show="show"
     class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50"
@@ -69,7 +71,7 @@ $maxWidth = [
     <div
         x-show="show"
         class="fixed inset-0 transform transition-all"
-        x-on:click="show = false"
+        x-on:click="closeModal()"
         x-transition:enter="ease-out duration-300"
         x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100"

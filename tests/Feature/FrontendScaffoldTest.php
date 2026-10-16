@@ -92,8 +92,11 @@ class FrontendScaffoldTest extends TestCase
         // Verify Alpine modal bindings in delete user modal
         $response->assertSee('show: false,', false);
         $response->assertSee('x-show="show"', false);
-        $response->assertSee('x-on:close.stop="show = false"', false);
-        $response->assertSee('x-on:keydown.escape.window="if (show) { show = false }"', false);
+        // Default callers close immediately; consumers may add a discard guard.
+        // Every dismissal path must use the same hook rather than bypassing it.
+        $response->assertSee('closeModal() { if (true) this.show = false }', false);
+        $response->assertSee('x-on:close.stop="closeModal()"', false);
+        $response->assertSee('x-on:keydown.escape.window="if (show) closeModal()"', false);
         $response->assertSee('role="dialog"', false);
         $response->assertSee('aria-modal="true"', false);
         $response->assertSee('aria-labelledby="confirm-user-deletion-title"', false);

@@ -65,11 +65,38 @@
                     <p class="whitespace-pre-line break-words text-slate-800 leading-relaxed text-base">{{ $lesson->content ?? __('No text notes for this lesson.') }}</p>
                 </div>
 
-                <!-- Progress Action in Natural Reading Flow (if eligible member) -->
+                <!-- Proof of Work Section (if practical lesson) -->
+                @if ($lesson->isPractical())
+                    <x-lesson-proof-of-work
+                        :community="$community"
+                        :course="$course"
+                        :lesson="$lesson"
+                        :current-proof-of-work="$currentProofOfWork"
+                        :proof-of-work-history="$proofOfWorkHistory"
+                        :is-creator="$isCreator"
+                        :is-active-member="$isActiveMember"
+                    />
+                @endif
+
+                <!-- Progress Action & Continue CTA in Natural Reading Flow (if eligible member) -->
                 @if ($isActiveMember && $course->isPublished() && $lesson->isPublished())
-                    <div class="pt-6 border-t border-slate-100 space-y-3">
-                        <div class="py-3 px-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <div class="pt-6 border-t border-slate-100 space-y-4">
+                        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                             <x-lesson-progress :community="$community" :course="$course" :lesson="$lesson" />
+
+                            @if ($nextLesson)
+                                <a href="{{ route('communities.lessons.show', [$community, $course, $nextLesson]) }}"
+                                   class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-hover text-white font-semibold text-xs sm:text-sm shadow-xs transition active:scale-[0.99] shrink-0">
+                                    <span>{{ __('Continue to Next Lesson') }}</span>
+                                    <span>&rarr;</span>
+                                </a>
+                            @else
+                                <a href="{{ route('communities.courses.show', [$community, $course]) }}"
+                                   class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-xs sm:text-sm shadow-2xs transition shrink-0">
+                                    <span>{{ __('Return to Course') }}</span>
+                                    <span>&rarr;</span>
+                                </a>
+                            @endif
                         </div>
                         <div class="flex items-center justify-end">
                             <a href="{{ route('communities.posts.index', [$community, 'course_id' => $course->id, 'lesson_id' => $lesson->id]) }}"
@@ -113,7 +140,22 @@
             </article>
 
             <!-- Sticky Course Content Outline Sidebar (4 cols on lg, 280-300px) -->
-            <aside x-data="{ outlineOpen: false }" class="min-w-0 space-y-4 rounded-2xl bg-white p-5 sm:p-6 shadow-xs border border-slate-200/80 lg:col-span-4">
+            @php
+                $publishedOutlineLessons = $course->sections->flatMap->lessons->filter(fn ($item) => $item->isPublished());
+                $outlineTotal = $publishedOutlineLessons->count();
+                $outlineCompleted = $publishedOutlineLessons->filter(fn ($item) => $item->isCompletedBy(auth()->user()))->count();
+                $outlinePercentage = $outlineTotal ? (int) round($outlineCompleted / $outlineTotal * 100) : 0;
+            @endphp
+            <aside x-data="{
+                outlineOpen: false,
+                completedCount: @js($outlineCompleted),
+                totalCount: @js($outlineTotal),
+                percentage: @js($outlinePercentage)
+            }" @lesson-progress-updated.window="if ($event.detail?.summary && $event.detail.lessonId === @js($lesson->id)) {
+                completedCount = $event.detail.summary.course_completed_lessons_count;
+                totalCount = $event.detail.summary.course_published_lessons_count;
+                percentage = $event.detail.summary.course_progress_percentage;
+            }" class="min-w-0 space-y-4 rounded-2xl bg-white p-5 sm:p-6 shadow-xs border border-slate-200/80 lg:col-span-4">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                     <h2 class="font-bold text-base text-slate-900">{{ __('Course Content') }}</h2>
                     <a href="{{ route('communities.courses.show', [$community, $course]) }}" class="text-xs font-semibold text-brand-600 hover:text-brand-700">
@@ -121,11 +163,16 @@
                     </a>
                 </div>
 
-                <button type="button" class="lg:hidden min-h-11 w-full rounded-lg border border-line px-3 py-2 text-sm font-semibold text-brand" @click="outlineOpen = !outlineOpen" :aria-expanded="outlineOpen.toString()" aria-controls="lesson-outline">
+                @if ($isActiveMember && $course->isPublished())
+                    <p role="status" class="text-xs text-slate-600" x-text="completedCount + ' / ' + totalCount + ' · ' + percentage + '%'">{{ $outlineCompleted }} / {{ $outlineTotal }} · {{ $outlinePercentage }}%</p>
+                    <progress class="w-full accent-brand" max="100" value="{{ $outlinePercentage }}" :value="percentage" aria-label="{{ __('Course completion percentage') }}">{{ $outlinePercentage }}%</progress>
+                @endif
+
+                <button hidden x-init="$el.hidden = false" type="button" class="lg:hidden min-h-11 w-full rounded-lg border border-line px-3 py-2 text-sm font-semibold text-brand" @click="outlineOpen = !outlineOpen" :aria-expanded="outlineOpen.toString()" aria-controls="lesson-outline">
                     <span x-show="!outlineOpen">{{ __('Show course outline') }}</span>
                     <span x-show="outlineOpen" x-cloak>{{ __('Hide course outline') }}</span>
                 </button>
-                <div id="lesson-outline" :class="{ 'hidden': !outlineOpen }" class="hidden lg:block space-y-4">
+                <div id="lesson-outline" :class="{ 'hidden': !outlineOpen }" class="lg:block space-y-4">
                     @foreach ($course->sections as $section)
                         <div class="space-y-2">
                             <h3 class="break-words text-xs font-bold text-slate-400 uppercase tracking-wider">
@@ -135,18 +182,23 @@
                                 @foreach ($section->lessons as $item)
                                     @php($isCurrent = $item->id === $lesson->id)
                                     @php($isCompleted = $isActiveMember && $course->isPublished() && $item->isPublished() && $item->isCompletedBy(auth()->user()))
-                                    <li>
+                                    <li x-data="{ completed: @js((bool) $isCompleted) }" @lesson-progress-updated.window="if ($event.detail?.lessonId === @js($item->id)) completed = $event.detail.completed">
                                         <a href="{{ route('communities.lessons.show', [$community, $course, $item]) }}"
                                            @if ($isCurrent) aria-current="page" @endif
                                            class="flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-xs sm:text-sm transition {{ $isCurrent ? 'bg-brand-50 text-brand-700 font-bold border-l-4 border-brand-600' : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 font-medium' }}">
-                                            <span class="min-w-0 break-words">
-                                                {{ $item->title }}
+                                            <span class="min-w-0 break-words flex items-center gap-1.5">
+                                                <span>{{ $item->title }}</span>
+                                                @if ($item->isPractical())
+                                                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-teal-100 text-teal-800 shrink-0">
+                                                        {{ __('Practical') }}
+                                                    </span>
+                                                @endif
                                                 @if ($isCreator && $item->isDraft())
                                                     <span class="text-[11px] font-normal text-slate-400 italic">({{ __('draft') }})</span>
                                                 @endif
                                             </span>
                                             @if ($isActiveMember && $course->isPublished() && $item->isPublished())
-                                                <span class="text-xs shrink-0 {{ $isCompleted ? 'text-emerald-700' : 'text-slate-500' }}">
+                                                <span class="text-xs shrink-0 font-medium" :class="completed ? 'text-emerald-700 font-semibold' : 'text-slate-500'" x-text="completed ? '{{ __('Completed') }}' : '{{ __('Incomplete') }}'">
                                                     {{ $isCompleted ? __('Completed') : __('Incomplete') }}
                                                 </span>
                                             @endif
