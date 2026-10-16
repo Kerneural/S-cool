@@ -5,10 +5,13 @@ namespace Tests\Feature;
 use App\Models\Community;
 use App\Models\CommunityMembership;
 use App\Models\Course;
+use App\Models\CourseEntitlement;
 use App\Models\CourseSection;
+use App\Models\Event;
 use App\Models\Lesson;
 use App\Models\Post;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -215,7 +218,24 @@ class CommunitySearchTest extends TestCase
             'status' => 'DRAFT',
         ]);
 
-        // 1. As Member: must see 0 draft courses and 0 draft lessons
+        // Paid published course without entitlement
+        $unentitledPaidCourse = Course::factory()->create([
+            'community_id' => $community->id,
+            'title' => 'Secret Paid Premium Course',
+            'description' => 'Secret syllabus for paid learners only.',
+            'status' => 'PUBLISHED',
+            'access_mode' => 'ONE_TIME',
+            'price' => 50000,
+        ]);
+        $secPaid = CourseSection::factory()->create(['course_id' => $unentitledPaidCourse->id]);
+        $unentitledPaidLesson = Lesson::factory()->create([
+            'course_section_id' => $secPaid->id,
+            'title' => 'Secret Paid Lesson',
+            'content' => 'Secret paid video material.',
+            'status' => 'PUBLISHED',
+        ]);
+
+        // 1. As Member: must see 0 draft courses, 0 unentitled courses, and 0 unentitled lessons
         $this->actingAs($member);
 
         $memberCourseSearch = $this->get(route('communities.search', [
@@ -224,7 +244,8 @@ class CommunitySearchTest extends TestCase
             'type' => 'courses',
         ]));
         $memberCourseSearch->assertOk()
-            ->assertDontSee('Secret Internal Draft Course');
+            ->assertDontSee('Secret Internal Draft Course')
+            ->assertDontSee('Secret Paid Premium Course');
         $this->assertSame(0, $memberCourseSearch->viewData('counts')['courses']);
 
         $memberLessonSearch = $this->get(route('communities.search', [
@@ -236,10 +257,36 @@ class CommunitySearchTest extends TestCase
             ->assertDontSee('Secret Strategy Lesson')
             ->assertDontSee('Top secret material never exposed')
             ->assertDontSee('Secret Unpublished Lesson Two')
-            ->assertDontSee('Confidential upcoming chapter');
+            ->assertDontSee('Confidential upcoming chapter')
+            ->assertDontSee('Secret Paid Lesson');
         $this->assertSame(0, $memberLessonSearch->viewData('counts')['lessons']);
 
-        // 2. As Creator: can preview both draft courses and draft lessons with draft badge
+        // 2. When Member is granted entitlement to the paid course:
+        CourseEntitlement::create([
+            'community_id' => $community->id,
+            'course_id' => $unentitledPaidCourse->id,
+            'user_id' => $member->id,
+        ]);
+
+        $entitledCourseSearch = $this->get(route('communities.search', [
+            'community' => $community,
+            'q' => 'Secret',
+            'type' => 'courses',
+        ]));
+        $entitledCourseSearch->assertOk()
+            ->assertSee('Secret Paid Premium Course');
+        $this->assertSame(1, $entitledCourseSearch->viewData('counts')['courses']);
+
+        $entitledLessonSearch = $this->get(route('communities.search', [
+            'community' => $community,
+            'q' => 'Secret',
+            'type' => 'lessons',
+        ]));
+        $entitledLessonSearch->assertOk()
+            ->assertSee('Secret Paid Lesson');
+        $this->assertSame(1, $entitledLessonSearch->viewData('counts')['lessons']);
+
+        // 3. As Creator: can preview draft courses & lessons as well as paid courses
         $this->actingAs($creator);
 
         $creatorCourseSearch = $this->get(route('communities.search', [
@@ -249,8 +296,9 @@ class CommunitySearchTest extends TestCase
         ]));
         $creatorCourseSearch->assertOk()
             ->assertSee('Secret Internal Draft Course')
+            ->assertSee('Secret Paid Premium Course')
             ->assertSee('Draft');
-        $this->assertSame(1, $creatorCourseSearch->viewData('counts')['courses']);
+        $this->assertSame(2, $creatorCourseSearch->viewData('counts')['courses']);
 
         $creatorLessonSearch = $this->get(route('communities.search', [
             'community' => $community,
@@ -260,8 +308,9 @@ class CommunitySearchTest extends TestCase
         $creatorLessonSearch->assertOk()
             ->assertSee('Secret Strategy Lesson')
             ->assertSee('Secret Unpublished Lesson Two')
+            ->assertSee('Secret Paid Lesson')
             ->assertSee('Draft');
-        $this->assertSame(2, $creatorLessonSearch->viewData('counts')['lessons']);
+        $this->assertSame(3, $creatorLessonSearch->viewData('counts')['lessons']);
     }
 
     public function test_search_validates_type_length_and_escapes_sql_wildcards(): void
@@ -459,5 +508,49 @@ class CommunitySearchTest extends TestCase
             ->assertSee('No results found')
             ->assertSee('CompletelyUnmatchedKeyword');
         $this->assertSame(0, $zeroResp->viewData('counts')['posts']);
+    }
+
+    public function test_search_query_returns_matching_events_and_excludes_cancelled_events(): void
+    {
+        $creator = User::factory()->create();
+        $community = Community::factory()->create(['creator_id' => $creator->id, 'status' => 'ACTIVE']);
+        $member = User::factory()->create();
+        CommunityMembership::factory()->create([
+            'community_id' => $community->id,
+            'user_id' => $member->id,
+            'status' => 'ACTIVE',
+        ]);
+
+        Event::factory()->create([
+            'community_id' => $community->id,
+            'creator_id' => $creator->id,
+            'title' => 'Scheduled Architecture Workshop',
+            'status' => 'SCHEDULED',
+            'starts_at' => Carbon::now()->addDays(3),
+            'ends_at' => Carbon::now()->addDays(3)->addHour(),
+        ]);
+
+        Event::factory()->create([
+            'community_id' => $community->id,
+            'creator_id' => $creator->id,
+            'title' => 'Cancelled Architecture Workshop',
+            'status' => 'CANCELLED',
+            'starts_at' => Carbon::now()->addDays(4),
+            'ends_at' => Carbon::now()->addDays(4)->addHour(),
+        ]);
+
+        $this->actingAs($member);
+
+        $response = $this->get(route('communities.search', [
+            'community' => $community,
+            'q' => 'Architecture',
+            'type' => 'events',
+        ]));
+
+        $response->assertOk()
+            ->assertSee('Scheduled Architecture Workshop')
+            ->assertDontSee('Cancelled Architecture Workshop');
+
+        $this->assertSame(1, $response->viewData('counts')['events']);
     }
 }

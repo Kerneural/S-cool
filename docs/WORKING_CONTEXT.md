@@ -3411,3 +3411,95 @@ Publication preparation on 2026-10-16 supersedes that final branch/evidence note
 - Vite continued to report the known build-time notices for absolute self-hosted font URLs; the
   files exist under `public/fonts` and remain runtime-resolved assets. Remote CI and the exact
   committed revision remain pending until the branch is published.
+
+## EUR-48 - Live community search and adaptive module layouts (2026-10-16)
+
+### Contract and readiness
+- **Linear Issue:** [EUR-48 / F-21: Live community search and adaptive module layouts](https://linear.app/eurusdevsec/issue/EUR-48/f-21-live-community-search-and-adaptive-module-layouts)
+- **Branch:** `eur-48-live-search-layouts`
+- **Starting Base Revision:** `c9ecde3ab33b991f57270bc72e4fc82546b3a4a6` (PR #38 merge commit)
+- **Outcome:** Live community search combobox (`CommunitySearchTypeahead`) across posts, classroom courses/lessons, directory members, and scheduled events with progressive enhancement fallback; and six adaptive module layouts tailored to specific interaction paradigms (Feed, Classroom, Events, Directory, Leaderboard, About) adhering to Be Vietnam Pro typography and teal/slate design tokens.
+
+### Implementation Architecture and Security Boundaries
+1. **Livewire Community Search Typeahead (`CommunitySearchTypeahead`):**
+   - Implemented `app/Livewire/CommunitySearchTypeahead.php` with locked `$communityId` to prevent tampering.
+   - Enforces strict tenant isolation: all queries require active membership or ownership, resolving through `$community` scoped relations only. Suspended communities and inactive/revoked memberships are immediately rejected.
+   - Cross-community boundaries: searches posts, courses, lessons, members, and events belonging exclusively to the target community.
+   - Content visibility guards (AC-04):
+     - Courses: only `PUBLISHED` and user-entitled courses appear for regular members (using `published()->entitledTo($user)`). Unentitled paid courses never leak to members, whether matching by title or description. Owning creators retain draft and catalog preview.
+     - Lessons: only published lessons within published parent courses entitled to the user.
+     - Members: only `ACTIVE` memberships with user records. Suspended and removed members are excluded.
+     - Events: only `SCHEDULED` events. `CANCELLED` events are excluded from results, and private meeting URLs are never leaked in typeahead metadata.
+   - Stale Response & Race Condition Protection (AC-02):
+     - Sequential tracking with `$requestId` and `$lastProcessedRequestId`.
+     - `executeSearch(int $forRequestId, ?string $query)` checks request sequence both prior to query execution and immediately before state mutation.
+     - Any out-of-order or late response (`$forRequestId < $this->requestId || $forRequestId < $this->lastProcessedRequestId`) is immediately discarded without mutating component state.
+     - `clearQuery()` advances `$requestId` and aligns `$lastProcessedRequestId`, immediately invalidating any prior in-flight searches.
+     - Root element outputs `data-request-id` and `data-last-processed-id` for state transparency.
+   - Performance and Debounce: 300ms debounce (`wire:model.live.debounce.300ms`), minimum 2 characters threshold, maximum 100 characters bounded string validation, maximum 4 results per category to avoid heavy query payloads.
+   - WAI-ARIA and Accessibility:
+     - Complete combobox pattern: `role="combobox"`, `aria-autocomplete="list"`, `aria-expanded`, `aria-controls="community-search-results"`, and `aria-activedescendant`.
+     - Results container: `role="listbox"`, grouped options with `role="option"`, `aria-selected`, and stable option IDs.
+     - Screen reader live announcements: `role="status"` with `aria-live="polite"` announcing result counts and state.
+     - Full keyboard navigation: ArrowUp / ArrowDown cycling with selection index clamping, Escape closes dropdown, Enter triggers navigation to active result or fallback search route.
+     - Progressive Enhancement: `<form method="GET" action="{{ route('communities.search', $community) }}">` with standard `<input name="q">` ensuring full operability without JavaScript.
+
+2. **Full Search Page & Backend Fallback (`SearchController`):**
+   - Extended `app/Http/Controllers/SearchController.php` allowed types to `['posts', 'courses', 'lessons', 'members', 'events']`.
+   - Applied root-level `published()->entitledTo($user)` scoping on courses query for non-creators, guaranteeing unentitled paid courses and lessons are excluded in both typeahead and full search.
+   - Added tenant-scoped scheduled event queries with count metrics and pagination.
+   - Updated `resources/views/communities/search.blade.php` with Events tab badge and results rendering, fixing HTML entity escaping on navigation affordances.
+
+3. **Six Adaptive Module Layouts:**
+   - **Feed (`resources/views/communities/posts/index.blade.php`):** Stable 2-column layout (`lg:col-span-8` post stream + `lg:col-span-4` contextual rail). Prominent inline composer, filter pills, and sort controls.
+   - **Classroom (`resources/views/classroom/index.blade.php`):** Dashboard hierarchy featuring a "Next Learning Step" hero card with overall progress percentage (`X% (Y/Z)`), "Resume Learning" primary action, followed by course grid cards with clear status pills (`Included`, `Purchased`).
+   - **Events (`resources/views/communities/events/index.blade.php`):** Discovery-oriented ticket card layout (`max-w-7xl`), calendar badge block (Month/Day/DayOfWeek), session details, and primary participation actions ("Join Meeting", "View Details →").
+   - **Members / Directory (`resources/views/communities/directory/index.blade.php`):** Dense 4-column directory grid (`xl:grid-cols-4`, `lg:grid-cols-3`, `sm:grid-cols-2`, `grid-cols-1`) with avatar badges, creator pills, bios, and direct profile navigation.
+   - **Leaderboard (`resources/views/communities/leaderboard.blade.php`):** Balanced 2-column top section (`lg:col-span-8` member progress card with Level badge, points, and progress bar with level milestone ticks + `lg:col-span-4` "How Points Work" guidelines) over full-width rankings table.
+   - **About (`resources/views/communities/show.blade.php`):** Editorial 2-column composition (`lg:col-span-8` comfortable reading measure for community story, introduction video embed, and rules + `lg:col-span-4` Creator & Host card and Useful Destinations rail). Strictly enforces privacy contract: creator email is never rendered in public/member views.
+
+### Verification Evidence
+- **Guarded MySQL `scool_test` Test Execution:**
+  - `tests/Feature/CommunitySearchTest.php`: 6 passed (68 assertions), verifying multi-type search, draft isolation, SQL wildcard escaping, tenant isolation, and unentitled course/lesson filtering for members with creator visibility.
+  - `tests/Feature/LivewireCommunitySearchTest.php`: 8 passed (68 assertions), verifying character limits, grouping across 5 categories, tenant boundaries, unentitled course exclusion, cancelled event exclusion, keyboard navigation, authorization denial, and stale/out-of-order request protection.
+  - Combined search suites: **14 passed / 136 assertions** in 16.12s.
+  - Regression module test suites:
+    - `CommunityEventCalendarTest`: 5 passed.
+    - `CommunityEventTest`: 10 passed.
+    - `ClassroomPublishingTest`: 8 passed.
+    - `ClassroomRegressionTest`: 12 passed.
+    - `MemberDirectoryProfileTest`: 8 passed.
+    - `CommunityLeaderboardTest`: 8 passed.
+    - `CommunityAboutSettingsTest`: 5 passed.
+    - `LivewireFeedInteractionsTest`: 12 passed.
+    - Combined regression suites: **68 passed / 726 assertions** in 49.37s.
+  - Total automated assertions: **82 tests / 862 assertions PASS**.
+- **Quality Gates:**
+  - Pint: PASS across 252 files (`./vendor/bin/pint --test`).
+  - PHPStan: `[OK] No errors` across 113 files.
+  - Vite Production Build: PASS (CSS 116.87 kB, JS 51.86 kB).
+  - `git diff --check`: PASS (0 whitespace/formatting issues).
+  - Shared Agent Contract: `bash scripts/verify-agent-contract.sh`: PASS (11 shared files).
+  - GitNexus Graph Index: Refreshed with `npx gitnexus analyze` (3,038 nodes, 6,464 edges, 132 clusters, 171 flows); `CommunitySearchTypeahead` fully indexed and queryable.
+- **Browser Automation Verification & Saved Evidence:**
+  - Viewports validated: 1280px (Desktop), 768px (Tablet), 375px (Mobile standard), 320px (Mobile minimum).
+  - 200% Zoom check: verified at 1280px with clean reflow and zero layout breakage.
+  - Horizontal overflow: verified `document.documentElement.scrollWidth <= window.innerWidth` across all 6 modules and all responsive viewports (0 horizontal overflow).
+  - Browser console: 0 JavaScript errors.
+  - Saved visual proof files in `.agent/evidence/` and artifact directory (`artifacts/evidence_screenshots/`):
+    - `typeahead_combobox_open_1280px.png` (510 kB)
+    - `feed_module_1280px.png` (482 kB)
+    - `classroom_module_1280px.png` (517 kB)
+    - `events_module_1280px.png` (406 kB)
+    - `directory_module_1280px.png` (401 kB)
+    - `leaderboard_module_1280px.png` (464 kB)
+    - `about_module_1280px.png` (422 kB)
+    - `feed_module_768px.png` (324 kB)
+    - `feed_module_375px.png` (465 kB)
+    - `feed_module_320px.png` (299 kB)
+    - `desktop_zoom_200pct_1280px.png` (706 kB)
+  - Generated visual proof artifact: [eur48_browser_evidence.md](file:///C:/Users/ACER/.gemini/antigravity-ide/brain/eda314d9-97b5-41a1-8743-1a8e96123c6e/eur48_browser_evidence.md).
+
+### Handoff and Limits
+- Code is saved locally as an uncommitted technical checkpoint on `eur-48-live-search-layouts`.
+- No `git commit`, `git push`, PR creation, or Linear state change performed, in strict compliance with user instructions and AGENTS.md rules.

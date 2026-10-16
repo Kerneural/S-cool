@@ -61,6 +61,7 @@
                                 'courses' => __('Courses'),
                                 'lessons' => __('Lessons'),
                                 'members' => __('Members'),
+                                'events' => __('Events'),
                             ];
                         @endphp
 
@@ -229,11 +230,43 @@
                                                 </p>
                                             @endif
                                             <div class="mt-2">
-                                                <a href="{{ route('communities.directory.show', [$community, $member]) }}" class="text-xs font-semibold text-brand-600 hover:text-brand-700 inline-flex items-center">
-                                                    <span>{{ __('View profile &rarr;') }}</span>
+                                                <a href="{{ route('communities.directory.show', [$community, $member]) }}" class="text-xs font-semibold text-brand-600 hover:text-brand-700 inline-flex items-center gap-1">
+                                                    <span>{{ __('View profile') }}</span>
+                                                    <span aria-hidden="true">&rarr;</span>
                                                 </a>
                                             </div>
                                         </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @elseif ($type === 'events')
+                            <div class="space-y-4">
+                                @foreach ($results as $event)
+                                    <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-5 hover:border-brand-500/30 hover:shadow-md transition">
+                                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+                                            <div class="flex items-center gap-2">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                    {{ __('SCHEDULED') }}
+                                                </span>
+                                                <span class="text-xs text-slate-500">
+                                                    {{ $event->starts_at->format('M d, Y H:i') }} ({{ $event->timezone }})
+                                                </span>
+                                            </div>
+                                            <a href="{{ route('communities.events.show', [$community, $event]) }}" class="text-xs font-semibold text-brand-600 hover:text-brand-700 inline-flex items-center gap-1">
+                                                <span>{{ __('View Event') }}</span>
+                                                <span aria-hidden="true">&rarr;</span>
+                                            </a>
+                                        </div>
+                                        <h3 class="text-lg font-bold text-slate-900 mb-1">
+                                            <a href="{{ route('communities.events.show', [$community, $event]) }}" class="hover:text-brand-600 transition">
+                                                {{ $event->title }}
+                                            </a>
+                                        </h3>
+                                        @if ($event->description)
+                                            <p class="text-sm text-slate-600 line-clamp-2 leading-relaxed">
+                                                {{ Str::limit(strip_tags($event->description), 160) }}
+                                            </p>
+                                        @endif
                                     </div>
                                 @endforeach
                             </div>
