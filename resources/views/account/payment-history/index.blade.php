@@ -1,87 +1,94 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h1 class="font-bold text-xl text-slate-900 leading-tight">
             {{ __('Personal Payment History') }}
-        </h2>
+        </h1>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden border border-gray-100">
-                <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+    <div class="py-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <div class="bg-white shadow-xs rounded-2xl overflow-hidden border border-slate-200/80">
+                <div class="p-6 border-b border-slate-100 flex items-center justify-between">
                     <div>
-                        <h3 class="text-lg font-semibold text-gray-900">Your Payment Attempts</h3>
-                        <p class="text-sm text-gray-500">
+                        <h3 class="text-lg font-bold text-slate-900 tracking-tight">Your Payment Attempts</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">
                             History of community admission payment attempts and receipts on your account (SePay Sandbox - Test Mode).
                         </p>
                     </div>
                 </div>
 
                 @if ($payments->isEmpty())
-                    <div class="p-12 text-center text-gray-400 text-sm">
-                        No payment attempts recorded for your account.
+                    <div class="p-16 text-center text-slate-400 text-sm">
+                        <svg class="w-10 h-10 mx-auto text-slate-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        <p class="font-medium text-slate-500">No payment attempts recorded for your account.</p>
                     </div>
                 @else
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse text-sm">
                             <thead>
-                                <tr class="bg-gray-50/75 border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                    <th class="py-3 px-4">Reference</th>
-                                    <th class="py-3 px-4">Community</th>
-                                    <th class="py-3 px-4">Purpose</th>
-                                    <th class="py-3 px-4">Status</th>
-                                    <th class="py-3 px-4 text-right">Amount</th>
-                                    <th class="py-3 px-4 text-right">Time (UTC)</th>
-                                    <th class="py-3 px-4 text-center">Action</th>
+                                <tr class="bg-slate-50/75 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                    <th class="py-3.5 px-5">Reference</th>
+                                    <th class="py-3.5 px-5">Community</th>
+                                    <th class="py-3.5 px-5">Purpose</th>
+                                    <th class="py-3.5 px-5">Status</th>
+                                    <th class="py-3.5 px-5 text-right">Amount</th>
+                                    <th class="py-3.5 px-5 text-right">Time (UTC)</th>
+                                    <th class="py-3.5 px-5 text-center">Action</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-100">
+                            <tbody class="divide-y divide-slate-100">
                                 @foreach ($payments as $payment)
-                                    <tr class="hover:bg-gray-50/50 transition">
-                                        <td class="py-3 px-4 font-mono text-xs text-gray-800">
+                                    <tr class="hover:bg-slate-50/60 transition-colors">
+                                        <td class="py-3.5 px-5 font-mono text-xs font-bold text-slate-800">
                                             {{ $payment->external_reference }}
                                         </td>
-                                        <td class="py-3 px-4 font-medium text-gray-900">
+                                        <td class="py-3.5 px-5 font-bold text-slate-900">
                                             {{ $payment->community->name ?? 'Unknown Community' }}
                                         </td>
-                                        <td class="py-3 px-4 text-xs text-gray-600">
+                                        <td class="py-3.5 px-5 text-xs text-slate-600 font-medium">
                                             {{ $payment->purposeLabel() }}
                                         </td>
-                                        <td class="py-3 px-4">
+                                        <td class="py-3.5 px-5">
                                             @if ($payment->isSucceeded())
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                                                     SUCCEEDED
                                                 </span>
                                             @elseif ($payment->isPending())
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                                                     PENDING
                                                 </span>
                                             @elseif ($payment->isCancelled())
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-gray-50 text-gray-600 border border-gray-200">
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
                                                     CANCELLED
                                                 </span>
                                             @else
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
                                                     FAILED
                                                 </span>
                                             @endif
                                         </td>
-                                        <td class="py-3 px-4 text-right font-medium text-gray-900">
+                                        <td class="py-3.5 px-5 text-right font-black text-slate-900">
                                             {{ $payment->formattedAmount() }}
                                         </td>
-                                        <td class="py-3 px-4 text-right text-xs text-gray-500 font-mono">
+                                        <td class="py-3.5 px-5 text-right text-xs text-slate-500 font-mono">
                                             {{ $payment->created_at->toIso8601String() }}
                                         </td>
-                                        <td class="py-3 px-4 text-center">
+                                        <td class="py-3.5 px-5 text-center">
                                             <div class="inline-flex items-center gap-2">
                                                 <a href="{{ route('account.payment-history.show', $payment) }}"
-                                                   class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+                                                   class="text-xs font-bold text-teal-600 hover:text-teal-800">
                                                     View Receipt
                                                 </a>
                                                 @if ($payment->canResumeCheckout(auth()->user()))
-                                                    <span class="text-gray-300">|</span>
+                                                    <span class="text-slate-300">|</span>
                                                     <a href="{{ route('payments.checkout', $payment->external_reference) }}"
-                                                       class="text-xs font-semibold text-amber-600 hover:text-amber-800">
+                                                       class="text-xs font-bold text-amber-600 hover:text-amber-800">
                                                         Resume Checkout
                                                     </a>
                                                 @endif
@@ -94,7 +101,7 @@
                     </div>
 
                     @if ($payments->hasPages())
-                        <div class="p-4 border-t border-gray-100">
+                        <div class="p-4 border-t border-slate-100 bg-slate-50/50">
                             {{ $payments->links() }}
                         </div>
                     @endif

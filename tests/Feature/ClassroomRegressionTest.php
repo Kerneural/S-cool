@@ -28,6 +28,38 @@ class ClassroomRegressionTest extends TestCase
         return [$community, $course, $section, $lesson];
     }
 
+    public function test_creator_course_and_lesson_fields_have_unique_associated_labels(): void
+    {
+        [$community, $course] = $this->hierarchy();
+        $this->actingAs($community->creator);
+
+        foreach ([route('communities.classroom.index', $community), route('communities.courses.show', [$community, $course])] as $url) {
+            $response = $this->get($url)->assertOk();
+            $document = new \DOMDocument;
+            @$document->loadHTML($response->getContent());
+            $xpath = new \DOMXPath($document);
+            $fields = $xpath->query('//form//input[@type!="hidden"] | //form//textarea | //form//select');
+            $checked = 0;
+
+            foreach ($fields as $field) {
+                if (! in_array($field->getAttribute('name'), ['title', 'description', 'access_mode', 'price', 'status', 'video_url', 'content'], true)) {
+                    continue;
+                }
+                $checked++;
+                if ($xpath->query('ancestor::label', $field)->length > 0) {
+                    continue;
+                }
+
+                $id = $field->getAttribute('id');
+                $this->assertNotSame('', $id, 'Unlabelled field '.$field->getAttribute('name').' on '.$url);
+                $this->assertSame(1, $xpath->query('//*[@id="'.$id.'"]')->length, 'Duplicate field ID '.$id);
+                $this->assertSame(1, $xpath->query('//label[@for="'.$id.'"]')->length, 'Missing associated label '.$id);
+            }
+
+            $this->assertGreaterThan(0, $checked);
+        }
+    }
+
     public function test_inactive_membership_matrix_and_outsiders_cannot_read_or_manage_classroom(): void
     {
         [$community, $course, $section, $lesson] = $this->hierarchy();
@@ -207,7 +239,11 @@ class ClassroomRegressionTest extends TestCase
         $key = 'create-lesson-'.$section->id;
         $this->from($courseUrl)->post(route('communities.lessons.store', [$community, $course, $section]), ['_form' => $key, 'title' => 'Keep this title', 'content' => 'Keep this content', 'status' => 'PUBLISHED', 'video_url' => 'https://invalid.test/video'])->assertSessionHasErrors('video_url');
         $retry = $this->get($courseUrl)->assertOk()->assertSee('Keep this title')->assertSee('Keep this content');
-        $this->assertMatchesRegularExpression('/<details\s+open\s*>/', $retry->getContent());
+        $document = new \DOMDocument;
+        @$document->loadHTML($retry->getContent());
+        $xpath = new \DOMXPath($document);
+        $openRetryForms = $xpath->query('//details[@open]//input[@name="_form" and @value="'.$key.'"]');
+        $this->assertSame(1, $openRetryForms->length, 'Validation must reopen the specific lesson form, regardless of its presentation classes.');
         $this->assertDatabaseCount('lessons', 2);
         $this->assertSame('PUBLISHED', $lesson->fresh()->status);
     }

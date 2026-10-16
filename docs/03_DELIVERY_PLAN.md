@@ -468,15 +468,16 @@ The target is a complete set of agreed workflows, not artificial parity claims. 
 
 ### 17.3 Delivery batches, dependencies and scheduling
 
-Keep M1–M5 intact. Proposed additional milestones are C1–C5, with outcome gates below. No start/target dates are invented: schedule from actual remaining capacity and the agreed submission date. Begin with F-01 and F-02; open only enough issues for current WIP.
+Keep M1–M5 intact. The owner approved continuous milestone numbering on 2026-10-15: functional completion uses M6–M10 and the approved whole-product UI/UX phase uses M11. Existing milestone IDs, issue links, dates, evidence and acceptance gates are preserved. Linear owns live scheduling and status; retrospective reference dates are identified as such, not original planned deadlines. For future work, schedule from actual capacity and the agreed submission date; open only enough issues for current WIP.
 
 | Gate | Exit outcome | Draft issues |
 |---|---|---|
-| C1 — Complete community workspace | A user switches groups, sees the correct tabs/directory/About and organized feed | F-01…F-04 |
-| C2 — Member engagement and learning experience | Search, reactions, calendar, notifications, onboarding and leaderboard operate with tenant isolation | F-05…F-10 |
-| C3 — Creator operations | Statistics, orders, reports and member account/help workflows use persisted data | F-11…F-14 |
-| C4 — Agreed commercial extensions | Every selected commerce workflow passes its own entitlement/accounting contract | F-15…F-17; F-18 only if selected |
-| C5 — Functional completion accepted | End-to-end demo, regression/CI and independent setup evidence close the chosen coverage matrix | F-19 |
+| M6 — Complete community workspace | A user switches groups, sees the correct tabs/directory/About and organized feed | F-01…F-04 |
+| M7 — Member engagement and learning experience | Search, reactions, calendar, notifications, onboarding and leaderboard operate with tenant isolation | F-05…F-10 |
+| M8 — Creator operations | Statistics, orders, reports and member account/help workflows use persisted data | F-11…F-14 |
+| M9 — Agreed commercial extensions | Every selected commerce workflow passes its own entitlement/accounting contract | F-15…F-17; F-18 only if selected |
+| M10 — Functional completion accepted | End-to-end demo, regression/CI and independent setup evidence close the chosen coverage matrix | F-19 |
+| M11 — Complete routed UI/UX experience | The approved routed UI/UX scope meets design.md visual/interaction gates and owner review | EUR-46; separate from functional acceptance |
 
 Suggested metadata, not live assignments or elapsed-time promises: Priority High for F-01/02/04/08/10/12/13/19; Medium for F-03/05/06/07/09/11/14. Commercial slices are unestimated until their decisions are closed. Use S/M/L for planning (approximately 2/3/5 points if the team uses points), not hours. Actual metadata is set in Linear. Labels reuse existing `area:*`; add a release label only when creating the backlog. Do not change cycles or old milestone dates here.
 

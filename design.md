@@ -217,9 +217,11 @@ Do not claim accessibility compliance from these guidelines or static tests alon
 ## 8. Working with UI/UX Pro Max
 
 Optional reference: https://github.com/nextlevelbuilder/ui-ux-pro-max-skill
-The upstream README advertises Laravel/Blade and HTML/Tailwind guidance, design
-search/recommendations and UX checklists. Installation/execution has not been
-performed for this document. It is a development aid, not an application dependency.
+The upstream README and skill usage instructions were reviewed on 2026-10-15.
+They support Laravel and HTML/Tailwind searches, UX guidance and design proposals.
+No installer or search engine was executed in this review; the implementation
+session must verify its actual local skill path. This is a development reference,
+not an application dependency or a ready-made component library.
 
 Use it with this product brief: private learning community; readable Feed/Classroom;
 separate data-focused Creator management; Laravel Blade + Alpine + Tailwind v4;
@@ -240,6 +242,33 @@ Apply recommendations through these rules:
    Shared instructions must work for teammates who do not install this skill.
 6. Verify source changes and rendered screens. Generated output is not test evidence,
    and a successful build does not establish usability, parity or accessibility.
+
+### Reference workflow for this redesign
+
+Read the current [upstream usage guide](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill#usage)
+and [search workflow](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/main/.claude/skills/ui-ux-pro-max/SKILL.md)
+before use. If available locally, locate its actual `scripts/search.py` and use
+that absolute path; do not assume the README's Claude example path applies here.
+
+Suggested advisory queries (replace `<absolute-search-path>` with the verified path):
+
+```text
+python "<absolute-search-path>" "private learning community" --design-system -p "S-cool"
+python "<absolute-search-path>" "keyboard focus modal" --domain ux
+python "<absolute-search-path>" "reduced motion feedback" --domain ux
+python "<absolute-search-path>" "responsive navigation Blade" --stack laravel
+python "<absolute-search-path>" "responsive layout" --stack html-tailwind
+```
+
+Check whether each result fits the product, page and installed stack. If it does
+not, narrow the query once; mark unmatched advice as fallback. Reconcile selected
+recommendations into this document. Omit `--persist`: no competing MASTER/page
+rules. The optional motion dial can return GSAP examples; it does not authorize
+installing GSAP. Prefer existing CSS/Alpine for this project's interactions.
+
+The README documents Antigravity support and `uipro init --ai antigravity` for
+installation. This review does not install software or alter IDE configuration;
+reading the upstream reference remains usable without a local tool installation.
 
 ## 9. Implementation and review flow
 
@@ -264,9 +293,10 @@ relevant checks pass; rendered evidence is available. If browser checks were not
 performed, mark them pending. Commit/push/PR/merge and delivery status follow the
 shared workflow and are not authorized by finishing this checklist.
 
-Recommended adoption sequence: central theme/font and shared primitives → Feed sample
-→ Lesson sample → Creator management sample → approved remaining screens. Confirm
-the representative samples before propagating appearance across the application.
+Recommended adoption sequence: central theme/font and shared primitives → correct the
+representative Feed, Lesson and Creator management patterns → roll the accepted system
+through every routed browser screen in functional batches. Representative screens are
+calibration points, not a reason to leave the rest of the product on scaffold styling.
 
 ## 10. Reference documentation
 
@@ -277,3 +307,265 @@ the representative samples before propagating appearance across the application.
 - Reduced-motion guidance: https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html
 
 References guide implementation; they do not certify the current application.
+
+## 11. UI/UX redesign proposal and execution brief (2026-10-15)
+
+Decision boundary: the user confirmed retaining the light/slate/white/teal identity
+and Be Vietnam Pro direction while redesigning layout and components deeply across
+the complete routed browser experience. The blueprints below establish reusable
+patterns; every Member, Creator, account, authentication, checkout and Admin screen
+must ultimately use the same coherent system. This separate UI scope does not complete
+the outstanding F-19 acceptance.
+
+Confirmed preference update: polished, smooth and moderately lively interaction;
+subtle hover, opening menus/outlines and short like/progress feedback. Exclude
+cyber/neon styling, glowing techno treatments and futuristic dashboard decoration.
+Keep the current identity. Exact motion treatments remain sample-review decisions.
+
+### 11.1 Experience and visual hierarchy
+
+Design for comfortable reading, immediate task discovery and clear community context.
+Use balanced density: generous reading space for Members, compact labelled data for
+Creators. A polished result comes from consistent alignment, type hierarchy, useful
+imagery, restrained depth and complete interaction states.
+
+- Each page answers: which community/workspace am I in, what is this page for, and
+  which action is relevant now? Use one page title, a short contextual description
+  where useful, and one dominant action per task region.
+- Establish four levels: workspace context, page heading/action, section heading,
+  content/metadata. Reserve strong teal emphasis for selection and primary actions.
+- Align headings, controls and content to the same grid. Use the existing spacing,
+  radii and typography contracts; avoid a separate card around every label or number.
+- Use real covers, avatars and course media when available. Use an initials/neutral
+  fallback when absent. Keep text and controls complete without imagery.
+- Use familiar task labels and visible active states. Keep secondary options in
+  clearly labelled menus/disclosures; keep the main action visible. Preserve a
+  predictable route back, Cancel, validation feedback and persisted progress.
+
+These choices apply [Nielsen's usability heuristics](https://www.nngroup.com/articles/ten-usability-heuristics/),
+especially consistency, recognition, system feedback and error recovery. They are
+a design rationale, not evidence that this application's usability has been tested.
+
+### 11.2 Navigation and shared shell
+
+Keep the existing 1280px maximum content width and approximately 64px header.
+
+- App header: logo/community switcher on the left, existing community-scoped search
+  in the available middle space, notifications/messages/account on the right. Only
+  render community tools when an eligible current community exists. On the community
+  list/account pages, retain appropriate global navigation without inventing a
+  cross-community search or messaging contract.
+- Community header: modest cover/identity region with community name and relevant
+  context. Preserve access/status meaning. Avoid repeating a large banner and the
+  same title at multiple levels on every route; show a compact identity on lessons
+  and management screens.
+- Member navigation: Community Feed, Classroom, Events, Members, Leaderboard and
+  About. Search, notifications and messages remain discoverable labelled utilities;
+  avoid duplicating every utility as both a header action and a full-width tab.
+- Creator entry: a clearly labelled Manage community link to the existing overview.
+  Management navigation groups Overview, content/learning, Members/Invitations,
+  Orders/Referrals, Reports and Settings using existing permitted routes. Group
+  headings organize links; they do not introduce new resource endpoints.
+- Preserve a route inventory mapping every existing permitted destination to its new
+  location. Distinguish member directory from Creator membership management, account
+  payment history from community orders, and Platform Admin from Creator operations.
+- Mobile: compact header with named controls; search may expand into its own row.
+  Member tabs use a horizontally scrollable labelled region with visible overflow
+  affordance. Creator navigation becomes a keyboard-operable drawer/disclosure.
+  All utilities remain reachable. Sticky elements must not obscure focus or content.
+
+### 11.3 Representative screen blueprints
+
+| Screen | Desktop composition | Mobile composition | Primary task |
+|---|---|---|---|
+| Community Feed | Main column 680–760px, gap 24–32px, optional context column 280–300px | One reading column; useful context moves into a labelled disclosure or after the feed | Find/read a discussion and contribute |
+| Lesson | Main video/text area plus 280–300px outline; reading text capped to a comfortable measure | Video/text first, accessible collapsible outline, complete progress action | Read/watch and mark progress |
+| Creator overview | Approximately 240px management navigation plus flexible operational content | Management drawer, stacked metrics and locally scrollable tables | Understand current state and reach an operational action |
+
+Community Feed:
+
+1. Compact identity and active community navigation, followed by heading and a
+   visible Write a post action. The existing post form can be a labelled disclosure
+   or in-page editor; expose it automatically after validation failure, preserve
+   old values/category choices and focus the relevant error. No new draft service.
+2. One filter toolbar for category, existing sort options and Saved posts. Preserve
+   query parameters, pagination and direct-link/back/reload behavior. Long categories
+   must remain usable without expanding the page horizontally.
+3. Post content: author/avatar and time, readable title/body preview, category/pinned
+   metadata, then the existing like/comment/save actions. Secondary moderation/report
+   controls remain available only to their permitted users. Separate rows with
+   consistent rhythm; do not manufacture engagement counts or replace persisted state.
+4. Context column: use existing community description/onboarding data and existing
+   navigation links. Extra event/progress widgets require data already supplied to
+   the view; omit them when unavailable rather than adding an aggregate/query feature.
+   Keep onboarding prominent only while it is incomplete.
+5. Category management remains discoverable to Creators through its existing actions
+   and a labelled disclosure/link. It should not dominate the Member reading flow.
+
+Lesson:
+
+1. Compact community context and a course/back breadcrumb; clear lesson title.
+2. Existing safe video embed at its intended ratio, then readable lesson content.
+   Plain text, code/URLs and mixed Vietnamese/English content must wrap appropriately.
+3. Course outline shows section grouping, current lesson and actual completed/locked
+   states. Retain publication, entitlement and private-access boundaries; do not reveal
+   inaccessible outline metadata or infer access from a completed badge.
+4. Reuse the existing progress form and show the persisted result. Keep completion
+   action in the natural reading flow. Next/previous links may be composed only from
+   existing permitted lesson data/routes; do not invent navigation or autosave logic.
+
+Creator overview:
+
+1. Compact identity, management navigation, overview heading and relevant existing
+   shortcuts. Keep entry back to the Member workspace visible.
+2. A consistent metric row/grid using the currently supplied member/content/learning/
+   simulated-receipt data. Use tabular numerals, explicit units and faithful No data
+   states. Preserve Test Mode labels and exact denominators; add no decorative trend
+   chart, fabricated percentage change or online count.
+3. Existing activity/order information follows in a readable data region, with
+   aligned numbers, visible statuses and labelled actions. Preserve available filters,
+   audit/history and pagination. Actions remain reachable on narrow viewports.
+4. Forms group related fields into meaningful sections with concise helper text.
+   Destructive actions are visually secondary and have object-specific confirmation.
+
+Community discovery/dashboard cards:
+
+1. A community card is a visual entry point, not a bordered block of database fields.
+   Render the existing authorized `communities.cover.show` image when `cover_path` is
+   present. Use a polished local branded/educational fallback with initials or an icon
+   when absent; keep the image region at a consistent aspect ratio and never leave an
+   unexplained blank area.
+2. Lead with name, concise description and one clear Open community action. Show role,
+   access/status and price/term only when they help the decision. Do not expose the raw
+   `/communities/{slug}` path as card content. The whole card may be clickable when the
+   nested controls remain valid and keyboard behavior is unambiguous.
+3. Search and ownership filters belong in one compact toolbar. Empty results explain
+   the filter and offer the relevant next action. Cards reflow from three to two to one
+   column without clipped titles or uneven action placement.
+
+Authentication and guest experience:
+
+1. Login, registration, password reset, password confirmation and email verification
+   share a purposeful S-cool guest shell with the actual product name, a concise value
+   statement and an obvious route back. The login screen includes a meaningful heading,
+   supporting copy, registration route when enabled and an orderly forgot-password path.
+2. On wide screens, use a restrained split or composed panel with an education/community
+   visual and compact form. On narrow screens, prioritize the form without empty desktop
+   space. Keep decoration quiet, local and compatible with reduced motion.
+3. Preserve CSRF, autocomplete, autofocus, validation, session status, rate limiting and
+   password-reset contracts. Add show-password only when it is keyboard accessible and
+   does not alter the submitted field. Do not place demo credentials in production UI.
+
+### 11.4 Reuse before implementation
+
+Source inventory verified at `fe634b7` on 2026-10-15. Existing components are building
+blocks, not proof of polished appearance or keyboard accessibility. Upgrade them in
+place with reviewed props/slots, preserving their callers and behavior contracts.
+
+| Need | Existing source to reuse | Redesign responsibility |
+|---|---|---|
+| App/guest shell | `layouts/app.blade.php`, `layouts/guest.blade.php`, `layouts/navigation.blade.php` | Central font/theme, responsive header and consistent regions |
+| Community context/navigation | `components/community-workspace.blade.php` | Member/Creator composition, compact variants and active states |
+| Actions | `primary-button`, `secondary-button`, `danger-button` | Shared sizing, sentence case, semantic colors, focus/disabled behavior; retain explicit button type |
+| Form fields | `input-label`, `text-input`, `input-error` | Consistent field grouping, focus and server errors; preserve IDs/names/old values |
+| Menus/links | `dropdown`, `dropdown-link`, `nav-link`, `responsive-nav-link` | Named triggers, expanded/current state, keyboard/Escape/outside-close and focus behavior |
+| Confirmation/dialog | `modal` | Labelled dialog, focus entry/trap/return and hidden-dialog isolation; verify existing callers |
+| Learning forms/status | `classroom-course-fields`, `classroom-lesson-fields`, `classroom-feedback`, `classroom-reorder`, `lesson-progress` | Shared field/status/action styling; preserve completion and reorder payloads |
+| Authentication feedback/brand | `auth-session-status`, `application-logo` | Consistent status and identity within guest/app layouts |
+| Existing view fragments | `communities/partials/*`, profile partials and existing pagination rendering | Compose these before duplicating their markup/conditions |
+
+Inventory paths above are relative to `resources/views/`. Inspect actual include/tag
+usage before editing, including custom caller classes and Alpine/event contracts.
+Dropdowns are menus, not generic containers for arbitrary interactive forms.
+
+There is no dedicated UI/icon/chart library installed in the inspected package.json.
+Use these Blade components, semantic HTML, existing inline SVG, Tailwind and the one
+existing Alpine initialization. Do not install another kit to avoid styling work.
+If a repeated need is genuinely missing (for example avatar fallback, status badge,
+empty state, select/textarea or page heading), extract the smallest shared component
+from two concrete consumers. Define a narrow API and replace those duplicated uses.
+Do not build a generic design-system engine, duplicate buttons/modals, introduce a
+second styling layer, or use framework-incompatible component snippets.
+
+### 11.5 Implementation sequence and visual acceptance
+
+1. Capture comparable baseline screens at the same role, fixture and viewport. Map
+   routes/actions/data and component consumers before presentation edits.
+2. Adopt central semantic tokens and licensed self-hosted Be Vietnam Pro as specified
+   in sections 3–4. Upgrade shared primitives once, preserving compatibility. Render
+   a temporary review specimen for their states; it is not another canonical design file.
+3. Repair the representative screens until their hierarchy, navigation and responsive
+   behavior are fit to become shared patterns. The initial 2026-10-15 sample is evidence,
+   not an accepted visual baseline. Keep observed functional bugs separately attributable.
+4. Continue through community discovery/feed/detail/search/directory/about/events,
+   classroom/course/lesson, messages/notices, Creator forms/orders/reports/referrals,
+   account/access/checkout, authentication/guest and Admin surfaces in scoped batches.
+   Do not pause after only three screens; verify each batch's shared consumers and retain
+   the distinct role contracts. Final screen-by-screen review gates visual acceptance.
+
+Acceptance targets for the samples and later batches:
+
+- At 375/768/1280px, each scoped screen has clear context, one meaningful h1, visible
+  active navigation and an immediately identifiable primary task. Include long titles,
+  long names, empty/no-data results, server validation and realistic populated content.
+- At 320 CSS pixels and browser zoom, ordinary content reflows without page-wide
+  horizontal scrolling or lost actions; genuine tables use their own usable scroll
+  region. Check 200% zoom and a 320px-equivalent reflow condition, not just screenshots.
+- Primary controls target 40–44px comfort sizing and icon buttons approximately 44px
+  hit areas. Measure hit areas/spacing, not the SVG size. WCAG 2.2 AA target-size
+  minimum is 24x24 CSS pixels with defined exceptions; comfort targets are stronger
+  project choices, not a claim that 44px is the AA minimum.
+- Keyboard-only use covers navigation, search, filters, editor, outline, menus and
+  dialogs: visible focus, labels, Escape/Cancel and correct focus return. Check open
+  and hidden dialogs and reduced motion. Measure rendered contrast per section 3.
+- All existing actions, permission checks, submitted fields, retry keys, validation
+  and persisted states remain valid. Reflow must not conceal error, payment purpose,
+  expiry, Test Mode or access information. No client-only authorization.
+- Run production assets and relevant existing regressions after presentation changes.
+  Shared-shell/primitive changes require checking affected Member, Creator, guest and
+  Platform Admin consumers; final integrated review/CI follows the shared workflow.
+- Collect sanitized before/after evidence with viewport, role, fixture/state and exact
+  revision. Record pending browser/accessibility checks honestly. A passing build or
+  attractive screenshot alone does not prove usability or visual completion.
+- Use a short task walkthrough: locate a community discussion and its reply action;
+  locate a lesson and completion action; locate Creator order/report controls. Record
+  hesitation, wrong turns or inaccessible controls as findings to address. Do not claim
+  a successful user study without observing representative users perform the tasks.
+
+Accessibility references: [W3C Reflow](https://www.w3.org/WAI/WCAG22/Understanding/reflow.html)
+and [W3C Target Size (Minimum)](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html).
+These checks support the professional design goal; formal conformance is not asserted.
+
+### 11.6 Motion direction confirmed on 2026-10-15
+
+Motion should make the interface responsive and understandable while keeping reading
+and learning calm. Apply it to the interaction being performed, with a consistent
+visual language. The user selected moderately lively polish, not motion at every
+page boundary. Existing section 6 timings are starting targets; review actual samples.
+
+| Interaction | Proposed treatment | Boundary |
+|---|---|---|
+| Buttons/links | Short color/border feedback and visible focus | Preserve contrast and button size; no moving label |
+| Course/community tiles | Slight elevation or border emphasis on hover/focus | No layout shift; touch users retain visible actions |
+| Dropdown/dialog | Short opacity/limited translation within section 6 timings | Controls and focus respond immediately; no overlay/focus race |
+| Course outline/editor disclosure | Clear open/closed state with restrained transition | Closed controls leave the tab order; validation exposes errors |
+| Like/save/progress | Brief emphasis on the actual successful state | Never imply persisted success on a rejected/failed request |
+| Feedback message | Clear inline status with a short optional reveal | Errors remain readable; feedback is not animation-only |
+
+Use local CSS/Tailwind transitions and the existing Alpine components first. Prefer
+opacity/transform for decorative effects, avoid per-frame layout measurements and
+reserve space for changing state. Measure a real disclosure rather than choosing a
+fragile height animation that clips long content. Rapid repeated actions must leave
+correct final state/focus; motion must not delay navigation or duplicate mutations.
+
+Keep Feed text, lesson body/video and operational tables stable. Do not add scroll
+hijacking, cursor trails, continuous floating/pulsing decoration, repeated staggered
+page entry, parallax, or celebration effects to routine reading/learning. Any distinct
+future landing-page motion is separate scope. Under `prefers-reduced-motion`, remove
+decorative movement and retain immediate, readable state/focus/feedback.
+
+The handoff must include short interaction recordings, keyboard/touch review, rapid
+toggle/cancel/error cases and reduced-motion behavior for representative interactions
+plus a screen coverage matrix for the complete rollout. Screenshots alone cannot
+establish motion quality. Owner review gates visual acceptance; test/build PASS cannot
+be used as evidence that the design is professional or comfortable to use.

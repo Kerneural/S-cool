@@ -27,6 +27,31 @@ class CommunityMessagingTest extends TestCase
         return $user;
     }
 
+    public function test_inbox_links_allow_reaching_conversations_after_the_first_page(): void
+    {
+        $community = Community::factory()->create();
+        $viewer = $this->createActiveMember($community);
+        $oldest = null;
+
+        for ($index = 1; $index <= 16; $index++) {
+            $peer = $this->createActiveMember($community, User::factory()->create(['name' => sprintf('InboxContact-%02d-end', $index)]));
+            [$one, $two] = CommunityConversation::canonicalParticipants($viewer->id, $peer->id);
+            CommunityConversation::create([
+                'community_id' => $community->id,
+                'user_one_id' => $one,
+                'user_two_id' => $two,
+            ]);
+            $oldest ??= $peer;
+        }
+
+        $url = route('communities.messages.index', $community);
+        $this->actingAs($viewer)->get($url)->assertOk()
+            ->assertDontSee($oldest->name)
+            ->assertSee('href="'.$url.'?page=2"', false);
+        $this->get($url.'?page=2')->assertOk()->assertSee($oldest->name)
+            ->assertSee('href="'.$url.'?page=1"', false);
+    }
+
     public function test_ac01_participants_exchange_and_reload_ordered_messages_with_tenant_isolation(): void
     {
         $communityAlpha = Community::factory()->create(['name' => 'Community Alpha']);
