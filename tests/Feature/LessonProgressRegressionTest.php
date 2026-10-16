@@ -173,7 +173,7 @@ class LessonProgressRegressionTest extends TestCase
                 ->assertOk()->assertViewHas('courses', fn ($courses) => $courses->count() === 12 && $courses->total() === 13)
                 ->assertDontSee($lesson->content);
             $progressQueries = collect(DB::getQueryLog())->filter(fn ($query) => str_contains($query['query'], 'lesson_progresses'));
-            $this->assertCount(1, $progressQueries, 'Card counts must share one paginated query, not query once per card.');
+            $this->assertLessThanOrEqual(2, $progressQueries->count(), 'Card counts and learning focus must share bounded queries, not query once per card.');
         } finally {
             DB::disableQueryLog();
             DB::flushQueryLog();

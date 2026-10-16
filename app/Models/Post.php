@@ -22,6 +22,8 @@ class Post extends Model
     protected $fillable = [
         'community_id',
         'category_id',
+        'course_id',
+        'lesson_id',
         'user_id',
         'title',
         'body',
@@ -54,6 +56,73 @@ class Post extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(PostCategory::class, 'category_id');
+    }
+
+    /**
+     * Get the course attached to the post as learning context.
+     */
+    public function course(): BelongsTo
+    {
+        return $this->belongsTo(Course::class);
+    }
+
+    /**
+     * Get the lesson attached to the post as learning context.
+     */
+    public function lesson(): BelongsTo
+    {
+        return $this->belongsTo(Lesson::class);
+    }
+
+    /**
+     * Determine if this post is attached to a learning context (course/lesson).
+     */
+    public function hasLearningContext(): bool
+    {
+        return $this->course_id !== null;
+    }
+
+    /**
+     * Determine if the post's learning context is accessible to the specified user.
+     */
+    public function isLearningContextAccessibleFor(?User $user): bool
+    {
+        if (! $this->hasLearningContext()) {
+            return false;
+        }
+
+        $course = $this->course;
+        if (! $course || (int) $course->community_id !== (int) $this->community_id) {
+            return false;
+        }
+
+        $community = $this->community ?? $course->community;
+        if (! $community || ! $community->hasAccess($user)) {
+            return false;
+        }
+        $isCreator = $user && $community && $community->isCreator($user);
+
+        if (! $isCreator && ! $course->hasMemberAccess($user)) {
+            return false;
+        }
+
+        if ($this->lesson_id !== null) {
+            $lesson = $this->lesson;
+            if (! $lesson) {
+                return false;
+            }
+
+            $section = $lesson->section;
+            if (! $section || (int) $section->course_id !== (int) $course->id) {
+                return false;
+            }
+
+            if (! $isCreator && ! $lesson->isPublished()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
