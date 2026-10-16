@@ -24,6 +24,8 @@ class Lesson extends Model
         'video_url',
         'status',
         'order',
+        'is_practical',
+        'skill_label',
     ];
 
     /**
@@ -32,7 +34,18 @@ class Lesson extends Model
     protected $attributes = [
         'status' => 'DRAFT',
         'order' => 0,
+        'is_practical' => false,
     ];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_practical' => 'boolean',
+        ];
+    }
 
     public function section(): BelongsTo
     {
@@ -67,6 +80,29 @@ class Lesson extends Model
     public function scopePublished(Builder $query): Builder
     {
         return $query->where('status', 'PUBLISHED');
+    }
+
+    public function isPractical(): bool
+    {
+        return (bool) $this->is_practical;
+    }
+
+    public function proofOfWorks(): HasMany
+    {
+        return $this->hasMany(LessonProofOfWork::class);
+    }
+
+    public function currentProofOfWorkFor(?User $user): ?LessonProofOfWork
+    {
+        if (! $user) {
+            return null;
+        }
+
+        if ($this->relationLoaded('proofOfWorks')) {
+            return $this->proofOfWorks->first(fn ($p) => $p->user_id === $user->id && $p->is_current);
+        }
+
+        return $this->proofOfWorks()->where('user_id', $user->id)->where('is_current', true)->first();
     }
 
     public function progresses(): HasMany

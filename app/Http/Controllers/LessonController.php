@@ -66,7 +66,12 @@ class LessonController extends Controller
         $prevLesson = $currentIndex > 0 ? $allLessons->get($currentIndex - 1) : null;
         $nextLesson = $currentIndex !== false && $currentIndex < $allLessons->count() - 1 ? $allLessons->get($currentIndex + 1) : null;
 
-        return view('classroom.lessons.show', compact('community', 'course', 'lesson', 'isCreator', 'isActiveMember', 'prevLesson', 'nextLesson'));
+        $currentProofOfWork = $lesson->isPractical() && $user ? $lesson->currentProofOfWorkFor($user) : null;
+        $proofOfWorkHistory = $lesson->isPractical() && $user
+            ? $lesson->proofOfWorks()->where('user_id', $user->id)->orderBy('revision', 'desc')->get()
+            : collect();
+
+        return view('classroom.lessons.show', compact('community', 'course', 'lesson', 'isCreator', 'isActiveMember', 'prevLesson', 'nextLesson', 'currentProofOfWork', 'proofOfWorkHistory'));
     }
 
     public function store(Request $request, Community $community, Course $course, CourseSection $section): RedirectResponse
@@ -82,6 +87,8 @@ class LessonController extends Controller
             'content' => ['required_without:video_url', 'nullable', 'string', 'max:50000'],
             'video_url' => ['nullable', 'string', 'max:500'],
             'status' => ['required', 'in:DRAFT,PUBLISHED'],
+            'is_practical' => ['nullable', 'boolean'],
+            'skill_label' => ['nullable', 'string', 'max:80'],
         ]);
 
         if (($validated['video_url'] ?? null) !== null && ! VideoEmbedService::isValid($validated['video_url'])) {
@@ -89,6 +96,16 @@ class LessonController extends Controller
                 'video_url' => 'The video URL must be a valid HTTPS link from YouTube or Vimeo.',
             ]);
         }
+
+        $isPractical = $request->boolean('is_practical');
+        $skillLabel = $isPractical ? trim((string) ($validated['skill_label'] ?? '')) : null;
+        if ($isPractical && ($skillLabel === null || $skillLabel === '')) {
+            throw ValidationException::withMessages([
+                'skill_label' => 'A nonempty skill label (maximum 80 characters) is required for practical lessons.',
+            ]);
+        }
+        $validated['is_practical'] = $isPractical;
+        $validated['skill_label'] = $skillLabel;
 
         ClassroomMutation::run($community, $course, $section, null, function ($community, $course, $section) use ($validated) {
             $section->lessons()->create($validated + ['order' => (int) $section->lessons()->max('order') + 1]);
@@ -112,6 +129,8 @@ class LessonController extends Controller
             'content' => ['required_without:video_url', 'nullable', 'string', 'max:50000'],
             'video_url' => ['nullable', 'string', 'max:500'],
             'status' => ['required', 'in:DRAFT,PUBLISHED'],
+            'is_practical' => ['nullable', 'boolean'],
+            'skill_label' => ['nullable', 'string', 'max:80'],
         ]);
 
         if (($validated['video_url'] ?? null) !== null && ! VideoEmbedService::isValid($validated['video_url'])) {
@@ -119,6 +138,16 @@ class LessonController extends Controller
                 'video_url' => 'The video URL must be a valid HTTPS link from YouTube or Vimeo.',
             ]);
         }
+
+        $isPractical = $request->boolean('is_practical');
+        $skillLabel = $isPractical ? trim((string) ($validated['skill_label'] ?? '')) : null;
+        if ($isPractical && ($skillLabel === null || $skillLabel === '')) {
+            throw ValidationException::withMessages([
+                'skill_label' => 'A nonempty skill label (maximum 80 characters) is required for practical lessons.',
+            ]);
+        }
+        $validated['is_practical'] = $isPractical;
+        $validated['skill_label'] = $skillLabel;
 
         ClassroomMutation::run($community, $course, $section, $lesson, fn ($community, $course, $section, $lesson) => $lesson->update($validated));
 

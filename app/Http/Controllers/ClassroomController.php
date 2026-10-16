@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Community;
+use App\Models\CourseEntitlement;
 use App\Services\LearningFocusService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -37,8 +38,16 @@ class ClassroomController extends Controller
             }
         }])->paginate(12);
 
+        // Resolve catalog access once for this page; rendering cards must not
+        // re-query membership and entitlement for every published course.
+        $entitledCourseIds = $isActiveMember && ! $isCreator
+            ? CourseEntitlement::query()->where('user_id', $user->id)
+                ->whereIn('course_id', $courses->getCollection()->modelKeys())
+                ->pluck('course_id')->map(fn ($id) => (int) $id)->all()
+            : [];
+
         $learningFocus = LearningFocusService::resolve($community, $user);
 
-        return view('classroom.index', compact('community', 'courses', 'isCreator', 'courseOrder', 'isActiveMember', 'learningFocus'));
+        return view('classroom.index', compact('community', 'courses', 'isCreator', 'courseOrder', 'isActiveMember', 'learningFocus', 'entitledCourseIds'));
     }
 }
