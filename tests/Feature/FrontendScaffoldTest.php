@@ -19,8 +19,10 @@ class FrontendScaffoldTest extends TestCase
         // Verify HTML semantic structure and layout elements
         $response->assertSee('<meta name="csrf-token"', false);
         $response->assertSee('<title>S-cool</title>', false);
-        $response->assertSee('min-h-screen flex flex-col sm:justify-center items-center', false);
-        $response->assertSee('w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg', false);
+        $response->assertSee('Welcome back');
+        $response->assertSee('S-cool');
+        $response->assertSee(route('register'), false);
+        $response->assertSee(route('password.request'), false);
 
         // Verify Vite production assets injected into guest head
         $response->assertSee('/build/assets/app-', false);
@@ -47,9 +49,10 @@ class FrontendScaffoldTest extends TestCase
         // Verify App layout elements
         $response->assertSee('<meta name="csrf-token"', false);
         $response->assertSee('<title>S-cool</title>', false);
-        $response->assertSee('min-h-screen bg-gray-100', false);
         $response->assertSee('<main>', false);
-        $response->assertSee('My Communities', false);
+        $response->assertSee('Communities');
+        $response->assertSee('aria-label="S-cool home"', false);
+        $response->assertSee('aria-controls="mobile-navigation"', false);
 
         // Verify user profile binding in navigation
         $response->assertSee('Demo User', false);
@@ -90,7 +93,11 @@ class FrontendScaffoldTest extends TestCase
         $response->assertSee('show: false,', false);
         $response->assertSee('x-show="show"', false);
         $response->assertSee('x-on:close.stop="show = false"', false);
-        $response->assertSee('x-on:keydown.escape.window="show = false"', false);
+        $response->assertSee('x-on:keydown.escape.window="if (show) { show = false }"', false);
+        $response->assertSee('role="dialog"', false);
+        $response->assertSee('aria-modal="true"', false);
+        $response->assertSee('aria-labelledby="confirm-user-deletion-title"', false);
+        $response->assertSee('returnFocus?.focus()', false);
 
         // The panel must sit above the fixed backdrop even without a transform.
         // Browser hit-testing is still required to verify actual pointer behavior.

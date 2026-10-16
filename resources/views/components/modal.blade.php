@@ -1,7 +1,8 @@
 @props([
     'name',
     'show' => false,
-    'maxWidth' => '2xl'
+    'maxWidth' => '2xl',
+    'labelledby' => null,
 ])
 
 @php
@@ -17,34 +18,50 @@ $maxWidth = [
 <div
     x-data="{
         show: @js($show),
+        returnFocus: null,
         focusables() {
             // All focusable element types...
             let selector = 'a, button, input:not([type=\'hidden\']), textarea, select, details, [tabindex]:not([tabindex=\'-1\'])'
             return [...$el.querySelectorAll(selector)]
                 // All non-disabled elements...
-                .filter(el => ! el.hasAttribute('disabled'))
+                .filter(el => ! el.hasAttribute('disabled') && el.offsetParent !== null)
         },
         firstFocusable() { return this.focusables()[0] },
         lastFocusable() { return this.focusables().slice(-1)[0] },
-        nextFocusable() { return this.focusables()[this.nextFocusableIndex()] || this.firstFocusable() },
-        prevFocusable() { return this.focusables()[this.prevFocusableIndex()] || this.lastFocusable() },
-        nextFocusableIndex() { return (this.focusables().indexOf(document.activeElement) + 1) % (this.focusables().length + 1) },
-        prevFocusableIndex() { return Math.max(0, this.focusables().indexOf(document.activeElement)) -1 },
+        nextFocusable() {
+            const elements = this.focusables()
+            if (! elements.length) return $refs.dialog
+            const index = elements.indexOf(document.activeElement)
+            return elements[(index + 1) % elements.length]
+        },
+        prevFocusable() {
+            const elements = this.focusables()
+            if (! elements.length) return $refs.dialog
+            const index = elements.indexOf(document.activeElement)
+            return elements[(index <= 0 ? elements.length : index) - 1]
+        },
     }"
-    x-init="$watch('show', value => {
+    x-init="if (show) {
+        document.body.classList.add('overflow-y-hidden');
+        $nextTick(() => firstFocusable()?.focus());
+    }
+    $watch('show', value => {
         if (value) {
             document.body.classList.add('overflow-y-hidden');
-            {{ $attributes->has('focusable') ? 'setTimeout(() => firstFocusable().focus(), 100)' : '' }}
+            {{ $attributes->has('focusable') ? 'setTimeout(() => { if (show) firstFocusable()?.focus() }, 100)' : '' }}
         } else {
             document.body.classList.remove('overflow-y-hidden');
+            $nextTick(() => {
+                returnFocus?.focus();
+                returnFocus = null;
+            });
         }
     })"
-    x-on:open-modal.window="$event.detail == '{{ $name }}' ? show = true : null"
+    x-on:open-modal.window="if ($event.detail == '{{ $name }}') { returnFocus = document.activeElement; show = true }"
     x-on:close-modal.window="$event.detail == '{{ $name }}' ? show = false : null"
     x-on:close.stop="show = false"
-    x-on:keydown.escape.window="show = false"
-    x-on:keydown.tab.prevent="$event.shiftKey || nextFocusable().focus()"
-    x-on:keydown.shift.tab.prevent="prevFocusable().focus()"
+    x-on:keydown.escape.window="if (show) { show = false }"
+    x-on:keydown.tab.prevent="if (show) { ($event.shiftKey ? prevFocusable() : nextFocusable()).focus() }"
     x-show="show"
     class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50"
     style="display: {{ $show ? 'block' : 'none' }};"
@@ -64,7 +81,16 @@ $maxWidth = [
     </div>
 
     <div
+        x-ref="dialog"
         x-show="show"
+        role="dialog"
+        aria-modal="true"
+        @if ($labelledby)
+            aria-labelledby="{{ $labelledby }}"
+        @else
+            aria-label="{{ $name }}"
+        @endif
+        tabindex="-1"
         class="relative z-10 mb-6 bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full {{ $maxWidth }} sm:mx-auto"
         x-transition:enter="ease-out duration-300"
         x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"

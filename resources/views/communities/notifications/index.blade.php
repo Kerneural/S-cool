@@ -1,18 +1,18 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h1 class="font-bold text-xl text-slate-900 leading-tight">
             {{ $community->name }} &mdash; {{ __('Notifications') }}
-        </h2>
+        </h1>
     </x-slot>
 
-    <div class="py-6">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <x-community-workspace :community="$community" activeTab="notifications" />
+    <div class="py-8 sm:py-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <x-community-workspace :community="$community" active-tab="notifications" />
 
             @if (session('status'))
-                <div class="p-4 rounded-xl bg-green-50 border border-green-200 text-green-800 text-sm flex items-center justify-between">
+                <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                        <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
                         <span>{{ session('status') }}</span>
@@ -31,12 +31,12 @@
                 </div>
             @endif
 
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-6">
+            <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-5 sm:p-6 space-y-6">
                 <!-- Header Toolbar -->
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-gray-100">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
                     <div>
-                        <h3 class="text-lg font-bold text-gray-900 tracking-tight">{{ __('Notification Center') }}</h3>
-                        <p class="text-sm text-gray-500 mt-0.5">
+                        <h3 class="text-lg font-bold text-slate-900 tracking-tight">{{ __('Notification Center') }}</h3>
+                        <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
                             {{ __('Updates on discussion replies, new courses, and community activities.') }}
                         </p>
                     </div>
@@ -44,7 +44,7 @@
                     @if ($unreadCount > 0)
                         <form method="POST" action="{{ route('communities.notifications.read-all', $community) }}">
                             @csrf
-                            <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg transition shadow-sm">
+                            <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 rounded-xl transition shadow-xs">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                 </svg>
@@ -57,30 +57,30 @@
                 <!-- Notifications List -->
                 @if ($notifications->isEmpty())
                     <div class="text-center py-12 px-4">
-                        <div class="w-14 h-14 mx-auto mb-4 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center">
+                        <div class="w-14 h-14 mx-auto mb-4 bg-slate-50 border border-slate-200 text-slate-400 rounded-2xl flex items-center justify-center">
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                             </svg>
                         </div>
-                        <h4 class="text-base font-semibold text-gray-900">{{ __('All caught up!') }}</h4>
-                        <p class="text-sm text-gray-500 mt-1 max-w-sm mx-auto">
+                        <h4 class="text-base font-semibold text-slate-900">{{ __('All caught up!') }}</h4>
+                        <p class="text-sm text-slate-500 mt-1 max-w-sm mx-auto">
                             {{ __('No notifications found in this community. When new replies or activities occur, they will appear here.') }}
                         </p>
                     </div>
                 @else
-                    <div class="divide-y divide-gray-100">
+                    <div class="divide-y divide-slate-100">
                         @foreach ($notifications as $notification)
                             @php
                                 $isUnread = ! $notification->read_at;
                             @endphp
-                            <div class="py-4 px-3 sm:px-4 rounded-xl transition flex flex-col sm:flex-row sm:items-center justify-between gap-4 {{ $isUnread ? 'bg-indigo-50/40 border border-indigo-100' : 'hover:bg-gray-50' }}">
+                            <div class="py-4 px-3 sm:px-4 rounded-xl transition flex flex-col sm:flex-row sm:items-center justify-between gap-4 {{ $isUnread ? 'bg-brand-50/40 border border-brand-100' : 'hover:bg-slate-50/60' }}">
                                 <div class="flex items-start gap-3.5">
                                     <!-- Icon badge -->
                                     <div class="mt-0.5 shrink-0 w-9 h-9 rounded-full flex items-center justify-center {{ match($notification->type) {
-                                        'post_reply' => 'bg-blue-100 text-blue-700',
+                                        'post_reply' => 'bg-brand-100 text-brand-700',
                                         'course_published' => 'bg-emerald-100 text-emerald-700',
                                         'member_activated' => 'bg-amber-100 text-amber-700',
-                                        default => 'bg-gray-100 text-gray-700'
+                                        default => 'bg-slate-100 text-slate-700'
                                     } }}">
                                         @if ($notification->type === 'post_reply')
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -103,13 +103,13 @@
 
                                     <!-- Content -->
                                     <div class="space-y-1">
-                                        <p class="text-sm {{ $isUnread ? 'font-semibold text-gray-900' : 'text-gray-700' }}">
+                                        <p class="text-sm {{ $isUnread ? 'font-semibold text-slate-900' : 'text-slate-700' }}">
                                             {{ $notification->summary() }}
                                         </p>
-                                        <div class="flex items-center gap-2 text-xs text-gray-500">
+                                        <div class="flex items-center gap-2 text-xs text-slate-400">
                                             <span>{{ $notification->created_at->diffForHumans() }}</span>
                                             @if ($isUnread)
-                                                <span class="inline-flex items-center px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700 uppercase tracking-wider">
+                                                <span class="inline-flex items-center px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-brand-50 text-brand-700 uppercase tracking-wider">
                                                     {{ __('Unread') }}
                                                 </span>
                                             @endif
@@ -120,9 +120,9 @@
                                 <!-- Action Buttons -->
                                 <div class="flex items-center gap-2 self-end sm:self-center shrink-0">
                                     <a href="{{ route('communities.notifications.follow', [$community, $notification]) }}"
-                                       class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-gray-700 bg-white hover:bg-gray-100 border border-gray-300 rounded-lg transition shadow-sm">
+                                       class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl transition shadow-xs">
                                         <span>{{ __('View') }}</span>
-                                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                         </svg>
                                     </a>
@@ -131,7 +131,7 @@
                                         <form method="POST" action="{{ route('communities.notifications.read', [$community, $notification]) }}">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="submit" class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition">
+                                            <button type="submit" class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition">
                                                 {{ __('Mark read') }}
                                             </button>
                                         </form>
@@ -141,7 +141,7 @@
                         @endforeach
                     </div>
 
-                    <div class="pt-4 border-t border-gray-100">
+                    <div class="pt-4 border-t border-slate-100">
                         {{ $notifications->links() }}
                     </div>
                 @endif

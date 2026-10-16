@@ -1,56 +1,87 @@
 <x-app-layout>
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+    <div class="py-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
             <x-community-workspace :community="$community" active-tab="orders" />
 
             <!-- Summary Cards -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm text-center">
-                    <span class="text-xs text-gray-500 uppercase tracking-wider font-medium">Total Attempts</span>
-                    <p class="text-2xl font-bold text-gray-900 mt-1">{{ $summary['total'] }}</p>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Total Attempts</span>
+                        <p class="text-2xl font-black text-slate-900 tracking-tight">{{ $summary['total'] }}</p>
+                    </div>
                 </div>
-                <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm text-center">
-                    <span class="text-xs text-emerald-600 uppercase tracking-wider font-medium">Succeeded</span>
-                    <p class="text-2xl font-bold text-emerald-600 mt-1">{{ $summary['succeeded'] }}</p>
-                    <span class="text-xs text-gray-500 font-medium block mt-0.5">{{ number_format($summary['succeeded_sum'], 0, ',', '.') }} VND</span>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-xs text-emerald-600 uppercase tracking-wider font-semibold">Succeeded</span>
+                        <p class="text-2xl font-black text-emerald-700 tracking-tight">{{ $summary['succeeded'] }}</p>
+                        <span class="text-xs text-slate-500 font-medium block mt-0.5">{{ number_format($summary['succeeded_sum'], 0, ',', '.') }} VND</span>
+                    </div>
                 </div>
-                <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm text-center">
-                    <span class="text-xs text-amber-600 uppercase tracking-wider font-medium">Pending</span>
-                    <p class="text-2xl font-bold text-amber-600 mt-1">{{ $summary['pending'] }}</p>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-xs text-amber-600 uppercase tracking-wider font-semibold">Pending</span>
+                        <p class="text-2xl font-black text-amber-700 tracking-tight">{{ $summary['pending'] }}</p>
+                    </div>
                 </div>
-                <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm text-center">
-                    <span class="text-xs text-slate-500 uppercase tracking-wider font-medium">Cancelled / Failed</span>
-                    <p class="text-2xl font-bold text-slate-600 mt-1">{{ $summary['cancelled'] + $summary['failed'] }}</p>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center shrink-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Cancelled / Failed</span>
+                        <p class="text-2xl font-black text-slate-600 tracking-tight">{{ $summary['cancelled'] + $summary['failed'] }}</p>
+                    </div>
                 </div>
             </div>
 
             <!-- Orders Table Container -->
-            <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden border border-gray-100">
-                <div class="p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="bg-white shadow-xs rounded-2xl overflow-hidden border border-slate-200/80">
+                <div class="p-6 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     <div>
-                        <h3 class="text-lg font-semibold text-gray-900">Orders & Payment Attempts</h3>
-                        <p class="text-sm text-gray-500">
-                            Track community admission payment attempts for <span class="font-medium text-gray-700">{{ $community->name }}</span> (SePay Sandbox - Test Mode).
+                        <h1 class="text-lg font-bold text-slate-900 tracking-tight">Orders & Payment Attempts</h1>
+                        <p class="text-sm text-slate-500 mt-0.5">
+                            Track community admission payment attempts for <span class="font-semibold text-slate-700">{{ $community->name }}</span> (SePay Sandbox - Test Mode).
                         </p>
                     </div>
 
                     <!-- Filter Controls (Status & Date Range) -->
-                    <div class="flex flex-wrap items-center gap-2">
+                    <div class="flex flex-wrap items-center gap-2.5">
                         <!-- Status Tabs -->
-                        <div class="flex items-center gap-1 bg-gray-50 p-1 rounded-lg border border-gray-200">
+                        <div class="flex items-center gap-1 bg-slate-100/80 p-1 rounded-xl border border-slate-200/60">
                             @foreach (['ALL' => 'All Statuses', 'SUCCEEDED' => 'Succeeded', 'PENDING' => 'Pending', 'CANCELLED' => 'Cancelled', 'FAILED' => 'Failed'] as $key => $label)
                                 <a href="{{ route('communities.orders.index', array_merge(request()->query(), ['community' => $community, 'status' => $key])) }}"
-                                   class="px-2.5 py-1 text-xs font-medium rounded-md transition {{ $statusFilter === $key ? 'bg-white text-gray-900 shadow-sm font-semibold' : 'text-gray-500 hover:text-gray-900' }}">
+                                   class="px-2.5 py-1 text-xs font-semibold rounded-lg transition {{ $statusFilter === $key ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900' }}">
                                     {{ $label }}
                                 </a>
                             @endforeach
                         </div>
 
                         <!-- Date Range Tabs (UTC) -->
-                        <div class="flex items-center gap-1 bg-gray-50 p-1 rounded-lg border border-gray-200">
+                        <div class="flex items-center gap-1 bg-slate-100/80 p-1 rounded-xl border border-slate-200/60">
                             @foreach (['ALL' => 'All Time', '7' => '7 Days', '30' => '30 Days', '90' => '90 Days'] as $rKey => $rLabel)
                                 <a href="{{ route('communities.orders.index', array_merge(request()->query(), ['community' => $community, 'range' => $rKey])) }}"
-                                   class="px-2.5 py-1 text-xs font-medium rounded-md transition {{ $rangeFilter === $rKey ? 'bg-white text-gray-900 shadow-sm font-semibold' : 'text-gray-500 hover:text-gray-900' }}">
+                                   class="px-2.5 py-1 text-xs font-semibold rounded-lg transition {{ $rangeFilter === $rKey ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900' }}">
                                     {{ $rLabel }}
                                 </a>
                             @endforeach
@@ -59,61 +90,68 @@
                 </div>
 
                 @if ($orders->isEmpty())
-                    <div class="p-12 text-center text-gray-400 text-sm">
-                        No orders found matching the selected filters.
+                    <div class="p-16 text-center text-slate-400 text-sm">
+                        <svg class="w-10 h-10 mx-auto text-slate-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        <p class="font-medium text-slate-500">No orders found matching the selected filters.</p>
                     </div>
                 @else
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse text-sm">
                             <thead>
-                                <tr class="bg-gray-50/75 border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                    <th class="py-3 px-4">Reference</th>
-                                    <th class="py-3 px-4">Payer</th>
-                                    <th class="py-3 px-4">Purpose</th>
-                                    <th class="py-3 px-4">Status</th>
-                                    <th class="py-3 px-4 text-right">Amount</th>
-                                    <th class="py-3 px-4 text-right">Time (UTC)</th>
+                                <tr class="bg-slate-50/75 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                    <th class="py-3.5 px-5">Reference</th>
+                                    <th class="py-3.5 px-5">Payer</th>
+                                    <th class="py-3.5 px-5">Purpose</th>
+                                    <th class="py-3.5 px-5">Status</th>
+                                    <th class="py-3.5 px-5 text-right">Amount</th>
+                                    <th class="py-3.5 px-5 text-right">Time (UTC)</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-100">
+                            <tbody class="divide-y divide-slate-100">
                                 @foreach ($orders as $order)
-                                    <tr class="hover:bg-gray-50/50 transition">
-                                        <td class="py-3 px-4 font-mono text-xs text-gray-800">
-                                            <div>{{ $order->external_reference }}</div>
+                                    <tr class="hover:bg-slate-50/60 transition-colors">
+                                        <td class="py-3.5 px-5 font-mono text-xs text-slate-800">
+                                            <div class="font-bold">{{ $order->external_reference }}</div>
                                             @if ($order->invitation)
-                                                <div class="text-[11px] text-gray-400 mt-0.5">Invitation #{{ $order->invitation->id }}</div>
+                                                <div class="text-[11px] text-slate-400 mt-0.5">Invitation #{{ $order->invitation->id }}</div>
                                             @endif
                                         </td>
-                                        <td class="py-3 px-4">
-                                            <div class="font-medium text-gray-900">{{ $order->user->name ?? 'Unknown user' }}</div>
-                                            <div class="text-xs text-gray-400">{{ $order->user->email ?? '' }}</div>
+                                        <td class="py-3.5 px-5">
+                                            <div class="font-bold text-slate-900">{{ $order->user->name ?? 'Unknown user' }}</div>
+                                            <div class="text-xs text-slate-400">{{ $order->user->email ?? '' }}</div>
                                         </td>
-                                        <td class="py-3 px-4 text-xs text-gray-600">
+                                        <td class="py-3.5 px-5 text-xs text-slate-600 font-medium">
                                             {{ $order->purposeLabel() }}
                                         </td>
-                                        <td class="py-3 px-4">
+                                        <td class="py-3.5 px-5">
                                             @if ($order->isSucceeded())
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                                                     SUCCEEDED
                                                 </span>
                                             @elseif ($order->isPending())
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                                                     PENDING
                                                 </span>
                                             @elseif ($order->isCancelled())
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-gray-50 text-gray-600 border border-gray-200">
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
                                                     CANCELLED
                                                 </span>
                                             @else
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
                                                     FAILED
                                                 </span>
                                             @endif
                                         </td>
-                                        <td class="py-3 px-4 text-right font-medium text-gray-900">
+                                        <td class="py-3.5 px-5 text-right font-black text-slate-900">
                                             {{ $order->formattedAmount() }}
                                         </td>
-                                        <td class="py-3 px-4 text-right text-xs text-gray-500 font-mono">
+                                        <td class="py-3.5 px-5 text-right text-xs text-slate-500 font-mono">
                                             {{ $order->created_at->toIso8601String() }}
                                         </td>
                                     </tr>
@@ -123,7 +161,7 @@
                     </div>
 
                     @if ($orders->hasPages())
-                        <div class="p-4 border-t border-gray-100">
+                        <div class="p-4 border-t border-slate-100 bg-slate-50/50">
                             {{ $orders->links() }}
                         </div>
                     @endif

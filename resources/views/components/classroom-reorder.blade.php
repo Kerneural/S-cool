@@ -15,7 +15,7 @@
                 @foreach ($ordered as $siblingId)
                     <input type="hidden" name="order[]" value="{{ $siblingId }}">
                 @endforeach
-                <button class="rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-100" type="submit">{{ __($label) }}</button>
+                <button class="rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 active:scale-[0.98] transition shadow-xs" type="submit">{{ __($label) }}</button>
             </form>
         @endif
     @endforeach
