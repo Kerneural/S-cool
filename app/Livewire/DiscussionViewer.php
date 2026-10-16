@@ -8,11 +8,13 @@ use App\Models\Comment;
 use App\Models\Community;
 use App\Models\OnboardingStepCompletion;
 use App\Models\Post;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class DiscussionViewer extends Component
 {
@@ -46,6 +48,23 @@ class DiscussionViewer extends Component
     public bool $isAuthor = false;
 
     public bool $canDeletePost = false;
+
+    // Learning Context
+    public bool $hasLearningContext = false;
+
+    public bool $isLearningContextAccessible = false;
+
+    public ?int $courseId = null;
+
+    public ?string $courseTitle = null;
+
+    public ?string $courseUrl = null;
+
+    public ?int $lessonId = null;
+
+    public ?string $lessonTitle = null;
+
+    public ?string $lessonUrl = null;
 
     // Comments
     public array $comments = [];
@@ -100,6 +119,8 @@ class DiscussionViewer extends Component
         $this->isAuthor = $user && (int) $post->user_id === (int) $user->id;
         $this->canDeletePost = $user && ($this->isAuthor || $isCreator);
 
+        $this->loadLearningContext($post);
+
         $this->commentsLimit = self::COMMENTS_PAGE_SIZE;
         $this->loadComments($post);
 
@@ -115,6 +136,36 @@ class DiscussionViewer extends Component
             postId: $post->id,
             url: route('communities.posts.show', [$community, $post]),
         );
+    }
+
+    private function loadLearningContext(Post $post): void
+    {
+        $user = auth()->user();
+        $community = $post->community;
+        $this->hasLearningContext = $post->hasLearningContext();
+        $this->isLearningContextAccessible = $post->isLearningContextAccessibleFor($user);
+
+        if ($this->hasLearningContext && $this->isLearningContextAccessible && $post->course) {
+            $this->courseId = $post->course_id;
+            $this->courseTitle = $post->course->title;
+            $this->courseUrl = route('communities.courses.show', [$community, $post->course]);
+            if ($post->lesson) {
+                $this->lessonId = $post->lesson_id;
+                $this->lessonTitle = $post->lesson->title;
+                $this->lessonUrl = route('communities.lessons.show', [$community, $post->course, $post->lesson]);
+            } else {
+                $this->lessonId = null;
+                $this->lessonTitle = null;
+                $this->lessonUrl = null;
+            }
+        } else {
+            $this->courseId = null;
+            $this->courseTitle = null;
+            $this->courseUrl = null;
+            $this->lessonId = null;
+            $this->lessonTitle = null;
+            $this->lessonUrl = null;
+        }
     }
 
     protected function loadComments(Post $post): void
@@ -172,6 +223,8 @@ class DiscussionViewer extends Component
         $this->comments = [];
         $this->commentsCount = 0;
         $this->hasEarlierComments = false;
+
+        $this->reset(['hasLearningContext', 'isLearningContextAccessible', 'courseId', 'courseTitle', 'courseUrl', 'lessonId', 'lessonTitle', 'lessonUrl']);
 
         $this->dispatch('discussion-closed');
     }
@@ -318,14 +371,33 @@ class DiscussionViewer extends Component
 
         $post = $community->posts()
             ->whereNull('deleted_at')
-            ->with(['author:id,name', 'category'])
+            ->with(['author:id,name', 'category', 'course', 'lesson.section'])
             ->findOrFail($resolvedPostId);
+
+        $post->setRelation('community', $community);
 
         return [$community, $post, $isCreator];
     }
 
     public function render(): View
     {
+        if ($this->isOpen && $this->postId !== null) {
+            try {
+                [, $post] = $this->visiblePost();
+                $this->loadLearningContext($post);
+            } catch (ModelNotFoundException|HttpException) {
+                $this->reset([
+                    'postTitle', 'postBody', 'authorName', 'authorInitial', 'categoryName',
+                    'comments', 'commentsCount', 'hasEarlierComments', 'hasLearningContext',
+                    'isLearningContextAccessible', 'courseId', 'courseTitle', 'courseUrl',
+                    'lessonId', 'lessonTitle', 'lessonUrl',
+                ]);
+                $this->isOpen = false;
+                $this->errorMessage ??= __('This discussion is no longer available.');
+                $this->dispatch('discussion-closed');
+            }
+        }
+
         return view('livewire.discussion-viewer');
     }
 }

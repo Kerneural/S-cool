@@ -93,6 +93,18 @@
             @endif
         </div>
 
+        @if (($isEntitled || $isCreator) && $course->isPublished())
+            <div class="flex items-center justify-start">
+                <a href="{{ route('communities.posts.index', [$community, 'course_id' => $course->id]) }}"
+                   class="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-brand-700 hover:text-brand-800 bg-white hover:bg-brand-50/80 px-4 py-2.5 rounded-2xl border border-brand-200 shadow-xs transition active:scale-[0.99]">
+                    <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    <span>{{ __('Ask a Question / Discuss Course') }}</span>
+                </a>
+            </div>
+        @endif
+
         @if ($isCreator)
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <details class="rounded-2xl bg-white p-5 shadow-xs border border-slate-200/80" @if ($errors->any() && old('_form') === 'edit-course') open @endif>

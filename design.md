@@ -569,3 +569,51 @@ toggle/cancel/error cases and reduced-motion behavior for representative interac
 plus a screen coverage matrix for the complete rollout. Screenshots alone cannot
 establish motion quality. Owner review gates visual acceptance; test/build PASS cannot
 be used as evidence that the design is professional or comfortable to use.
+
+### 11.7 Approved experience-completion adaptations (2026-10-16)
+
+This amendment authorizes the presentation scope mapped to EUR-50/51 in Delivery
+Plan section 18. It does not change EUR-49's active scope, backend access policy,
+the established identity, or the distinction between planned and accepted UI.
+`docs/Need_update_analysis.md` retains the reference observations/disposition;
+that file cannot override these design rules or the live issue AC.
+
+**S-cool composition:** learning action -> contextual help -> practical evidence
+-> creator feedback -> demonstrated skill. Make this path discoverable with real
+data. Community/course imagery and people give identity; do not copy Skool's dark
+surfaces/yellow actions or fill whitespace with decorative metrics.
+
+| Surface | Required composition and behavior |
+|---|---|
+| Contextual shell | About 64px header; S-cool home/brand and community selector, scoped search, notices/messages/avatar. One instance per utility; compact identity/tabs below. Account/list routes have a global variant, not an inferred tenant. |
+| My Communities | Image-led responsive cards, concise identity/access information and aligned Open action under one useful filter toolbar. |
+| Feed | Readable post column; contextual composer dialog; safe author/avatar/time/category and comment metadata; reactive actions. Optional rail prioritizes the one current learning action/event and incomplete onboarding, then useful community/contribution context. |
+| Classroom | Compact Learning Focus over a visual course grid. Consistent 16:9 cover/fallback, true access/progress and clear Open/Continue. Missing images never become blank slots. |
+| Lesson | Flexible external media/reading region plus 280–300px outline on wide screens; mobile reading first with accessible outline disclosure. Place completion/continuation, Ask a question and practical evidence in a logical sequence. No forced auto-next or nested lesson-body scrollbar. |
+| Proof of Work | Distinct Draft/Waiting/Needs revision/Verified/Rejected feedback, retained learner input and visible revision history. Creator queue/detail makes review actionable; verification never masquerades as self-marked progress. |
+| Member profile | Identity/bio/role/join date followed by explained activity and verified skills. Wide-screen columns only when useful; mobile identity first. Community-scoped, no public membership/follower/presence claims. |
+| Activity/leaderboard | Label metric, window and provenance; separate engagement from verified work/helpful answers. Accessible text/daily alternative for heatmap, zero/no-data state, stable ties. Avoid an unexplained aggregate score. |
+| Settings | Account sidebar (mobile disclosure) plus bounded form content. Profile, Account & security, Notifications, My access, Payment history, Referrals. Keep existing full-name/bio semantics; optional GitHub/portfolio links. Sensitive forms use deliberate submission; existing preference toggles show persistence/failure. |
+| About | Editorial orientation/story/video/rules and permitted roadmap; concise creator/context region. No fabricated sales claims, ratings or online numbers. |
+| Events/Members | Calendar/list and directory grid respectively, suited to their tasks; retain timezone/search/context and useful empty/long/access states. |
+| Messages/Notifications | Clear sender/read/status hierarchy, reachable reply/read actions and safe unavailable destinations. Preserve asynchronous/participant-only meaning. |
+| Creator/commerce/Admin | Compact operational navigation, truthful metrics, forms/tables and review actions. Preserve separate roles, audit/payment history, Test Mode and destructive confirmations. |
+
+Reuse the components in section 11.4 plus existing discussion/search Livewire
+islands. Extract cover/avatar fallback, state feedback or navigation composition
+only from actual consumers. Use static discoverable classes and the existing
+icon style; no second UI kit, framework bootstrap or chart/player dependency.
+
+Dialog and async requirements are functional: associated labels, focus entry/
+trap/return, Escape/Cancel, recoverable validation and loading/error/success.
+Dirty composer input is retained in page memory or requires confirmed discard.
+No unsupported media/notification/payout controls. Rapid actions must converge on
+the server state; animation cannot imply persistence on failure.
+
+Verify all permitted routed screens, not only the samples: dashboard/discovery;
+Feed/direct discussion/Saved/search; Classroom/course/lesson/evidence/review;
+Events/Members/profile/leaderboard/About; inbox/thread/notices; account/settings/
+access/history/referrals/help; Creator operations; checkout/status; guest/auth;
+Platform Admin. Record each route/role/state, viewport and evidence or blocker in
+the existing issue checkpoint/PR. Apply section 11.5 responsive/accessibility gates
+and section 11.6 motion review. No new standalone coverage/roadmap file is needed.

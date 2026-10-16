@@ -67,9 +67,18 @@
 
                 <!-- Progress Action in Natural Reading Flow (if eligible member) -->
                 @if ($isActiveMember && $course->isPublished() && $lesson->isPublished())
-                    <div class="pt-6 border-t border-slate-100">
+                    <div class="pt-6 border-t border-slate-100 space-y-3">
                         <div class="py-3 px-4 bg-slate-50 rounded-xl border border-slate-100">
                             <x-lesson-progress :community="$community" :course="$course" :lesson="$lesson" />
+                        </div>
+                        <div class="flex items-center justify-end">
+                            <a href="{{ route('communities.posts.index', [$community, 'course_id' => $course->id, 'lesson_id' => $lesson->id]) }}"
+                               class="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-700 hover:text-brand-800 bg-brand-50/80 hover:bg-brand-100/80 px-3.5 py-2 rounded-xl border border-brand-200/80 transition shadow-2xs active:scale-[0.99]">
+                                <svg class="w-3.5 h-3.5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                </svg>
+                                <span>{{ __('Ask a Question about this Lesson') }}</span>
+                            </a>
                         </div>
                     </div>
                 @endif

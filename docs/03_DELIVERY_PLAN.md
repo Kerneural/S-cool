@@ -6,6 +6,9 @@
 > Trạng thái: Recovery baseline từ 03/10/2026 đến 08/10/2026; cập nhật hằng ngày theo tiến độ thật  
 > Cập nhật: 2026-10-03
 
+Current post-F19 experience-completion routing is in section 18. Earlier milestone
+tables and checkpoints describe their dated releases, not current Linear status.
+
 ## 1. Delivery objective
 
 Giai đoạn đầu kết thúc khi toàn bộ Must scope trong `01_PRODUCT_SCOPE.md` chạy ổn định ở local trên máy của cả ba thành viên. Team phải demo được private invitation flow, SePay Sandbox paid flow, learning flow và các failure case tenant isolation từ một database được tạo mới bằng migrations/seeds.
@@ -1030,4 +1033,128 @@ Replace F-01/section with the selected slice. The receiving agent should not ind
 
 Audit handoff should contain the exact base/head and dirty diff, issue contract, actual touched paths, proposed-vs-implemented decisions, targeted/full/CI results, migration/runtime impact, screenshot/manual script and evidence limits. Review findings use severity and a concrete reproduction. Fix confirmed in-scope defects, then rerun affected checks; do not repeat complete discovery/tests after documentation-only edits. Audit priorities: access/tenant consistency → transactional correctness → data/financial retention → user flow/error feedback → query limits → cosmetic concerns only if in scope.
 
-The F-01 prompt above is a reusable template, not the current implementation position. Current source/checkpoint evidence covers F-01 through F-18, including scoped F-17/F-18 audit corrections; source existence does not imply formal acceptance. Consult the latest F-18 audit and F-19 continuation in `docs/WORKING_CONTEXT.md`, verify actual issue metadata, and prepare only F-19 acceptance for the selected feature set. The user corrected the earlier reference to two remaining features; do not invent F-20 or reopen unrelated design decisions. Keep outstanding runtime/provider/manual/CI/independent-host evidence explicit.
+Historical position on 2026-10-14: the F-01 prompt above was a reusable template; the selected functional release then ended at F-19. That instruction did not prohibit later explicitly approved work. For the subsequently authorized F-20–F-24 experience phase, use section 18 and live Linear contracts. Preserve historical evidence and do not present old checkpoints as current acceptance.
+
+## 18. Interactive learning and experience completion (2026-10-16)
+
+### 18.1 Decision, authority and sequence
+
+The user approved normalizing the Skool comparison, completing suitable experience
+gaps in the two remaining issues, and retaining S-cool's own task-specific layouts
+and light/teal identity. This is planning and Linear-description authorization,
+not implementation, visual acceptance, Git publication or a Done transition.
+
+- Linear owns current AC, status, assignee, milestone, estimate and dependencies.
+  Keep existing metadata and relations; expanded scope does not validate the old
+  estimates or create an elapsed-time promise. Re-estimation needs a separate
+  explicit metadata update; do not move Todo issues to Ready on this document alone.
+- Product scope: section 21 of `docs/01_PRODUCT_SCOPE.md`.
+- Visual/interaction authority: `design.md`, especially sections 5–7 and 11.7.
+- Reference/disposition: `docs/Need_update_analysis.md`; its UX IDs map below.
+- New access/data boundaries: `docs/02_DOMAIN_ARCHITECTURE.md` section 16.
+- Working Context stores each issue's implementation and evidence separately.
+- EUR-47/F-20 and EUR-48/F-21 established the viewer/reactive interaction and scoped
+  typeahead/adaptive-layout baselines. Reverify their merged contracts before reuse.
+- EUR-49/F-22 is active: keep its original Learning Focus/contextual discussion AC
+  and edits intact. This change does not add work to that issue.
+- Execute EUR-49 -> EUR-50 -> EUR-51, reviewing each prerequisite before consumers.
+  EUR-51 implements helpful-answer acceptance itself using the F-20/F-22 viewer;
+  do not assume that mutation already exists in a merged prerequisite.
+- Existing QA issues remain independent testing/reporting assignments; none of
+  this implementation scope is reassigned to those issues.
+
+| Existing issue | Outcome after this scope amendment | Analysis coverage | Prerequisite / downstream handoff |
+|---|---|---|---|
+| EUR-49 / F-22 | Deterministic Learning Focus and authorized contextual discussions; unchanged | Existing learning/event data reused later | EUR-47/48 -> EUR-50 |
+| EUR-50 / F-23 | Complete Feed/Classroom/Lesson interaction and course imagery, then private Proof of Work/review | UX-03/04/05/06; relevant UX-15 consumers | Merged EUR-49 -> verified evidence/labels/media/UI contract for EUR-51 |
+| EUR-51 / F-24 | Complete contextual shell/settings and routed experience, with scoped activity/skills/contribution | UX-01/02/07/08/09/10/11/12/13/14; final UX-15 matrix | Merged EUR-50 plus EUR-47 viewer -> M11 experience acceptance |
+
+### 18.2 EUR-50 work packages and observable gates
+
+Keep the original Proof of Work AC-01–07. Added AC in Linear cover the following
+packages; no package alone completes the issue.
+
+1. **Course catalog and media:** creator upload/replace/remove, authorized cover
+   delivery, local fallback, 16:9 course cards, truthful access/progress and stable
+   pagination. Use forward schema changes and failure-safe private storage. A
+   locked published cover/title/price is catalog data; no description/outline leak.
+2. **Study workspace:** existing safe embed, readable lesson, navigable outline,
+   async persisted completion with fallback and explicit Continue. Keep completion
+   distinct from practical verification; preserve EUR-49 context and stale denial.
+3. **Discussion composition and feed:** accessible contextual composer dialog,
+   plain-text validation, optional category, retained/confirmed-discard draft,
+   reactive actions, safe author/comment metadata, consolidated toolbar and one
+   useful Learning Focus/event/onboarding rail. No fabricated engagement or N+1
+   avatar queries; retain direct URLs, query state and no-JS form behavior.
+4. **Practical evidence and review:** creator lesson configuration/skill label,
+   learner draft/submit/revise, private image/result link, immutable revisions,
+   creator queue/detail/status filters and visible feedback. Only valid transitions
+   may persist; personal completion is independent. Terminal correction is not
+   exposed in this increment; retain history and fail closed on stale access.
+
+Handoff to EUR-51: actual merged schema/routes/service APIs, cover policy, explicit
+skill-label provenance, verified/current evidence selection, deletion/retention
+rules, reusable composer/feedback fragments and current test/browser/CI evidence.
+Do not implement EUR-51's shared-header/settings redesign inside EUR-50.
+
+### 18.3 EUR-51 work packages and observable gates
+
+Keep original skill/contribution AC-01–07. Complete these added packages using the
+same issue; preserve metadata and original negative authorization requirements.
+
+1. **Shell and navigation:** explicit authorized route context; compact brand/
+   switcher, one scoped search, notices/messages/avatar; useful mobile adaptation;
+   global account/community-list variant; no duplicate banners or lost destinations.
+2. **Account and settings:** Profile, Account & security, Notifications, My access,
+   Payment history and Referrals; safe optional GitHub/portfolio links; compact
+   sensitive forms; acknowledged independent saves for existing preference fields.
+   Preserve direct links or deliberate compatibility redirects and current security.
+3. **Community identity and contribution:** scoped profile, visible activity list,
+   90-day UTC post/comment heatmap with accessible alternative, EUR-50-derived
+   skill summaries, creator helpful-answer acceptance and explained leaderboard
+   views. Current-source visibility/retention controls every aggregate and link.
+4. **Complete routed experience:** My Communities, Feed contribution rail, About,
+   Events, Members, Messages and Notifications; Creator learning/review/management,
+   commerce/account/checkout, guest/auth and Platform Admin compatibility. Use the
+   task-specific blueprint, not the same two-column card layout everywhere.
+5. **Integrated acceptance:** route-to-navigation map and screen/state coverage
+   matrix with evidence for every permitted routed surface, shared consumers,
+   async failures and the complete learning loop. A few representative screenshots
+   or a passing suite do not close the remaining screens or visual review.
+
+### 18.4 Verification and evidence contract
+
+- Record readiness and a bounded per-package plan in the issue's Working Context
+  section. Inspect actual source and merged prerequisites before editing.
+- Use existing components/Livewire/Alpine; no new UI/chart/player/editor/service
+  dependency. Source decisions and design conflicts belong in the active checkpoint.
+- Tests: guarded MySQL `scool_test` only. Cover lifecycle/concurrency/rollback,
+  wrong user/tenant, draft/expired/unentitled resources and private media. Extend
+  targeted regressions, then run final integrated gates as required by README/CI.
+- Browser: 320/375/768/1280px, long/empty/populated/error/locked/expired states,
+  200% zoom, keyboard/focus, touch, reduced motion and comparable roles/fixtures.
+  Demonstrate failures/retry/rapid toggles; no full-page reload for enhanced feed,
+  preference and lesson-progress mutations; preserve usable server fallbacks.
+- Validate bounded queries/pagination and absence of per-cell/per-card fetching.
+  No fake revenue, online status, reviews, verified work or stale access badges.
+- Evidence: changed routes/components, exact revision plus dirty diff if applicable,
+  migration/storage impact, exact commands/results, sanitized screenshots and short
+  interaction recordings, review/CI and unverified gates. Link it in Linear rather
+  than copying raw logs into shared docs. Builds/tests are not visual acceptance.
+- Publication and Done still require current authorization, review and checks.
+
+### 18.5 Explicit non-goals and future decisions
+
+The full reference-disposition table in `Need_update_analysis.md` keeps all source
+ideas visible. Public profiles/discovery, followers, presence, global inbox/search,
+map/MBTI, custom handles, reviews/ratings, polls/GIF/mentions/arbitrary uploads or
+rich HTML, custom video player, level/tier/time unlock, new email/push/chat producers,
+per-group chat blocking/settings, device-session revocation, localization/theme,
+wallet/real payout/card billing and revised affiliate economics are not included.
+No disabled toolbar/settings entries should imply those workflows exist.
+
+The selected work must retain private communities, direct creator ownership,
+course entitlement, effective membership, asynchronous participant-only messaging,
+plain-text content, current notification semantics and SePay Test Mode accounting.
+Do not discard an approved package to preserve an old estimate or add a deferred
+feature merely because it appears on a Skool screen.
