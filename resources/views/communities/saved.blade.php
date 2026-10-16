@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="py-10">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div class="min-w-0 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 break-words [overflow-wrap:anywhere]">
             <x-community-workspace :community="$community" active-tab="feed" />
 
             @if (session('status'))
@@ -13,8 +13,8 @@
             @endif
 
             <!-- Saved Posts Header -->
-            <div class="flex items-center justify-between bg-white p-5 rounded-2xl shadow-xs border border-slate-200/80">
-                <div class="flex items-center gap-3">
+            <div class="flex flex-wrap items-center justify-between gap-4 bg-white p-5 rounded-2xl shadow-xs border border-slate-200/80">
+                <div class="flex min-w-0 items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/></svg>
                     </div>
@@ -24,7 +24,7 @@
                     </div>
                 </div>
 
-                <a href="{{ route('communities.posts.index', $community) }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-teal-600 hover:text-teal-700">
+                <a href="{{ route('communities.posts.index', $community) }}" class="inline-flex min-h-11 items-center gap-1.5 text-xs font-bold text-teal-600 hover:text-teal-700">
                     &larr; {{ __('Back to Community Feed') }}
                 </a>
             </div>
@@ -36,14 +36,14 @@
                          x-show="visible"
                          x-transition.opacity.duration.150ms
                          @post-bookmark-updated.window="if ($event.detail.postId === {{ $post->id }} && !$event.detail.saved) visible = false"
-                         class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs hover:border-slate-300 transition duration-150 motion-reduce:transition-none">
+                         class="min-w-0 bg-white rounded-2xl p-4 sm:p-6 border border-slate-200/80 shadow-xs hover:border-slate-300 transition duration-150 motion-reduce:transition-none">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white font-bold flex items-center justify-center text-xs shadow-2xs">
+                            <div class="flex min-w-0 items-center gap-3">
+                                <div class="w-9 h-9 shrink-0 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white font-bold flex items-center justify-center text-xs shadow-2xs">
                                     {{ strtoupper(substr($post->author->name ?? 'U', 0, 1)) }}
                                 </div>
-                                <div>
-                                    <div class="flex items-center gap-2 font-bold text-slate-900 text-sm">
+                                <div class="min-w-0">
+                                    <div class="flex flex-wrap items-center gap-2 font-bold text-slate-900 text-sm">
                                         <span>{{ $post->author->name ?? __('Unknown') }}</span>
                                         @if ($community->isCreator($post->author))
                                             <span class="px-2 py-0.5 bg-teal-50 text-teal-700 rounded-full text-[11px] font-bold border border-teal-200/60">{{ __('Creator') }}</span>
@@ -74,15 +74,15 @@
                             </p>
                         </a>
 
-                        <div class="flex items-center justify-between pt-3 border-t border-slate-100 text-xs text-slate-500">
-                            <div class="flex items-center gap-4">
+                        <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100 text-xs text-slate-500">
+                            <div class="flex min-w-0 flex-wrap items-center gap-4">
                                 @livewire('post-like-button', ['community' => $community, 'post' => $post], key('saved-like-'.$post->id))
                                 @livewire('post-save-button', ['community' => $community, 'post' => $post], key('saved-save-'.$post->id))
 
                                 <a href="{{ route('communities.posts.show', [$community, $post]) }}"
                                    data-discussion-trigger="{{ $post->id }}"
                                    @click.prevent="$dispatch('open-discussion-trigger', { postId: {{ $post->id }}, trigger: $el })"
-                                   class="inline-flex items-center text-teal-600 hover:text-teal-700 font-semibold cursor-pointer">
+                                   class="inline-flex min-h-11 items-center text-teal-600 hover:text-teal-700 font-semibold cursor-pointer">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                                     {{ $post->comments_count }} {{ __('comments') }}
                                 </a>
@@ -91,7 +91,7 @@
                             <a href="{{ route('communities.posts.show', [$community, $post]) }}"
                                data-discussion-trigger="{{ $post->id }}"
                                @click.prevent="$dispatch('open-discussion-trigger', { postId: {{ $post->id }}, trigger: $el })"
-                               class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-brand-700 font-semibold text-xs rounded-xl transition border border-slate-200/80 cursor-pointer"
+                               class="inline-flex min-h-11 items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-brand-700 font-semibold text-xs rounded-xl transition border border-slate-200/80 cursor-pointer"
                                aria-label="{{ __('Open discussion for :title', ['title' => $post->title]) }}">
                                 <svg class="w-3.5 h-3.5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -101,7 +101,7 @@
                         </div>
                     </div>
                 @empty
-                    <div class="bg-white rounded-2xl p-16 text-center border border-slate-200/80 shadow-xs">
+                    <div class="bg-white rounded-2xl p-6 sm:p-16 text-center border border-slate-200/80 shadow-xs">
                         <svg class="mx-auto h-12 w-12 text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
                         <p class="text-base font-bold text-slate-900">{{ __('No saved posts yet') }}</p>
                         <p class="text-xs text-slate-500 mt-1">{{ __('Posts you save will appear here privately.') }}</p>

@@ -114,10 +114,15 @@ class CommunityController extends Controller
         Gate::authorize('view', $community);
 
         $activeMemberCount = $community->memberships()->effective()->count();
+        $roadmap = $community->courses()->published()->ordered();
+        if (! $community->isCreator(auth()->user())) {
+            $roadmap->entitledTo(auth()->user());
+        }
 
         return view('communities.show', [
             'community' => $community,
             'activeMemberCount' => $activeMemberCount,
+            'roadmapCourses' => $roadmap->limit(8)->get(['id', 'community_id', 'title']),
         ]);
     }
 

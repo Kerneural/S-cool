@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\PostFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -29,6 +30,7 @@ class Post extends Model
         'title',
         'body',
         'pinned_at',
+        'accepted_comment_id',
     ];
 
     /**
@@ -126,6 +128,56 @@ class Post extends Model
         return true;
     }
 
+    /** Published, tenant-correct context that this viewer may actually study. */
+    public function scopeAccessibleLearningContext(Builder $query, User $viewer): Builder
+    {
+        return $query->whereHas('community', fn (Builder $q) => $q->where('status', 'ACTIVE'))
+            ->whereHas('course', function (Builder $q) use ($viewer): void {
+                $q->where('status', 'PUBLISHED')->whereColumn('courses.community_id', 'posts.community_id')
+                    ->where(function (Builder $access) use ($viewer): void {
+                        $access->whereHas('community', fn (Builder $c) => $c->where('creator_id', $viewer->id))
+                            ->orWhere(function (Builder $member) use ($viewer): void {
+                                $member->whereHas('community.memberships', fn (Builder $m) => $m->effective()->where('user_id', $viewer->id))
+                                    ->entitledTo($viewer);
+                            });
+                    });
+            })->where(function (Builder $q): void {
+                $q->whereNull('posts.lesson_id')
+                    ->orWhereHas('lesson', fn (Builder $lesson) => $lesson->where('status', 'PUBLISHED')
+                        ->whereHas('section', fn (Builder $section) => $section->whereColumn('course_id', 'posts.course_id')));
+            });
+    }
+
+    /** Activity must not disclose a hidden or inaccessible attached resource. */
+    public function scopeVisibleActivityFor(Builder $query, User $viewer): Builder
+    {
+        return $query->where(function (Builder $q) use ($viewer): void {
+            $q->where(fn (Builder $plain) => $plain->whereNull('posts.course_id')->whereNull('posts.lesson_id'))
+                ->orWhere(fn (Builder $context) => $context->accessibleLearningContext($viewer));
+        });
+    }
+
+    /** A retained accepted pointer contributes only while its author/source remain eligible. */
+    public function scopeEligibleHelpfulAnswer(Builder $query): Builder
+    {
+        return $query->join('comments as accepted_helpful_comment', function ($join): void {
+            $join->on('accepted_helpful_comment.id', '=', 'posts.accepted_comment_id')
+                ->on('accepted_helpful_comment.post_id', '=', 'posts.id')
+                ->whereNull('accepted_helpful_comment.deleted_at');
+        })->whereHas('community', fn (Builder $q) => $q->where('status', 'ACTIVE')
+            ->whereColumn('communities.creator_id', '!=', 'accepted_helpful_comment.user_id')
+            ->whereHas('memberships', fn (Builder $m) => $m->effective()->whereColumn('user_id', 'accepted_helpful_comment.user_id')))
+            ->whereHas('course', fn (Builder $q) => $q->where('status', 'PUBLISHED')
+                ->whereColumn('courses.community_id', 'posts.community_id')
+                ->where(fn (Builder $access) => $access->where('access_mode', Course::ACCESS_MODE_INCLUDED)
+                    ->orWhereHas('entitlements', fn (Builder $e) => $e->whereColumn('user_id', 'accepted_helpful_comment.user_id'))))
+            ->where(function (Builder $q): void {
+                $q->whereNull('posts.lesson_id')
+                    ->orWhereHas('lesson', fn (Builder $lesson) => $lesson->where('status', 'PUBLISHED')
+                        ->whereHas('section', fn (Builder $section) => $section->whereColumn('course_id', 'posts.course_id')));
+            });
+    }
+
     /**
      * Determine if the post is currently pinned.
      */
@@ -156,6 +208,22 @@ class Post extends Model
     public function latestVisibleComment(): HasOne
     {
         return $this->hasOne(Comment::class)->ofMany(['created_at' => 'max', 'id' => 'max']);
+    }
+
+    /**
+     * Get the accepted helpful comment for the post.
+     */
+    public function acceptedComment(): BelongsTo
+    {
+        return $this->belongsTo(Comment::class, 'accepted_comment_id');
+    }
+
+    /**
+     * Determine if this post has an accepted helpful answer.
+     */
+    public function hasAcceptedAnswer(): bool
+    {
+        return $this->accepted_comment_id !== null;
     }
 
     /**
