@@ -3501,5 +3501,8 @@ Publication preparation on 2026-10-16 supersedes that final branch/evidence note
   - Generated visual proof artifact: [eur48_browser_evidence.md](file:///C:/Users/ACER/.gemini/antigravity-ide/brain/eda314d9-97b5-41a1-8743-1a8e96123c6e/eur48_browser_evidence.md).
 
 ### Handoff and Limits
-- Code is saved locally as an uncommitted technical checkpoint on `eur-48-live-search-layouts`.
-- No `git commit`, `git push`, PR creation, or Linear state change performed, in strict compliance with user instructions and AGENTS.md rules.
+- Implementation commit `c62016077dfe31aa68462c471afcc24686bfffcc` is published on `eur-48-live-search-layouts` in [PR #39](https://github.com/Kerneural/S-cool/pull/39).
+- PR CI reported two regressions: the Classroom next-step hero exposed a locked paid-course description, and the minimum-length typeahead test relied on random Faker names that could also match the query.
+- The local correction limits next-step/progress data to courses the member can access, adds a negative regression for a fully locked classroom, and gives the typeahead fixture deterministic nonmatching names.
+- A full local application run after those corrections passed the two reported CI failures but exposed an unrelated order-tie flake in `LearningCommunitySeederTest` (461 passed, 1 failed, 4,890 assertions). The assertion now uses lesson ID as a deterministic secondary order; the three affected suites then passed together (16 tests, 336 assertions).
+- The two broader Classroom suites also pass (20 tests, 342 assertions). Targeted Pint, `git diff --check`, the shared agent-contract check, and GitNexus low-risk change detection pass. A post-correction full remote CI run, visual confirmation of the locked-only Classroom state, commit/push, merge, and Linear Done remain pending.

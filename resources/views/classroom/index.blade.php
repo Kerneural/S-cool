@@ -8,27 +8,29 @@
 
         @if ($isActiveMember && $courses->isNotEmpty())
             @php
-                $totalCompleted = $courses->sum('progress_completed');
-                $totalLessons = $courses->sum('progress_total');
+                $accessibleCourses = $courses->getCollection()->filter(
+                    fn ($course) => $isCreator || $course->hasMemberAccess(auth()->user())
+                );
+                $totalCompleted = $accessibleCourses->sum('progress_completed');
+                $totalLessons = $accessibleCourses->sum('progress_total');
                 $overallPercent = $totalLessons > 0 ? (int) round(100 * $totalCompleted / $totalLessons) : 0;
-                $nextUpCourse = $courses->first(function ($c) {
+                $nextUpCourse = $accessibleCourses->first(function ($c) {
                     return $c->progress_total > 0 && $c->progress_completed < $c->progress_total;
-                }) ?? $courses->first();
+                }) ?? $accessibleCourses->first();
             @endphp
-            <div class="bg-gradient-to-br from-white via-slate-50/50 to-brand-50/30 rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
+            @if ($nextUpCourse)
+                <div class="bg-gradient-to-br from-white via-slate-50/50 to-brand-50/30 rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div class="space-y-2 max-w-xl">
                     <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-200">
                         <span class="w-1.5 h-1.5 rounded-full bg-brand-600"></span>
                         <span>{{ __('Next Learning Step') }}</span>
                     </div>
-                    @if ($nextUpCourse)
-                        <h2 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
-                            {{ $nextUpCourse->title }}
-                        </h2>
-                        <p class="text-xs sm:text-sm text-slate-600 line-clamp-2">
-                            {{ $nextUpCourse->description ?? __('Continue your learning journey in this course.') }}
-                        </p>
-                    @endif
+                    <h2 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+                        {{ $nextUpCourse->title }}
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-600 line-clamp-2">
+                        {{ $nextUpCourse->description ?? __('Continue your learning journey in this course.') }}
+                    </p>
                 </div>
 
                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 shrink-0">
@@ -40,17 +42,16 @@
                         </div>
                     </div>
 
-                    @if ($nextUpCourse)
-                        <a href="{{ route('communities.courses.show', [$community, $nextUpCourse]) }}"
-                           class="inline-flex items-center justify-center px-5 py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-xs transition active:scale-[0.99] whitespace-nowrap">
-                            <span>{{ $nextUpCourse->progress_completed > 0 ? __('Resume Learning') : __('Start Learning') }}</span>
-                            <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                            </svg>
-                        </a>
-                    @endif
+                    <a href="{{ route('communities.courses.show', [$community, $nextUpCourse]) }}"
+                       class="inline-flex items-center justify-center px-5 py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-xs transition active:scale-[0.99] whitespace-nowrap">
+                        <span>{{ $nextUpCourse->progress_completed > 0 ? __('Resume Learning') : __('Start Learning') }}</span>
+                        <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </a>
                 </div>
-            </div>
+                </div>
+            @endif
         @endif
 
         @if ($isCreator)

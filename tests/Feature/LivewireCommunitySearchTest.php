@@ -23,9 +23,9 @@ class LivewireCommunitySearchTest extends TestCase
 
     public function test_typeahead_requires_at_least_two_characters_and_resets_below_threshold(): void
     {
-        $creator = User::factory()->create();
+        $creator = User::factory()->create(['name' => 'Creator Example']);
         $community = Community::factory()->create(['creator_id' => $creator->id, 'status' => 'ACTIVE']);
-        $member = User::factory()->create();
+        $member = User::factory()->create(['name' => 'Member Example']);
         CommunityMembership::factory()->create([
             'community_id' => $community->id,
             'user_id' => $member->id,

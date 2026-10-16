@@ -128,7 +128,7 @@ class LearningCommunitySeederTest extends TestCase
         $this->assertSame('Networking Foundations: From Packet to Production', $course->title);
         $this->assertSame('How Data Moves Through a Network', $lesson->title);
         $this->assertSame($course->id, $community->courses()->where('status', 'PUBLISHED')->firstOrFail()->id);
-        $this->assertSame($lesson->id, $course->lessons()->orderBy('lessons.order')->firstOrFail()->id);
+        $this->assertSame($lesson->id, $course->lessons()->orderBy('lessons.order')->orderBy('lessons.id')->firstOrFail()->id);
         $this->assertDatabaseMissing('courses', [
             'community_id' => $community->id,
             'title' => 'test course',
