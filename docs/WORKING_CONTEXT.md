@@ -4257,3 +4257,65 @@ limits supersede these claims; do not copy the initial PASS labels into Linear D
 - [ ] AC-16: Given populated/empty/long/validation/loading/error/locked/expired states, the relevant operational and learning controls remain reachable at 320/375/768/1280px and 200% zoom with keyboard focus, readable contrast and reduced motion. Comparable before/after screenshots and short interaction recordings demonstrate actual shared-component consumers.
 - [ ] AC-17: Creator/Platform Admin/member rights, SePay Test Mode labels, payment/referral history, existing asynchronous messaging and notification semantics survive integrated regression and browser walkthrough; no unsupported payout/social/media controls, invented metrics, new package/runtime service or destructive data rewrite is introduced.
 - [ ] Review and applicable acceptance checks are evidenced; exceptions require explicit scoped authorization.
+
+## EUR-56 - QA-A3: First-time learner usability and content-quality evaluation (2026-10-16)
+
+### Candidate and Environment Record
+- **Parent Issue:** EUR-52 (QA Track A: Visual quality, accessibility and learner experience)
+- **Linear Issue:** [EUR-56 / QA-A3: First-time learner usability and content-quality evaluation](https://linear.app/eurusdevsec/issue/EUR-56/qa-a3-first-time-learner-usability-and-content-quality-evaluation)
+- **Tested Candidate:** Git commit `233e8864041f762c60585b0224e966e2738ab71d` (`origin/main`, including EUR-49 merge) + verified on forward-migrated candidate schema (`add_learning_context_to_posts_table`, `add_cover_path_to_courses_table`, `add_practical_fields_to_lessons_table`, `create_lesson_proof_of_works_table`)
+- **Branch:** `eur-56-qa-a3-first-time-learner-ux`
+- **Runtime Stack:** Local Docker stack `scool` (Nginx `http://127.0.0.1:8080`, PHP 8.3 `scool_app`, MySQL 8.0 `scool` & `scool_test`, Mailpit `127.0.0.1:8025`, queue worker `scool_queue`)
+- **Execution Tooling:** Google Chrome evaluated live via Chrome DevTools Protocol (`chrome-devtools-mcp`)
+- **Seeded Fixture:** `LearningCommunitySeeder` providing realistic Networking, Cloud, Docker, and AI Engineer communities, roadmaps, lessons, events, discussions, and local cover images.
+- **Tested Persona:** First-time learner (`first-time-learner@scool.local` / `member@scool.local`) navigating the platform without prior onboarding or administrative assistance.
+
+---
+
+### 10-Task First-Time Learner Usability Evaluation Matrix
+
+| Task # | User Goal / Scenario | Target Route | Observed Flow & Friction | Clarity / Result | Evaluation Record |
+|:---:|---|---|---|:---:|---|
+| **1** | First Impression & Value Proposition | `/` | Hero section communicates collaborative tech learning clearly; primary CTAs ("Explore Communities", "Get Started") have clear visual hierarchy. | **CLEAR** | Captured in evaluation evidence set |
+| **2** | Registration & Account Entry | `/register`, `/login` | Clean split-shell layout; explicit form fields with label-input pairs; immediate feedback on password length criteria. | **CLEAR** | Recorded in live walkthrough |
+| **3** | Community Discovery & Selection | `/communities` | Filter bar by category, "ACTIVE" badges, 3-to-2-to-1 responsive grid. Clear differentiation between community topics. | **CLEAR** | Recorded in live walkthrough |
+| **4** | Identify Community Purpose & Rules | `/communities/{slug}` | Editorial two-column layout; Community Guidelines clearly visible; Host card and "Private community" guarantee establish immediate trust. | **CLEAR** | Captured in evaluation evidence set |
+| **5** | Feed Comprehension & First Contribution | `/posts` | "Welcome Checklist" gives instant 2-step onboarding prompt; category pills guide post categorization; composer placeholder is helpful. | **CLEAR** | Captured in evaluation evidence set |
+| **6** | Finding and Resuming Learning | `/classroom` | "Next Learning Step" hero card highlights unambiguous next action ("Start Lesson"); module outlines show lesson counts and completion statuses. | **CLEAR** | Recorded in live walkthrough |
+| **7** | Lesson Workspace & Study Flow | `/courses/1/lessons/1` | Distraction-free two-column workspace; clear lesson content rendering; prominent $\ge 44\text{px}$ "Mark Complete" CTA eliminates hesitation. | **CLEAR** | Captured in evaluation evidence set |
+| **8** | Contextual Discussion & Asking Questions | `/posts?course_id=1&lesson_id=1` | "Ask a Question about this Lesson" button deep-links to feed composer with course and lesson badges pre-attached. | **CLEAR** | Captured in evaluation evidence set |
+| **9** | Events & Member Discovery | `/events`, `/directory` | Event cards explicitly display timezone (`Asia/Ho_Chi_Minh`) preventing scheduling ambiguity; active member roster is browsable. | **CLEAR** | Captured in evaluation evidence set |
+| **10** | Feedback, Error Recovery & Trust | `/posts/99999` (404), Form Validation | Form error validation on feed is clear. 404 page renders plain "404 NOT FOUND" without return navigation link (requires browser Back). | **MINOR FRICTION** | Captured in evaluation evidence set |
+
+---
+
+### Cognitive Friction & Usability Insights
+
+1. **Onboarding & Acceleration**:
+   - The **"Welcome Checklist"** on the community feed (`/posts`) and the **"Next Learning Step"** hero card in the classroom (`/classroom`) provide clear guidance, preventing the "empty slate" hesitation common in online community platforms.
+2. **Contextual Study & Peer Interaction**:
+   - The **"Ask a Question about this Lesson"** button on lesson pages bridges learning content and peer discussion seamlessly by pre-populating context badges in the community feed composer.
+3. **Trust & Safety Signals**:
+   - Clear community guidelines, explicit creator attribution cards, and unambiguous private community guarantees give first-time learners confidence regarding data privacy and community standards.
+4. **Error Recovery Friction**:
+   - Reaching a non-existent post (`/posts/99999`) displays a minimal HTTP 404 screen lacking S-cool branding and lacking a "Back to Community" anchor, leaving new learners without an intuitive recovery path.
+
+---
+
+### Prioritized Top UX Improvements
+
+- **P1 (High)**: Add a branded error view (`resources/views/errors/404.blade.php`) containing an intuitive illustration, explanation, and a prominent primary CTA button ("Return to Community Feed" / "Go to Dashboard").
+- **P2 (Medium)**: Display an overall percentage completion progress bar on course cards in `/classroom` to reinforce learner momentum.
+- **P3 (Low)**: Increase the touch target bounding box of inline feed action links (`Like`, `Save`, `comments`) to $\ge 24\text{px}$ or $\ge 32\text{px}$ for enhanced touch usability on mobile devices.
+
+---
+
+### Sanitized Visual Evidence Records
+Evidence captures cover:
+1. Landing page hero, value proposition, and primary CTAs.
+2. Community about view with guidelines, host card, and privacy assurance.
+3. Community feed with Welcome Checklist and category filters.
+4. Distraction-free classroom lesson workspace with $\ge 44\text{px}$ Mark Complete CTA.
+5. Feed composer with pre-attached course & lesson context badges.
+6. Events calendar card with explicit `Asia/Ho_Chi_Minh` timezone badge.
+7. 404 Not Found error recovery observation.
