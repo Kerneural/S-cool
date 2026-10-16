@@ -4718,3 +4718,47 @@ Local synthetic screenshots/manifests remain ignored under
 `storage/app/eur51-browser-evidence/`; only explicitly selected sanitized
 evidence is suitable for publication. No secrets, runtime configuration, private
 agent files or private submitted evidence may enter the commit.
+
+### EUR-51 Published Follow-up Verification (2026-10-16)
+
+Commit `9de7bc1` was pushed and Draft PR #47 opened:
+https://github.com/Kerneural/S-cool/pull/47 . Its CI run38925850101 passed in
+4m31s. This result belongs to that revision, not subsequent fixes.
+
+Further browser coverage found direct-post learning-context breadcrumbs forcing
+660px document width at320/375px. The existing breadcrumb now wraps and constrains
+each title to available width; post content allows long-word wrapping. Measured
+document widths after correction:305/305,360/360,753/753,1265/1265px.
+Profile secondary text on white measured2.63:1, below the required4.5:1. Secondary
+labels in profile, leaderboard, account navigation and shell now use slate600;
+the rendered profile samples measure7.56:1 on white. This is measured sample
+coverage, not an exhaustive claim about every existing product color/hover state.
+
+Direct post, own post edit, post create, own comment edit, valid full search and
+password-confirm screens were captured at measured320/375/768/1280px. A search
+probe incorrectly used unsupported type=all and redirected; those frames are not
+search evidence. Valid type=posts captures supersede them, with no overflow.
+Two tabs returned no marker result in tenantA and one marker result in tenantB.
+Switcher A->B, Back and reload restored tenantA search and scoped utility URLs,
+while the other tab retained tenantB marker and counts without foreign content.
+
+Preference sequential off/on actions reloaded with both stored values true.
+After logout in another tab, a stale preference page showed a retained unchecked
+choice and an explicit unconfirmed error; Retry retained the same intent and did
+not falsely claim success. Reauthentication/reload restored the server values.
+This covers expired-session failure/retry presentation; transient-failure recovery
+and overlapping in-flight actions are verified in Node tests rather than claimed
+as browser fault-injection evidence.
+
+Post/profile/ranking follow-up command:
+`docker compose -p scool exec -T app php artisan test tests/Feature/ContextualDiscussionTest.php tests/Feature/CommunityContributionProfileTest.php tests/Feature/LeaderboardMultiMetricTest.php tests/Feature/FrontendScaffoldTest.php --compact --fail-on-skipped --fail-on-empty-test-suite`:
+**22 passed,128 assertions,22.58s**. Final build: **PASS**,63 modules,4.28s.
+Final Pint: **286 files PASS**. The later changes are Blade-only; no new database
+logic or schema change was introduced after the reviewed implementation.
+
+Open acceptance remains: auth reset/verification prompt states, continuous
+interaction recordings, complete rendered contrast/state/zoom acceptance and
+applicable human review/owner visual acceptance. The available browser API has
+screenshots but no recording capability; do not rename a slide sequence as video.
+The inherited representative zoom/motion/Cancel checks are complete. Remaining
+AC-15/16 evidence and review prevent Done without explicit scoped exceptions.

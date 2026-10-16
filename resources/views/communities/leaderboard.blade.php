@@ -38,11 +38,11 @@
 
                         <div class="flex items-center gap-6 sm:text-right">
                             <div>
-                                <span class="block text-xs uppercase tracking-wider font-semibold text-slate-400">{{ __('Your Rank') }}</span>
+                                <span class="block text-xs uppercase tracking-wider font-semibold text-slate-600">{{ __('Your Rank') }}</span>
                                 <span class="text-2xl font-black text-slate-900 tabular-nums">
                                     {{ $userRank ? '#' . $userRank : __('Unranked') }}
                                 </span>
-                                <span class="block text-[11px] text-slate-400 font-medium">
+                                <span class="block text-[11px] text-slate-600 font-medium">
                                     @if ($metric === 'verified_skills')
                                         {{ __(':count verified works', ['count' => $userMetricScore]) }}
                                     @elseif ($metric === 'helpful_answers')
@@ -71,7 +71,7 @@
                             <div class="h-2.5 rounded-full transition-all duration-500 {{ $userProgress['level'] === 5 ? 'bg-gradient-to-r from-amber-400 to-amber-500' : 'bg-gradient-to-r from-brand-500 to-brand-600' }}"
                                  style="width: {{ $userProgress['progress_pct'] }}%"></div>
                         </div>
-                        <div class="flex justify-between text-[10px] text-slate-400 mt-1.5 font-mono">
+                        <div class="flex justify-between text-[10px] text-slate-600 mt-1.5 font-mono">
                             <span>L1 (0)</span>
                             <span>L2 (5)</span>
                             <span>L3 (15)</span>
@@ -153,13 +153,13 @@
                             </svg>
                         </div>
                         <h4 class="text-base font-bold text-slate-900">{{ __('No rankings recorded for this metric yet') }}</h4>
-                        <p class="text-xs text-slate-400 mt-1">{{ __('Member activity and contributions will appear here once recorded.') }}</p>
+                        <p class="text-xs text-slate-600 mt-1">{{ __('Member activity and contributions will appear here once recorded.') }}</p>
                     </div>
                 @else
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse text-sm">
                             <thead>
-                                <tr class="border-b border-slate-100 bg-slate-50/75 text-[11px] uppercase tracking-wider font-semibold text-slate-400">
+                                <tr class="border-b border-slate-100 bg-slate-50/75 text-[11px] uppercase tracking-wider font-semibold text-slate-600">
                                     <th class="py-3 px-6 w-16 text-center">{{ __('Rank') }}</th>
                                     <th class="py-3 px-6">{{ __('Member') }}</th>
                                     @if ($metric === 'engagement')
@@ -189,7 +189,7 @@
                                                     🥉 3
                                                 </span>
                                             @else
-                                                <span class="text-xs text-slate-400 font-mono">
+                                                <span class="text-xs text-slate-600 font-mono">
                                                     #{{ $entry->rank }}
                                                 </span>
                                             @endif
@@ -224,15 +224,15 @@
                                                 </span>
                                             </td>
                                             <td class="py-4 px-6 text-right font-black text-slate-900 text-base tabular-nums">
-                                                {{ $entry->points }} <span class="text-xs font-normal text-slate-400">pts</span>
+                                                {{ $entry->points }} <span class="text-xs font-normal text-slate-600">pts</span>
                                             </td>
                                         @elseif ($metric === 'verified_skills')
                                             <td class="py-4 px-6 text-right font-black text-slate-900 text-base tabular-nums">
-                                                {{ $entry->points }} <span class="text-xs font-normal text-slate-400">verified</span>
+                                                {{ $entry->points }} <span class="text-xs font-normal text-slate-600">verified</span>
                                             </td>
                                         @else
                                             <td class="py-4 px-6 text-right font-black text-slate-900 text-base tabular-nums">
-                                                {{ $entry->points }} <span class="text-xs font-normal text-slate-400">helpful</span>
+                                                {{ $entry->points }} <span class="text-xs font-normal text-slate-600">helpful</span>
                                             </td>
                                         @endif
                                     </tr>

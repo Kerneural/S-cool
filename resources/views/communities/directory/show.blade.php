@@ -20,7 +20,7 @@
                                         {{ $role === 'Creator' ? __('Community Creator') : __('Community Member') }}
                                     </span>
                                     @if ($joinedAt)
-                                        <span class="text-xs text-slate-400">
+                                        <span class="text-xs text-slate-600">
                                             {{ __('Joined') }} {{ $joinedAt->format('M d, Y') }}
                                         </span>
                                     @endif
@@ -47,7 +47,7 @@
 
                         <!-- Bio -->
                         <div class="pt-3 border-t border-slate-100">
-                            <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">{{ __('About') }}</h4>
+                            <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">{{ __('About') }}</h4>
                             <p class="text-slate-700 text-sm leading-relaxed whitespace-pre-line break-words">
                                 {{ $member->bio ?: __('This member has not written a bio yet.') }}
                             </p>
@@ -136,7 +136,7 @@
                             </ul>
                         </div>
                     @else
-                        <p class="text-xs text-slate-400 italic">
+                        <p class="text-xs text-slate-600 italic">
                             {{ __('No verified practical skills recorded in this community yet.') }}
                         </p>
                     @endif
@@ -148,7 +148,7 @@
                         <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800">
                             {{ __('90-Day Activity Heatmap (UTC)') }}
                         </h3>
-                        <span class="text-xs text-slate-400 font-mono">
+                        <span class="text-xs text-slate-600 font-mono">
                             {{ $activityHeatmap['start_date'] }} &mdash; {{ $activityHeatmap['end_date'] }}
                         </span>
                     </div>
@@ -186,13 +186,13 @@
                                     <span>{{ __('total contributions (:p posts, :c comments)', ['p' => $activityHeatmap['total_posts'], 'c' => $activityHeatmap['total_comments']]) }}</span>
                                 </div>
                                 <div class="flex items-center gap-1.5">
-                                    <span class="text-[10px] text-slate-400">{{ __('Less') }}</span>
+                                    <span class="text-[10px] text-slate-600">{{ __('Less') }}</span>
                                     <div class="w-2.5 h-2.5 rounded-xs bg-white border border-slate-200"></div>
                                     <div class="w-2.5 h-2.5 rounded-xs bg-teal-100 border border-teal-200"></div>
                                     <div class="w-2.5 h-2.5 rounded-xs bg-teal-300 border border-teal-400"></div>
                                     <div class="w-2.5 h-2.5 rounded-xs bg-teal-500 border border-teal-600"></div>
                                     <div class="w-2.5 h-2.5 rounded-xs bg-teal-700 border border-teal-800"></div>
-                                    <span class="text-[10px] text-slate-400">{{ __('More') }}</span>
+                                    <span class="text-[10px] text-slate-600">{{ __('More') }}</span>
                                 </div>
                             </div>
                         </div>
@@ -214,7 +214,7 @@
                     </details>
 
                     @if ($activityHeatmap['total_contributions'] === 0)
-                        <p class="text-xs text-slate-400 italic">
+                        <p class="text-xs text-slate-600 italic">
                             {{ __('No posts or comments authored in this community over the last 90 UTC days.') }}
                         </p>
                     @endif
@@ -235,7 +235,7 @@
                     </ul>
                 </section>
 
-                <div class="pt-4 border-t border-slate-100 text-xs text-slate-400">
+                <div class="pt-4 border-t border-slate-100 text-xs text-slate-600">
                     {{ __('Viewing community profile in :community.', ['community' => $community->name]) }}
                 </div>
             </div>

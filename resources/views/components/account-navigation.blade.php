@@ -59,7 +59,7 @@
             class="sm:hidden flex min-h-11 w-full items-center justify-between gap-2 rounded-xl px-3.5 py-2.5 text-left text-sm font-semibold text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
         {{ __('Account sections') }} <span aria-hidden="true">⌄</span>
     </button>
-    <div class="px-3.5 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider hidden sm:block">
+    <div class="px-3.5 py-2 text-xs font-bold text-slate-600 uppercase tracking-wider hidden sm:block">
         {{ __('Account Settings') }}
     </div>
     <div id="account-navigation-links" :class="{ 'hidden': !accountNavOpen }" class="flex flex-col sm:flex gap-1">
