@@ -798,8 +798,8 @@ Keep existing lock order and access predicates; presentation is never a grant.
   evidence access from a profile/leaderboard signal. Hide inaccessible provenance.
 - Implement one current creator-accepted helpful answer per eligible contextual
   post. Reuse the existing comment/viewer hierarchy; creator cannot accept their own
-  answer. Under parent/access locks, accepting/replacing/revoking records an audited
-  transition and updates/revokes the old derived signal exactly once. Deleted or
+  answer. Under parent/access locks, each acceptance, replacement or revocation
+  records an audited transition and updates or revokes the old derived signal exactly once. Deleted or
   inaccessible sources stop contributing; history is retained without metadata leaks.
 - Preserve the F-10 engagement ledger. Rank engagement, verified practice and
   helpful answers as distinct filters/columns; sort each metric descending, then

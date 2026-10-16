@@ -1,0 +1,4 @@
+# False positive: ordinary acceptance/replacement/revocation prose in the planning
+# document, not a credential. Pin the historical commit/file/rule/line only;
+# all other history and future changes remain scanned.
+71dfe001d5d49718960c0e59f396acb35eb0e08a:docs/02_DOMAIN_ARCHITECTURE.md:generic-api-key:801

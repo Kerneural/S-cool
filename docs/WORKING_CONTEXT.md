@@ -3695,3 +3695,8 @@ Publication preparation on 2026-10-16 supersedes that final branch/evidence note
   F-19 retains explicit provider/second-machine/manual acceptance gaps; QA-A1 has
   a submitted report awaiting review. Neither is accepted merely because it is
   In Review. EUR-50 follows EUR-49 merge and its live dependency contract.
+- Published PR: https://github.com/Kerneural/S-cool/pull/40. Initial head `71dfe00`
+  failed Gitleaks before application checks: ordinary slash-separated action prose
+  in Architecture line 801 matched `generic-api-key`. Confirmed no credential was
+  present. Reworded the prose and pinned only that historical fingerprint in
+  `.gitleaksignore`; all other history/future findings remain subject to the gate.
