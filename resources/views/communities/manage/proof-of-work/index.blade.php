@@ -15,6 +15,7 @@
     </x-slot>
 
     <div class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+        <x-community-workspace :community="$community" active-tab="proof-of-work" />
         <x-classroom-feedback />
 
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-wrap items-center justify-between gap-3">
             <h1 class="font-bold text-xl text-slate-900 leading-tight">
                 {{ __('Payment Receipt Details') }}
             </h1>
@@ -12,13 +12,18 @@
     </x-slot>
 
     <div class="py-10">
-        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <aside class="min-w-0 lg:col-span-4">
+                    <x-account-navigation active="payment-history" />
+                </aside>
+                <div class="min-w-0 lg:col-span-8 space-y-6 break-words [overflow-wrap:anywhere]">
             <div class="bg-white shadow-xs rounded-2xl overflow-hidden border border-slate-200/80 p-6 sm:p-8">
                 <!-- Receipt Header -->
-                <div class="border-b border-slate-100 pb-6 flex items-start justify-between">
-                    <div>
+                <div class="border-b border-slate-100 pb-6 flex flex-wrap items-start justify-between gap-3">
+                    <div class="min-w-0">
                         <span class="text-xs uppercase tracking-wider font-bold text-slate-400">Digital Receipt</span>
-                        <h3 class="text-2xl font-black text-slate-900 mt-1 font-mono tracking-tight">
+                        <h3 class="break-all text-2xl font-black text-slate-900 mt-1 font-mono tracking-tight">
                             {{ $payment->external_reference }}
                         </h3>
                         <p class="text-xs text-slate-500 mt-1">
@@ -150,6 +155,8 @@
                             This transaction ended with status {{ $payment->status }}.
                         </div>
                     @endif
+                </div>
+            </div>
                 </div>
             </div>
         </div>

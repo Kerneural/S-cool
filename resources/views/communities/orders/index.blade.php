@@ -1,10 +1,10 @@
 <x-app-layout>
     <div class="py-10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div class="min-w-0 break-words [overflow-wrap:anywhere] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
             <x-community-workspace :community="$community" active-tab="orders" />
 
             <!-- Summary Cards -->
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
                     <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -68,7 +68,7 @@
                     <!-- Filter Controls (Status & Date Range) -->
                     <div class="flex flex-wrap items-center gap-2.5">
                         <!-- Status Tabs -->
-                        <div class="flex items-center gap-1 bg-slate-100/80 p-1 rounded-xl border border-slate-200/60">
+                        <div class="flex flex-wrap items-center gap-1 bg-slate-100/80 p-1 rounded-xl border border-slate-200/60">
                             @foreach (['ALL' => 'All Statuses', 'SUCCEEDED' => 'Succeeded', 'PENDING' => 'Pending', 'CANCELLED' => 'Cancelled', 'FAILED' => 'Failed'] as $key => $label)
                                 <a href="{{ route('communities.orders.index', array_merge(request()->query(), ['community' => $community, 'status' => $key])) }}"
                                    class="px-2.5 py-1 text-xs font-semibold rounded-lg transition {{ $statusFilter === $key ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900' }}">
@@ -78,7 +78,7 @@
                         </div>
 
                         <!-- Date Range Tabs (UTC) -->
-                        <div class="flex items-center gap-1 bg-slate-100/80 p-1 rounded-xl border border-slate-200/60">
+                        <div class="flex flex-wrap items-center gap-1 bg-slate-100/80 p-1 rounded-xl border border-slate-200/60">
                             @foreach (['ALL' => 'All Time', '7' => '7 Days', '30' => '30 Days', '90' => '90 Days'] as $rKey => $rLabel)
                                 <a href="{{ route('communities.orders.index', array_merge(request()->query(), ['community' => $community, 'range' => $rKey])) }}"
                                    class="px-2.5 py-1 text-xs font-semibold rounded-lg transition {{ $rangeFilter === $rKey ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900' }}">

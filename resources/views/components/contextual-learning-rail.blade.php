@@ -1,4 +1,4 @@
-@props(['community', 'learningFocus'])
+@props(['community', 'learningFocus', 'miniRanking' => null])
 
 <div class="space-y-5">
     {{-- One Clear Learning Action Card --}}
@@ -118,6 +118,10 @@
 
     {{-- Onboarding Checklist (when applicable) --}}
     @include('communities.partials.onboarding-checklist', ['community' => $community])
+
+    @if ($miniRanking !== null)
+        <x-contribution-rail :community="$community" :entries="$miniRanking" />
+    @endif
 
     {{-- About Community Card --}}
     <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-200/80 space-y-4">

@@ -5,17 +5,25 @@
         </h1>
     </x-slot>
 
-    <div class="py-10">
+    <div class="py-8 sm:py-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-            <div class="bg-white shadow-xs rounded-2xl overflow-hidden border border-slate-200/80">
-                <div class="p-6 border-b border-slate-100 flex items-center justify-between">
-                    <div>
-                        <h3 class="text-lg font-bold text-slate-900 tracking-tight">Your Payment Attempts</h3>
-                        <p class="text-xs text-slate-500 mt-0.5">
-                            History of community admission payment attempts and receipts on your account (SePay Sandbox - Test Mode).
-                        </p>
-                    </div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- Sidebar Nav (4 cols on lg) -->
+                <div class="min-w-0 lg:col-span-4 space-y-4">
+                    <x-account-navigation active="payment-history" />
                 </div>
+
+                <!-- Main Content (8 cols on lg) -->
+                <div class="min-w-0 lg:col-span-8 space-y-4 break-words [overflow-wrap:anywhere]">
+                    <div class="bg-white shadow-xs rounded-2xl overflow-hidden border border-slate-200/80">
+                        <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-900 tracking-tight">Your Payment Attempts</h3>
+                                <p class="text-xs text-slate-500 mt-0.5">
+                                    History of community admission payment attempts and receipts on your account (SePay Sandbox - Test Mode).
+                                </p>
+                            </div>
+                        </div>
 
                 @if ($payments->isEmpty())
                     <div class="p-16 text-center text-slate-400 text-sm">
@@ -106,6 +114,8 @@
                         </div>
                     @endif
                 @endif
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -22,7 +22,20 @@ class Comment extends Model
         'post_id',
         'user_id',
         'body',
+        'is_helpful',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_helpful' => 'boolean',
+        ];
+    }
 
     /**
      * Get the post that owns the comment.
