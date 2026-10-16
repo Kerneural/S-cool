@@ -4168,3 +4168,92 @@ limits supersede these claims; do not copy the initial PASS labels into Linear D
 - GitNexus change mapping covers tracked files only at its earlier local index;
   new files and later fixes were inspected through source, tests and browser
   evidence. No complete graph/taint coverage is claimed.
+
+#### EUR-50 acceptance exception and published review (2026-10-16)
+
+- Published implementation: `31c54827918fa6f485d4f90e9dd147a2716bdb6d`,
+  [PR #43](https://github.com/Kerneural/S-cool/pull/43), base/merge-base
+  `233e8864041f762c60585b0224e966e2738ab71d`.
+- Remote CI [run 38895826066](https://github.com/Kerneural/S-cool/actions/runs/38895826066)
+  succeeded on that implementation: 527 tests, 4581 assertions, 133.65s.
+  The workflow also passed history/application/image/dependency security checks,
+  frontend build and JS helpers, Pint and configured PHPStan. Remote counts
+  differ from earlier local counts; use this completed run for integrated proof.
+- The owner explicitly accepted carrying exactly three manual checks into EUR-51:
+  actual 200% browser zoom, reduced-motion interactions and cancelling the native
+  dirty-draft discard confirmation while retaining input. They are deferred,
+  not PASS. This exception does not waive security, review, CI or any other AC.
+  Linear comments on both issues record the authorization and inherited debt.
+- A renewed native-confirm probe blocked this IAB provider's focus command; it did
+  not establish cancellation behavior. No page mutation or fake media/zoom result
+  was substituted. Use a browser/provider capable of these checks in EUR-51.
+- GitHub rejected APPROVE because the authenticated account is also the PR author.
+  A source-review COMMENT records the bounded audit, corrections, evidence and
+  READY code verdict; it is not an APPROVED GitHub review or a review bypass.
+  Required platform review and merge remain owner/reviewer actions.
+- This documentation-only handoff preserves the tested application source.
+  Final PR checks/status and the authorized Linear transition are recorded on
+  GitHub/Linear; this checkpoint does not predict their result.
+
+## EUR-51 - Offline implementation handoff (2026-10-16)
+
+### Readiness, prerequisite and routing
+
+- Live issue snapshot: EUR-51, F-24: S-cool shell, account experience and verified
+  contribution profiles; Todo when read. Linear remains authoritative for metadata.
+  This is the supplied technical contract for an implementation client without
+  Linear access, not another backlog or permission to pre-mark acceptance.
+- Start application work only after PR #43 is merged and the merged EUR-50 source
+  is present. Verify Git status/HEAD and preserve unrelated changes. Create a
+  neutral issue branch such as `eur-51-shell-contributions`; do not reset an
+  existing checkout or silently include uncommitted EUR-50 work.
+- Read `AGENTS.md`, `docs/AI_WORKFLOW.md` (including Execution efficiency),
+  `design.md` including 11.7, `docs/03_DELIVERY_PLAN.md` 18.3-18.5,
+  `docs/01_PRODUCT_SCOPE.md` 21, `docs/02_DOMAIN_ARCHITECTURE.md` 16 and
+  `docs/Need_update_analysis.md` 3-7. Read the EUR-50 downstream contract above.
+- Outcome: finish contextual navigation/account/routed presentation and show
+  community-scoped demonstrated skills/helpful contributions without exposing
+  private evidence or conflating verification with engagement/progress.
+- Work packages: compact contextual shell; coherent account sections and
+  independent acknowledged preference saves; profile links/activity/90-day UTC
+  heatmap; creator accepted-answer lifecycle and explained deterministic ranking;
+  complete routed consumers; integrated route/role/state evidence. Use the
+  observable contracts in Delivery Plan 18.3 and the acceptance snapshot below.
+- Reuse existing Blade/Alpine/Livewire components and the single shared runtime.
+  No new frontend/service dependency, blanket view replacement, fabricated metrics
+  or destructive F-10 ledger changes. Preserve global versus community context,
+  existing notification producers, sensitive account validation and all tenancy.
+- Verified signals: authorize viewer/subject first, then constrain
+  `LessonProofOfWork::query()->eligible()->current()` by community/user and
+  `STATUS_VERIFIED`; aggregate snapshotted labels and safe counts/context only.
+  Never expose summary, submitted URL, attachment or storage path. Completion
+  remains independent. Helpful-answer acceptance is new EUR-51 work, not an
+  already implemented EUR-47 capability.
+- First report outcome, files/packages, actual merged prerequisite and uncertainty;
+  maintain the bounded implementation/checkpoint here. Test only guarded MySQL
+  `scool_test`; no dev reset/reseed. Record actual browser evidence, including the
+  three inherited manual checks, failures/retry and shared consumers. Do not use
+  three sample screens or a passing build as whole-product visual acceptance.
+- Current authorization covers this handoff. Commit/push/PR/merge/Done for EUR-51
+  require their own current user authorization. Do not implement EUR-51 in EUR-50.
+
+### Supplied acceptance criteria (live snapshot, all unchecked)
+
+- [ ] AC-01: Given a member with Verified Proof of Work, their permitted community profile shows the corresponding demonstrated skill and evidence count after refresh; unverified/rejected work is excluded.
+- [ ] AC-02: Given a creator accepting one eligible helpful answer, the author receives one contribution signal; repeated or concurrent acceptance cannot double count it.
+- [ ] AC-03: The leaderboard distinguishes existing engagement points, verified practice and helpful answers with clear labels and a documented deterministic ordering/tie-break.
+- [ ] AC-04: Revoked/deleted source content, membership loss and retained historical records follow explicit privacy/retention rules without leaking evidence or another community's metrics.
+- [ ] AC-05: A user cannot self-verify evidence, accept their own answer through a forged request or mutate another member's contribution.
+- [ ] AC-06: Profile and leaderboard long/empty/zero/tie states are readable and keyboard/responsive at 320/375/768/1280px and 200% zoom.
+- [ ] AC-07: Idempotency, authorization, tenant-isolation, aggregation and affected F-10 regression tests plus browser/build checks pass.
+- [ ] AC-08: Given an authorized community route, the header shows the correct switcher, one scoped search, tenant-correct notice/message utilities and actual account avatar/fallback; account/list routes show the global variant. Switching/back/reload/two tabs cannot mix tenant content; long names/counts and mobile controls fit without duplicate banners/utilities.
+- [ ] AC-09: Given account settings, each Profile/Security/Notifications/My access/Payment history/Referrals section is discoverable and direct URL/back/reload selects it. Existing links remain compatible, saved values/errors persist, and email/password/deletion keep current server validation, verification and retention.
+- [ ] AC-10: Given the two existing preferences, changing either persists only that field without page reload when enhanced; refresh confirms it, rapid actions converge to acknowledged server state, and failure retains/reconciles state with actionable retry. Another user's request/unknown field cannot mutate preferences; existing notification delivery meaning remains unchanged.
+- [ ] AC-11: Given visible authored posts/comments across multiple tenants and dates, the profile history/90-day UTC heatmap shows only the selected community and defined window with correct totals, daily text alternative and useful zero state. Hidden/deleted/inaccessible content and private evidence are excluded; aggregation does not perform a query per cell.
+- [ ] AC-12: Given profile edit, valid optional GitHub/portfolio HTTPS links persist and display safely in permitted profiles; unsafe scheme/credentials/control characters/oversize links fail with field errors. Current full-name/avatar/bio-limit behavior remains, with no email or private membership disclosure.
+- [ ] AC-13: Given My Communities and private About, actual authorized cover/fallback, concise identity/access, creator/video/rules/permitted roadmap and relevant actions are visible; missing media/content has a deliberate state and no fabricated reviews, online totals, admins, guarantees or locked lesson/description leaks.
+- [ ] AC-14: Given Events/Members/Messages/Notices, date/list/timezone/cancellation, directory search/profile, participant-only inbox/thread, read states and unavailable-destination behavior remain correct under the new layout; expired/wrong-tenant/nonparticipant direct links fail without leaking metadata.
+- [ ] AC-15: A route-to-navigation and route/role/state evidence matrix covers every permitted routed screen: dashboard, community Feed/direct post/Saved/search, Classroom/course/lesson/evidence/review, Events/Members/profile/leaderboard/About, messages/notices, Creator operations, account/access/history/referrals/help, checkout/status, guest/auth and Platform Admin. Missing coverage is explicitly blocked, never treated as complete from three sample screens.
+- [ ] AC-16: Given populated/empty/long/validation/loading/error/locked/expired states, the relevant operational and learning controls remain reachable at 320/375/768/1280px and 200% zoom with keyboard focus, readable contrast and reduced motion. Comparable before/after screenshots and short interaction recordings demonstrate actual shared-component consumers.
+- [ ] AC-17: Creator/Platform Admin/member rights, SePay Test Mode labels, payment/referral history, existing asynchronous messaging and notification semantics survive integrated regression and browser walkthrough; no unsupported payout/social/media controls, invented metrics, new package/runtime service or destructive data rewrite is introduced.
+- [ ] Review and applicable acceptance checks are evidenced; exceptions require explicit scoped authorization.
