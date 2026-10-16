@@ -32,7 +32,7 @@ class SearchController extends Controller
         }
 
         $type = $request->query('type', 'posts');
-        if (! is_string($type) || ! in_array($type, ['posts', 'courses', 'lessons', 'members'], true)) {
+        if (! is_string($type) || ! in_array($type, ['posts', 'courses', 'lessons', 'members', 'events'], true)) {
             throw ValidationException::withMessages([
                 'type' => 'The selected search type is invalid.',
             ]);
@@ -65,6 +65,7 @@ class SearchController extends Controller
             'courses' => 0,
             'lessons' => 0,
             'members' => 0,
+            'events' => 0,
         ];
         $results = null;
 
@@ -78,20 +79,15 @@ class SearchController extends Controller
                         ->orWhere('body', 'like', "%{$escaped}%");
                 });
 
-            // 2. Courses Query (Tenant-scoped, published only for non-creators)
+            // 2. Courses Query (Tenant-scoped, published & entitled for non-creators)
             $coursesQuery = $community->courses()
-                ->where(function ($q) use ($escaped, $isCreator, $user): void {
+                ->where(function ($q) use ($escaped): void {
                     $q->where('title', 'like', "%{$escaped}%")
-                        ->orWhere(function ($description) use ($escaped, $isCreator, $user): void {
-                            $description->where('description', 'like', "%{$escaped}%");
-                            if (! $isCreator) {
-                                $description->entitledTo($user);
-                            }
-                        });
+                        ->orWhere('description', 'like', "%{$escaped}%");
                 });
 
             if (! $isCreator) {
-                $coursesQuery->published();
+                $coursesQuery->published()->entitledTo($user);
             }
 
             // 3. Lessons Query (Ancestry-checked within community, published only for non-creators, excluding locked paid courses)
@@ -125,12 +121,21 @@ class SearchController extends Controller
                         ->orWhere('bio', 'like', "%{$escaped}%");
                 });
 
+            // 5. Events Query (Tenant-scoped, non-cancelled/scheduled only)
+            $eventsQuery = $community->events()
+                ->where('status', 'SCHEDULED')
+                ->where(function ($q) use ($escaped): void {
+                    $q->where('title', 'like', "%{$escaped}%")
+                        ->orWhere('description', 'like', "%{$escaped}%");
+                });
+
             // Counts using identical permission and ancestry filters
             $counts = [
                 'posts' => (clone $postsQuery)->count(),
                 'courses' => (clone $coursesQuery)->count(),
                 'lessons' => (clone $lessonsQuery)->count(),
                 'members' => (clone $membersQuery)->count(),
+                'events' => (clone $eventsQuery)->count(),
             ];
 
             // Only paginate the currently selected result type
@@ -139,6 +144,7 @@ class SearchController extends Controller
                 'courses' => $coursesQuery->orderBy('order')->orderByDesc('id')->paginate(15)->withQueryString(),
                 'lessons' => $lessonsQuery->with(['courseSection.course'])->orderBy('id')->paginate(15)->withQueryString(),
                 'members' => $membersQuery->select(['id', 'name', 'bio', 'avatar_path'])->orderBy('name')->paginate(15)->withQueryString(),
+                'events' => $eventsQuery->orderBy('starts_at')->paginate(15)->withQueryString(),
             };
         }
 

@@ -81,15 +81,8 @@
 
             <!-- Right: Utilities & Mode Switcher -->
             <div class="flex items-center flex-wrap gap-2 text-xs">
-                <!-- Search Utility -->
-                <a href="{{ route('communities.search', $community) }}"
-                   title="{{ __('Search') }}" aria-label="{{ __('Search') }}"
-                   class="inline-flex min-h-11 min-w-11 items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl border {{ $activeTab === 'search' ? 'bg-brand-50 text-brand-700 border-brand-200' : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200/70' }} font-medium transition">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    <span class="hidden sm:inline">{{ __('Search') }}</span>
-                </a>
+                <!-- Live Search Combobox Island -->
+                <livewire:community-search-typeahead :community="$community" />
 
                 <!-- Notifications Utility -->
                 <a href="{{ route('communities.notifications.index', $community) }}"

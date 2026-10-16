@@ -62,7 +62,10 @@ class CourseAccessAuditRegressionTest extends TestCase
         $this->actingAs($member)->get(route('communities.courses.show', [$community, $course]))->assertOk()
             ->assertSee($course->title)->assertSee('200.000 VND')
             ->assertDontSee($section->title)->assertDontSee($lesson->title)->assertDontSee($lesson->content)->assertDontSee($course->description);
-        $this->get(route('communities.classroom.index', $community))->assertOk()->assertDontSee($course->description);
+        $this->get(route('communities.classroom.index', $community))->assertOk()
+            ->assertDontSee($course->description)
+            ->assertDontSee('Next Learning Step')
+            ->assertDontSee('Overall Progress');
         $this->get(route('communities.search', ['community' => $community, 'type' => 'courses', 'q' => 'PRIVATE-COURSE-DESCRIPTION']))->assertOk()->assertDontSee($course->title);
         $this->get(route('communities.search', ['community' => $community, 'type' => 'courses', 'q' => $course->title]))->assertOk()->assertSee($course->title)->assertDontSee($course->description);
         $payment = $this->start($community, $member, $course);
