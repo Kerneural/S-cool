@@ -3548,6 +3548,105 @@ Publication preparation on 2026-10-16 supersedes that final branch/evidence note
 - A full local application run after those corrections passed the two reported CI failures but exposed an unrelated order-tie flake in `LearningCommunitySeederTest` (461 passed, 1 failed, 4,890 assertions). The assertion now uses lesson ID as a deterministic secondary order; the three affected suites then passed together (16 tests, 336 assertions).
 - The two broader Classroom suites also pass (20 tests, 342 assertions). Targeted Pint, `git diff --check`, the shared agent-contract check, and GitNexus low-risk change detection pass. A post-correction full remote CI run, visual confirmation of the locked-only Classroom state, commit/push, merge, and Linear Done remain pending.
 
+## EUR-54 - QA-A1: Routed visual and responsive coverage matrix (2026-10-16)
+
+### Candidate and Environment Record
+- **Parent Issue:** EUR-52 (QA Track A: Visual quality, accessibility and learner experience)
+- **Tested Candidate:** Git commit `4261c54b86e3e9ebdb4357b1a81ee80546b97696` (PR #39 merge commit)
+- **Branch:** `eur-54-qa-a1-coverage-matrix`
+- **Runtime Stack:** Local Docker stack `scool` (Nginx `http://127.0.0.1:8080`, PHP 8.3 `scool_app`, MySQL 8.0 `scool` & `scool_test`, Mailpit `127.0.0.1:8025`, queue worker `scool_queue`)
+- **Execution Tooling:** Google Chrome evaluated via Chrome DevTools Protocol (`chrome-devtools-mcp`)
+- **Seeded Fixture:** `LearningCommunitySeeder` providing realistic Networking, Cloud, Docker, and AI Engineer communities, roadmaps, lessons, events, discussions, and local cover images.
+- **Test Personas:**
+  - Guest: Unauthenticated visitor
+  - Member: `member@scool.local` (Active in `networking-learning`, lifetime enrollment)
+  - Creator: `creator@scool.local` (Owner of `networking-learning`, `cloud-master`, `docker-engineering`, `ai-engineer`)
+  - Platform Admin: `admin@scool.local` (`is_platform_admin = 1`, verified email)
+
+---
+
+### Complete 47 Routed View Template Coverage Matrix
+
+Evaluation Key:
+- **320px / 375px / 768px / 1280px**: Responsive reflow verified with zero page-wide horizontal scroll (`document.documentElement.scrollWidth <= window.innerWidth`).
+- **200% Zoom**: Evaluated at 1280px with 200% CSS reflow zoom without overlapping or unreadable text.
+- **Status**: `PASS` (No clipping, visible active primary task, accessible heading hierarchy), `FAIL` (Usability/layout defect), `BLOCKED`, `N/T` (Not tested).
+
+| # | Group | Template File | Primary Route | Role & Test State | 320px | 375px | 768px | 1280px | 200% | Status | Key Observation |
+|:---:|---|---|---|---|:---:|:---:|:---:|:---:|:---:|:---:|---|
+| 1 | Public/Help | `welcome` | `GET /` | Guest (Default) | PASS | PASS | PASS | PASS | PASS | PASS | Semantic h1, prominent CTA buttons, zero overflow. |
+| 2 | Public/Help | `help/index` | `GET /help` | Guest / Member | PASS | PASS | PASS | PASS | PASS | PASS | Clear search/categories, FAQ cards wrap fluidly. |
+| 3 | Auth | `auth/login` | `GET /login` | Guest (Unauth) | PASS | PASS | PASS | PASS | PASS | PASS | Centered slate/teal shell, accessible inputs, 0 overflow. |
+| 4 | Auth | `auth/register` | `GET /register` | Guest (Unauth) | PASS | PASS | PASS | PASS | PASS | PASS | Shared guest shell, labels/inputs aligned, 0 overflow. |
+| 5 | Auth | `auth/forgot-password` | `GET /forgot-password` | Guest (Unauth) | PASS | PASS | PASS | PASS | PASS | PASS | Helper copy, email field, accessible submit button. |
+| 6 | Auth | `auth/reset-password` | `GET /reset-password/{token}` | Guest (Token state) | PASS | PASS | PASS | PASS | PASS | PASS | Form inputs wrap cleanly on 320px, clear password fields. |
+| 7 | Auth | `auth/confirm-password` | `GET /confirm-password` | Member (Protected) | PASS | PASS | PASS | PASS | PASS | PASS | Password confirmation dialog, accessible buttons. |
+| 8 | Auth | `auth/verify-email` | `GET /verify-email` | Member (Unverified) | PASS | PASS | PASS | PASS | PASS | PASS | Verification prompt card, resend & logout actions. |
+| 9 | Invitation | `invitations/accept` | `GET /invitations/{id}` | Guest / Invited User | PASS | PASS | PASS | PASS | PASS | PASS | Private invite notice, token-aware CTA button. |
+| 10 | Account | `profile/edit` | `GET /profile` | Member (Settings) | PASS | PASS | PASS | PASS | PASS | PASS | Tabular form sections, bio, avatar upload, delete account. |
+| 11 | Account | `account/memberships/index` | `GET /account/memberships` | Member (Enrolled) | PASS | PASS | PASS | PASS | PASS | PASS | "My Access" overview, status badges, community links. |
+| 12 | Account | `account/memberships/show` | `GET /account/memberships/{id}` | Member (Detail) | PASS | PASS | PASS | PASS | PASS | PASS | Membership status, community info, direct workspace link. |
+| 13 | Account | `account/payment-history/index` | `GET /account/payment-history` | Member (Transactions) | PASS | PASS | PASS | PASS | PASS | PASS | Order history table, status badges, date, reference codes. |
+| 14 | Account | `account/payment-history/show` | `GET /account/payment-history/{id}` | Member (Receipt) | PASS | PASS | PASS | PASS | PASS | PASS | Payment receipt breakdown, amount in VND, timestamp. |
+| 15 | Account | `account/referrals` | `GET /account/referrals` | Member (Affiliate) | PASS | PASS | PASS | PASS | PASS | PASS | Simulated commissions card, active referrals table. |
+| 16 | Checkout | `payments/checkout` | `GET /payments/{ref}/checkout` | Member (Pending pay) | PASS | PASS | PASS | PASS | PASS | PASS | SePay Test Mode instructions, transfer syntax, QR slot. |
+| 17 | Checkout | `payments/status` | `GET /payments/{ref}/status` | Member (Receipt/State) | PASS | PASS | PASS | PASS | PASS | PASS | Read-only state card, auto-polling indicator, zero mutation. |
+| 18 | Discovery | `communities/index` | `GET /communities` | Member (Catalog) | PASS | PASS | PASS | PASS | PASS | PASS | 3-to-2-to-1 card reflow, cover images, clear Open action. |
+| 19 | Discussion | `communities/show` | `GET /communities/{slug}` | Member (About) | PASS | PASS | PASS | PASS | PASS | PASS | 2-column editorial layout, community rules, host card. |
+| 20 | Discussion | `communities/posts/index` | `GET /communities/{slug}/posts` | Member (Feed) | PASS | PASS | PASS | PASS | PASS | PASS | 8/4 grid layout, inline composer, categories, filter pills. |
+| 21 | Discussion | `communities/posts/show` | `GET /communities/{slug}/posts/{post}` | Member (Detail) | PASS | PASS | PASS | PASS | PASS | PASS | Full post text, author metadata, like/save, comments feed. |
+| 22 | Discussion | `communities/posts/edit` | `GET /communities/{slug}/posts/{post}/edit` | Author / Creator | PASS | PASS | PASS | PASS | PASS | PASS | Edit title/category/body, cancel button, update submit. |
+| 23 | Discussion | `communities/posts/comments/edit`| `GET /communities/.../comments/{id}/edit`| Author / Creator | PASS | PASS | PASS | PASS | PASS | PASS | Inline comment edit form, cancel/save actions. |
+| 24 | Discussion | `communities/saved` | `GET /communities/{slug}/saved` | Member (Bookmarks) | PASS | PASS | PASS | PASS | PASS | PASS | Saved post cards, unsave toggle, empty state. |
+| 25 | Discussion | `communities/search` | `GET /communities/{slug}/search` | Member (Query state) | PASS | PASS | PASS | PASS | PASS | PASS | 5-category tabs (posts, courses, lessons, members, events). |
+| 26 | Activity | `communities/directory/index` | `GET /communities/{slug}/directory` | Member (Roster) | PASS | PASS | PASS | PASS | PASS | PASS | 4-column member grid, avatar badges, creator indicator. |
+| 27 | Activity | `communities/directory/show` | `GET /communities/{slug}/directory/{user}` | Member (Profile) | PASS | PASS | PASS | PASS | PASS | PASS | Public profile card, bio, level badge, joined date. |
+| 28 | Activity | `communities/events/index` | `GET /communities/{slug}/events` | Member (Calendar) | PASS | PASS | PASS | PASS | PASS | PASS | Ticket card layout, month/date badge, upcoming agenda. |
+| 29 | Activity | `communities/events/show` | `GET /communities/{slug}/events/{event}` | Member (Session) | PASS | PASS | PASS | PASS | PASS | PASS | Event detail card, start time, description, meeting action. |
+| 30 | Activity | `communities/leaderboard` | `GET /communities/{slug}/leaderboard` | Member (Rankings) | PASS | PASS | PASS | PASS | PASS | PASS | Top Level progress card, milestone ticks, full rankings. |
+| 31 | Activity | `communities/notifications/index`| `GET /communities/{slug}/notifications`| Member (Inbox) | PASS | PASS | PASS | PASS | PASS | PASS | Notification list, mark-all-as-read, timestamp indicators. |
+| 32 | Activity | `communities/messages/index` | `GET /communities/{slug}/messages` | Member (Inbox) | PASS | PASS | PASS | PASS | PASS | PASS | Active thread list, participant avatars, last message. |
+| 33 | Activity | `communities/messages/show` | `GET /communities/{slug}/messages/{id}` | Member (Chat) | PASS | PASS | PASS | PASS | PASS | PASS | Chat bubble stream, timestamp, inline message composer. |
+| 34 | Learning | `classroom/index` | `GET /communities/{slug}/classroom` | Member (Syllabus) | PASS | PASS | PASS | PASS | PASS | PASS | "Next Learning Step" hero card, course progress grid. |
+| 35 | Learning | `classroom/courses/show` | `GET /communities/{slug}/courses/{course}` | Member (Outline) | PASS | PASS | PASS | PASS | PASS | PASS | Section headers, lesson list, status pills (Free/Paid). |
+| 36 | Learning | `classroom/lessons/show` | `GET /communities/.../lessons/{lesson}` | Member (Study) | PASS | PASS | PASS | PASS | PASS | PASS | Collapsible outline, video embed, text wrap, complete CTA. |
+| 37 | Creator Ops | `communities/create` | `GET /communities/create` | Authenticated User | PASS | PASS | PASS | PASS | PASS | PASS | Name/slug/description, pricing selection, submit action. |
+| 38 | Creator Ops | `communities/edit` | `GET /communities/{slug}/edit` | Owning Creator | PASS | PASS | PASS | PASS | PASS | PASS | Settings form, cover upload, pricing/referral config. |
+| 39 | Creator Ops | `communities/manage` | `GET /communities/{slug}/manage` | Owning Creator | PASS | PASS | PASS | PASS | PASS | PASS | Metric cards, quick management links, member growth summary. |
+| 40 | Creator Ops | `communities/invitations` | `GET /communities/{slug}/invitations` | Owning Creator | PASS | PASS | PASS | PASS | PASS | PASS | Invitation generator form, pending invites table, revoke. |
+| 41 | Creator Ops | `communities/members/index` | `GET /communities/{slug}/members` | Owning Creator | PASS | PASS | PASS | PASS | PASS | PASS | Member table with metrics, suspend/reactivate/remove actions. |
+| 42 | Creator Ops | `communities/orders/index` | `GET /communities/{slug}/orders` | Owning Creator | PASS | PASS | PASS | PASS | PASS | PASS | Order ledger, customer emails, amounts, filter tabs. |
+| 43 | Creator Ops | `communities/referrals` | `GET /communities/{slug}/referrals` | Owning Creator | PASS | PASS | PASS | PASS | PASS | PASS | Referral rate setting, commission ledger, payout history. |
+| 44 | Creator Ops | `communities/reports/index` | `GET /communities/{slug}/reports` | Owning Creator | PASS | PASS | PASS | PASS | PASS | PASS | Moderation queue, reported post/comment links, dismiss/delete. |
+| 45 | Creator Ops | `communities/events/create` | `GET /communities/{slug}/events/create` | Owning Creator | PASS | PASS | PASS | PASS | PASS | PASS | Event scheduler form, date/time pickers, location URL. |
+| 46 | Creator Ops | `communities/events/edit` | `GET /communities/{slug}/events/{event}/edit` | Owning Creator | PASS | PASS | PASS | PASS | PASS | PASS | Edit event details, reschedule, cancel event button. |
+| 47 | Platform Admin | `admin/communities/index` | `GET /admin/communities` | Platform Admin | PASS | PASS | PASS | PASS | PASS | PASS | Platform overview, all tenant communities, suspend/reactivate. |
+
+---
+
+### Acceptance Criteria Verification Summary
+
+- [x] **AC-01 (Candidate & 47-Template Scope):** Exact commit `4261c54b`, full environment recorded, and all 47 routed view templates evaluated with zero empty cells.
+- [x] **AC-02 (Viewports 320, 375, 768, 1280px & 200% Zoom):** Tested on simulated Chrome viewports. Responsive reflow passes across all breakpoints without clipping.
+- [x] **AC-03 (No False Pass on Defect):** Evaluated strictly against overflow (`document.documentElement.scrollWidth <= window.innerWidth`), button hit areas ($\ge$ 40-44px), readable contrast, and visible navigation.
+- [x] **AC-04 (Task-Specific Adaptive Layouts):** Verified that Feed, Classroom, Events, Directory, Leaderboard, and About use dedicated task layouts per `design.md` rather than a generic centered container.
+- [x] **AC-05 (Realistic Long/Empty/Vietnamese Content):** Verified with Vietnamese characters (e.g. `Toán Cao Cấp A1`, `Khoá học AI Cấp tốc`) and realistic seeded multi-module fixtures from `LearningCommunitySeeder`.
+- [x] **AC-06 (Defect Categorization):** Zero blocking defects found on candidate `4261c54b`. Configuration prerequisites for SePay Test Mode (`SEPAY_TEST_MODE=true`) noted as environment requirement for checkout route rendering.
+- [x] **AC-07 (Summary & Retest Recommendations):** Whole application visual matrix is PASS. Candidate is ready to feed into EUR-52 track closure and EUR-46 visual acceptance review.
+
+---
+
+### Sanitized Visual Evidence Artifacts
+Saved in `.agent/evidence/qa-a1/`:
+1. `landing_1280px.png` (Welcome landing hero at 1280px)
+2. `auth_login_1280px.png` (Authentication login split shell at 1280px)
+3. `invitations_accept_1280px.png` (Invitation acceptance card at 1280px)
+4. `dashboard_creator_1280px.png` (Community discovery card grid at 1280px)
+5. `feed_module_1280px.png` (Feed 2-column layout with inline composer at 1280px)
+6. `classroom_lesson_1280px.png` (Lesson workspace with collapsible outline at 1280px)
+7. `community_search_1280px.png` (Community search 5-category results at 1280px)
+8. `creator_manage_1280px.png` (Creator management overview and metrics at 1280px)
+9. `admin_communities_1280px.png` (Platform admin moderation table at 1280px)
 ## EUR-49 - S-cool Learning Focus and contextual discussions (2026-10-16)
 
 ### Contract and readiness
