@@ -4807,3 +4807,36 @@ four exact Linear comments, commit/push of the corrected branch, opening a
 replacement PR against main and closing reversed PR #48 with its replacement
 link. All four comments were posted successfully. This authorizes no merge or
 Done transition. Preserve historical run limits and keep open AC In Review.
+
+#### Authorized runtime dependency correction (2026-10-20)
+
+PR #49 at 045bf86 failed CI run 39371930209 before application tests because
+Trivy found inherited libexpat 2.8.5-r0 / CVE-2026-77214 (HIGH), fixed in
+2.9.0-r0. The owner separately approved the proposed Dockerfile correction,
+build/scan/test and commit/push to this PR. Add only
+apk upgrade --no-cache libexpat after package/extension installation. Build
+inspection showed libexpat is installed transitively by the existing package
+list, so the upgrade must run after it exists, including with cached layers. Retain
+the Trivy severity/exit gate and current PHP/base-image/dependency contracts.
+
+Verification plan: build a separately tagged QA image without restarting local
+services; inspect installed libexpat and scan HIGH/CRITICAL with the existing
+Trivy version; run affected invitation/guest-layout and safety tests against
+this PR checkout on guarded scool_test, then publish and inspect complete CI
+on the new revision. Preserve primary-checkout Track A edits and all local data.
+
+Completed on the PR checkout plus the one-line Dockerfile addition: dedicated
+image scool-qa-eur53:libexpat built successfully, image config digest
+sha256:5a17a614dbc5368042d34cee137e953ecb5d92712d5a3a311333b072a925a15b.
+The final upgrade layer changed exactly libexpat 2.8.5-r0 -> 2.9.0-r0; PHP remains
+8.2.34 with the required existing extensions. Trivy 0.75.0 using the original
+HIGH,CRITICAL / exit-code 1 gate reported zero matching vulnerabilities, exit 0.
+No scanner suppression, runtime service replacement or database reset occurred.
+
+The patched image ran FrontendScaffoldTest, CommunityInvitationFlowTest,
+InvitationProcessIntegrationTest and DatabaseSafetyGuardTest using this PR source:
+26 passed / 351 assertions / 79.44s, exit 0. The guard was inspected before run;
+only MySQL scool_test was used. Dependencies/assets were mounted from the existing
+matching lockfiles/build, distinct from source; no primary Track A view patch
+was mounted. Real process invitation/worker/Mailpit regressions passed. Full CI
+and its tested merge SHA remain to be verified on the published new revision.

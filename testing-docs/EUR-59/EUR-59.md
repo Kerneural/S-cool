@@ -274,3 +274,26 @@ change application source relative to main; the separate seven Track A edits
 remain in the primary checkout. The earlier nine-file runtime evidence remains
 qualified as such. Publication and exact-PR checks are recorded separately;
 there is no merge or Done authorization.
+
+### Runtime security correction follow-up (2026-10-20)
+
+The first PR #49 CI run 39371930209 failed before application checks: inherited
+libexpat 2.8.5-r0 had a HIGH scanner finding, fixed version 2.9.0-r0. The owner
+separately approved upgrading only this package. The Dockerfile now performs
+`apk upgrade --no-cache libexpat` after existing package/extension installation,
+so it also updates the package when earlier Docker layers are cached. Scanner
+severity and failure behavior are unchanged.
+
+Dedicated QA image built successfully (config digest
+`sha256:5a17a614dbc5368042d34cee137e953ecb5d92712d5a3a311333b072a925a15b`),
+with libexpat 2.9.0-r0 and PHP 8.2.34. Trivy 0.75.0, HIGH/CRITICAL, exit-code 1:
+**0 matching vulnerabilities / exit 0**. This is a measured local scan, not a new
+remote CI result or an assertion that every vulnerability severity is absent.
+
+Patched-image affected-scope retest on the actual PR source:
+FrontendScaffoldTest, CommunityInvitationFlowTest, InvitationProcessIntegrationTest
+and DatabaseSafetyGuardTest — **26 passed / 351 assertions / 79.44s**, exit 0.
+Guarded MySQL scool_test only; existing dependencies/assets mounted separately,
+no primary-checkout Track A views. No app/queue restart, dev reset, inbox cleanup
+or real payment. Complete CI on the updated PR remains its own acceptance gate;
+the earlier 585-test result remains qualified as the earlier nine-file candidate.
