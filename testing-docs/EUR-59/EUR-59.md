@@ -81,7 +81,7 @@ $ docker compose -p scool exec -T app php artisan test --compact
   Tests:    527 passed (5703 assertions)
   Duration: 967.75s
 ```
-* **Kết quả:** 
+* **Kết quả:**
   * **Tổng số tests:** 527 tests
   * **Tổng số assertions:** 5,703 assertions
   * **Trạng thái:** **527 PASSED (100% đạt, 0 failed, 0 skipped)**
@@ -97,8 +97,8 @@ $ docker compose -p scool exec -T app vendor/bin/pint --test
   ............................................................................
   .........................................
 
-  ──────────────────────────────────────────────────────────────────── Laravel  
-    PASS   ......................................................... 269 files  
+  ──────────────────────────────────────────────────────────────────── Laravel
+    PASS   ......................................................... 269 files
 ```
 * **Kết quả:** **PASS 269/269 files** tuân thủ đầy đủ chuẩn code style Laravel/PSR-12.
 
@@ -262,3 +262,15 @@ when authorized, run required checks on that exact integrated candidate, complet
 the listed missing browser/boundary evidence or obtain explicit scoped acceptance
 exceptions, then reassess child AC before parent EUR-53 closure. Do not mark
 EUR-46/M11 Done or treat this recommendation as merge/release authority.
+
+### Authorized publication preparation (2026-10-20)
+
+The owner subsequently approved posting the four corrective Linear comments,
+commit/push, a replacement PR against main and closing reversed PR #48. All four
+comments were posted. The neutral correction branch is now rebased onto main
+45ef4129db2edc74e917de65ca693c20c77b04fd, retaining both existing EUR-51 and new
+EUR-53 checkpoint sections. Only the guest runtime inclusion and its regression
+change application source relative to main; the separate seven Track A edits
+remain in the primary checkout. The earlier nine-file runtime evidence remains
+qualified as such. Publication and exact-PR checks are recorded separately;
+there is no merge or Done authorization.
