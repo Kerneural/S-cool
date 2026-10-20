@@ -4762,3 +4762,48 @@ applicable human review/owner visual acceptance. The available browser API has
 screenshots but no recording capability; do not rename a slide sequence as video.
 The inherited representative zoom/motion/Cancel checks are complete. Remaining
 AC-15/16 evidence and review prevent Done without explicit scoped exceptions.
+### EUR-53 corrective report preparation (2026-10-20)
+
+This managed worktree contains the submitted testing-docs artifact at
+d55518316b782560b88113ce8bfb725f6e0a48cd plus bounded report corrections and the
+two invitation runtime/regression files. It is not the runtime used for the
+585-test run. The runtime was the owner's primary checkout at
+9e6baddd556b27b4503d7c96109f54ef001f8251 plus the nine-file manifest recorded in
+testing-docs/EUR-59/current-evidence/source-manifest.sha256, SHA-256
+05d2bf9f06f4a1c02239985592a86f41500cae26cde6a5b10b40f298d9bb7001.
+
+Outcome: correct historical counts/provenance/unsupported conclusions, six image
+links and missing browser results. A fresh valid-token invitation defect was
+reproduced twice: guest layout omitted the Alpine runtime. Add the existing single
+@livewireScripts inclusion and a red/green verified-invitee runtime regression.
+Matching invitee acceptance, refresh/direct Member entry, Creator accepted state
+and bare-token denial were verified; no permission/token/payment contract changed.
+
+Final primary-checkout results: guarded MySQL scool_test suite 585 passed /
+5765 assertions / 511.36s; Pint 286 files PASS; Node 13 passed; build 63 modules /
+2.73s; agent contract 11 files PASS; diff whitespace check PASS. The report records
+environment, source manifest, timing limits, fixture changes, fourteen measured
+Chrome desktop/mobile PASS and Edge N/T by explicit owner instruction. No raw
+credentials, mail bodies or tokens are included. Existing font build warnings
+and unavailable external fixture video are qualified in the evidence pack.
+
+AC gaps remain explicit in B1/B2/B3. Recommendation Conditional / incomplete
+evidence; all four Linear issues remain In Review. Complete missing manual role/
+module and negative/recovery coverage, network/timing and browser exceptions or
+evidence before acceptance. PR #48 is reversed (base testing-docs, head main).
+Corrected publication needs a neutral branch with base main; no new PR, commit,
+push, merge, closure or CI proof is authorized/performed. Original runtime/Track A
+edits and unrelated docs/templates/ were preserved in the primary checkout.
+
+Automatic approval review rejected the attempted detailed EUR-57 Linear comment:
+the QA/source-provenance payload needs specific external disclosure approval.
+Nothing was posted and no description/checkbox/state was changed. Do not retry
+through another connector or indirect upload. Exact four-comment and replacement
+PR drafts are preserved in the primary checkout's output/qa-track-b-2026-10-20/;
+owner approval is required for posting and Git publication.
+
+Publication authorization update (2026-10-20): the owner explicitly approved the
+four exact Linear comments, commit/push of the corrected branch, opening a
+replacement PR against main and closing reversed PR #48 with its replacement
+link. All four comments were posted successfully. This authorizes no merge or
+Done transition. Preserve historical run limits and keep open AC In Review.

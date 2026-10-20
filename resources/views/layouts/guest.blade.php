@@ -98,5 +98,7 @@
                 </div>
             </div>
         </div>
+        {{-- Invitation acceptance needs the same single Alpine runtime as authenticated pages. --}}
+        @livewireScripts
     </body>
 </html>

@@ -35,6 +35,16 @@ class FrontendScaffoldTest extends TestCase
         $response->assertSee('type="submit"', false);
     }
 
+    public function test_verified_invitee_receives_one_alpine_runtime_for_token_acceptance(): void
+    {
+        $response = $this->actingAs(User::factory()->create())->get('/invitations/999999');
+
+        $response->assertOk();
+        $response->assertSee('x-data="invitationAcceptance"', false);
+        $response->assertSee('x-bind:disabled="!token"', false);
+        $this->assertSame(1, substr_count($response->getContent(), '/livewire/livewire'));
+    }
+
     public function test_app_layout_renders_correctly_with_navigation_and_header(): void
     {
         $user = User::factory()->create([

@@ -4,14 +4,14 @@
 ![alt text](image-1.png)
 
 # Màn hình đăng nhập
-![alt text](image-2.png)
+![alt text](../EUR-57/image-2.png)
 # Giao diện cộng đồng
-![alt text](image-19.png)
+![alt text](../EUR-57/image-19.png)
 # Gỡ từ khóa tìm kiếm khóa học
-![alt text](image-11.png)
+![alt text](../EUR-57/image-11.png)
 # Xem chi tiết bài học và bình luận
-![alt text](image-9.png)
+![alt text](../EUR-57/image-9.png)
 # Xem bài học và tiến độ
-![alt text](image-13.png)
+![alt text](../EUR-57/image-13.png)
 # Giao diện trang quản trị
-![alt text](image-22.png)
+![alt text](../EUR-57/image-22.png)

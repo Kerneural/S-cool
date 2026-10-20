@@ -1,3 +1,5 @@
+> Historical screenshot gallery on runtime 6179e3e389ddc8041568bd56a114d96fa044d401. See [corrected interpretation and current invitation retest](EUR-57-summary.md). Screenshots alone do not establish browser version, elapsed time or a current-candidate PASS.
+
 # Luồng Guest &  Xác thực
 
 ## LUỒNG ĐĂNG KÍ, ĐĂNG NHẬP, ĐĂNG XUẤT
@@ -21,9 +23,8 @@
 ![alt text](image-5.png)
 ### Mailpit nhận được email lời mời
 ![alt text](image-6.png)
-### <span style="color: red;">Lỗi: Xác nhận mailpit</span>
-### mailpit
-Cụ thể: Invitation link không hoạt động
+### Historical invitation landing without a usable token
+The screenshot shows a missing/malformed-token denial. It does not independently reproduce failure of an original valid email link. A separate valid-token runtime defect was subsequently reproduced and fixed locally; see the summary.
 ![alt text](image-7.png)
 
 # Luồng member
@@ -48,8 +49,8 @@ Cụ thể: Invitation link không hoạt động
 ![alt text](image-12.png)
 ### Giao diện nhấn hoàn thành bài học
 ![alt text](image-13.png)
-- [ x ] Tiến độ vẫn được giữ nguyên
-- [ x ] Đăng nhập lại vẫn giữ nguyên tiến độ
+- [x] Tiến độ vẫn được giữ nguyên (historical submitted observation)
+- [x] Đăng nhập lại vẫn giữ nguyên tiến độ (historical submitted observation)
 ![alt text](image-14.png)
 
 ## Tính năng Events
@@ -75,7 +76,8 @@ Chuyển trạng thái lời mời từ `PENDING` sang `REVOKED`
 ![alt text](image-21.png)
 
 ## Tính năng SePay Test mode
-### <span style="color: red;">Blocked by [lỗi mailpit](#mailpit)</span>
+### BLOCKED: payment execution was not performed in the submitted run
+No confirmed payment or Mailpit defect follows from the invitation screenshot. Provider-backed acceptance remains separate.
 
 # Luồng admin
 
