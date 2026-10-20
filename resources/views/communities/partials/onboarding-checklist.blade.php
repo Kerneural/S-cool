@@ -27,7 +27,7 @@
                 </div>
             </div>
 
-            <button type="button" @click="dismissed = true" class="text-gray-400 hover:text-gray-600 text-sm font-semibold p-1" title="{{ __('Hide checklist') }}">
+            <button type="button" @click="dismissed = true" class="min-h-6 min-w-6 text-gray-600 hover:text-gray-800 text-sm font-semibold p-1" title="{{ __('Hide checklist') }}" aria-label="{{ __('Hide checklist') }}">
                 &times;
             </button>
         </div>

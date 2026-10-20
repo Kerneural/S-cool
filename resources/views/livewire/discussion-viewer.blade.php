@@ -1,6 +1,7 @@
 <div x-data="{
         isOpen: $wire.entangle('isOpen'),
         opening: false,
+        cancelledOpening: false,
         historyNavigation: false,
         openError: null,
         triggerEl: null,
@@ -9,6 +10,10 @@
         init() {
             window.addEventListener('discussion-opened', (e) => {
                 this.opening = false;
+                if (this.cancelledOpening) {
+                    $wire.close();
+                    return;
+                }
                 this.setBackgroundInert(true);
 
                 if (!this.historyNavigation && window.history.pushState && e.detail.url) {
@@ -23,6 +28,7 @@
 
             window.addEventListener('discussion-closed', () => {
                 this.opening = false;
+                this.cancelledOpening = false;
                 this.historyNavigation = false;
                 this.setBackgroundInert(false);
 
@@ -53,6 +59,7 @@
             }
             if (trigger) this.triggerEl = trigger;
             this.opening = true;
+            this.cancelledOpening = false;
             this.openError = null;
             this.historyNavigation = fromHistory;
             this.setBackgroundInert(true);
@@ -63,11 +70,17 @@
                 this.opening = false;
                 this.historyNavigation = false;
                 this.setBackgroundInert(false);
-                this.openError = @js(__('Unable to open this discussion. Refresh the page or check your access.'));
+                this.openError = this.cancelledOpening ? null : @js(__('Unable to open this discussion. Refresh the page or check your access.'));
                 this.triggerEl?.focus();
             }
         },
         requestClose() {
+            if (this.opening) {
+                this.cancelledOpening = true;
+                this.setBackgroundInert(false);
+                this.triggerEl?.focus();
+                return;
+            }
             if (window.history.state?.scoolDiscussionPostId) {
                 window.history.back();
                 return;
@@ -125,7 +138,7 @@
             }
         }
      }"
-     @keydown.window="isOpen && handleKeyDown($event)"
+     @keydown.window="(isOpen || opening) && handleKeyDown($event)"
      class="relative">
 
     <p x-show="openError"
@@ -135,7 +148,7 @@
        role="alert"></p>
 
     <!-- Modal Backdrop & Container -->
-    <div x-show="isOpen || opening"
+    <div x-show="(isOpen || opening) && !cancelledOpening"
          x-cloak
          class="fixed inset-0 z-50 flex items-center justify-center overflow-hidden"
          role="dialog"
