@@ -32,7 +32,7 @@
                     <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
                         <div class="h-full bg-brand-600 rounded-full transition-all duration-300" style="width: {{ $learningFocus->percentage }}%"></div>
                     </div>
-                    <div class="flex justify-between text-[11px] text-slate-400 font-medium">
+                    <div class="flex justify-between text-[11px] text-slate-600 font-medium">
                         <span>{{ __('Accessible lesson progress') }}</span>
                         <span>{{ $learningFocus->completedLessons }}/{{ $learningFocus->totalLessons }} {{ __('lessons') }}</span>
                     </div>
@@ -104,7 +104,7 @@
                 <h4 class="font-bold text-sm text-slate-900 line-clamp-2">{{ $learningFocus->upcomingEvent['title'] }}</h4>
                 <div class="text-xs text-slate-500 space-y-0.5">
                     <p class="font-medium text-slate-700">{{ $learningFocus->upcomingEvent['formatted_time'] }}</p>
-                    <p class="text-[11px] text-slate-400">{{ $learningFocus->upcomingEvent['timezone'] }}</p>
+                    <p class="text-[11px] text-slate-600">{{ $learningFocus->upcomingEvent['timezone'] }}</p>
                 </div>
                 @if (! empty($learningFocus->upcomingEvent['meeting_url']))
                     <a href="{{ $learningFocus->upcomingEvent['meeting_url'] }}" target="_blank" rel="noopener noreferrer"
@@ -131,7 +131,7 @@
             </div>
             <div>
                 <h3 class="font-bold text-base text-slate-900">{{ $community->name }}</h3>
-                <p class="text-xs text-slate-400">
+                <p class="text-xs text-slate-600">
                     {{ __('Created ') }} {{ $community->created_at->format('M Y') }}
                 </p>
             </div>

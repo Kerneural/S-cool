@@ -24,7 +24,7 @@
                     <div class="bg-white p-3.5 sm:p-4 rounded-2xl shadow-xs border border-slate-200/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <!-- Horizontal Category Filter Pills -->
                         <div class="flex items-center gap-1.5 text-xs overflow-x-auto scrollbar-none pb-1 sm:pb-0">
-                            <span class="font-semibold text-slate-400 shrink-0 mr-1">{{ __('Filter:') }}</span>
+                            <span class="font-semibold text-slate-600 shrink-0 mr-1">{{ __('Filter:') }}</span>
                             <a href="{{ route('communities.posts.index', [$community, 'sort' => $currentSort, 'course_id' => $currentCourseId]) }}"
                                class="px-3 py-1.5 rounded-full font-medium transition shrink-0 active:scale-[0.98] {{ empty($currentCategory) || $currentCategory === 'all' ? 'bg-brand-600 text-white shadow-xs font-semibold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' }}">
                                 {{ __('All') }}
@@ -50,7 +50,7 @@
 
                         <!-- Sort Toggle Controls -->
                         <div class="flex items-center gap-2 text-xs shrink-0 self-end sm:self-center">
-                            <span class="font-semibold text-slate-400">{{ __('Sort:') }}</span>
+                            <span class="font-semibold text-slate-600">{{ __('Sort:') }}</span>
                             <div class="inline-flex rounded-lg shadow-xs border border-slate-200 bg-slate-50 p-0.5">
                                 <a href="{{ route('communities.posts.index', [$community, 'category' => $currentCategory, 'sort' => 'newest', 'course_id' => $currentCourseId]) }}"
                                    class="px-2.5 py-1 text-xs font-medium rounded-md transition {{ ($currentSort ?? 'newest') === 'newest' ? 'bg-white text-brand-700 font-semibold shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">

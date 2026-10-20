@@ -2,6 +2,7 @@
     <div class="py-8 sm:py-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
             <x-community-workspace :community="$community" active-tab="leaderboard" />
+            <h1 class="sr-only">{{ __('Community leaderboard') }}</h1>
 
             <!-- Top Row: User Progress + Points Guide Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">

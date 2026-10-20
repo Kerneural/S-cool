@@ -4762,3 +4762,523 @@ applicable human review/owner visual acceptance. The available browser API has
 screenshots but no recording capability; do not rename a slide sequence as video.
 The inherited representative zoom/motion/Cancel checks are complete. Remaining
 AC-15/16 evidence and review prevent Done without explicit scoped exceptions.
+### EUR-53 corrective report preparation (2026-10-20)
+
+This managed worktree contains the submitted testing-docs artifact at
+d55518316b782560b88113ce8bfb725f6e0a48cd plus bounded report corrections and the
+two invitation runtime/regression files. It is not the runtime used for the
+585-test run. The runtime was the owner's primary checkout at
+9e6baddd556b27b4503d7c96109f54ef001f8251 plus the nine-file manifest recorded in
+testing-docs/EUR-59/current-evidence/source-manifest.sha256, SHA-256
+05d2bf9f06f4a1c02239985592a86f41500cae26cde6a5b10b40f298d9bb7001.
+
+Outcome: correct historical counts/provenance/unsupported conclusions, six image
+links and missing browser results. A fresh valid-token invitation defect was
+reproduced twice: guest layout omitted the Alpine runtime. Add the existing single
+@livewireScripts inclusion and a red/green verified-invitee runtime regression.
+Matching invitee acceptance, refresh/direct Member entry, Creator accepted state
+and bare-token denial were verified; no permission/token/payment contract changed.
+
+Final primary-checkout results: guarded MySQL scool_test suite 585 passed /
+5765 assertions / 511.36s; Pint 286 files PASS; Node 13 passed; build 63 modules /
+2.73s; agent contract 11 files PASS; diff whitespace check PASS. The report records
+environment, source manifest, timing limits, fixture changes, fourteen measured
+Chrome desktop/mobile PASS and Edge N/T by explicit owner instruction. No raw
+credentials, mail bodies or tokens are included. Existing font build warnings
+and unavailable external fixture video are qualified in the evidence pack.
+
+AC gaps remain explicit in B1/B2/B3. Recommendation Conditional / incomplete
+evidence; all four Linear issues remain In Review. Complete missing manual role/
+module and negative/recovery coverage, network/timing and browser exceptions or
+evidence before acceptance. PR #48 is reversed (base testing-docs, head main).
+Corrected publication needs a neutral branch with base main; no new PR, commit,
+push, merge, closure or CI proof is authorized/performed. Original runtime/Track A
+edits and unrelated docs/templates/ were preserved in the primary checkout.
+
+Automatic approval review rejected the attempted detailed EUR-57 Linear comment:
+the QA/source-provenance payload needs specific external disclosure approval.
+Nothing was posted and no description/checkbox/state was changed. Do not retry
+through another connector or indirect upload. Exact four-comment and replacement
+PR drafts are preserved in the primary checkout's output/qa-track-b-2026-10-20/;
+owner approval is required for posting and Git publication.
+
+Publication authorization update (2026-10-20): the owner explicitly approved the
+four exact Linear comments, commit/push of the corrected branch, opening a
+replacement PR against main and closing reversed PR #48 with its replacement
+link. All four comments were posted successfully. This authorizes no merge or
+Done transition. Preserve historical run limits and keep open AC In Review.
+
+#### Authorized runtime dependency correction (2026-10-20)
+
+PR #49 at 045bf86 failed CI run 39371930209 before application tests because
+Trivy found inherited libexpat 2.8.5-r0 / CVE-2026-77214 (HIGH), fixed in
+2.9.0-r0. The owner separately approved the proposed Dockerfile correction,
+build/scan/test and commit/push to this PR. Add only
+apk upgrade --no-cache libexpat after package/extension installation. Build
+inspection showed libexpat is installed transitively by the existing package
+list, so the upgrade must run after it exists, including with cached layers. Retain
+the Trivy severity/exit gate and current PHP/base-image/dependency contracts.
+
+Verification plan: build a separately tagged QA image without restarting local
+services; inspect installed libexpat and scan HIGH/CRITICAL with the existing
+Trivy version; run affected invitation/guest-layout and safety tests against
+this PR checkout on guarded scool_test, then publish and inspect complete CI
+on the new revision. Preserve primary-checkout Track A edits and all local data.
+
+Completed on the PR checkout plus the one-line Dockerfile addition: dedicated
+image scool-qa-eur53:libexpat built successfully, image config digest
+sha256:5a17a614dbc5368042d34cee137e953ecb5d92712d5a3a311333b072a925a15b.
+The final upgrade layer changed exactly libexpat 2.8.5-r0 -> 2.9.0-r0; PHP remains
+8.2.34 with the required existing extensions. Trivy 0.75.0 using the original
+HIGH,CRITICAL / exit-code 1 gate reported zero matching vulnerabilities, exit 0.
+No scanner suppression, runtime service replacement or database reset occurred.
+
+The patched image ran FrontendScaffoldTest, CommunityInvitationFlowTest,
+InvitationProcessIntegrationTest and DatabaseSafetyGuardTest using this PR source:
+26 passed / 351 assertions / 79.44s, exit 0. The guard was inspected before run;
+only MySQL scool_test was used. Dependencies/assets were mounted from the existing
+matching lockfiles/build, distinct from source; no primary Track A view patch
+was mounted. Real process invitation/worker/Mailpit regressions passed. Full CI
+and its tested merge SHA remain to be verified on the published new revision.
+
+### EUR-52 Track A corrective QA checkpoint (2026-10-20)
+
+#### Candidate, authority and evidence method
+
+Live AC source: EUR-52, EUR-54, EUR-55 and EUR-56 in Linear, read on 2026-10-20.
+The owner authorized bounded audit, necessary corrections, Linear comments and
+Done transitions. No Git publication is authorized by this instruction.
+
+Branch: eur-51-shell-contributions. HEAD: 9e6baddd556b27b4503d7c96109f54ef001f8251.
+Final source identity: HEAD plus seven Blade files listed in the local
+output/playwright/qa-track-a-2026-10-20/source-manifest.txt.
+SHA-256 of the LF-delimited UTF-8 source manifest:
+87e49e9e8cb674508323d37bcb54b8afe7850acb98b113c64277c14556d130b9.
+The earlier six-file capture phase used manifest
+c8eee4bdb0b28624a6b5f4ed0862e41015af25b63293c305b2fcb80bfc4e473f.
+Only discussion cancellation changed afterward; its affected normal/rapid
+keyboard flows were retested on the final seven-file candidate.
+
+Runtime: http://127.0.0.1:8080, Docker Compose bind mount to this checkout,
+existing migrated MySQL development fixtures; no migration, reset or reseed.
+Five services were healthy at setup. Existing synthetic guest, Member, Creator
+and Platform Admin personas were used. Preserve unrelated untracked docs/templates/.
+Local output/ evidence is untracked; it is not an immutable published Git artifact.
+
+Browser: Windows, Chrome 155.0.8059.85 for actual browser zoom; in-app Chromium
+for measured 320/375/768/1280 CSS px viewports, height 900.
+Browser zoom was set manually by the owner to 200%, confirmed by DPR 2.5 versus
+baseline 1.25 and CSS zoom 1. Eleven valid zoom captures have width 768 and
+clientWidth = scrollWidth = 760; the browser window height varied.
+The mislabeled member-course-locked-actual-200 image is excluded; the corrected
+course/14 capture supersedes it. CSS zoom is not substituted for browser zoom.
+
+Methods: rendered screenshot and DOM inspection, client/scroll geometry,
+Tab/Shift+Tab, Enter/Space, ArrowDown and Escape; accessible roles/names/states;
+rendered color conversion to linear sRGB and WCAG luminance ratio; actual
+prefers-reduced-motion and computed durations. No external accessibility scanner,
+automated conformance score, screen-reader study or external participant study.
+Screenshots and JSON evidence are local under output/playwright/qa-track-a-2026-10-20/.
+Initial transient DOM snapshots are retained as diagnostics, not final failures.
+The browser was temporarily disabled; access was restored before final checks.
+
+#### EUR-54 / QA-A1 final coverage
+
+The controller view inventory has 50 routed templates: the former 47 plus the
+post-create and two Proof of Work views. The unused dashboard and communities/about
+templates, component fragments, mail, binary and mutation-only responses are not
+separate browser screens. communities.show is About; Feed is posts.index.
+
+There are 196 measured viewport observations across 49 scenario labels.
+Exclude the superseded member-feed, member-course-outline and mislabeled
+platform-admin-table sets: 184 retained observations across 46 scenarios.
+These represent 38 routed templates sampled at all four widths; 12 templates
+are explicitly N/T. Additional overlay, empty, long and alternate-state samples
+do not inflate the template count. PASS means the recorded visual/geometry sample
+passed, not every possible state or product acceptance.
+
+P = PASS in the recorded state at 320/375/768/1280; N/T = not tested, reason shown.
+For every row, any state not expressly listed (including forced network failure,
+all validation permutations, pagination extremes or access revocation) is N/T:
+outside this bounded sample, no new fixtures created. Loading was observed in
+discussion and payment polling; forced failure/retry is N/T. Completed lesson
+feedback was checked with keyboard then restored, not four-width captured.
+
+| Routed template | Role | 320/375/768/1280 | Recorded state / limitation | Actual 200% |
+|---|---|---|---|---|
+| welcome | Guest | P/P/P/P | first view; evidence guest-welcome-{width}.png | N/T — zoom sampled on member text screens |
+| help.index | Self | P/P/P/P | guidance/Test Mode; evidence help-center-final-{width}.png | N/T — sampled elsewhere |
+| auth.login | Guest | P/P/P/P | default/keyboard login; evidence guest-login-{width}.png | N/T |
+| auth.register | Guest | P/P/P/P | default; account creation N/T; evidence guest-register-{width}.png | N/T |
+| auth.forgot-password | Guest | P/P/P/P | default; email submission N/T; evidence guest-forgot-password-{width}.png | N/T |
+| auth.reset-password | Guest | N/T/N/T/N/T | N/T — no valid reset-token fixture | N/T |
+| auth.confirm-password | Self | N/T/N/T/N/T | N/T — no sensitive-operation prompt exercised | N/T |
+| auth.verify-email | Self | N/T/N/T/N/T | N/T — existing personas verified | N/T |
+| invitations.accept | Invitee | N/T/N/T/N/T | N/T — no acceptance performed | N/T |
+| profile.edit | Self | P/P/P/P | profile/security/preferences read only; evidence member-settings-profile-{width}.png | PASS — member-settings |
+| account.memberships.index | Self | P/P/P/P | active/expired; evidence member-access-{width}.png | PASS |
+| account.memberships.show | Self | P/P/P/P | expired/renewal unavailable; evidence member-access-expired-detail-{width}.png | PASS |
+| account.payment-history.index | Self | P/P/P/P | pending/succeeded; evidence member-payment-history-{width}.png | N/T |
+| account.payment-history.show | Self | P/P/P/P | pending receipt; evidence member-receipt-pending-{width}.png | N/T |
+| account.referrals | Self | P/P/P/P | empty/simulated unpaid; evidence member-referrals-{width}.png | N/T |
+| payments.checkout | Payer | P/P/P/P | pending/Test Mode; no transfer; evidence member-checkout-testmode-{width}.png | N/T |
+| payments.status | Payer | N/T/N/T/N/T | N/T — no payment transition initiated | N/T |
+| communities.index | Self | P/P/P/P | no blanket Admin membership; Creator populated keyboard; evidence admin-empty-discovery-{width}.png | N/T |
+| communities.create | Self | P/P/P/P | required validation; no creation; evidence community-create-form-final-{width}.png | N/T |
+| communities.show | Member | P/P/P/P | long title/rules/fixture cover; evidence member-about-long-{width}.png | PASS |
+| communities.posts.index | Member | P/P/P/P | populated/contextual; saved toggle restored; evidence member-feed-final-{width}.png | PASS — member-feed |
+| communities.posts.create | Member | N/T/N/T/N/T | N/T — no post composer submission | N/T |
+| communities.posts.show | Member | N/T/N/T/N/T | N/T — direct page not four-width sampled; overlay sampled separately | N/T |
+| communities.posts.edit | Author | N/T/N/T/N/T | N/T — existing content preserved | N/T |
+| communities.posts.comments.edit | Author | N/T/N/T/N/T | N/T — existing content preserved | N/T |
+| communities.saved | Member | P/P/P/P | empty with next step; evidence member-saved-empty-{width}.png | N/T |
+| communities.search | Member | P/P/P/P | DNS results and empty query result; evidence member-search-results-{width}.png | N/T |
+| communities.directory.index | Member | P/P/P/P | long names; evidence member-directory-{width}.png | N/T |
+| communities.directory.show | Member | P/P/P/P | long/zero; verified own profile also sampled; evidence member-profile-long-{width}.png | PASS |
+| communities.events.index | Member | P/P/P/P | scheduled/cancelled/timezone; evidence member-events-{width}.png | N/T |
+| communities.events.show | Member | P/P/P/P | cancelled; meeting action absent; evidence member-event-cancelled-{width}.png | N/T |
+| communities.events.create | Creator | N/T/N/T/N/T | N/T — no event creation | N/T |
+| communities.events.edit | Creator | N/T/N/T/N/T | N/T — existing schedule preserved | N/T |
+| communities.leaderboard | Member | P/P/P/P | rankings/zero; final h1 rechecked at zoom; evidence member-leaderboard-{width}.png | PASS — final h1 |
+| communities.notifications.index | Member | P/P/P/P | empty/read state; evidence member-notifications-{width}.png | N/T |
+| communities.messages.index | Participant | P/P/P/P | existing inbox; no message sent; evidence member-inbox-{width}.png | N/T |
+| communities.messages.show | Participant | N/T/N/T/N/T | N/T — no thread walkthrough | N/T |
+| classroom.index | Member | P/P/P/P | included/paid course/progress; evidence member-classroom-{width}.png | PASS |
+| classroom.courses.show | Member | P/P/P/P | outline/locked course; breadcrumb corrected; evidence member-course-outline-fixed-{width}.png | PASS — outline + locked |
+| classroom.lessons.show | Member | P/P/P/P | verified evidence; completion toggle restored; evidence member-lesson-proof-{width}.png | PASS |
+| communities.manage | Creator | P/P/P/P | truthful operational metrics; evidence creator-overview-{width}.png | N/T |
+| communities.edit | Creator | P/P/P/P | existing settings read only; evidence creator-settings-{width}.png | N/T |
+| communities.invitations | Creator | P/P/P/P | form/list; no mail sent; evidence creator-invitations-{width}.png | N/T |
+| communities.members.index | Creator | P/P/P/P | long membership table; no role changes; evidence creator-members-{width}.png | N/T |
+| communities.orders.index | Creator | P/P/P/P | pending/succeeded; keyboard filter; evidence creator-orders-{width}.png | N/T |
+| communities.reports.index | Creator | P/P/P/P | empty queue; resolution N/T; evidence creator-reports-{width}.png | N/T |
+| communities.referrals | Creator | P/P/P/P | simulated ledger; no payout; evidence creator-referrals-{width}.png | N/T |
+| communities.manage.proof-of-work.index | Creator | P/P/P/P | empty Waiting; Verified list; evidence creator-review-queue-{width}.png | N/T |
+| communities.manage.proof-of-work.show | Creator | P/P/P/P | verified record read only; pending review N/T; evidence creator-review-detail-{width}.png | N/T |
+| admin.communities.index | Admin | P/P/P/P | table; keyboard confirmation/Cancel; no suspension; evidence platform-admin-table-final-{width}.png | N/T |
+
+Community Feed retains discussion hierarchy; Classroom/lesson retain course
+outline and the primary learning action; Events retains chronological/timezone
+context; Members accommodates long names; Leaderboard keeps distinct metrics;
+About presents purpose/rules and course access. Intentional local table/tab
+overflow is distinguished from page-wide horizontal scrolling.
+
+Confirmed visual failure A-F01: at 320px, course/13 breadcrumb produced
+clientWidth 305 versus scrollWidth 342. Expected: no page-wide overflow and
+Classroom remains reachable. Reproduce: Member -> Classroom -> course/13 at 320px.
+Impact/severity: Medium, narrow-screen reading/navigation friction.
+Fix: constrain breadcrumb flex width and allow the title to shrink.
+Retest: 305/305 at 320; remaining widths and actual 200% passed.
+Before/after PNGs are attached to EUR-54.
+
+Critical/High findings reproduced in the bounded sample: 0/0. This is not a
+release-wide zero-blocker claim. Root findings A-F02 through A-F05 are below.
+Minimum retest after any new source candidate: breadcrumb, Feed labels/checklist,
+all consumers of the contextual rail/Learning Focus, Leaderboard heading,
+normal and pending discussion cancellation; complete listed N/T routes before
+whole-product acceptance. Owner visual acceptance and recordings remain outside
+this QA report closure.
+
+#### EUR-55 / QA-A2 final sampled audit
+
+| Criterion / pattern | Result and method |
+|---|---|
+| 1.3.1, 2.4.6 headings/structure | Sampled headings/landmarks checked. Leaderboard had no h1; A-F04 adds a screen-reader heading, confirmed on final 200% capture. Not an assertion that every heading level on every N/T route passes. |
+| 1.4.3 text contrast | A-F02 Medium: 11–12px slate400 labels on white measured 2.63:1. Filter/Sort, progress/rail metadata now slate600, measured 7.56:1. Primary white/teal 5.47:1; slate500/white 4.77:1; ink/canvas about 17.06:1. Remaining combinations N/T. |
+| 1.4.11 non-text contrast | Sampled opaque brand focus border/outline on white 5.47:1; Admin confirm ring is opaque red. The search translucent outer halo alone is not the complete focus indicator; its opaque focused border must be included. Unfocused pale boundaries and all disabled/hover combinations remain warnings/N/T, not unconditional PASS. |
+| 1.4.4, 1.4.10 resize/reflow | Four measured widths plus eleven actual 200% samples, no page-wide overflow after A-F01. Unsampled routes/states N/T as above. |
+| 2.1.1, 2.1.2 keyboard | Guest login, form Tab/reverse/required validation, Member navigation, Feed save Space and restore, search arrows/Escape, lesson completion Space and restore, Creator Orders/filter/review navigation, Admin confirmation reason/Cancel/Escape checked without mouse activation. Destructive commits, payment transfer and unavailable pending-review actions were not executed. |
+| 2.4.3, 2.4.7, 2.4.11 focus | Form focus follows labels/order; focused samples were in viewport with visible border/ring. Admin reason initially focused, reverse Tab contained, Escape returned to Suspend. Discussion close initially focused, Tab remained inside, Escape restored opener. Entire-page exhaustive focus/AT combinations N/T. |
+| 2.5.8 targets | Feed Like 16x57.26 and Save 16x49.25 CSS px with 16px horizontal gap: sampled 24px target-circle spacing exception applies, height alone is not PASS. A-F03 Low: checklist control now at least 24px, measured 24x28, explicit Hide checklist name; darker icon replaces low-contrast gray400 (about 2.49:1 before). |
+| 3.3.1, 3.3.2 instructions/errors | Empty Create Community keyboard submission focused required Community Name without creating data. Payment/Test Mode and expired-access instructions inspected. Every server validation permutation N/T. |
+| 4.1.2 names/roles/values | Native form controls, dialog labels and search combobox checked. Save toggled to Remove from saved, aria-pressed true, then original false restored. Lesson Completed/Mark Incomplete and summary 100% observed, then restored. Native progress value attribute becomes 100; a snapshot retaining fallback text 0% is a tool warning, not proof that native progress value remained zero. |
+| 4.1.3 status | Live search exposes result-count status; lesson status exposes completion; discussion loading uses status. Actual screen-reader announcement timing N/T. |
+| WAI-ARIA modal dialog | Loaded open/close, background inert, focus containment/return passed. A-F05 Medium: Escape during pending open was ignored (two reproductions). Minimal correction hides cancelled pending open, restores background/focus, closes late server response without reopening/history push. Two pending-cancel retests plus normal loaded open/Escape passed on final source; no dialog/inert branches remained in the first settled late-response check. |
+| WAI-ARIA combobox | Results expose listbox/options; ArrowDown selects active descendant while focus stays in input; Escape closes. Rapid Escape plus replacement query settled collapsed with obsolete options absent. Ordinary result/empty full-search pages also sampled. Artificial network reordering/error injection N/T. |
+| Reduced motion | Actual matchMedia reduce = true; visible dialog computed transition/animation duration 0.00001s. SC 2.3.3 is AAA, included only as an additional observation. No AA conformance claim derives from it. |
+| 2.2.2, 2.3.1 and unlisted criteria | N/T for all external video content, flashing and continuous-motion cases. No comprehensive WCAG conformance/certification claim. |
+
+Root defects: A-F01 overflow Medium; A-F02 text contrast Medium; A-F03 checklist
+name/target/icon Low; A-F04 missing page h1 Low; A-F05 pending Escape Medium.
+All five corrected in this local patch, with affected evidence retested.
+No confirmed Critical/High accessibility blocker was found in the sampled scope.
+Warnings and N/T above remain visible; an audit report can finish with these
+limitations without certifying product-wide accessibility.
+
+A-F05 reproduction: from Member Feed, press Enter on Discussion then Escape while
+Loading discussion is displayed. Expected: cancel without reopening after response,
+restore focus/background and retain Feed URL. Before: Escape ignored until loaded.
+After: no visible modal, inert count zero, opener focused, Feed URL retained;
+late response did not reopen it. Error handling suppresses an error toast for an
+intentional cancelled open. No backend contract or authorization logic changed.
+
+#### EUR-56 / QA-A3 final usability report
+
+Executive summary: the first view communicates a private cohort/community product;
+Explore Communities and login are dominant actions. In a joined community, the six
+workspace destinations provide a predictable learning path. Learning Focus,
+course outline, practical evidence/feedback, safe access status and explicit
+Test Mode warnings are strengths to preserve. Long names remain readable after
+the breadcrumb correction. Progress completion and verified practical evidence
+are distinct concepts but their adjacent wording can confuse a new learner.
+
+No blocked or serious-friction learner task was confirmed in this bounded session.
+Zero confirmed Critical/High blockers is a sampled result, not final acceptance.
+The 404 recommendation is Medium/minor friction, not an established High blocker.
+The five implementation corrections above address confirmed presentation or
+interaction defects; the remaining proposals below are prioritization input.
+This is an agent-executed interface heuristic walkthrough, not recruited-user
+research or invented analytics. Creation, invitation/token flows, payment success,
+new proof submission, external video quality and other N/T routes remain assumptions.
+
+Each task started from the displayed UI, using visible navigation. Source was
+consulted only afterward to diagnose confirmed defects.
+
+| Task / persona and start | Expected / actual path | Outcome, friction and evidence |
+|---|---|---|
+| T01 Guest understand product from / | Read headline -> Explore Communities/login | Completed, clear private learning purpose; guest-welcome. Dominant action suggests discovery, authentication prerequisite could be clearer (proposal). |
+| T02 Guest sign in / choose registration path | Log In -> Email/Password -> dashboard; inspect Create an account | Login completed using synthetic Member/Creator; registration form inspected, account creation N/T; guest-login/register and keyboard-final.json. |
+| T03 Member open joined community | Dashboard -> community -> About/Feed | Completed; long community title retained, six destinations identifiable; member-about-long/feed. |
+| T04 Member identify purpose/rules | About -> purpose/rules/roadmap | Completed; real fixture imagery/fallback, private-community context visible; member-about-long. |
+| T05 Member find/continue lesson | Classroom -> course/13 -> lesson/39 / Learning Focus | Completed with minor narrow-screen breadcrumb friction before fix, clear after; course-outline-fixed and lesson-proof. |
+| T06 Member read/ask discussion | Feed Discussion -> comments; lesson Ask a Question contextual link | Reading completed, context retained. New post/reply submission N/T. Pending Escape friction corrected; discussion-modal, rapid-close-before/after. |
+| T07 Member find event | Events -> cancelled detail | Completed; cancellation explicit and no meeting action; member-events/event-cancelled. No event creation. |
+| T08 Member find people/ranking meaning | Members -> long profile; Leaderboard -> distinct metrics | Completed; long identity/verified skills visible and engagement is explained separately; directory/profile-long/profile-verified/leaderboard. |
+| T09 Member understand progress/completed evidence | Lesson -> Verified evidence and Incomplete progress -> Space Mark Complete | Completed with minor terminology ambiguity: evidence verification and learning progress are separate. Completed/100% observed; original Incomplete restored; member-lesson-completed, keyboard-final.json. |
+| T10 Member recover and assess trust | Empty Saved/search; missing post -> browser Back; locked course; expired access; pending checkout | Completed with minor 404 recovery friction. Empty states give next steps, locked/expiry restrictions and no-real-transfer Test Mode warning are clear; saved-empty/search-empty/404/course-locked/access-expired-detail/checkout-testmode. No money transferred. |
+
+Prioritized top ten, grouped by shared root cause. Items explicitly marked
+proposal are not additional confirmed defects or implementation requirements.
+
+| Priority | Root / affected screen | Problem and expected learner benefit | Disposition |
+|---|---|---|---|
+| 1 | Interaction cancellation / discussion | Escape during loading is ignored; reliable cancellation preserves control | A-F05 Medium, fixed/retested |
+| 2 | Responsive navigation / course outline | Long breadcrumb creates page-wide scrolling at 320px; readable narrow-screen course navigation | A-F01 Medium, fixed/retested |
+| 3 | Readability / Feed and learning rails | Small metadata below contrast threshold; easier reading of filters/progress/context | A-F02 Medium, fixed/retested |
+| 4 | Error recovery / missing post | 404 offers no in-app return destination; safe community/home recovery reduces reliance on browser Back | Proposal, Medium/minor friction |
+| 5 | Demo content relevance / lesson video | Fixture video link is unrelated to the DNS task and provider availability is not instructional proof; task-relevant media would improve trust | Proposal, Medium; content owner decision, no video replaced |
+| 6 | Control identification / checklist | Symbol-only dismiss control is less explicit and small; clear accessible dismissal | A-F03 Low, fixed/retested |
+| 7 | Page semantics / Leaderboard | No h1 made page identity weaker for assistive navigation | A-F04 Low, fixed/retested |
+| 8 | Learning terminology / lesson | Verified practical evidence and Incomplete lesson appear together; explaining distinct states reduces ambiguity | Proposal, Low; preserve separate contracts |
+| 9 | Context recognition / mobile Feed chips | Long course/lesson context is abbreviated; a deliberate way to inspect full context would aid recognition | Proposal, Low; full lesson is already reachable |
+| 10 | Language consistency / Creator member management | Mixed Vietnamese/English headings/actions in the inspected UI; consistent chosen locale would reduce terminology switching | Proposal, Low; no broad copy rewrite |
+
+These are five confirmed root defects plus five improvement proposals, not ten
+manufactured bugs. Strengths and N/T assumptions above form the executive summary.
+Minimum retest: the five corrected roots and affected consumers; new content/copy
+proposals require their own decision and scenario evidence before implementation.
+
+#### Verification and handoff
+
+- npm run build: PASS, 63 modules, 3.02s. Existing font-path build warnings remain;
+  no dependency or asset source changed after this build. The final extra fix is
+  inline Alpine in a server-rendered Blade view, verified in browser and by the
+  targeted regressions below.
+- docker compose exec -T app php artisan test tests/Feature/ClassroomRegressionTest.php tests/Feature/FrontendScaffoldTest.php tests/Feature/CommunityOnboardingTest.php tests/Feature/CommunityLeaderboardTest.php tests/Feature/ExperienceShellAuditRegressionTest.php tests/Feature/LearningFocusTest.php --compact --fail-on-skipped --fail-on-empty-test-suite:
+  PASS, 42 tests / 516 assertions / 42.74s after the initial six-file corrections.
+- docker compose exec -T app php artisan test tests/Feature/LivewireFeedInteractionsTest.php tests/Feature/ContextualDiscussionTest.php --compact --fail-on-skipped --fail-on-empty-test-suite:
+  PASS, 25 tests / 148 assertions / 19.54s after the discussion cancellation fix.
+- tests/TestCase.php guard verified before execution: only MySQL scool_test,
+  including resolved database URLs, before RefreshDatabase.
+- bash scripts/verify-agent-contract.sh: PASS, 11 shared files, repeated after
+  the report checkpoint. Final git diff --check also PASS.
+- No new PHP backend/schema/test logic, dependencies or authorization/payment
+  contract changes. No development migration/reset/reseed, inbox clearing, mail
+  submission or real payment. Bookmark/progress checks restored original states.
+- GitHub snapshot: report PRs #41/#42/#46 remain OPEN and REVIEW_REQUIRED;
+  #42/#46 conflict. Only Runner Preflight SUCCESS was observed. This QA evidence
+  does not resolve those PRs, replace review, establish CI for the dirty patch,
+  close EUR-46/M11 or authorize commit/push/merge.
+- Final report closure is about the three QA artifacts and their bounded results.
+  All N/T cells and product acceptance remain explicit. New revisions invalidate
+  affected observations and require the listed minimum retest scope.
+
+Linear handoff: final evidence comments were posted to EUR-54, EUR-55, EUR-56
+and EUR-52 on 2026-10-20. Child report Done states were read back before parent
+closure; final readback confirmed all four Done and EUR-46 still In Progress.
+The comments and previously
+uploaded sanitized screenshots are the shared report artifacts. Automatic
+approval review rejected uploading the optional raw measurement JSON because
+specific external disclosure of that payload was not authorized. It remains
+local; no indirect upload workaround was used. This does not limit the explicitly
+authorized summarized QA comments or report status transitions.
+
+### EUR-46 M11 final integration and acceptance preparation (2026-10-20)
+
+Owner request: continue until M11 is complete. Live Linear milestone inventory
+has 14 issues: nine Done, EUR-46 In Progress, EUR-53/57/58/59 In Review. This is
+execution/closure intent, not an exception to open AC, human review, protected
+merge, provider proof or the separate Git-publication gate. Edge remains N/T by
+the earlier explicit owner instruction; no other exception is inferred.
+
+Preparation is isolated at base 3a0aae6ecde89f088c774b72a6fd67ae81b7506e in
+C:/Users/ACER/.codex/worktrees/eur-46-m11-acceptance/scool. The seven Track A
+view corrections were copied byte-for-byte from the tested primary source;
+the invitation fix and libexpat correction are inherited from PR #49. No backend
+contract, content, dependencies or UI redesign are added by this integration.
+The preceding Track A checkpoint is imported as historical evidence with its
+original candidate/limits; its tests are not relabeled as this new run.
+
+Plan: full guarded scool_test suite on this combined source and the separately
+tagged patched image, JUnit retained locally; diff/contract/source parity checks;
+complete missing browser journeys/negative cases where approved fixtures permit;
+reconcile final AC and review/evidence state before closure. Existing source and
+private runtime data in the primary checkout are preserved. No current local
+suite runs concurrently against scool_test. No dev reset/reseed or inbox clearing.
+
+Browser access currently reports disabled in Work settings. An enable request
+is pending; required manual observations cannot proceed until access returns.
+Outstanding parent gates include exact-current route/state acceptance, owner
+visual review and recordings (EUR-51's video waiver was scoped to EUR-51 only).
+Three QA-A report PRs #41/#42/#46 remain open and review-required; #42/#46 conflict.
+Do not merge/close their reports without reconciling original and corrective
+evidence. PR #49 full CI is running separately on GitHub; its test database is
+independent of the local guarded suite.
+
+Primary-checkout GitNexus mapping found only the frontend scaffold class/test,
+not Blade/Alpine behavior. No exact-integration graph-backed safety claim follows;
+the seven view diff, callers and runtime regressions are the evidence basis.
+
+#### Final integrated verification and remaining acceptance (2026-10-20)
+
+This update supersedes the earlier browser-disabled and CI-running snapshots.
+PR #49 head is 3a0aae6ecde89f088c774b72a6fd67ae81b7506e. The owner-approved
+libexpat correction runs after package/extension installation, not before it:
+`RUN apk upgrade --no-cache libexpat`. The dedicated image contains 2.9.0-r0;
+Trivy 0.75.0 HIGH/CRITICAL scan completed with zero matching findings, exit 0.
+The primary live app image was not rebuilt/restarted; its browser observations
+therefore establish application behavior on matching source, not patched-image
+browser acceptance.
+
+Exact PR #49 CI run 39373827113 passed. Its downloaded tested-sha.txt identifies
+fd0c3ab50e6b2cac514d8069d3e875007db85939, whose parents are main
+45ef4129db2edc74e917de65ca693c20c77b04fd and PR head 3a0aae6. Downloaded JUnit:
+585 tests / 4978 assertions / 0 errors / 0 failures / 0 skips / 99.407322s.
+Security/dependency gates, build, Node, Pint, PHPStan and application tests passed.
+This exact-PR evidence excludes the separate seven Track A view corrections.
+GitHub still reports MERGEABLE / REVIEW_REQUIRED; no independent review or merge.
+
+The combined M11 candidate is prepared in the attached eur-46-m11-acceptance
+worktree at base 3a0aae6 plus the seven Track A views and technical checkpoint.
+All nine application/test files match the primary source manifest byte-for-byte:
+05d2bf9f06f4a1c02239985592a86f41500cae26cde6a5b10b40f298d9bb7001
+(manifest SHA-256). Dockerfile is inherited from 3a0aae6. No further application
+change was made during these browser checks; unrelated docs/templates/ is preserved.
+
+Full combined-source run used the separately tagged scool-qa-eur53:libexpat image,
+guarded MySQL scool_test, mounted integration source and existing vendor/assets:
+`php artisan test --compact --fail-on-skipped --fail-on-empty-test-suite --log-junit storage/framework/testing/m11-final-junit.xml`.
+Completed JUnit: **585 tests / 5828 assertions / 0 errors / 0 failures / 0 skips /
+564.103297s**. The originating tool session was interrupted; its final stdout and
+process exit code were not retained. The completed XML is the result evidence;
+do not claim an observed exit 0 or launch a duplicate run solely for that loss.
+Integrated Pint: 286 files PASS, exit 0. Source parity, diff check and shared
+contract check pass. The unchanged primary-source production build and 13 Node
+tests remain qualified matching-input evidence; combined-branch CI is pending
+publication. Earlier local and CI assertion counts describe distinct environments.
+
+Browser access returned. Additional UI observations span 05:25:34Z–05:40:53Z:
+**19 PASS, 0 FAIL, 0 BLOCKED, 1 excluded N/T diagnostic** in this bounded sample.
+The excluded /admin 404 was not an actual routed page; Member denial was retested
+at /admin/communities (403) with seeded Admin positive control at the same route.
+The recorded UI widths are 570, 1280 and 1396 CSS px, with per-image dimensions;
+this additional sample is not a new four-width, 200%-zoom or Edge matrix.
+Captured warning/error entries were zero; full network/timing evidence remains N/T.
+Raw measurement JSON remains local and is not part of the publication allowlist.
+
+Synthetic persisted mutations in the existing isolated audit tenant: one message
+in thread 3, post 27, comments 39 and 40, and its Creator notification marked read.
+Refresh/direct navigation checks retained the message/post/comment/read states.
+The approved new QA account has empty inbox/notices/payment history and Active
+lifetime access. Creator orders have synthetic PENDING/SUCCEEDED rows and an empty
+FAILED filter; moderation and referrals have truthful empty/simulated states.
+No real message recipient, payment or external provider was involved.
+
+The attempted Creator member suspension was canceled by the owner; the Member
+remained Active. A separate Admin community-state test was initially rejected by
+automatic approval review because community-wide access changes lacked specific
+authorization. No blocked mutation ran. The owner then explicitly approved
+Suspend/Reactivate only for isolated synthetic community #19. Native required
+validation rejected an empty reason (not server-validation proof). A supplied
+reason produced SUSPENDED with an audit record; the verified QA Member's previously
+accessible Feed returned 404. Reactivation restored ACTIVE and an audit reason;
+the same Member reloaded successfully. Final platform counts: 17 Active, 0 Suspended.
+No other community state changed. Creator denial during suspension was not sampled.
+
+Stale authenticated composer submission after logout failed closed to login;
+after reauthentication the isolated Feed remained empty. Exact HTTP status and
+draft retention were not captured. Do not upgrade this to suspended-member stale
+mutation or all recovery/input-retention acceptance.
+
+| Acceptance gate | Current evidence and remaining work |
+|---|---|
+| EUR-46 AC-01/04 | Track A retains 38/50 routed-template coverage, not the obsolete 47-template denominator. New direct post/message/invitation/Admin samples add specific states, not all missing viewport combinations. Complete the remaining routed/state/reflow matrix. |
+| EUR-46 AC-02/03/05 | Historical fixture/cover and guest/keyboard/contrast evidence plus the bounded current fixes are available; full screen-by-screen owner review is still pending. |
+| EUR-46 AC-06/08 | Font/reduced-motion/cancel evidence exists; required short recordings and owner visual acceptance remain open. EUR-51's video exception applies only to EUR-51. |
+| EUR-46 AC-07 | Combined local test XML is clean; exact seven-view integration CI/review/publication remain pending. |
+| EUR-57 | Member create/comment/message persistence, positive/empty notifications, Creator operations and Admin state action are now evidenced. Full Creator content/settings/member lifecycle and positive account payment-history/checkout terminal coverage still require an explicit current matrix. |
+| EUR-58 | Wrong-role Admin route, suspended-community denial/recovery and logged-out stale submission are confirmed. Full nested-resource/actor-state/media/replay/interruption matrix is not replaced by this small UI sample; matching automated tests are separate evidence. |
+| EUR-59 | Exact PR CI and local combined run are available. Edge remains N/T per owner direction; full failed-request/route timing data is unavailable. No production/provider/independent-host claim. |
+| Publication | PR #49 requires human review. Report-only PRs #41/#42/#46 remain open; #42/#46 conflict. Prepare a neutral consolidated integration PR, preserving original report history, only with explicit current publication authorization. Do not silently close older PRs or bypass checks. |
+
+Live Linear readback: 14 M11 issues, nine Done, EUR-46 In Progress and
+EUR-53/57/58/59 In Review. Existing four corrective comments already contain
+runtime/CI results. Checked boxes in old issue descriptions do not establish
+the missing observations. No new Done transition, merge or release occurred.
+Recommendation remains Conditional / incomplete acceptance. Next action is
+review of the prepared bounded diff/evidence and authorized publication, followed
+by exact-branch CI, independent review and remaining owner acceptance.
+
+Additional browser evidence (UTC, measured CSS viewport; no raw JSON published):
+
+| Observation | Time | Viewport | Result / actual |
+|---|---|---|---|
+| [qa-notifications-empty](../testing-docs/EUR-46/current-evidence/qa-notifications-empty.png) | 05:25:34 | 570x715 | PASS — Approved new Member sees truthful no-notifications state |
+| [qa-inbox-empty](../testing-docs/EUR-46/current-evidence/qa-inbox-empty.png) | 05:25:40 | 570x715 | PASS — New Member has no conversations and a valid directory next action |
+| [qa-lifetime-access](../testing-docs/EUR-46/current-evidence/qa-lifetime-access.png) | 05:25:55 | 570x715 | PASS — Accepted invitation persists as Active lifetime access; renewal truthfully unavailable |
+| [qa-payment-history-empty](../testing-docs/EUR-46/current-evidence/qa-payment-history-empty.png) | 05:26:07 | 570x715 | PASS — New QA Member has no payment attempts; Test Mode wording present |
+| [member-message-persisted](../testing-docs/EUR-46/current-evidence/member-message-persisted.png) | 05:27:28 | 1396x675 | PASS — Synthetic Member-to-Creator message sent once; retained after refresh |
+| [member-post-comment-persisted](../testing-docs/EUR-46/current-evidence/member-post-comment-persisted.png) | 05:28:25 | 1396x675 | PASS — Member created post 27 and comment 39; direct entry and refresh retain both; own-like action absent |
+| [creator-notification-positive](../testing-docs/EUR-46/current-evidence/creator-notification-positive.png) | 05:29:34 | 1396x624 | PASS — Creator received one unread reply notice from synthetic Member in correct tenant |
+| [creator-notification-read-persisted](../testing-docs/EUR-46/current-evidence/creator-notification-read-persisted.png) | 05:29:44 | 1396x624 | PASS — After Mark read and refresh, notice persists with no Unread badge/Mark read button |
+| [creator-orders-populated](../testing-docs/EUR-46/current-evidence/creator-orders-populated.png) | 05:30:05 | 1396x624 | PASS — Creator sees only current tenant pending/succeeded synthetic receipts with Test Mode |
+| [creator-orders-empty](../testing-docs/EUR-46/current-evidence/creator-orders-empty.png) | 05:30:12 | 1396x624 | PASS — FAILED filter renders truthful no-orders state; tenant scope and filter links preserved |
+| [creator-reports-empty](../testing-docs/EUR-46/current-evidence/creator-reports-empty.png) | 05:30:18 | 1396x624 | PASS — Creator moderation queue explicitly empty with status filters |
+| [creator-referrals-simulated-empty](../testing-docs/EUR-46/current-evidence/creator-referrals-simulated-empty.png) | 05:30:25 | 1396x624 | PASS — 0% disabled, zero commissions, explicit simulated/unpaid and no payout warning |
+| [qa-stale-auth-no-post](../testing-docs/EUR-46/current-evidence/qa-stale-auth-no-post.png) | 05:37:13 | 570x715 | PASS — Publish from a stale authenticated page after logout returned to login; after reauthentication the isolated Feed remains empty. Draft retention and exact HTTP status were not captured. |
+| [qa-admin-existing-route-denial](../testing-docs/EUR-46/current-evidence/qa-admin-existing-route-denial.png) | 05:37:27 | 570x715 | PASS — A Member visiting the actual /admin/communities route receives 403 with Platform Administrator privileges required. Earlier /admin 404 was a non-route diagnostic. |
+| [admin-existing-route-positive](../testing-docs/EUR-46/current-evidence/admin-existing-route-positive.png) | 05:38:56 | 1280x720 | PASS — Seeded Platform Admin can open the same /admin/communities route that denied the QA Member; isolated QA community #19 is ACTIVE. |
+| [admin-qa-community-suspended](../testing-docs/EUR-46/current-evidence/admin-qa-community-suspended.png) | 05:39:43 | 1280x720 | PASS — With explicit owner authorization, isolated QA community #19 changed ACTIVE to SUSPENDED and displays an audit reason. Empty reason was blocked by native required-field validation only. |
+| [member-suspended-community-denied](../testing-docs/EUR-46/current-evidence/member-suspended-community-denied.png) | 05:40:24 | 1396x624 | PASS — Previously accessible QA community Feed returns 404 to the same verified Member while Admin state is SUSPENDED; independent session positive control exists before and after. |
+| [admin-qa-community-restored](../testing-docs/EUR-46/current-evidence/admin-qa-community-restored.png) | 05:40:35 | 1280x720 | PASS — Isolated QA community #19 is restored to ACTIVE with an audited reason; platform counts return to 17 Active and 0 Suspended. |
+| [member-restored-community-access](../testing-docs/EUR-46/current-evidence/member-restored-community-access.png) | 05:40:53 | 1396x624 | PASS — After authorized Admin reactivation, reloading the same previously denied Feed restores ACTIVE Member access and retains the empty fixture content. |
+
+#### Automated boundary evidence from the completed integration run
+
+The following classes were read from the completed combined-source JUnit and
+their source methods were checked where cited. These are subsets of the same
+585-test run, not additional runs or browser observations. All listed classes
+have zero errors, failures and skips. Counts do not replace the UI coverage above.
+
+| Contract / QA scope | Test class | Tests / assertions | Evidence limit |
+|---|---|---|---|
+| EUR-58 tenant and membership denial | PrivateCommunityAccessTest | 10 / 92 | HTTP/policy and private-cover behaviors; no complete browser actor matrix |
+| EUR-57/58 Creator member lifecycle | CommunityMemberManagementTest | 11 / 57 | Suspend/reactivate/remove, mandatory reason, wrong tenant, duplicate audit and pending-payment denial; Creator browser suspension was canceled |
+| EUR-57/58 Admin boundary | PlatformAdministrationTest | 20 / 161 | Seeded role, list/state, mandatory reason, audit retention and no blanket Creator bypass |
+| EUR-57/58 invitation lifecycle | CommunityInvitationFlowTest; InvitationProcessIntegrationTest | 14 / 263; 4 / 35 | Matching/wrong email/token/state, rollback, mail and actual process concurrency; separate current browser valid acceptance exists |
+| EUR-58 participant messages/recovery | CommunityMessagingAuditTest; CommunityMessagingConcurrencyTest | 9 / 52; 5 / 30 | Retry id, hidden recipients, failed input, atomic rollback and concurrency; no offline-browser claim |
+| EUR-58 search visibility | LivewireCommunitySearchTest | 8 / 60 | Source methods cover tenant, draft/unentitled learning, canceled events, inactive members and stale request behavior |
+| EUR-57/58 Feed persisted actions | LivewireFeedInteractionsTest | 12 / 86 | Like/save/discussion/comments, fresh membership, ownership and tenant denial; native browser timing remains separate |
+| EUR-58 lesson repeat/entitlement | LessonProgressConcurrencyTest; CourseAccessAuditRegressionTest | 5 / 39; 6 / 76 | Actual test-database races/locked content/retry rollback; not provider video acceptance |
+| EUR-58 Test Mode financial states | PaymentEntitlementRegressionTest; SePayPaymentTest | 11 / 112; 11 / 60 | Synthetic test events/transaction rules; no real bank transfer or production-provider confirmation |
+
+These results narrow the unverified scope: functional boundary tests did run,
+while the literal QA browser scenario/state/request evidence and parent visual
+acceptance remain partial. Existing checked AC in Linear must not be read as
+proof that every browser cell was observed.
+
+Publication authorization update: the owner explicitly approved committing/pushing
+the prepared seven-view M11 integration, checkpoint, manifest and 27 selected
+screenshots to PR #49's existing branch, then running its full CI. No raw JSON,
+private files, docs/templates/, merge or Done action is included. The earlier
+proposal for a separate integration PR is superseded by this approved consolidation.

@@ -1,12 +1,12 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <nav class="flex items-center space-x-2 text-xs sm:text-sm text-slate-500">
-                <a class="hover:text-brand-600 transition" href="{{ route('communities.classroom.index', $community) }}">
+            <nav class="flex min-w-0 max-w-full items-center space-x-2 text-xs sm:text-sm text-slate-500">
+                <a class="shrink-0 hover:text-brand-600 transition" href="{{ route('communities.classroom.index', $community) }}">
                     {{ __('Classroom') }}
                 </a>
                 <span class="text-slate-300">/</span>
-                <span class="text-slate-900 font-semibold truncate max-w-sm">{{ $course->title }}</span>
+                <span class="min-w-0 text-slate-900 font-semibold truncate max-w-sm">{{ $course->title }}</span>
             </nav>
             <a class="text-xs sm:text-sm font-semibold text-brand-600 hover:text-brand-700 transition" href="{{ route('communities.classroom.index', $community) }}">
                 &larr; {{ __('Back to Classroom') }}
