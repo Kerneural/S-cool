@@ -9,21 +9,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body class="min-h-full font-sans antialiased text-ink bg-canvas selection:bg-brand-soft selection:text-brand flex flex-col justify-between">
-<body class="min-h-full font-sans antialiased text-slate-100 bg-slate-900 selection:bg-teal-500 selection:text-slate-950 flex flex-col justify-between">
-    <!-- Top Navigation -->
-    <header class="border-b border-slate-800/80 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-18 py-3 flex flex-wrap items-center justify-between gap-3">
-            <div class="flex items-center gap-3">
-                <x-application-logo class="w-10 h-10 shadow-sm" />
-                <div>
-                    <span class="font-display font-black text-xl text-white tracking-tight">S-cool</span>
-                    <span class="hidden sm:inline-block ml-2 text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-300 border border-teal-500/30">
-                        Community Engine
-                    </span>
-                </div>
-            </div>
-
+<body class="min-h-screen w-full font-sans antialiased text-ink bg-canvas selection:bg-brand-soft selection:text-brand flex flex-col overflow-x-hidden">
     <!-- Top Navigation / Header -->
     <header x-data="{ mobileMenuOpen: false, productsOpen: false, learnOpen: false, scrolled: false }"
             x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 20 })"
@@ -257,12 +243,13 @@
                         </a>
                     </div>
                 </div>
+            </div>
 
-                <!-- Continuous Infinite Logo Marquee Flow (Matching localhost:3000 marquee effect) -->
-                <div class="pt-20 border-t border-line/60 mt-16 text-center overflow-hidden">
-                    <p class="text-xs uppercase tracking-widest text-muted font-medium mb-8">
-                        Trusted by leading learning teams, universities & cohorts worldwide
-                    </p>
+            <!-- Continuous Infinite Logo Marquee Flow (Full-Width Edge-to-Edge) -->
+            <div class="w-full pt-16 border-t border-line/60 mt-16 text-center overflow-hidden">
+                <p class="text-xs uppercase tracking-widest text-muted font-medium mb-8 px-4">
+                    Trusted by leading learning teams, universities & cohorts worldwide
+                </p>
 
                     <!-- Scoped styles to guarantee marquee animation regardless of browser cache or reduced-motion defaults -->
                     <style>
@@ -295,9 +282,9 @@
                     <div class="relative overflow-hidden group/marquee"
                          style="-webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent); mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);">
                         <!-- Left fade transition overlay -->
-                        <div class="pointer-events-none absolute inset-y-0 left-0 w-20 sm:w-32 md:w-44 bg-gradient-to-r from-[#F8FAFC] via-[#F8FAFC]/80 to-transparent z-10 transition-opacity duration-300"></div>
+                        <div class="pointer-events-none absolute inset-y-0 left-0 w-24 sm:w-44 md:w-64 bg-gradient-to-r from-[#F8FAFC] via-[#F8FAFC]/90 to-transparent z-10 transition-opacity duration-300"></div>
                         <!-- Right fade transition overlay -->
-                        <div class="pointer-events-none absolute inset-y-0 right-0 w-20 sm:w-32 md:w-44 bg-gradient-to-l from-[#F8FAFC] via-[#F8FAFC]/80 to-transparent z-10 transition-opacity duration-300"></div>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 w-24 sm:w-44 md:w-64 bg-gradient-to-l from-[#F8FAFC] via-[#F8FAFC]/90 to-transparent z-10 transition-opacity duration-300"></div>
 
                         <div class="animate-marquee py-2 items-center text-muted flex w-max shrink-0"
                              style="display: flex; width: max-content; animation: marquee 35s linear infinite; will-change: transform;">
@@ -569,9 +556,9 @@
                     <div class="relative overflow-hidden mt-5 group/marquee"
                          style="-webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent); mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);">
                         <!-- Left fade transition overlay -->
-                        <div class="pointer-events-none absolute inset-y-0 left-0 w-20 sm:w-32 md:w-44 bg-gradient-to-r from-[#F8FAFC] via-[#F8FAFC]/80 to-transparent z-10 transition-opacity duration-300"></div>
+                        <div class="pointer-events-none absolute inset-y-0 left-0 w-24 sm:w-44 md:w-64 bg-gradient-to-r from-[#F8FAFC] via-[#F8FAFC]/90 to-transparent z-10 transition-opacity duration-300"></div>
                         <!-- Right fade transition overlay -->
-                        <div class="pointer-events-none absolute inset-y-0 right-0 w-20 sm:w-32 md:w-44 bg-gradient-to-l from-[#F8FAFC] via-[#F8FAFC]/80 to-transparent z-10 transition-opacity duration-300"></div>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 w-24 sm:w-44 md:w-64 bg-gradient-to-l from-[#F8FAFC] via-[#F8FAFC]/90 to-transparent z-10 transition-opacity duration-300"></div>
 
                         <div class="animate-marquee-reverse py-2 items-center text-muted flex w-max shrink-0"
                              style="display: flex; width: max-content; animation: marquee-reverse 35s linear infinite; will-change: transform;">
@@ -825,7 +812,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
         </section>
 
         <!-- 2. Lifecycle Section ("Accelerating the Community Learning Lifecycle") -->
