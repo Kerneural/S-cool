@@ -31,3 +31,4 @@ yarn-error.log
 /.vscode
 /.zed
 /docs/DEVOPS_CHEATSHEET.md
+.playwright-mcp/
