@@ -5,16 +5,24 @@
         </h1>
     </x-slot>
 
-    <div class="py-10">
+    <div class="py-8 sm:py-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-            @if (session('status'))
-                <div class="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-sm shadow-xs">
-                    <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>{{ session('status') }}</span>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- Sidebar Nav (4 cols on lg) -->
+                <div class="min-w-0 lg:col-span-4 space-y-4">
+                    <x-account-navigation active="referrals" />
                 </div>
-            @endif
+
+                <!-- Main Content (8 cols on lg) -->
+                <div class="min-w-0 lg:col-span-8 space-y-6 break-words [overflow-wrap:anywhere]">
+                    @if (session('status'))
+                        <div class="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-sm shadow-xs">
+                            <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span>{{ session('status') }}</span>
+                        </div>
+                    @endif
 
             <!-- Test Mode Notice -->
             <div class="p-4 bg-amber-50/90 border border-amber-200/80 rounded-2xl text-xs text-amber-900 flex items-start gap-3 shadow-xs">
@@ -194,6 +202,8 @@
                         {{ $commissions->links() }}
                     </div>
                 @endif
+                    </div>
+                </div>
             </div>
         </div>
     </div>

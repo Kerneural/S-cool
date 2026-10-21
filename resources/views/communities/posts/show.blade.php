@@ -28,7 +28,7 @@
             @endif
 
             <!-- Main Discussion Card -->
-            <article class="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-6 sm:p-8 space-y-6">
+            <article class="min-w-0 break-words [overflow-wrap:anywhere] bg-white rounded-2xl shadow-xs border border-slate-200/80 p-6 sm:p-8 space-y-6">
                 <!-- Post Author & Metadata Header -->
                 <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                     <div class="flex min-w-0 items-center gap-3">
@@ -59,14 +59,14 @@
                                 @if ($post->hasLearningContext())
                                     @if ($post->isLearningContextAccessibleFor(auth()->user()))
                                         <a href="{{ $post->lesson ? route('communities.lessons.show', [$community, $post->course, $post->lesson]) : route('communities.courses.show', [$community, $post->course]) }}"
-                                           class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 hover:bg-brand-100 transition border border-brand-200 shadow-xs" title="{{ $post->course->title }}{{ $post->lesson ? ' / ' . $post->lesson->title : '' }}">
+                                           class="inline-flex max-w-full min-w-0 flex-wrap items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 hover:bg-brand-100 transition border border-brand-200 shadow-xs" title="{{ $post->course->title }}{{ $post->lesson ? ' / ' . $post->lesson->title : '' }}">
                                             <svg class="w-3.5 h-3.5 text-brand-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                                             </svg>
-                                            <span class="truncate max-w-xs">{{ $post->course->title }}</span>
+                                            <span class="truncate min-w-0 max-w-full">{{ $post->course->title }}</span>
                                             @if ($post->lesson)
                                                 <span class="text-brand-400">/</span>
-                                                <span class="truncate max-w-xs">{{ $post->lesson->title }}</span>
+                                                <span class="truncate min-w-0 max-w-full">{{ $post->lesson->title }}</span>
                                             @endif
                                         </a>
                                     @else

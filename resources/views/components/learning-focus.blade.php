@@ -23,7 +23,7 @@
 
                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 shrink-0">
                     <div class="bg-white px-4 py-3 rounded-2xl border border-slate-200/80 shadow-xs min-w-[140px]">
-                        <span class="block text-[11px] uppercase tracking-wider font-semibold text-slate-400">{{ __('Overall Progress') }}</span>
+                        <span class="block text-[11px] uppercase tracking-wider font-semibold text-slate-600">{{ __('Overall Progress') }}</span>
                         <div class="flex items-baseline gap-2 mt-0.5">
                             <span class="text-xl font-black text-slate-900">{{ $learningFocus->percentage }}%</span>
                             <span class="text-xs font-medium text-slate-500">({{ $learningFocus->completedLessons }}/{{ $learningFocus->totalLessons }})</span>
