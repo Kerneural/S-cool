@@ -108,6 +108,20 @@ class VideoEmbedService
             return null;
         }
 
+        if ($host === 'loom.com' || $host === 'www.loom.com') {
+            if (preg_match('#^/(?:share|embed)/([a-f0-9]{32})$#', $path, $matches)) {
+                $videoId = $matches[1];
+
+                return [
+                    'provider' => 'loom',
+                    'video_id' => $videoId,
+                    'embed_url' => "https://www.loom.com/embed/{$videoId}",
+                ];
+            }
+
+            return null;
+        }
+
         return null;
     }
 
@@ -135,6 +149,7 @@ class VideoEmbedService
         return match ($video['provider']) {
             'youtube' => 'https://www.youtube.com/watch?v='.$video['video_id'],
             'vimeo' => 'https://vimeo.com/'.$video['video_id'],
+            'loom' => 'https://www.loom.com/share/'.$video['video_id'],
             default => null,
         };
     }
