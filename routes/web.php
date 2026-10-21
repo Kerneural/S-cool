@@ -19,6 +19,7 @@ use App\Http\Controllers\CreatorOverviewController;
 use App\Http\Controllers\DirectoryController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\HelpController;
+use App\Http\Controllers\HelpfulAnswerController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\LessonProgressController;
 use App\Http\Controllers\MembershipAccessController;
@@ -139,6 +140,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/communities/{community:slug}/posts/{post}/comments/{comment}/edit', [CommentController::class, 'edit'])->name('communities.posts.comments.edit');
         Route::put('/communities/{community:slug}/posts/{post}/comments/{comment}', [CommentController::class, 'update'])->name('communities.posts.comments.update');
         Route::delete('/communities/{community:slug}/posts/{post}/comments/{comment}', [CommentController::class, 'destroy'])->name('communities.posts.comments.destroy');
+        Route::post('/communities/{community:slug}/posts/{post}/comments/{comment}/helpful-answer', [HelpfulAnswerController::class, 'store'])->name('communities.posts.comments.helpful-answer.store');
+        Route::delete('/communities/{community:slug}/posts/{post}/comments/{comment}/helpful-answer', [HelpfulAnswerController::class, 'destroy'])->name('communities.posts.comments.helpful-answer.destroy');
 
         Route::get('/communities/{community:slug}/events', [EventController::class, 'index'])->name('communities.events.index');
         Route::get('/communities/{community:slug}/events/create', [EventController::class, 'create'])->name('communities.events.create');

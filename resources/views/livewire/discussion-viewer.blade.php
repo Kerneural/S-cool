@@ -1,6 +1,7 @@
 <div x-data="{
         isOpen: $wire.entangle('isOpen'),
         opening: false,
+        cancelledOpening: false,
         historyNavigation: false,
         openError: null,
         triggerEl: null,
@@ -9,6 +10,10 @@
         init() {
             window.addEventListener('discussion-opened', (e) => {
                 this.opening = false;
+                if (this.cancelledOpening) {
+                    $wire.close();
+                    return;
+                }
                 this.setBackgroundInert(true);
 
                 if (!this.historyNavigation && window.history.pushState && e.detail.url) {
@@ -23,6 +28,7 @@
 
             window.addEventListener('discussion-closed', () => {
                 this.opening = false;
+                this.cancelledOpening = false;
                 this.historyNavigation = false;
                 this.setBackgroundInert(false);
 
@@ -53,6 +59,7 @@
             }
             if (trigger) this.triggerEl = trigger;
             this.opening = true;
+            this.cancelledOpening = false;
             this.openError = null;
             this.historyNavigation = fromHistory;
             this.setBackgroundInert(true);
@@ -63,11 +70,17 @@
                 this.opening = false;
                 this.historyNavigation = false;
                 this.setBackgroundInert(false);
-                this.openError = @js(__('Unable to open this discussion. Refresh the page or check your access.'));
+                this.openError = this.cancelledOpening ? null : @js(__('Unable to open this discussion. Refresh the page or check your access.'));
                 this.triggerEl?.focus();
             }
         },
         requestClose() {
+            if (this.opening) {
+                this.cancelledOpening = true;
+                this.setBackgroundInert(false);
+                this.triggerEl?.focus();
+                return;
+            }
             if (window.history.state?.scoolDiscussionPostId) {
                 window.history.back();
                 return;
@@ -125,7 +138,7 @@
             }
         }
      }"
-     @keydown.window="isOpen && handleKeyDown($event)"
+     @keydown.window="(isOpen || opening) && handleKeyDown($event)"
      class="relative">
 
     <p x-show="openError"
@@ -135,7 +148,7 @@
        role="alert"></p>
 
     <!-- Modal Backdrop & Container -->
-    <div x-show="isOpen || opening"
+    <div x-show="(isOpen || opening) && !cancelledOpening"
          x-cloak
          class="fixed inset-0 z-50 flex items-center justify-center overflow-hidden"
          role="dialog"
@@ -302,18 +315,26 @@
                     @else
                         <div class="space-y-3">
                             @foreach ($comments as $comment)
-                                <div class="p-4 rounded-2xl bg-slate-50/80 border border-slate-100 space-y-2 group" wire:key="comment-{{ $comment['id'] }}">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center gap-2.5">
+                                <div class="p-4 rounded-2xl {{ $comment['is_helpful'] ? 'bg-emerald-50/70 border-2 border-emerald-300 shadow-xs' : 'bg-slate-50/80 border border-slate-100' }} space-y-2 group" wire:key="comment-{{ $comment['id'] }}">
+                                    <div class="flex flex-wrap items-start justify-between gap-3">
+                                        <div class="flex min-w-0 flex-1 items-center gap-2.5">
                                             <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-xs shrink-0">
                                                 {{ $comment['author_initial'] }}
                                             </div>
-                                            <div>
-                                                <div class="flex items-center gap-1.5">
+                                            <div class="min-w-0 break-words [overflow-wrap:anywhere]">
+                                                <div class="flex items-center gap-1.5 flex-wrap">
                                                     <span class="font-bold text-slate-900 text-xs">{{ $comment['author_name'] }}</span>
                                                     @if ($comment['is_creator'])
                                                         <span class="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-brand-50 text-brand-700">
                                                             {{ __('Creator') }}
+                                                        </span>
+                                                    @endif
+                                                    @if ($comment['is_helpful'])
+                                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                                            <svg class="w-3 h-3 text-emerald-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                                            </svg>
+                                                            {{ __('Accepted Answer') }}
                                                         </span>
                                                     @endif
                                                 </div>
@@ -321,7 +342,23 @@
                                             </div>
                                         </div>
 
-                                        <div class="flex items-center gap-2 text-xs">
+                                        <div class="flex max-w-full flex-wrap items-center gap-2 text-xs">
+                                            @if ($comment['can_accept'])
+                                                <button type="button"
+                                                        wire:click="acceptHelpfulAnswer({{ $comment['id'] }})"
+                                                        wire:loading.attr="disabled" wire:target="acceptHelpfulAnswer,revokeHelpfulAnswer"
+                                                        class="inline-flex min-h-11 items-center gap-1 px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg border border-emerald-200 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:opacity-50">
+                                                    {{ __('Accept Answer') }}
+                                                </button>
+                                            @endif
+                                            @if ($comment['can_unaccept'])
+                                                <button type="button"
+                                                        wire:click="revokeHelpfulAnswer({{ $comment['id'] }})"
+                                                        wire:loading.attr="disabled" wire:target="acceptHelpfulAnswer,revokeHelpfulAnswer"
+                                                        class="min-h-11 px-2 text-xs text-slate-500 hover:text-slate-700 font-medium underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:opacity-50">
+                                                    {{ __('Revoke') }}
+                                                </button>
+                                            @endif
                                             @if ($comment['can_edit'] && $editingCommentId !== $comment['id'])
                                                 <button type="button"
                                                         wire:click="editComment({{ $comment['id'] }})"

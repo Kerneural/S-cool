@@ -10,6 +10,19 @@
     @livewireStyles
 </head>
 <body class="min-h-full font-sans antialiased text-ink bg-canvas selection:bg-brand-soft selection:text-brand flex flex-col justify-between">
+<body class="min-h-full font-sans antialiased text-slate-100 bg-slate-900 selection:bg-teal-500 selection:text-slate-950 flex flex-col justify-between">
+    <!-- Top Navigation -->
+    <header class="border-b border-slate-800/80 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-18 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <x-application-logo class="w-10 h-10 shadow-sm" />
+                <div>
+                    <span class="font-display font-black text-xl text-white tracking-tight">S-cool</span>
+                    <span class="hidden sm:inline-block ml-2 text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-300 border border-teal-500/30">
+                        Community Engine
+                    </span>
+                </div>
+            </div>
 
     <!-- Top Navigation / Header -->
     <header x-data="{ mobileMenuOpen: false, productsOpen: false, learnOpen: false, scrolled: false }"
@@ -1184,6 +1197,10 @@
                             <span class="text-sm">&rarr;</span>
                         </a>
                     </div>
+                    <h3 class="text-base font-bold text-white tracking-tight">Events & Direct Messaging</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        UTC-synchronized event schedules with secure meeting links and private conversations with refresh-based updates.
+                    </p>
                 </div>
             </div>
         </section>

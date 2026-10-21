@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Community;
 use App\Models\User;
+use App\Services\CommunityContributionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -47,7 +48,7 @@ class DirectoryController extends Controller
     /**
      * Display the specified member profile within this community context.
      */
-    public function show(Community $community, User $user): View
+    public function show(Community $community, User $user, CommunityContributionService $contributionService): View
     {
         Gate::authorize('view', $community);
 
@@ -61,11 +62,21 @@ class DirectoryController extends Controller
         $role = $isCreator ? 'Creator' : 'Member';
         $joinedAt = $isCreator ? $community->created_at : $membership->created_at;
 
+        $viewer = request()->user();
+        $verifiedSkills = $contributionService->getVerifiedSkills($community, $user, $viewer);
+        $helpfulAnswersCount = $contributionService->getHelpfulAnswersCount($community, $user);
+        $activityHeatmap = $contributionService->getActivityHeatmap($community, $user, $viewer);
+        $activityHistory = $contributionService->getActivityHistory($community, $user, $viewer);
+
         return view('communities.directory.show', [
             'community' => $community,
             'member' => $user,
             'role' => $role,
             'joinedAt' => $joinedAt,
+            'verifiedSkills' => $verifiedSkills,
+            'helpfulAnswersCount' => $helpfulAnswersCount,
+            'activityHeatmap' => $activityHeatmap,
+            'activityHistory' => $activityHistory,
         ]);
     }
 

@@ -8,6 +8,7 @@ use App\Models\Comment;
 use App\Models\Community;
 use App\Models\OnboardingStepCompletion;
 use App\Models\Post;
+use App\Services\HelpfulAnswerService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
@@ -26,6 +27,8 @@ class DiscussionViewer extends Component
 
     #[Locked]
     public ?int $postId = null;
+
+    public ?int $acceptedCommentId = null;
 
     public bool $isOpen = false;
 
@@ -109,6 +112,7 @@ class DiscussionViewer extends Component
         $user = auth()->user();
 
         $this->postId = $post->id;
+        $this->acceptedCommentId = $post->accepted_comment_id;
         $this->postTitle = $post->title;
         $this->postBody = $post->body;
         $this->authorName = $post->author->name ?? __('Unknown');
@@ -186,8 +190,22 @@ class DiscussionViewer extends Component
             ->reverse()
             ->values();
 
-        $this->comments = $comments->map(function ($comment) use ($user, $isCreator, $community) {
+        $eligibleAcceptedId = Post::query()->whereKey($post->id)->eligibleHelpfulAnswer()->value('posts.accepted_comment_id');
+        $eligibleAuthorIds = collect();
+        if ($isCreator && Post::query()->whereKey($post->id)->accessibleLearningContext($user)->exists()) {
+            $eligibleAuthorIds = $community->memberships()->effective()
+                ->whereIn('user_id', $comments->pluck('user_id'))->pluck('user_id');
+            $course = $post->course;
+            if ($course?->isOneTime()) {
+                $eligibleAuthorIds = $course->entitlements()->whereIn('user_id', $eligibleAuthorIds)->pluck('user_id');
+            }
+        }
+
+        $this->comments = $comments->map(function ($comment) use ($user, $isCreator, $community, $post, $eligibleAcceptedId, $eligibleAuthorIds) {
             $isCommentAuthor = $user && (int) $comment->user_id === (int) $user->id;
+            $isAccepted = (int) $post->accepted_comment_id === (int) $comment->id;
+            $canAccept = $isCreator && $eligibleAuthorIds->contains($comment->user_id)
+                && (int) $comment->user_id !== (int) ($user?->id ?? 0);
 
             return [
                 'id' => $comment->id,
@@ -199,6 +217,9 @@ class DiscussionViewer extends Component
                 'created_at' => $comment->created_at->diffForHumans(),
                 'can_edit' => $isCommentAuthor,
                 'can_delete' => $isCommentAuthor || $isCreator,
+                'is_helpful' => (int) $eligibleAcceptedId === (int) $comment->id,
+                'can_accept' => $canAccept && ! $isAccepted,
+                'can_unaccept' => $isCreator && $isAccepted,
             ];
         })->toArray();
 
@@ -360,6 +381,68 @@ class DiscussionViewer extends Component
         } catch (\Throwable $e) {
             report($e);
             $this->errorMessage = 'Unable to delete comment. Please check your access and try again.';
+        }
+    }
+
+    public function acceptHelpfulAnswer(int $commentId, HelpfulAnswerService $service): void
+    {
+        $this->errorMessage = null;
+        $this->successMessage = null;
+        $user = auth()->user();
+        if (! $user) {
+            $this->errorMessage = 'Please sign in to accept answers.';
+
+            return;
+        }
+
+        try {
+            [$community, $post, $isCreator] = $this->visiblePost();
+            if (! $isCreator) {
+                $this->errorMessage = 'Only the community creator can accept helpful answers.';
+
+                return;
+            }
+
+            $comment = $post->comments()->findOrFail($commentId);
+
+            $service->accept($community, $post, $comment, $user);
+            $this->successMessage = __('Helpful answer accepted.');
+            $post->refresh();
+            $this->acceptedCommentId = $post->accepted_comment_id;
+            $this->loadComments($post);
+        } catch (\Throwable $e) {
+            $this->errorMessage = 'Unable to accept this answer. Refresh, check access and try again.';
+        }
+    }
+
+    public function revokeHelpfulAnswer(int $commentId, HelpfulAnswerService $service): void
+    {
+        $this->errorMessage = null;
+        $this->successMessage = null;
+        $user = auth()->user();
+        if (! $user) {
+            $this->errorMessage = 'Please sign in to revoke answers.';
+
+            return;
+        }
+
+        try {
+            [$community, $post, $isCreator] = $this->visiblePost();
+            if (! $isCreator) {
+                $this->errorMessage = 'Only the community creator can revoke helpful answers.';
+
+                return;
+            }
+
+            $comment = $post->comments()->findOrFail($commentId);
+
+            $service->revoke($community, $post, $comment, $user);
+            $this->successMessage = __('Helpful answer revoked.');
+            $post->refresh();
+            $this->acceptedCommentId = $post->accepted_comment_id;
+            $this->loadComments($post);
+        } catch (\Throwable $e) {
+            $this->errorMessage = 'Unable to revoke this answer. Refresh, check access and try again.';
         }
     }
 

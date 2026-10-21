@@ -9,6 +9,7 @@ use App\Models\Lesson;
 use App\Models\OnboardingStepCompletion;
 use App\Models\Post;
 use App\Models\User;
+use App\Services\CommunityContributionService;
 use App\Services\LearningFocusService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -99,6 +100,7 @@ class PostController extends Controller
             'currentCourseId' => $currentCourseId ? (int) $currentCourseId : null,
             'isCreator' => $community->isCreator($request->user()),
             'learningFocus' => LearningFocusService::resolve($community, $user),
+            'miniRanking' => app(CommunityContributionService::class)->miniRanking($community),
         ]);
     }
 

@@ -71,21 +71,45 @@ class ProfileController extends Controller
     }
 
     /**
-     * Update user notification preferences (F-14).
+     * Update user notification preferences (F-14 / EUR-51).
+     * Supports both async JSON requests with server acknowledgment and classic form redirects.
      */
-    public function updateNotifications(Request $request): RedirectResponse
+    public function updateNotifications(Request $request): SymfonyResponse
     {
-        $request->validate([
-            'notify_replies' => ['nullable', 'boolean'],
-            'notify_courses' => ['nullable', 'boolean'],
+        $fields = ['notify_replies', 'notify_courses'];
+        $unknown = array_diff(array_keys($request->except(['_token', '_method'])), $fields);
+        if (($request->expectsJson() && $unknown !== []) || ! $request->hasAny($fields)) {
+            throw ValidationException::withMessages([
+                'preferences' => 'Provide only the supported notification preferences.',
+            ]);
+        }
+
+        $validated = $request->validate([
+            'notify_replies' => ['sometimes', 'boolean'],
+            'notify_courses' => ['sometimes', 'boolean'],
         ]);
 
         $user = $request->user();
-        $user->notify_replies = $request->boolean('notify_replies');
-        $user->notify_courses = $request->boolean('notify_courses');
+
+        if ($request->has('notify_replies')) {
+            $user->notify_replies = $request->boolean('notify_replies');
+        }
+
+        if ($request->has('notify_courses')) {
+            $user->notify_courses = $request->boolean('notify_courses');
+        }
+
         $user->save();
 
-        return Redirect::route('profile.edit')->with('status', 'notification-preferences-updated');
+        if ($request->expectsJson() || $request->isJson()) {
+            return response()->json([
+                'status' => 'success',
+                'notify_replies' => (bool) $user->notify_replies,
+                'notify_courses' => (bool) $user->notify_courses,
+            ]);
+        }
+
+        return Redirect::route('profile.edit', ['section' => 'notifications'])->with('status', 'notification-preferences-updated');
     }
 
     /**

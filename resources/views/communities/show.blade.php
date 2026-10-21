@@ -17,7 +17,7 @@
             <!-- Editorial 2-Column Grid (Main Editorial Measure + Identity & Destinations Rail) -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 <!-- Left: Editorial Content (8 cols on lg, comfortable reading measure) -->
-                <div class="lg:col-span-8 space-y-6">
+                <div class="min-w-0 lg:col-span-8 space-y-6">
                     <!-- Community Story & Mission -->
                     <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-6 sm:p-8 space-y-4">
                         <div class="border-b border-slate-100 pb-4">
@@ -65,10 +65,27 @@
                             </p>
                         @endif
                     </div>
+                    <section class="rounded-2xl border border-slate-200/80 bg-white p-5 sm:p-6" aria-labelledby="about-learning-roadmap">
+                        <h2 id="about-learning-roadmap" class="text-lg font-bold text-slate-900">{{ __('Your learning roadmap') }}</h2>
+                        <p class="mt-1 text-sm text-slate-600">{{ __('Published courses available with your current access. Open Classroom for the complete catalog.') }}</p>
+                        <ol class="mt-4 space-y-2">
+                            @forelse ($roadmapCourses as $roadmapCourse)
+                                <li>
+                                    <a href="{{ route('communities.courses.show', [$community, $roadmapCourse]) }}" class="flex min-h-11 items-center gap-3 rounded-xl bg-slate-50 px-3 py-2 text-sm font-semibold text-brand hover:bg-brand-soft">
+                                        <span class="shrink-0 text-xs text-muted">{{ $loop->iteration }}</span>
+                                        <span class="min-w-0 break-words">{{ $roadmapCourse->title }}</span>
+                                    </a>
+                                </li>
+                            @empty
+                                <li class="text-sm text-muted">{{ __('No published courses are available with your current access yet.') }}</li>
+                            @endforelse
+                        </ol>
+                        <a href="{{ route('communities.classroom.index', $community) }}" class="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-brand underline">{{ __('Open Classroom') }}</a>
+                    </section>
                 </div>
 
                 <!-- Right: Identity, Useful Destinations & Private Status (4 cols on lg) -->
-                <aside class="lg:col-span-4 space-y-6">
+                <aside class="min-w-0 lg:col-span-4 space-y-6">
                     <!-- Community Identity Card -->
                     <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-5 space-y-4">
                         <div class="flex items-center gap-3">

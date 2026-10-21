@@ -4237,7 +4237,7 @@ limits supersede these claims; do not copy the initial PASS labels into Linear D
 - Current authorization covers this handoff. Commit/push/PR/merge/Done for EUR-51
   require their own current user authorization. Do not implement EUR-51 in EUR-50.
 
-### Supplied acceptance criteria (live snapshot, all unchecked)
+### Supplied acceptance criteria (acceptance gates; independent audit pending)
 
 - [ ] AC-01: Given a member with Verified Proof of Work, their permitted community profile shows the corresponding demonstrated skill and evidence count after refresh; unverified/rejected work is excluded.
 - [ ] AC-02: Given a creator accepting one eligible helpful answer, the author receives one contribution signal; repeated or concurrent acceptance cannot double count it.
@@ -4257,3 +4257,1028 @@ limits supersede these claims; do not copy the initial PASS labels into Linear D
 - [ ] AC-16: Given populated/empty/long/validation/loading/error/locked/expired states, the relevant operational and learning controls remain reachable at 320/375/768/1280px and 200% zoom with keyboard focus, readable contrast and reduced motion. Comparable before/after screenshots and short interaction recordings demonstrate actual shared-component consumers.
 - [ ] AC-17: Creator/Platform Admin/member rights, SePay Test Mode labels, payment/referral history, existing asynchronous messaging and notification semantics survive integrated regression and browser walkthrough; no unsupported payout/social/media controls, invented metrics, new package/runtime service or destructive data rewrite is introduced.
 - [ ] Review and applicable acceptance checks are evidenced; exceptions require explicit scoped authorization.
+
+The initial implementation marked every gate complete. The audit on 2026-10-16
+reopened these gates: source assertions and a selected test suite do not prove
+browser behavior, concurrent mutation, complete route coverage or formal acceptance.
+Use the corrective audit checkpoint below for current evidence. Linear remains the
+canonical acceptance/status source; no EUR-51 Done or publication is authorized.
+
+### EUR-51 Technical Plan and Bounded Architecture (2026-10-16)
+
+#### 1. Schema & Migration Changes
+- **Migration `2026_10_16_160001_add_profile_links_to_users_table.php`:**
+  - `github_url`: string 2048, nullable, after `avatar_path`
+  - `portfolio_url`: string 2048, nullable, after `github_url`
+- **Migration `2026_10_16_160002_add_accepted_comment_to_posts_table.php`:**
+  - On `posts`: `accepted_comment_id` (foreignId -> comments, nullable, nullOnDelete)
+  - On `comments`: `is_helpful` (boolean, default false, indexed)
+  - Table `helpful_answer_actions`:
+    - `id`
+    - `community_id` (foreignId -> communities, restrictOnDelete)
+    - `post_id` (foreignId -> posts, cascadeOnDelete)
+    - `comment_id` (foreignId -> comments, cascadeOnDelete)
+    - `author_id` (foreignId -> users, restrictOnDelete)
+    - `actor_id` (foreignId -> users, restrictOnDelete)
+    - `action` (string 32: 'ACCEPTED', 'REVOKED', 'REPLACED')
+    - `created_at` (timestamp)
+    - index on `['community_id', 'created_at']`
+    - index on `['post_id', 'created_at']`
+
+#### 2. Models & Services
+- Update `App\Models\User`: fillable `github_url`, `portfolio_url`.
+- Update `App\Models\Post`: `accepted_comment_id` fillable, belongsTo `acceptedComment` (`Comment`), `hasAcceptedAnswer(): bool`.
+- Update `App\Models\Comment`: `is_helpful` fillable/cast boolean, `scopeHelpful()`.
+- Create `App\Models\HelpfulAnswerAction`: audit model for helpful answer transitions.
+- Create `App\Services\HelpfulAnswerService`:
+  - `accept(Post $post, Comment $comment, User $actor): void`: locks post & comment, validates `$post->hasLearningContext()`, `$actor` is creator, `$comment->user_id !== $actor->id`, updates post & comments, records audit action. Idempotent.
+  - `revoke(Post $post, Comment $comment, User $actor): void`: locks, validates, resets `accepted_comment_id`, records audit action.
+- Create `App\Services\CommunityContributionService`:
+  - Aggregates verified skills from `LessonProofOfWork::query()->eligible()->current()->where('status', STATUS_VERIFIED)` using `skill_label_snapshot`.
+  - Counts helpful answers by user in community (only from undeleted posts/comments in active community).
+  - Calculates 90-day UTC activity heatmap in 2 bounded aggregate queries (posts + comments).
+- Update `App\Http\Requests\ProfileUpdateRequest`: validation for `github_url` and `portfolio_url` (must be HTTPS, max 2048, no credentials/control characters).
+
+#### 3. Controllers & Routes
+- Update `App\Http\Controllers\ProfileController`:
+  - `updateNotifications`: support JSON request returning `{status: 'success', notify_replies: bool, notify_courses: bool}` with single-field persistence and preservation of unsubmitted preference.
+  - `update`: sanitize & validate `github_url`, `portfolio_url`.
+- Create `App\Http\Controllers\HelpfulAnswerController`:
+  - `store`: `POST /communities/{community:slug}/posts/{post}/comments/{comment}/helpful-answer`
+  - `destroy`: `DELETE /communities/{community:slug}/posts/{post}/comments/{comment}/helpful-answer`
+- Update `App\Http\Controllers\DirectoryController`:
+  - In `show`: inject `CommunityContributionService` signals (verified skills count & list of snapshotted labels, helpful answer count, 90-day UTC heatmap data).
+- Update `App\Http\Controllers\CommunityLeaderboardController`:
+  - Add metric filters / tabs: `engagement` (default F-10 points), `verified_skills` (count of verified works), `helpful_answers` (count of accepted answers).
+  - Deterministic sort: metric DESC, user_id ASC.
+
+#### 4. UI / Shell & Views
+- `resources/views/layouts/navigation.blade.php`:
+  - Contextual shell: When `$community` is active, displays S-cool brand, community switcher dropdown, scoped search typeahead (`livewire:community-search-typeahead`), notices utility with tenant count, messages utility, and account avatar dropdown.
+  - Global shell: When outside a community, displays global navigation links.
+  - Mobile responsive drawer without duplicate banners or lost links.
+- `resources/views/components/community-workspace.blade.php`:
+  - Remove duplicate search/switcher/utility buttons that now live cleanly in the contextual shell header. Keep compact title/badges and navigation tabs.
+- `resources/views/profile/`:
+  - Reorganize into a coherent settings hub with deep-linkable sections (`#profile`, `#security`, `#notifications`, links to `/account/memberships`, `/account/payment-history`, `/account/referrals`).
+  - Add optimistic async toggles for notification preferences with server ack and error retry.
+  - Add GitHub and Portfolio URL inputs to `update-profile-information-form`.
+- `resources/views/communities/directory/show.blade.php`:
+  - Display verified skills badge & snapshotted skill labels (no private links/images).
+  - Display helpful answers count.
+  - Render 90-day UTC activity heatmap with accessible text alternative and clean zero state.
+  - Display safe GitHub / Portfolio external links with `rel="noopener noreferrer"`.
+- `resources/views/livewire/discussion-viewer.blade.php`:
+  - Add helpful answer badge on accepted comment.
+  - Creator action button to accept/unaccept helpful answer with real-time UI update.
+- Complete routed UI consistency across My Communities, About, Events, Members, Messages.
+
+#### 5. Verification Strategy & Test Execution Evidence
+
+**Historical implementation self-report, superseded by the corrective audit below.**
+The selected 29-test run was not the full suite. Its test counts do not cover the
+later fixes. No browser recording/screenshot evidence accompanied the claimed
+zoom, reduced-motion or native-confirm results. The checked-in PHPStan level is
+0; the earlier Level 6 description was incorrect. Do not use this subsection as
+current acceptance evidence.
+- **Automated Test Results (MySQL `scool_test` isolated):**
+  - `tests/Feature/HelpfulAnswerLifecycleTest.php`: 6 passed, 27 assertions
+    - `test_creator_can_accept_and_revoke_helpful_answer_on_contextual_post`: PASS
+    - `test_accepting_new_comment_replaces_previous_accepted_comment`: PASS
+    - `test_non_creator_cannot_accept_helpful_answer`: PASS
+    - `test_creator_cannot_accept_own_comment_as_helpful_answer`: PASS
+    - `test_cannot_accept_helpful_answer_on_non_contextual_post`: PASS
+    - `test_livewire_discussion_viewer_renders_badges_and_creator_actions`: PASS
+  - `tests/Feature/CommunityContributionProfileTest.php`: 2 passed, 15 assertions
+    - `test_profile_renders_verified_skills_scoped_to_community`: PASS
+    - `test_profile_renders_helpful_answers_count_scoped_to_community`: PASS
+  - `tests/Feature/LeaderboardMultiMetricTest.php`: 3 passed, 10 assertions
+    - `test_leaderboard_renders_metric_switcher_tabs_and_explanatory_copy`: PASS
+    - `test_leaderboard_verified_skills_ranks_users_with_deterministic_tie_breaking`: PASS
+    - `test_leaderboard_helpful_answers_ranks_users_and_excludes_deleted_content`: PASS
+  - `tests/Feature/NotificationPreferencesAsyncTest.php`: 2 passed, 7 assertions
+    - `test_async_toggle_updates_single_preference_and_returns_server_ack`: PASS
+    - `test_async_toggle_rejects_non_boolean_values`: PASS
+  - `tests/Feature/AccountSettingsNavigationTest.php`: 2 passed, 43 assertions
+    - `test_account_views_render_unified_sidebar_navigation`: PASS
+    - `test_profile_update_validates_https_and_rejects_unsafe_urls`: PASS
+  - `tests/Feature/ContextualShellTest.php`: 3 passed, 19 assertions
+    - `test_contextual_shell_renders_on_community_routes`: PASS
+    - `test_global_shell_renders_on_general_and_account_routes`: PASS
+    - `test_contextual_shell_displays_unread_notifications_badge`: PASS
+  - `tests/Feature/CommunityWorkspaceSwitcherTest.php`: 6 passed, 62 assertions
+  - `tests/Feature/CommunityAboutSettingsTest.php`: 5 passed, 41 assertions
+  - **Combined suite total:** 29 passed, 224 assertions. Duration: 47.34s.
+
+- **Static Analysis & Formatting:**
+  - Laravel Pint: 281 files checked, 0 style issues.
+  - PHPStan: implementation reported no errors; configuration is Level 0, not Level 6.
+  - Vite production bundle: built in 5.88s without errors.
+  - Node JS unit tests (`tests/js/lesson-progress.test.mjs`): 3 passed, 0 failed.
+  - Agent Contract Verification (`scripts/verify-agent-contract.sh`): [PASS] 11 shared files, routing/privacy gates valid.
+
+#### 6. Route / Role / State Coverage Matrix (AC-15, corrected audit inventory)
+
+This is a source/test coverage inventory, **not a browser PASS matrix**. Every row
+below still needs the EUR-51 browser walkthrough at 320/375/768/1280px, actual 200%
+zoom, keyboard and reduced motion. Check populated, empty, long, validation,
+loading/error, locked and expired states where applicable; use isolated fixtures
+without resetting development data. Record before/after screenshots and short
+interaction recordings. A route family is not accepted merely because a GET test
+or shared layout renders.
+
+| Routed family / navigation | Permitted role and important states | Source / automated regression pointers | Browser evidence |
+|---|---|---|---|
+| Dashboard, communities list, create community | Authenticated; owned/joined/none, cover/fallback, long names | CommunityBaselineTest, CommunityWorkspaceSwitcherTest, ContextualShellTest; dashboard resolves to the communities list, not a separate metrics dashboard | Blocked |
+| Feed, direct post, Saved, full search/typeahead | Effective member/Creator; filters, pagination, empty, async/retry, deleted/locked source, two communities | CommunityFeedRegressionTest, CommunityPostReactionsTest, LivewireFeedInteractionsTest, LivewireCommunitySearchTest, ContextualDiscussionTest, ExperienceShellAuditRegressionTest | Blocked |
+| Classroom, course, lesson and progress | Effective member/Creator; published/draft, included/entitled/locked, practical, completion, expired access | ClassroomRegressionTest, CourseAccessAuditRegressionTest, LearningFocusTest, LessonProgressRegressionTest, LearningWorkspaceUiAuditTest | Blocked |
+| Member proof submission/image; Creator review queue/detail | Subject/Creator according to policy; current/revision/verified/rejected, private attachment, unavailable context | LearningWorkspaceProofOfWorkTest, ProofOfWorkAuditRegressionTest, ProofOfWorkUiFollowupTest; Creator navigation now links to the review queue | Blocked |
+| Events list/calendar/detail/create/edit | Effective member reads, Creator mutates; timezone, cancellation, date boundary, empty/expired | CommunityEventCalendarTest, CommunityEventRegressionTest, CommunityEventTest | Blocked |
+| Directory, community profile | Effective member/Creator; name search, safe links, verified count/provenance, daily activity alternative, lost access | MemberDirectoryProfileTest, CommunityContributionProfileTest, ContributionPrivacyRegressionTest | Blocked |
+| Leaderboard (3 metrics, periods, pagination) | Effective member/Creator; zero/long/tie, deleted/unpublished or inaccessible source | CommunityLeaderboardTest, LeaderboardMultiMetricTest, ContributionPrivacyRegressionTest | Blocked |
+| About/private community home | Effective member/Creator; cover/video/rules/creator, empty roadmap, permitted courses only | CommunityAboutSettingsTest, ExperienceShellAuditRegressionTest | Blocked |
+| Messages inbox/thread | Participant with effective access; unread, polling/send/retry, revoked participant, wrong tenant | CommunityMessagingTest, CommunityMessagingAuditTest, CommunityMessagingConcurrencyTest | Blocked |
+| Notices/list/follow target | Recipient with effective access; read/unread, unavailable/deleted destination | CommunityNotificationTest | Blocked |
+| Creator overview, members, invitations, orders, reports, referrals, settings | Owning Creator only; empty/long/filter/validation, suspended/removed/expired, retained commerce history | CreatorOverviewTest, CommunityMemberManagementTest, CommunityInvitationFlowTest, CreatorOrdersAndPaymentHistoryTest, ContentReportTest, ReferralAuditRegressionTest | Blocked |
+| Profile/security/notification settings | Self only; direct query/legacy hash/back/reload, validation and sensitive forms, async acknowledgment/failure/retry | ProfileTest, AccountSettingsNavigationTest, NotificationPreferencesAsyncTest; account-settings and notification-preferences Node tests | Blocked |
+| Account access/list/detail/renewal, payment history/list/detail, referrals | Self only; lifetime/term/expired/inactive, retained receipt, SePay Test Mode; shared navigation on list and detail | FixedTermMembershipTest, CreatorOrdersAndPaymentHistoryTest, CourseAccessAuditRegressionTest, ExperienceShellAuditRegressionTest | Blocked |
+| Checkout and payment status | Authorized purchaser; membership versus course, pending/succeeded/ended, access loss, Test Mode warning | SePayPaymentTest, CourseEntitlementAndPurchaseTest, PaymentEntitlementRegressionTest | Blocked |
+| Help, welcome, login/register, reset/forgot, email verification, password confirmation | Guest/self as routed; invalid credentials, validation/expired token, keyboard and long text | AccountNotificationPreferencesAndHelpTest, Auth tests, FrontendScaffoldTest | Blocked |
+| Platform Admin communities and moderation controls | Platform Admin only; active/suspended, correct authorization, retained data | PlatformAdministrationTest | Blocked |
+
+Browser tool check on 2026-10-16 returned: "Local browser use is disabled in Work
+settings", with no enabled browser surface, including after the user's enable
+reply. This blocks visual/runtime verification only; it does not invalidate the
+completed source fixes or automated tests. No browser PASS, remote CI result or
+Done transition is inferred. The inherited checks remain open: actual 200% browser
+zoom, reduced-motion interaction, and cancelling native dirty-draft discard while
+retaining all input.
+
+### EUR-51 Corrective Audit Checkpoint (2026-10-16)
+
+**Outcome and scope.** Audit/fix of F-24/EUR-51 against the live Linear 17-AC
+contract, Delivery Plan 18.3, architecture 16.2/16.3 and design.md 11.7.
+Branch `eur-51-shell-contributions`, base HEAD
+`6179e3e389ddc8041568bd56a114d96fa044d401`. Existing tracked and untracked
+implementation edits were preserved. All implementation/audit work remains local,
+unstaged and uncommitted; no commit/push/PR/merge/Done action was authorized here.
+Linear was read as In Progress; acceptance checkboxes above were reopened rather
+than treating the initial self-report as independent evidence.
+
+**Confirmed defects and corrections.**
+
+- Helpful answer acceptance trusted stale route/model/access state before locking.
+  It now uses fresh locked community, course/lesson hierarchy, membership,
+  entitlement, post and comment state, a consistent lock order and transaction
+  retry. Only the current owning Creator can accept another eligible member's
+  answer on a published, tenant-correct learning context.
+- Replacement now clears retained soft-deleted flags and records replacement and
+  acceptance atomically. Stale revocation conflicts if another answer became
+  current; repeat revocation is idempotent. Failed audit writes roll back the
+  pointer/flags/history. Livewire does not expose exception details or an
+  ineligible accepted badge/action. New controls wrap and have keyboard focus,
+  loading disablement and minimum 44px height.
+- Contribution aggregates previously counted retained inaccessible sources.
+  Shared eligibility scopes now exclude deleted, unpublished, wrong-context,
+  expired/removed-member and no-longer-entitled sources. Verified-work count is
+  separate from distinct skill labels. Provenance is viewer-permitted; submitted
+  summaries/URLs/images/storage paths never enter the public profile summary.
+- Profile activity now includes bounded recent history and a daily tabular
+  alternative for all 90 UTC heatmap days, with viewer/subject visibility bounds.
+  New ranking rows use safe selected user models rather than cyclic models or
+  per-row database calls. Feed mini ranking uses the existing authoritative
+  lifetime engagement metric, labelled with window and full ranking link.
+- Preference toggles now serialize mutations, preserve independent fields, retain
+  failed intended values for exact retry, and validate acknowledgment before
+  claiming saved. Server JSON rejects unknown/empty fields; native unchecked
+  checkboxes submit false. Existing operational notification meaning is unchanged.
+- Account navigation now uses query/hash/back/reload-aware section selection,
+  gives validation/sensitive-form state priority, and is shared by profile,
+  account lists and access/receipt detail pages. Mobile navigation is a labelled
+  disclosure with native links retained when enhancement is unavailable.
+  HTTPS profile URLs reject credentials, raw/encoded controls and oversize input;
+  the narrow TrimStrings exception preserves invalid controls for validation.
+- The contextual header now derives the authorized active tenant from the route,
+  renders one search/switcher/notice/message utility, and leaves account/list
+  pages global. Redundant workspace utilities and non-About banners were removed.
+  Mobile Members goes to the directory. Creator navigation now exposes the proof
+  review queue and marks its queue/detail context.
+- About now includes up to eight ordered, published courses the viewer may study,
+  with an explicit empty state. Draft/locked context is excluded for members.
+  Existing creator/video/rules/actions and sensitive commerce forms are retained.
+
+**Data authority and tool limits.**
+
+The user explicitly approved additive development migrations
+`2026_10_16_160001_add_profile_links_to_users_table.php` and
+`2026_10_16_160002_add_accepted_comment_to_posts_table.php`.
+The exact-path artisan migrate command completed both on local `scool`.
+No development reset/reseed, volume deletion or new synthetic browser fixture
+was performed. Automated database tests use only guarded MySQL `scool_test`;
+suites are serialized. New concurrency runners additionally validate testing
+environment, driver and actual SELECT DATABASE() before independent processes.
+
+GitNexus local index-only analysis completed, but two FTS tables failed to build
+and the MCP server still resolved a stale sibling snapshot; new-service context/
+PDG queries were empty. Graph results are lower-bound navigation only. Direct
+source, diff and executable regressions are the audit evidence; an empty graph
+result is not a no-caller/security claim.
+
+**Verification results.**
+
+- Completed focused PHP run: 64 passed / 2 failed (445 assertions); both failures
+  were new fixture writes against fully guarded membership attributes, corrected
+  using explicit forceFill in tests.
+- Follow-up shell/privacy run: 8 passed / 1 failed (97 assertions); the remaining
+  new assertion expected 403 while the established private review policy returns
+  404. The assertion was corrected to the unchanged privacy contract.
+- `node --test tests/js/*.test.mjs`: 13 passed, 0 failed (including preference
+  rapid intent/failure/retry and account history/validation precedence).
+- `docker compose -p scool exec -T app vendor/bin/pint --test`: PASS, 284 PHP files
+  at that point; the later two concurrency files each passed Pint and PHP syntax.
+- Configured PHPStan: PASS, no errors, **Level 0**. Command:
+  `docker compose -p scool exec -T -e APP_ENV=testing -e DB_DATABASE=scool_test app vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M --no-progress`.
+- Final `npm run build`: PASS, 63 modules, 4.57s; CSS125.79kB / JS55.16kB.
+  Vite warns that existing absolute font URLs resolve at runtime; all twelve
+  referenced local WOFF2 files exist. Browser font rendering is unverified.
+- `bash scripts/verify-agent-contract.sh`: PASS, 11 shared files,
+  require-tracked=false. This is structural evidence only.
+- `docker compose -p scool exec -T app php artisan test --compact`: **581 passed,
+  5758 assertions, 602.31s**, no failures or skipped tests reported. This run
+  started before the new independent-process helpful-answer test file and the
+  final navigation/discussion markup edits; use the final subset below for those
+  inputs rather than claiming the old run covered later changes.
+- Final post-edit subset: **39 passed, 265 assertions, 87.55s**, exit 0, with
+  fail-on-skipped and fail-on-empty enabled. Command:
+  `docker compose -p scool exec -T app php artisan test tests/Feature/HelpfulAnswerConcurrencyTest.php tests/Feature/ExperienceShellAuditRegressionTest.php tests/Feature/AccountSettingsNavigationTest.php tests/Feature/HelpfulAnswerAuditRegressionTest.php tests/Feature/HelpfulAnswerLifecycleTest.php --compact --fail-on-skipped --fail-on-empty-test-suite`.
+  This includes three real independent-process races: duplicate acceptance,
+  competing answers with one current pointer/flag and ordered replacement audit,
+  and membership revocation committed while acceptance waits for the community
+  lock. All three passed. Counts overlap the full run; do not sum them as a new
+  distinct suite total.
+- Final `git diff --check`: PASS. No staged files, branch/HEAD unchanged; no
+  dependency, Docker configuration, credential or private agent-file change.
+
+**Remaining acceptance work.** Browser controls still report the disabled-setting
+error documented above. Verify every matrix row with actual role/state/viewport
+evidence, including two-community navigation/back/reload/tabs and preference/
+helpful-answer failure interactions. The three inherited checks are still
+mandatory. Visual parity, rendered contrast, real zoom, reduced motion and native
+draft-cancel retention are **not verified by source, PHP, Node or build checks**.
+Remote CI and independent review/publication have not run for this dirty diff.
+Do not mark EUR-51 Done or begin unrelated implementation on the assumption that
+this checkpoint is full acceptance.
+
+### EUR-51 Browser Audit Follow-up (2026-10-16)
+
+Browser access became available for a partial walkthrough, then was disabled
+again by Work settings. The user reported enabling it again; the immediate retry
+still returned "Local browser use is disabled in Work settings". The previous
+blanket browser blocker is superseded by the specific evidence and remaining
+gaps here. Current authorization includes closing EUR-51 once its gates pass;
+it does not waive the open review/CI gates or authorize Git publication.
+
+**New confirmed defects fixed.**
+
+- Saved Posts overflowed the document at 320px and 375px: document scroll width
+  was 369px versus client widths 305px/360px. Header/actions did not wrap. The
+  existing view now wraps action rows and author metadata, allows content shrink,
+  uses responsive padding and keeps actions at least 44px high. Rechecked widths
+  are 305/305px and 360/360px; no document overflow at 768/1280px either.
+- App layout omitted `@livewireStyles`. At idle both search icons and a loading
+  span were visibly displayed (`display: block`). The layout now loads the
+  framework styles in the head, before islands. Browser recheck shows idle
+  loading elements `display: none`; typeahead returns grouped suggestions while
+  typing. A regression checks the framework styles are emitted before `</head>`.
+
+**Actual retained browser evidence.**
+
+Local artifacts are ignored under `storage/app/eur51-browser-evidence/` (73 JPG
+files at this checkpoint). They are local evidence, not published PR attachments.
+Some rapid viewport captures were taken before layout/assets fully settled (one
+account screenshot contains black padding); these are not visual PASS evidence.
+Use the later focused loaded-state captures and measurements, and retake any
+questionable frame for final acceptance. No continuous interaction video was
+captured by the available browser API.
+
+- Member About renders the real creator, rules empty state and permitted roadmap;
+  contextual search appears once. Profile/leaderboard, Feed, Classroom, Events,
+  directory, notices, inbox, course and practical lesson were visited and captured
+  at 320/375/768/1280px. Measurements show no document overflow; intentionally
+  scrollable member tabs/tables/heatmap must not be mistaken for document overflow.
+  These captures cover selected synthetic populated/empty states, not every AC-16
+  state or every routed child screen.
+- Global account profile/access/history/referral routes have zero contextual
+  search islands and no document overflow at those four widths. Mobile Account
+  sections expands, Security updates the query URL, Back restores Notifications,
+  and Escape closes the disclosure and focuses `accountNavTrigger`.
+- Notification replies toggled off, displayed "Preference saved and confirmed by
+  server", survived reload while courses stayed true, then was restored true and
+  acknowledged. Both preferences were true at the last confirmed read. Browser
+  failure/retry and rapid-toggle scenarios remain unverified; Node/PHP evidence
+  for those scenarios is separate.
+- Search for "resolver" displayed two grouped suggestions without submitting the
+  search form. Comment click opened the existing discussion with two comments;
+  focus entered Close discussion. Keyboard traversal stayed inside the dialog;
+  Escape restored the Feed URL and focus to the exact comment trigger (post 25).
+- Reduced-motion preference was actually active (`matchMedia` true). The rendered
+  discussion had animation and transition durations `1e-05s`; open/close, focus
+  and account disclosure interactions completed. This satisfies the inherited
+  representative reduced-motion check, not a claim for all product animations.
+- **Native dirty-draft Cancel PASS with user-assisted control:** two automated
+  dialog attempts timed out and yielded ambiguous discarded state, so they are
+  not PASS. A control run used no API while the native dialog was open: the user
+  clicked composer Close then native Cancel. The subsequent DOM read confirmed
+  the visible modal retained title `EUR51 manual-cancel control` and body `Retain
+  this text after manually closing and cancelling.` Screenshot:
+  `draft-manual-cancel-retained.jpg`. Synthetic fields were then cleared and the
+  empty composer closed; no post was published.
+- **Actual 200% Chrome zoom measured:** user set Chrome zoom manually because
+  API key chords did not change browser zoom. Baseline was width1536/DPR1.25;
+  at 200% it was innerWidth768/outerWidth1536/DPR2.5, CSS zoom1, document
+  scrollWidth760/clientWidth760. Feed controls remained present with reflow.
+  Screenshot `actual-chrome-200-feed.jpg`. Profile/leaderboard and remaining
+  surfaces at actual 200% have not yet been checked. Chrome zoom was not restored
+  before the browser became unavailable; ask the user to return it to 100%.
+- Switcher changed tenant A to tenant B and correctly changed header/search label,
+  notice/message URLs and visible post marker. Earlier modal tab remained tenant
+  A. Back/reload and a complete two-tab search/count isolation run are still open.
+
+**Approved isolated data.**
+
+The earlier explicit migration/synthetic-data approval was used to create only
+new EUR-51 fixtures, guarded to actual local database `scool`, in one transaction.
+The first attempt exceeded the existing 80-character skill-label contract and
+rolled back; the corrected attempt succeeded. Existing accounts/content were not
+reset or reseeded. Fixture manifest is local/ignored; main slug
+`eur51-audit-hduz0n`, alternate `eur51-other-hduz0n`, expired
+`eur51-expired-hduz0n`. Added course13/locked14/lesson39/post25, review submission6,
+event7/cancelled8, conversation3 and synthetic pending/succeeded purchase records.
+The waiting proof is not yet creator-reviewed. Fixtures are explicitly test data,
+not real learners, verified curriculum or evidence of a completed UI workflow.
+
+**Completed follow-up verification.**
+
+- Saved/feed regression command: `docker compose -p scool exec -T app php artisan test tests/Feature/CommunityPostReactionsTest.php tests/Feature/LivewireFeedInteractionsTest.php tests/Feature/ExperienceShellAuditRegressionTest.php --compact --fail-on-skipped --fail-on-empty-test-suite`: **27 passed, 231 assertions, 39.52s**.
+- Shared Livewire style regression command: `docker compose -p scool exec -T app php artisan test tests/Feature/FrontendScaffoldTest.php tests/Feature/ExperienceShellAuditRegressionTest.php tests/Feature/LivewireFeedInteractionsTest.php tests/Feature/LivewireCommunitySearchTest.php --compact --fail-on-skipped --fail-on-empty-test-suite`: **28 passed, 235 assertions, 22.03s**.
+- Production build after Saved fix: PASS, 63 modules, 12.39s, CSS125.83kB,
+  JS55.16kB; same pre-existing runtime font URL warnings. Adding the Blade-only
+  Livewire style directive did not change frontend build inputs.
+- Existing full-suite/39-case concurrency evidence above remains qualified by
+  its tested inputs; follow-up subsets cover the later Saved/layout corrections.
+
+**Still blocks Done.** Finish Creator review -> Member permitted skill/profile,
+helpful accept/replace/revoke -> ranking, long/tie/zero fixtures, events/detail,
+inbox/thread, receipt/checkout/status/access-detail, operational Creator screens,
+guest/auth and Platform Admin walkthrough; actual 200% profile/leaderboard and
+complete role/state coverage; rendered contrast and failure/retry recordings;
+independent review and current published-revision CI. Browser was unavailable
+on the latest retry despite the user's enable reply. No Linear Done, commit,
+push, PR or merge was performed. Resume from the existing fixtures and local
+artifacts instead of recreating them or repeating completed database suites.
+
+### EUR-51 Final Publication Candidate (2026-10-16)
+
+**Authority and revision.** The current owner request explicitly authorizes commit,
+push, a GitHub PR, a Linear evidence comment and Done after acceptance. Merge is
+left to the owner. Branch `eur-51-shell-contributions`, base
+`6179e3e389ddc8041568bd56a114d96fa044d401`; the implementation and audit fixes
+below are the publication candidate, not yet a remote CI PASS.
+
+**Flow and corrections.** Creator review of isolated submission 6 completed in
+the browser, then the member profile displayed one verified work and its safe
+skill/source context without private evidence content. Helpful answer acceptance,
+revocation and reacceptance completed in the discussion; only the member answer
+could be selected, not the creator's own answer. Member/long-name tied verified
+rankings and zero/helpful states rendered. Creator Orders overflow at 320px was
+fixed by stacking summary cards below sm, wrapping filters and allowing long
+content to shrink. Welcome navigation now wraps at 320px (previously document
+307px versus client305px); its copy describes refresh-based private messaging.
+Account menu and mobile navigation gained explicit visible keyboard focus; the
+account menu now has an accessible descriptive name.
+
+**Browser follow-up.** Correctly measured 320/375/768/1280px captures now cover
+Creator review/detail/queue, overview, members, orders, reports, invitations,
+referrals, settings and event create/edit; member long profile, verified/helpful
+ranking, event detail/cancelled, message thread, locked course, receipt, expired
+access, checkout/status and community creation; guest login/register/forgot/help/
+welcome and Platform Admin. These supplement the earlier member learning/feed/
+account captures. An IAB viewport stopped applying after a browser switch: the
+mislabelled guest captures all measured1280px and are NOT responsive evidence.
+Resetting viewport and creating a fresh tab restored measured widths; later
+`guest-*-verified` / `guest-welcome-fixed` frames supersede those captures.
+
+Platform Admin suspended only the isolated alternate fixture community, observed
+the SUSPENDED status and audit reason, then reactivated it to its original ACTIVE
+state with a second audit reason. Existing communities were not changed. The
+Admin table remains internally horizontally scrollable without document overflow.
+Creator and member role restrictions and expired access were also checked through
+the browser; automated security tests remain the detailed negative-case evidence.
+
+Actual Chrome200% was reconfirmed with DPR2.5 (baseline1.25), CSS zoom1, and profile/
+leaderboard screenshots. Long profile measured client376/scroll376; verified
+leaderboard client760/scroll760. This completes the inherited representative
+200% profile/leaderboard check. The earlier user-assisted native Cancel retention
+and actual reduced-motion checks remain valid with their documented limits.
+
+**Verification and review.**
+- Final shell regression:
+  `docker compose -p scool exec -T app php artisan test tests/Feature/ContextualShellTest.php tests/Feature/FrontendScaffoldTest.php tests/Feature/ExperienceShellAuditRegressionTest.php --compact --fail-on-skipped --fail-on-empty-test-suite`:
+  **11 passed,121 assertions,18.97s**.
+- Orders/welcome subset: CreatorOrdersAndPaymentHistoryTest and FrontendScaffoldTest:
+  **12 passed,95 assertions,40.34s**, before the final welcome-only wrapping fix.
+- Production build after focus changes: **PASS**,63 modules,4.21s; existing font
+  runtime URL warnings unchanged. Final welcome Blade-only wrapping does not
+  change frontend build inputs.
+- Earlier complete suite **581 passed,5758 assertions** preceded the new
+  concurrency test/final markup; final helpful/shell/security subset **39 passed,
+  265 assertions** includes three real independent-process races. Node helper
+  suite **13 passed**. These are qualified local results, not remote CI.
+- Independent code-review lenses covered helpful transactions, contribution/
+  privacy/aggregation and account/shell behavior. Helpful and contribution reviews
+  found no actionable issue. Account review found the focus/name P2 above;
+  a narrow recheck confirmed it closed. This is code-review evidence, not a
+  human GitHub approval or an exception to required review.
+- GitNexus detect_changes mapped47 changed symbols/41 affected flows in36 tracked
+  files with critical cross-cutting risk. Untracked files were reviewed directly;
+  graph limitations do not establish authorization or test completeness.
+
+**Acceptance limits before Done.** The route/state matrix is broader but not an
+exhaustive combination of every screen, state, role, width and zoom. Remaining
+browser evidence includes preference failure/retry and rapid actions, completed
+two-tab back/reload/search/count isolation, measured rendered contrast across
+new sections, and short continuous interaction recordings (the available API
+has produced screenshots, not video). Auth reset/verification/confirm and
+direct post/create/edit/search child routes still need explicit matrix coverage.
+Owner visual acceptance, applicable human review and published-revision CI also
+remain gates. Do not check AC-15/16 or mark Done by treating these gaps as PASS.
+No further acceptance exception has been granted.
+
+Local synthetic screenshots/manifests remain ignored under
+`storage/app/eur51-browser-evidence/`; only explicitly selected sanitized
+evidence is suitable for publication. No secrets, runtime configuration, private
+agent files or private submitted evidence may enter the commit.
+
+### EUR-51 Published Follow-up Verification (2026-10-16)
+
+Commit `9de7bc1` was pushed and Draft PR #47 opened:
+https://github.com/Kerneural/S-cool/pull/47 . Its CI run38925850101 passed in
+4m31s. This result belongs to that revision, not subsequent fixes.
+
+Further browser coverage found direct-post learning-context breadcrumbs forcing
+660px document width at320/375px. The existing breadcrumb now wraps and constrains
+each title to available width; post content allows long-word wrapping. Measured
+document widths after correction:305/305,360/360,753/753,1265/1265px.
+Profile secondary text on white measured2.63:1, below the required4.5:1. Secondary
+labels in profile, leaderboard, account navigation and shell now use slate600;
+the rendered profile samples measure7.56:1 on white. This is measured sample
+coverage, not an exhaustive claim about every existing product color/hover state.
+
+Direct post, own post edit, post create, own comment edit, valid full search and
+password-confirm screens were captured at measured320/375/768/1280px. A search
+probe incorrectly used unsupported type=all and redirected; those frames are not
+search evidence. Valid type=posts captures supersede them, with no overflow.
+Two tabs returned no marker result in tenantA and one marker result in tenantB.
+Switcher A->B, Back and reload restored tenantA search and scoped utility URLs,
+while the other tab retained tenantB marker and counts without foreign content.
+
+Preference sequential off/on actions reloaded with both stored values true.
+After logout in another tab, a stale preference page showed a retained unchecked
+choice and an explicit unconfirmed error; Retry retained the same intent and did
+not falsely claim success. Reauthentication/reload restored the server values.
+This covers expired-session failure/retry presentation; transient-failure recovery
+and overlapping in-flight actions are verified in Node tests rather than claimed
+as browser fault-injection evidence.
+
+Post/profile/ranking follow-up command:
+`docker compose -p scool exec -T app php artisan test tests/Feature/ContextualDiscussionTest.php tests/Feature/CommunityContributionProfileTest.php tests/Feature/LeaderboardMultiMetricTest.php tests/Feature/FrontendScaffoldTest.php --compact --fail-on-skipped --fail-on-empty-test-suite`:
+**22 passed,128 assertions,22.58s**. Final build: **PASS**,63 modules,4.28s.
+Final Pint: **286 files PASS**. The later changes are Blade-only; no new database
+logic or schema change was introduced after the reviewed implementation.
+
+Open acceptance remains: auth reset/verification prompt states, continuous
+interaction recordings, complete rendered contrast/state/zoom acceptance and
+applicable human review/owner visual acceptance. The available browser API has
+screenshots but no recording capability; do not rename a slide sequence as video.
+The inherited representative zoom/motion/Cancel checks are complete. Remaining
+AC-15/16 evidence and review prevent Done without explicit scoped exceptions.
+### EUR-53 corrective report preparation (2026-10-20)
+
+This managed worktree contains the submitted testing-docs artifact at
+d55518316b782560b88113ce8bfb725f6e0a48cd plus bounded report corrections and the
+two invitation runtime/regression files. It is not the runtime used for the
+585-test run. The runtime was the owner's primary checkout at
+9e6baddd556b27b4503d7c96109f54ef001f8251 plus the nine-file manifest recorded in
+testing-docs/EUR-59/current-evidence/source-manifest.sha256, SHA-256
+05d2bf9f06f4a1c02239985592a86f41500cae26cde6a5b10b40f298d9bb7001.
+
+Outcome: correct historical counts/provenance/unsupported conclusions, six image
+links and missing browser results. A fresh valid-token invitation defect was
+reproduced twice: guest layout omitted the Alpine runtime. Add the existing single
+@livewireScripts inclusion and a red/green verified-invitee runtime regression.
+Matching invitee acceptance, refresh/direct Member entry, Creator accepted state
+and bare-token denial were verified; no permission/token/payment contract changed.
+
+Final primary-checkout results: guarded MySQL scool_test suite 585 passed /
+5765 assertions / 511.36s; Pint 286 files PASS; Node 13 passed; build 63 modules /
+2.73s; agent contract 11 files PASS; diff whitespace check PASS. The report records
+environment, source manifest, timing limits, fixture changes, fourteen measured
+Chrome desktop/mobile PASS and Edge N/T by explicit owner instruction. No raw
+credentials, mail bodies or tokens are included. Existing font build warnings
+and unavailable external fixture video are qualified in the evidence pack.
+
+AC gaps remain explicit in B1/B2/B3. Recommendation Conditional / incomplete
+evidence; all four Linear issues remain In Review. Complete missing manual role/
+module and negative/recovery coverage, network/timing and browser exceptions or
+evidence before acceptance. PR #48 is reversed (base testing-docs, head main).
+Corrected publication needs a neutral branch with base main; no new PR, commit,
+push, merge, closure or CI proof is authorized/performed. Original runtime/Track A
+edits and unrelated docs/templates/ were preserved in the primary checkout.
+
+Automatic approval review rejected the attempted detailed EUR-57 Linear comment:
+the QA/source-provenance payload needs specific external disclosure approval.
+Nothing was posted and no description/checkbox/state was changed. Do not retry
+through another connector or indirect upload. Exact four-comment and replacement
+PR drafts are preserved in the primary checkout's output/qa-track-b-2026-10-20/;
+owner approval is required for posting and Git publication.
+
+Publication authorization update (2026-10-20): the owner explicitly approved the
+four exact Linear comments, commit/push of the corrected branch, opening a
+replacement PR against main and closing reversed PR #48 with its replacement
+link. All four comments were posted successfully. This authorizes no merge or
+Done transition. Preserve historical run limits and keep open AC In Review.
+
+#### Authorized runtime dependency correction (2026-10-20)
+
+PR #49 at 045bf86 failed CI run 39371930209 before application tests because
+Trivy found inherited libexpat 2.8.5-r0 / CVE-2026-77214 (HIGH), fixed in
+2.9.0-r0. The owner separately approved the proposed Dockerfile correction,
+build/scan/test and commit/push to this PR. Add only
+apk upgrade --no-cache libexpat after package/extension installation. Build
+inspection showed libexpat is installed transitively by the existing package
+list, so the upgrade must run after it exists, including with cached layers. Retain
+the Trivy severity/exit gate and current PHP/base-image/dependency contracts.
+
+Verification plan: build a separately tagged QA image without restarting local
+services; inspect installed libexpat and scan HIGH/CRITICAL with the existing
+Trivy version; run affected invitation/guest-layout and safety tests against
+this PR checkout on guarded scool_test, then publish and inspect complete CI
+on the new revision. Preserve primary-checkout Track A edits and all local data.
+
+Completed on the PR checkout plus the one-line Dockerfile addition: dedicated
+image scool-qa-eur53:libexpat built successfully, image config digest
+sha256:5a17a614dbc5368042d34cee137e953ecb5d92712d5a3a311333b072a925a15b.
+The final upgrade layer changed exactly libexpat 2.8.5-r0 -> 2.9.0-r0; PHP remains
+8.2.34 with the required existing extensions. Trivy 0.75.0 using the original
+HIGH,CRITICAL / exit-code 1 gate reported zero matching vulnerabilities, exit 0.
+No scanner suppression, runtime service replacement or database reset occurred.
+
+The patched image ran FrontendScaffoldTest, CommunityInvitationFlowTest,
+InvitationProcessIntegrationTest and DatabaseSafetyGuardTest using this PR source:
+26 passed / 351 assertions / 79.44s, exit 0. The guard was inspected before run;
+only MySQL scool_test was used. Dependencies/assets were mounted from the existing
+matching lockfiles/build, distinct from source; no primary Track A view patch
+was mounted. Real process invitation/worker/Mailpit regressions passed. Full CI
+and its tested merge SHA remain to be verified on the published new revision.
+
+### EUR-52 Track A corrective QA checkpoint (2026-10-20)
+
+#### Candidate, authority and evidence method
+
+Live AC source: EUR-52, EUR-54, EUR-55 and EUR-56 in Linear, read on 2026-10-20.
+The owner authorized bounded audit, necessary corrections, Linear comments and
+Done transitions. No Git publication is authorized by this instruction.
+
+Branch: eur-51-shell-contributions. HEAD: 9e6baddd556b27b4503d7c96109f54ef001f8251.
+Final source identity: HEAD plus seven Blade files listed in the local
+output/playwright/qa-track-a-2026-10-20/source-manifest.txt.
+SHA-256 of the LF-delimited UTF-8 source manifest:
+87e49e9e8cb674508323d37bcb54b8afe7850acb98b113c64277c14556d130b9.
+The earlier six-file capture phase used manifest
+c8eee4bdb0b28624a6b5f4ed0862e41015af25b63293c305b2fcb80bfc4e473f.
+Only discussion cancellation changed afterward; its affected normal/rapid
+keyboard flows were retested on the final seven-file candidate.
+
+Runtime: http://127.0.0.1:8080, Docker Compose bind mount to this checkout,
+existing migrated MySQL development fixtures; no migration, reset or reseed.
+Five services were healthy at setup. Existing synthetic guest, Member, Creator
+and Platform Admin personas were used. Preserve unrelated untracked docs/templates/.
+Local output/ evidence is untracked; it is not an immutable published Git artifact.
+
+Browser: Windows, Chrome 155.0.8059.85 for actual browser zoom; in-app Chromium
+for measured 320/375/768/1280 CSS px viewports, height 900.
+Browser zoom was set manually by the owner to 200%, confirmed by DPR 2.5 versus
+baseline 1.25 and CSS zoom 1. Eleven valid zoom captures have width 768 and
+clientWidth = scrollWidth = 760; the browser window height varied.
+The mislabeled member-course-locked-actual-200 image is excluded; the corrected
+course/14 capture supersedes it. CSS zoom is not substituted for browser zoom.
+
+Methods: rendered screenshot and DOM inspection, client/scroll geometry,
+Tab/Shift+Tab, Enter/Space, ArrowDown and Escape; accessible roles/names/states;
+rendered color conversion to linear sRGB and WCAG luminance ratio; actual
+prefers-reduced-motion and computed durations. No external accessibility scanner,
+automated conformance score, screen-reader study or external participant study.
+Screenshots and JSON evidence are local under output/playwright/qa-track-a-2026-10-20/.
+Initial transient DOM snapshots are retained as diagnostics, not final failures.
+The browser was temporarily disabled; access was restored before final checks.
+
+#### EUR-54 / QA-A1 final coverage
+
+The controller view inventory has 50 routed templates: the former 47 plus the
+post-create and two Proof of Work views. The unused dashboard and communities/about
+templates, component fragments, mail, binary and mutation-only responses are not
+separate browser screens. communities.show is About; Feed is posts.index.
+
+There are 196 measured viewport observations across 49 scenario labels.
+Exclude the superseded member-feed, member-course-outline and mislabeled
+platform-admin-table sets: 184 retained observations across 46 scenarios.
+These represent 38 routed templates sampled at all four widths; 12 templates
+are explicitly N/T. Additional overlay, empty, long and alternate-state samples
+do not inflate the template count. PASS means the recorded visual/geometry sample
+passed, not every possible state or product acceptance.
+
+P = PASS in the recorded state at 320/375/768/1280; N/T = not tested, reason shown.
+For every row, any state not expressly listed (including forced network failure,
+all validation permutations, pagination extremes or access revocation) is N/T:
+outside this bounded sample, no new fixtures created. Loading was observed in
+discussion and payment polling; forced failure/retry is N/T. Completed lesson
+feedback was checked with keyboard then restored, not four-width captured.
+
+| Routed template | Role | 320/375/768/1280 | Recorded state / limitation | Actual 200% |
+|---|---|---|---|---|
+| welcome | Guest | P/P/P/P | first view; evidence guest-welcome-{width}.png | N/T — zoom sampled on member text screens |
+| help.index | Self | P/P/P/P | guidance/Test Mode; evidence help-center-final-{width}.png | N/T — sampled elsewhere |
+| auth.login | Guest | P/P/P/P | default/keyboard login; evidence guest-login-{width}.png | N/T |
+| auth.register | Guest | P/P/P/P | default; account creation N/T; evidence guest-register-{width}.png | N/T |
+| auth.forgot-password | Guest | P/P/P/P | default; email submission N/T; evidence guest-forgot-password-{width}.png | N/T |
+| auth.reset-password | Guest | N/T/N/T/N/T | N/T — no valid reset-token fixture | N/T |
+| auth.confirm-password | Self | N/T/N/T/N/T | N/T — no sensitive-operation prompt exercised | N/T |
+| auth.verify-email | Self | N/T/N/T/N/T | N/T — existing personas verified | N/T |
+| invitations.accept | Invitee | N/T/N/T/N/T | N/T — no acceptance performed | N/T |
+| profile.edit | Self | P/P/P/P | profile/security/preferences read only; evidence member-settings-profile-{width}.png | PASS — member-settings |
+| account.memberships.index | Self | P/P/P/P | active/expired; evidence member-access-{width}.png | PASS |
+| account.memberships.show | Self | P/P/P/P | expired/renewal unavailable; evidence member-access-expired-detail-{width}.png | PASS |
+| account.payment-history.index | Self | P/P/P/P | pending/succeeded; evidence member-payment-history-{width}.png | N/T |
+| account.payment-history.show | Self | P/P/P/P | pending receipt; evidence member-receipt-pending-{width}.png | N/T |
+| account.referrals | Self | P/P/P/P | empty/simulated unpaid; evidence member-referrals-{width}.png | N/T |
+| payments.checkout | Payer | P/P/P/P | pending/Test Mode; no transfer; evidence member-checkout-testmode-{width}.png | N/T |
+| payments.status | Payer | N/T/N/T/N/T | N/T — no payment transition initiated | N/T |
+| communities.index | Self | P/P/P/P | no blanket Admin membership; Creator populated keyboard; evidence admin-empty-discovery-{width}.png | N/T |
+| communities.create | Self | P/P/P/P | required validation; no creation; evidence community-create-form-final-{width}.png | N/T |
+| communities.show | Member | P/P/P/P | long title/rules/fixture cover; evidence member-about-long-{width}.png | PASS |
+| communities.posts.index | Member | P/P/P/P | populated/contextual; saved toggle restored; evidence member-feed-final-{width}.png | PASS — member-feed |
+| communities.posts.create | Member | N/T/N/T/N/T | N/T — no post composer submission | N/T |
+| communities.posts.show | Member | N/T/N/T/N/T | N/T — direct page not four-width sampled; overlay sampled separately | N/T |
+| communities.posts.edit | Author | N/T/N/T/N/T | N/T — existing content preserved | N/T |
+| communities.posts.comments.edit | Author | N/T/N/T/N/T | N/T — existing content preserved | N/T |
+| communities.saved | Member | P/P/P/P | empty with next step; evidence member-saved-empty-{width}.png | N/T |
+| communities.search | Member | P/P/P/P | DNS results and empty query result; evidence member-search-results-{width}.png | N/T |
+| communities.directory.index | Member | P/P/P/P | long names; evidence member-directory-{width}.png | N/T |
+| communities.directory.show | Member | P/P/P/P | long/zero; verified own profile also sampled; evidence member-profile-long-{width}.png | PASS |
+| communities.events.index | Member | P/P/P/P | scheduled/cancelled/timezone; evidence member-events-{width}.png | N/T |
+| communities.events.show | Member | P/P/P/P | cancelled; meeting action absent; evidence member-event-cancelled-{width}.png | N/T |
+| communities.events.create | Creator | N/T/N/T/N/T | N/T — no event creation | N/T |
+| communities.events.edit | Creator | N/T/N/T/N/T | N/T — existing schedule preserved | N/T |
+| communities.leaderboard | Member | P/P/P/P | rankings/zero; final h1 rechecked at zoom; evidence member-leaderboard-{width}.png | PASS — final h1 |
+| communities.notifications.index | Member | P/P/P/P | empty/read state; evidence member-notifications-{width}.png | N/T |
+| communities.messages.index | Participant | P/P/P/P | existing inbox; no message sent; evidence member-inbox-{width}.png | N/T |
+| communities.messages.show | Participant | N/T/N/T/N/T | N/T — no thread walkthrough | N/T |
+| classroom.index | Member | P/P/P/P | included/paid course/progress; evidence member-classroom-{width}.png | PASS |
+| classroom.courses.show | Member | P/P/P/P | outline/locked course; breadcrumb corrected; evidence member-course-outline-fixed-{width}.png | PASS — outline + locked |
+| classroom.lessons.show | Member | P/P/P/P | verified evidence; completion toggle restored; evidence member-lesson-proof-{width}.png | PASS |
+| communities.manage | Creator | P/P/P/P | truthful operational metrics; evidence creator-overview-{width}.png | N/T |
+| communities.edit | Creator | P/P/P/P | existing settings read only; evidence creator-settings-{width}.png | N/T |
+| communities.invitations | Creator | P/P/P/P | form/list; no mail sent; evidence creator-invitations-{width}.png | N/T |
+| communities.members.index | Creator | P/P/P/P | long membership table; no role changes; evidence creator-members-{width}.png | N/T |
+| communities.orders.index | Creator | P/P/P/P | pending/succeeded; keyboard filter; evidence creator-orders-{width}.png | N/T |
+| communities.reports.index | Creator | P/P/P/P | empty queue; resolution N/T; evidence creator-reports-{width}.png | N/T |
+| communities.referrals | Creator | P/P/P/P | simulated ledger; no payout; evidence creator-referrals-{width}.png | N/T |
+| communities.manage.proof-of-work.index | Creator | P/P/P/P | empty Waiting; Verified list; evidence creator-review-queue-{width}.png | N/T |
+| communities.manage.proof-of-work.show | Creator | P/P/P/P | verified record read only; pending review N/T; evidence creator-review-detail-{width}.png | N/T |
+| admin.communities.index | Admin | P/P/P/P | table; keyboard confirmation/Cancel; no suspension; evidence platform-admin-table-final-{width}.png | N/T |
+
+Community Feed retains discussion hierarchy; Classroom/lesson retain course
+outline and the primary learning action; Events retains chronological/timezone
+context; Members accommodates long names; Leaderboard keeps distinct metrics;
+About presents purpose/rules and course access. Intentional local table/tab
+overflow is distinguished from page-wide horizontal scrolling.
+
+Confirmed visual failure A-F01: at 320px, course/13 breadcrumb produced
+clientWidth 305 versus scrollWidth 342. Expected: no page-wide overflow and
+Classroom remains reachable. Reproduce: Member -> Classroom -> course/13 at 320px.
+Impact/severity: Medium, narrow-screen reading/navigation friction.
+Fix: constrain breadcrumb flex width and allow the title to shrink.
+Retest: 305/305 at 320; remaining widths and actual 200% passed.
+Before/after PNGs are attached to EUR-54.
+
+Critical/High findings reproduced in the bounded sample: 0/0. This is not a
+release-wide zero-blocker claim. Root findings A-F02 through A-F05 are below.
+Minimum retest after any new source candidate: breadcrumb, Feed labels/checklist,
+all consumers of the contextual rail/Learning Focus, Leaderboard heading,
+normal and pending discussion cancellation; complete listed N/T routes before
+whole-product acceptance. Owner visual acceptance and recordings remain outside
+this QA report closure.
+
+#### EUR-55 / QA-A2 final sampled audit
+
+| Criterion / pattern | Result and method |
+|---|---|
+| 1.3.1, 2.4.6 headings/structure | Sampled headings/landmarks checked. Leaderboard had no h1; A-F04 adds a screen-reader heading, confirmed on final 200% capture. Not an assertion that every heading level on every N/T route passes. |
+| 1.4.3 text contrast | A-F02 Medium: 11–12px slate400 labels on white measured 2.63:1. Filter/Sort, progress/rail metadata now slate600, measured 7.56:1. Primary white/teal 5.47:1; slate500/white 4.77:1; ink/canvas about 17.06:1. Remaining combinations N/T. |
+| 1.4.11 non-text contrast | Sampled opaque brand focus border/outline on white 5.47:1; Admin confirm ring is opaque red. The search translucent outer halo alone is not the complete focus indicator; its opaque focused border must be included. Unfocused pale boundaries and all disabled/hover combinations remain warnings/N/T, not unconditional PASS. |
+| 1.4.4, 1.4.10 resize/reflow | Four measured widths plus eleven actual 200% samples, no page-wide overflow after A-F01. Unsampled routes/states N/T as above. |
+| 2.1.1, 2.1.2 keyboard | Guest login, form Tab/reverse/required validation, Member navigation, Feed save Space and restore, search arrows/Escape, lesson completion Space and restore, Creator Orders/filter/review navigation, Admin confirmation reason/Cancel/Escape checked without mouse activation. Destructive commits, payment transfer and unavailable pending-review actions were not executed. |
+| 2.4.3, 2.4.7, 2.4.11 focus | Form focus follows labels/order; focused samples were in viewport with visible border/ring. Admin reason initially focused, reverse Tab contained, Escape returned to Suspend. Discussion close initially focused, Tab remained inside, Escape restored opener. Entire-page exhaustive focus/AT combinations N/T. |
+| 2.5.8 targets | Feed Like 16x57.26 and Save 16x49.25 CSS px with 16px horizontal gap: sampled 24px target-circle spacing exception applies, height alone is not PASS. A-F03 Low: checklist control now at least 24px, measured 24x28, explicit Hide checklist name; darker icon replaces low-contrast gray400 (about 2.49:1 before). |
+| 3.3.1, 3.3.2 instructions/errors | Empty Create Community keyboard submission focused required Community Name without creating data. Payment/Test Mode and expired-access instructions inspected. Every server validation permutation N/T. |
+| 4.1.2 names/roles/values | Native form controls, dialog labels and search combobox checked. Save toggled to Remove from saved, aria-pressed true, then original false restored. Lesson Completed/Mark Incomplete and summary 100% observed, then restored. Native progress value attribute becomes 100; a snapshot retaining fallback text 0% is a tool warning, not proof that native progress value remained zero. |
+| 4.1.3 status | Live search exposes result-count status; lesson status exposes completion; discussion loading uses status. Actual screen-reader announcement timing N/T. |
+| WAI-ARIA modal dialog | Loaded open/close, background inert, focus containment/return passed. A-F05 Medium: Escape during pending open was ignored (two reproductions). Minimal correction hides cancelled pending open, restores background/focus, closes late server response without reopening/history push. Two pending-cancel retests plus normal loaded open/Escape passed on final source; no dialog/inert branches remained in the first settled late-response check. |
+| WAI-ARIA combobox | Results expose listbox/options; ArrowDown selects active descendant while focus stays in input; Escape closes. Rapid Escape plus replacement query settled collapsed with obsolete options absent. Ordinary result/empty full-search pages also sampled. Artificial network reordering/error injection N/T. |
+| Reduced motion | Actual matchMedia reduce = true; visible dialog computed transition/animation duration 0.00001s. SC 2.3.3 is AAA, included only as an additional observation. No AA conformance claim derives from it. |
+| 2.2.2, 2.3.1 and unlisted criteria | N/T for all external video content, flashing and continuous-motion cases. No comprehensive WCAG conformance/certification claim. |
+
+Root defects: A-F01 overflow Medium; A-F02 text contrast Medium; A-F03 checklist
+name/target/icon Low; A-F04 missing page h1 Low; A-F05 pending Escape Medium.
+All five corrected in this local patch, with affected evidence retested.
+No confirmed Critical/High accessibility blocker was found in the sampled scope.
+Warnings and N/T above remain visible; an audit report can finish with these
+limitations without certifying product-wide accessibility.
+
+A-F05 reproduction: from Member Feed, press Enter on Discussion then Escape while
+Loading discussion is displayed. Expected: cancel without reopening after response,
+restore focus/background and retain Feed URL. Before: Escape ignored until loaded.
+After: no visible modal, inert count zero, opener focused, Feed URL retained;
+late response did not reopen it. Error handling suppresses an error toast for an
+intentional cancelled open. No backend contract or authorization logic changed.
+
+#### EUR-56 / QA-A3 final usability report
+
+Executive summary: the first view communicates a private cohort/community product;
+Explore Communities and login are dominant actions. In a joined community, the six
+workspace destinations provide a predictable learning path. Learning Focus,
+course outline, practical evidence/feedback, safe access status and explicit
+Test Mode warnings are strengths to preserve. Long names remain readable after
+the breadcrumb correction. Progress completion and verified practical evidence
+are distinct concepts but their adjacent wording can confuse a new learner.
+
+No blocked or serious-friction learner task was confirmed in this bounded session.
+Zero confirmed Critical/High blockers is a sampled result, not final acceptance.
+The 404 recommendation is Medium/minor friction, not an established High blocker.
+The five implementation corrections above address confirmed presentation or
+interaction defects; the remaining proposals below are prioritization input.
+This is an agent-executed interface heuristic walkthrough, not recruited-user
+research or invented analytics. Creation, invitation/token flows, payment success,
+new proof submission, external video quality and other N/T routes remain assumptions.
+
+Each task started from the displayed UI, using visible navigation. Source was
+consulted only afterward to diagnose confirmed defects.
+
+| Task / persona and start | Expected / actual path | Outcome, friction and evidence |
+|---|---|---|
+| T01 Guest understand product from / | Read headline -> Explore Communities/login | Completed, clear private learning purpose; guest-welcome. Dominant action suggests discovery, authentication prerequisite could be clearer (proposal). |
+| T02 Guest sign in / choose registration path | Log In -> Email/Password -> dashboard; inspect Create an account | Login completed using synthetic Member/Creator; registration form inspected, account creation N/T; guest-login/register and keyboard-final.json. |
+| T03 Member open joined community | Dashboard -> community -> About/Feed | Completed; long community title retained, six destinations identifiable; member-about-long/feed. |
+| T04 Member identify purpose/rules | About -> purpose/rules/roadmap | Completed; real fixture imagery/fallback, private-community context visible; member-about-long. |
+| T05 Member find/continue lesson | Classroom -> course/13 -> lesson/39 / Learning Focus | Completed with minor narrow-screen breadcrumb friction before fix, clear after; course-outline-fixed and lesson-proof. |
+| T06 Member read/ask discussion | Feed Discussion -> comments; lesson Ask a Question contextual link | Reading completed, context retained. New post/reply submission N/T. Pending Escape friction corrected; discussion-modal, rapid-close-before/after. |
+| T07 Member find event | Events -> cancelled detail | Completed; cancellation explicit and no meeting action; member-events/event-cancelled. No event creation. |
+| T08 Member find people/ranking meaning | Members -> long profile; Leaderboard -> distinct metrics | Completed; long identity/verified skills visible and engagement is explained separately; directory/profile-long/profile-verified/leaderboard. |
+| T09 Member understand progress/completed evidence | Lesson -> Verified evidence and Incomplete progress -> Space Mark Complete | Completed with minor terminology ambiguity: evidence verification and learning progress are separate. Completed/100% observed; original Incomplete restored; member-lesson-completed, keyboard-final.json. |
+| T10 Member recover and assess trust | Empty Saved/search; missing post -> browser Back; locked course; expired access; pending checkout | Completed with minor 404 recovery friction. Empty states give next steps, locked/expiry restrictions and no-real-transfer Test Mode warning are clear; saved-empty/search-empty/404/course-locked/access-expired-detail/checkout-testmode. No money transferred. |
+
+Prioritized top ten, grouped by shared root cause. Items explicitly marked
+proposal are not additional confirmed defects or implementation requirements.
+
+| Priority | Root / affected screen | Problem and expected learner benefit | Disposition |
+|---|---|---|---|
+| 1 | Interaction cancellation / discussion | Escape during loading is ignored; reliable cancellation preserves control | A-F05 Medium, fixed/retested |
+| 2 | Responsive navigation / course outline | Long breadcrumb creates page-wide scrolling at 320px; readable narrow-screen course navigation | A-F01 Medium, fixed/retested |
+| 3 | Readability / Feed and learning rails | Small metadata below contrast threshold; easier reading of filters/progress/context | A-F02 Medium, fixed/retested |
+| 4 | Error recovery / missing post | 404 offers no in-app return destination; safe community/home recovery reduces reliance on browser Back | Proposal, Medium/minor friction |
+| 5 | Demo content relevance / lesson video | Fixture video link is unrelated to the DNS task and provider availability is not instructional proof; task-relevant media would improve trust | Proposal, Medium; content owner decision, no video replaced |
+| 6 | Control identification / checklist | Symbol-only dismiss control is less explicit and small; clear accessible dismissal | A-F03 Low, fixed/retested |
+| 7 | Page semantics / Leaderboard | No h1 made page identity weaker for assistive navigation | A-F04 Low, fixed/retested |
+| 8 | Learning terminology / lesson | Verified practical evidence and Incomplete lesson appear together; explaining distinct states reduces ambiguity | Proposal, Low; preserve separate contracts |
+| 9 | Context recognition / mobile Feed chips | Long course/lesson context is abbreviated; a deliberate way to inspect full context would aid recognition | Proposal, Low; full lesson is already reachable |
+| 10 | Language consistency / Creator member management | Mixed Vietnamese/English headings/actions in the inspected UI; consistent chosen locale would reduce terminology switching | Proposal, Low; no broad copy rewrite |
+
+These are five confirmed root defects plus five improvement proposals, not ten
+manufactured bugs. Strengths and N/T assumptions above form the executive summary.
+Minimum retest: the five corrected roots and affected consumers; new content/copy
+proposals require their own decision and scenario evidence before implementation.
+
+#### Verification and handoff
+
+- npm run build: PASS, 63 modules, 3.02s. Existing font-path build warnings remain;
+  no dependency or asset source changed after this build. The final extra fix is
+  inline Alpine in a server-rendered Blade view, verified in browser and by the
+  targeted regressions below.
+- docker compose exec -T app php artisan test tests/Feature/ClassroomRegressionTest.php tests/Feature/FrontendScaffoldTest.php tests/Feature/CommunityOnboardingTest.php tests/Feature/CommunityLeaderboardTest.php tests/Feature/ExperienceShellAuditRegressionTest.php tests/Feature/LearningFocusTest.php --compact --fail-on-skipped --fail-on-empty-test-suite:
+  PASS, 42 tests / 516 assertions / 42.74s after the initial six-file corrections.
+- docker compose exec -T app php artisan test tests/Feature/LivewireFeedInteractionsTest.php tests/Feature/ContextualDiscussionTest.php --compact --fail-on-skipped --fail-on-empty-test-suite:
+  PASS, 25 tests / 148 assertions / 19.54s after the discussion cancellation fix.
+- tests/TestCase.php guard verified before execution: only MySQL scool_test,
+  including resolved database URLs, before RefreshDatabase.
+- bash scripts/verify-agent-contract.sh: PASS, 11 shared files, repeated after
+  the report checkpoint. Final git diff --check also PASS.
+- No new PHP backend/schema/test logic, dependencies or authorization/payment
+  contract changes. No development migration/reset/reseed, inbox clearing, mail
+  submission or real payment. Bookmark/progress checks restored original states.
+- GitHub snapshot: report PRs #41/#42/#46 remain OPEN and REVIEW_REQUIRED;
+  #42/#46 conflict. Only Runner Preflight SUCCESS was observed. This QA evidence
+  does not resolve those PRs, replace review, establish CI for the dirty patch,
+  close EUR-46/M11 or authorize commit/push/merge.
+- Final report closure is about the three QA artifacts and their bounded results.
+  All N/T cells and product acceptance remain explicit. New revisions invalidate
+  affected observations and require the listed minimum retest scope.
+
+Linear handoff: final evidence comments were posted to EUR-54, EUR-55, EUR-56
+and EUR-52 on 2026-10-20. Child report Done states were read back before parent
+closure; final readback confirmed all four Done and EUR-46 still In Progress.
+The comments and previously
+uploaded sanitized screenshots are the shared report artifacts. Automatic
+approval review rejected uploading the optional raw measurement JSON because
+specific external disclosure of that payload was not authorized. It remains
+local; no indirect upload workaround was used. This does not limit the explicitly
+authorized summarized QA comments or report status transitions.
+
+### EUR-46 M11 final integration and acceptance preparation (2026-10-20)
+
+Owner request: continue until M11 is complete. Live Linear milestone inventory
+has 14 issues: nine Done, EUR-46 In Progress, EUR-53/57/58/59 In Review. This is
+execution/closure intent, not an exception to open AC, human review, protected
+merge, provider proof or the separate Git-publication gate. Edge remains N/T by
+the earlier explicit owner instruction; no other exception is inferred.
+
+Preparation is isolated at base 3a0aae6ecde89f088c774b72a6fd67ae81b7506e in
+C:/Users/ACER/.codex/worktrees/eur-46-m11-acceptance/scool. The seven Track A
+view corrections were copied byte-for-byte from the tested primary source;
+the invitation fix and libexpat correction are inherited from PR #49. No backend
+contract, content, dependencies or UI redesign are added by this integration.
+The preceding Track A checkpoint is imported as historical evidence with its
+original candidate/limits; its tests are not relabeled as this new run.
+
+Plan: full guarded scool_test suite on this combined source and the separately
+tagged patched image, JUnit retained locally; diff/contract/source parity checks;
+complete missing browser journeys/negative cases where approved fixtures permit;
+reconcile final AC and review/evidence state before closure. Existing source and
+private runtime data in the primary checkout are preserved. No current local
+suite runs concurrently against scool_test. No dev reset/reseed or inbox clearing.
+
+Browser access currently reports disabled in Work settings. An enable request
+is pending; required manual observations cannot proceed until access returns.
+Outstanding parent gates include exact-current route/state acceptance, owner
+visual review and recordings (EUR-51's video waiver was scoped to EUR-51 only).
+Three QA-A report PRs #41/#42/#46 remain open and review-required; #42/#46 conflict.
+Do not merge/close their reports without reconciling original and corrective
+evidence. PR #49 full CI is running separately on GitHub; its test database is
+independent of the local guarded suite.
+
+Primary-checkout GitNexus mapping found only the frontend scaffold class/test,
+not Blade/Alpine behavior. No exact-integration graph-backed safety claim follows;
+the seven view diff, callers and runtime regressions are the evidence basis.
+
+#### Final integrated verification and remaining acceptance (2026-10-20)
+
+This update supersedes the earlier browser-disabled and CI-running snapshots.
+PR #49 head is 3a0aae6ecde89f088c774b72a6fd67ae81b7506e. The owner-approved
+libexpat correction runs after package/extension installation, not before it:
+`RUN apk upgrade --no-cache libexpat`. The dedicated image contains 2.9.0-r0;
+Trivy 0.75.0 HIGH/CRITICAL scan completed with zero matching findings, exit 0.
+The primary live app image was not rebuilt/restarted; its browser observations
+therefore establish application behavior on matching source, not patched-image
+browser acceptance.
+
+Exact PR #49 CI run 39373827113 passed. Its downloaded tested-sha.txt identifies
+fd0c3ab50e6b2cac514d8069d3e875007db85939, whose parents are main
+45ef4129db2edc74e917de65ca693c20c77b04fd and PR head 3a0aae6. Downloaded JUnit:
+585 tests / 4978 assertions / 0 errors / 0 failures / 0 skips / 99.407322s.
+Security/dependency gates, build, Node, Pint, PHPStan and application tests passed.
+This exact-PR evidence excludes the separate seven Track A view corrections.
+GitHub still reports MERGEABLE / REVIEW_REQUIRED; no independent review or merge.
+
+The combined M11 candidate is prepared in the attached eur-46-m11-acceptance
+worktree at base 3a0aae6 plus the seven Track A views and technical checkpoint.
+All nine application/test files match the primary source manifest byte-for-byte:
+05d2bf9f06f4a1c02239985592a86f41500cae26cde6a5b10b40f298d9bb7001
+(manifest SHA-256). Dockerfile is inherited from 3a0aae6. No further application
+change was made during these browser checks; unrelated docs/templates/ is preserved.
+
+Full combined-source run used the separately tagged scool-qa-eur53:libexpat image,
+guarded MySQL scool_test, mounted integration source and existing vendor/assets:
+`php artisan test --compact --fail-on-skipped --fail-on-empty-test-suite --log-junit storage/framework/testing/m11-final-junit.xml`.
+Completed JUnit: **585 tests / 5828 assertions / 0 errors / 0 failures / 0 skips /
+564.103297s**. The originating tool session was interrupted; its final stdout and
+process exit code were not retained. The completed XML is the result evidence;
+do not claim an observed exit 0 or launch a duplicate run solely for that loss.
+Integrated Pint: 286 files PASS, exit 0. Source parity, diff check and shared
+contract check pass. The unchanged primary-source production build and 13 Node
+tests remain qualified matching-input evidence; combined-branch CI is pending
+publication. Earlier local and CI assertion counts describe distinct environments.
+
+Browser access returned. Additional UI observations span 05:25:34Z–05:40:53Z:
+**19 PASS, 0 FAIL, 0 BLOCKED, 1 excluded N/T diagnostic** in this bounded sample.
+The excluded /admin 404 was not an actual routed page; Member denial was retested
+at /admin/communities (403) with seeded Admin positive control at the same route.
+The recorded UI widths are 570, 1280 and 1396 CSS px, with per-image dimensions;
+this additional sample is not a new four-width, 200%-zoom or Edge matrix.
+Captured warning/error entries were zero; full network/timing evidence remains N/T.
+Raw measurement JSON remains local and is not part of the publication allowlist.
+
+Synthetic persisted mutations in the existing isolated audit tenant: one message
+in thread 3, post 27, comments 39 and 40, and its Creator notification marked read.
+Refresh/direct navigation checks retained the message/post/comment/read states.
+The approved new QA account has empty inbox/notices/payment history and Active
+lifetime access. Creator orders have synthetic PENDING/SUCCEEDED rows and an empty
+FAILED filter; moderation and referrals have truthful empty/simulated states.
+No real message recipient, payment or external provider was involved.
+
+The attempted Creator member suspension was canceled by the owner; the Member
+remained Active. A separate Admin community-state test was initially rejected by
+automatic approval review because community-wide access changes lacked specific
+authorization. No blocked mutation ran. The owner then explicitly approved
+Suspend/Reactivate only for isolated synthetic community #19. Native required
+validation rejected an empty reason (not server-validation proof). A supplied
+reason produced SUSPENDED with an audit record; the verified QA Member's previously
+accessible Feed returned 404. Reactivation restored ACTIVE and an audit reason;
+the same Member reloaded successfully. Final platform counts: 17 Active, 0 Suspended.
+No other community state changed. Creator denial during suspension was not sampled.
+
+Stale authenticated composer submission after logout failed closed to login;
+after reauthentication the isolated Feed remained empty. Exact HTTP status and
+draft retention were not captured. Do not upgrade this to suspended-member stale
+mutation or all recovery/input-retention acceptance.
+
+| Acceptance gate | Current evidence and remaining work |
+|---|---|
+| EUR-46 AC-01/04 | Track A retains 38/50 routed-template coverage, not the obsolete 47-template denominator. New direct post/message/invitation/Admin samples add specific states, not all missing viewport combinations. Complete the remaining routed/state/reflow matrix. |
+| EUR-46 AC-02/03/05 | Historical fixture/cover and guest/keyboard/contrast evidence plus the bounded current fixes are available; full screen-by-screen owner review is still pending. |
+| EUR-46 AC-06/08 | Font/reduced-motion/cancel evidence exists; required short recordings and owner visual acceptance remain open. EUR-51's video exception applies only to EUR-51. |
+| EUR-46 AC-07 | Combined local test XML is clean; exact seven-view integration CI/review/publication remain pending. |
+| EUR-57 | Member create/comment/message persistence, positive/empty notifications, Creator operations and Admin state action are now evidenced. Full Creator content/settings/member lifecycle and positive account payment-history/checkout terminal coverage still require an explicit current matrix. |
+| EUR-58 | Wrong-role Admin route, suspended-community denial/recovery and logged-out stale submission are confirmed. Full nested-resource/actor-state/media/replay/interruption matrix is not replaced by this small UI sample; matching automated tests are separate evidence. |
+| EUR-59 | Exact PR CI and local combined run are available. Edge remains N/T per owner direction; full failed-request/route timing data is unavailable. No production/provider/independent-host claim. |
+| Publication | PR #49 requires human review. Report-only PRs #41/#42/#46 remain open; #42/#46 conflict. Prepare a neutral consolidated integration PR, preserving original report history, only with explicit current publication authorization. Do not silently close older PRs or bypass checks. |
+
+Live Linear readback: 14 M11 issues, nine Done, EUR-46 In Progress and
+EUR-53/57/58/59 In Review. Existing four corrective comments already contain
+runtime/CI results. Checked boxes in old issue descriptions do not establish
+the missing observations. No new Done transition, merge or release occurred.
+Recommendation remains Conditional / incomplete acceptance. Next action is
+review of the prepared bounded diff/evidence and authorized publication, followed
+by exact-branch CI, independent review and remaining owner acceptance.
+
+Additional browser evidence (UTC, measured CSS viewport; no raw JSON published):
+
+| Observation | Time | Viewport | Result / actual |
+|---|---|---|---|
+| [qa-notifications-empty](../testing-docs/EUR-46/current-evidence/qa-notifications-empty.png) | 05:25:34 | 570x715 | PASS — Approved new Member sees truthful no-notifications state |
+| [qa-inbox-empty](../testing-docs/EUR-46/current-evidence/qa-inbox-empty.png) | 05:25:40 | 570x715 | PASS — New Member has no conversations and a valid directory next action |
+| [qa-lifetime-access](../testing-docs/EUR-46/current-evidence/qa-lifetime-access.png) | 05:25:55 | 570x715 | PASS — Accepted invitation persists as Active lifetime access; renewal truthfully unavailable |
+| [qa-payment-history-empty](../testing-docs/EUR-46/current-evidence/qa-payment-history-empty.png) | 05:26:07 | 570x715 | PASS — New QA Member has no payment attempts; Test Mode wording present |
+| [member-message-persisted](../testing-docs/EUR-46/current-evidence/member-message-persisted.png) | 05:27:28 | 1396x675 | PASS — Synthetic Member-to-Creator message sent once; retained after refresh |
+| [member-post-comment-persisted](../testing-docs/EUR-46/current-evidence/member-post-comment-persisted.png) | 05:28:25 | 1396x675 | PASS — Member created post 27 and comment 39; direct entry and refresh retain both; own-like action absent |
+| [creator-notification-positive](../testing-docs/EUR-46/current-evidence/creator-notification-positive.png) | 05:29:34 | 1396x624 | PASS — Creator received one unread reply notice from synthetic Member in correct tenant |
+| [creator-notification-read-persisted](../testing-docs/EUR-46/current-evidence/creator-notification-read-persisted.png) | 05:29:44 | 1396x624 | PASS — After Mark read and refresh, notice persists with no Unread badge/Mark read button |
+| [creator-orders-populated](../testing-docs/EUR-46/current-evidence/creator-orders-populated.png) | 05:30:05 | 1396x624 | PASS — Creator sees only current tenant pending/succeeded synthetic receipts with Test Mode |
+| [creator-orders-empty](../testing-docs/EUR-46/current-evidence/creator-orders-empty.png) | 05:30:12 | 1396x624 | PASS — FAILED filter renders truthful no-orders state; tenant scope and filter links preserved |
+| [creator-reports-empty](../testing-docs/EUR-46/current-evidence/creator-reports-empty.png) | 05:30:18 | 1396x624 | PASS — Creator moderation queue explicitly empty with status filters |
+| [creator-referrals-simulated-empty](../testing-docs/EUR-46/current-evidence/creator-referrals-simulated-empty.png) | 05:30:25 | 1396x624 | PASS — 0% disabled, zero commissions, explicit simulated/unpaid and no payout warning |
+| [qa-stale-auth-no-post](../testing-docs/EUR-46/current-evidence/qa-stale-auth-no-post.png) | 05:37:13 | 570x715 | PASS — Publish from a stale authenticated page after logout returned to login; after reauthentication the isolated Feed remains empty. Draft retention and exact HTTP status were not captured. |
+| [qa-admin-existing-route-denial](../testing-docs/EUR-46/current-evidence/qa-admin-existing-route-denial.png) | 05:37:27 | 570x715 | PASS — A Member visiting the actual /admin/communities route receives 403 with Platform Administrator privileges required. Earlier /admin 404 was a non-route diagnostic. |
+| [admin-existing-route-positive](../testing-docs/EUR-46/current-evidence/admin-existing-route-positive.png) | 05:38:56 | 1280x720 | PASS — Seeded Platform Admin can open the same /admin/communities route that denied the QA Member; isolated QA community #19 is ACTIVE. |
+| [admin-qa-community-suspended](../testing-docs/EUR-46/current-evidence/admin-qa-community-suspended.png) | 05:39:43 | 1280x720 | PASS — With explicit owner authorization, isolated QA community #19 changed ACTIVE to SUSPENDED and displays an audit reason. Empty reason was blocked by native required-field validation only. |
+| [member-suspended-community-denied](../testing-docs/EUR-46/current-evidence/member-suspended-community-denied.png) | 05:40:24 | 1396x624 | PASS — Previously accessible QA community Feed returns 404 to the same verified Member while Admin state is SUSPENDED; independent session positive control exists before and after. |
+| [admin-qa-community-restored](../testing-docs/EUR-46/current-evidence/admin-qa-community-restored.png) | 05:40:35 | 1280x720 | PASS — Isolated QA community #19 is restored to ACTIVE with an audited reason; platform counts return to 17 Active and 0 Suspended. |
+| [member-restored-community-access](../testing-docs/EUR-46/current-evidence/member-restored-community-access.png) | 05:40:53 | 1396x624 | PASS — After authorized Admin reactivation, reloading the same previously denied Feed restores ACTIVE Member access and retains the empty fixture content. |
+
+#### Automated boundary evidence from the completed integration run
+
+The following classes were read from the completed combined-source JUnit and
+their source methods were checked where cited. These are subsets of the same
+585-test run, not additional runs or browser observations. All listed classes
+have zero errors, failures and skips. Counts do not replace the UI coverage above.
+
+| Contract / QA scope | Test class | Tests / assertions | Evidence limit |
+|---|---|---|---|
+| EUR-58 tenant and membership denial | PrivateCommunityAccessTest | 10 / 92 | HTTP/policy and private-cover behaviors; no complete browser actor matrix |
+| EUR-57/58 Creator member lifecycle | CommunityMemberManagementTest | 11 / 57 | Suspend/reactivate/remove, mandatory reason, wrong tenant, duplicate audit and pending-payment denial; Creator browser suspension was canceled |
+| EUR-57/58 Admin boundary | PlatformAdministrationTest | 20 / 161 | Seeded role, list/state, mandatory reason, audit retention and no blanket Creator bypass |
+| EUR-57/58 invitation lifecycle | CommunityInvitationFlowTest; InvitationProcessIntegrationTest | 14 / 263; 4 / 35 | Matching/wrong email/token/state, rollback, mail and actual process concurrency; separate current browser valid acceptance exists |
+| EUR-58 participant messages/recovery | CommunityMessagingAuditTest; CommunityMessagingConcurrencyTest | 9 / 52; 5 / 30 | Retry id, hidden recipients, failed input, atomic rollback and concurrency; no offline-browser claim |
+| EUR-58 search visibility | LivewireCommunitySearchTest | 8 / 60 | Source methods cover tenant, draft/unentitled learning, canceled events, inactive members and stale request behavior |
+| EUR-57/58 Feed persisted actions | LivewireFeedInteractionsTest | 12 / 86 | Like/save/discussion/comments, fresh membership, ownership and tenant denial; native browser timing remains separate |
+| EUR-58 lesson repeat/entitlement | LessonProgressConcurrencyTest; CourseAccessAuditRegressionTest | 5 / 39; 6 / 76 | Actual test-database races/locked content/retry rollback; not provider video acceptance |
+| EUR-58 Test Mode financial states | PaymentEntitlementRegressionTest; SePayPaymentTest | 11 / 112; 11 / 60 | Synthetic test events/transaction rules; no real bank transfer or production-provider confirmation |
+
+These results narrow the unverified scope: functional boundary tests did run,
+while the literal QA browser scenario/state/request evidence and parent visual
+acceptance remain partial. Existing checked AC in Linear must not be read as
+proof that every browser cell was observed.
+
+Publication authorization update: the owner explicitly approved committing/pushing
+the prepared seven-view M11 integration, checkpoint, manifest and 27 selected
+screenshots to PR #49's existing branch, then running its full CI. No raw JSON,
+private files, docs/templates/, merge or Done action is included. The earlier
+proposal for a separate integration PR is superseded by this approved consolidation.

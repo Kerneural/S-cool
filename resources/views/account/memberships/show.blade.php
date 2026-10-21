@@ -6,7 +6,12 @@
     </x-slot>
 
     <div class="py-10">
-        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <aside class="min-w-0 lg:col-span-4">
+                    <x-account-navigation active="memberships" />
+                </aside>
+                <div class="min-w-0 lg:col-span-8 space-y-6 break-words [overflow-wrap:anywhere]">
             <section class="space-y-4 rounded-2xl bg-white p-6 sm:p-8 border border-slate-200/80 shadow-xs">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-5">
                     <div>
@@ -79,6 +84,8 @@
                 <a class="text-teal-600 hover:text-teal-800" href="{{ route('account.memberships.index') }}">&larr; {{ __('My Access') }}</a>
                 <span class="text-slate-300">&bull;</span>
                 <a class="text-teal-600 hover:text-teal-800" href="{{ route('account.payment-history.index') }}">{{ __('Payment History') }} &rarr;</a>
+            </div>
+                </div>
             </div>
         </div>
     </div>

@@ -15,6 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Preserve URL controls for validation instead of silently trimming unsafe input.
+        $middleware->trimStrings(except: ['github_url', 'portfolio_url']);
+
         $middleware->validateCsrfTokens(except: [
             'webhooks/sepay',
         ]);
