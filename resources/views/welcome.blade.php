@@ -6,6 +6,8 @@
     <title>S-cool — The Private Learning & Community Platform</title>
     <meta name="description" content="S-cool enables every community to own their learning and knowledge sharing. Structured classrooms, private discussions, and proof of work reviews.">
 
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
