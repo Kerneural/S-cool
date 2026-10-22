@@ -245,345 +245,7 @@
                         </a>
                     </div>
 
-                    <!-- Interactive Product Window Showcase (LangChain & Modern AI Interface Inspired) -->
-                    <div x-data="{ currentScreen: 'classroom' }" class="mt-12 sm:mt-16 w-full max-w-6xl mx-auto text-left">
-                        <!-- Screen Selector Tabs -->
-                        <div class="flex items-center justify-between flex-wrap gap-3 mb-4 px-2">
-                            <div class="flex items-center gap-1.5 p-1 bg-surface border border-line rounded-xl shadow-xs">
-                                <button type="button"
-                                        @click="currentScreen = 'classroom'"
-                                        :class="currentScreen === 'classroom' ? 'bg-brand text-white shadow-xs font-semibold' : 'text-muted hover:text-ink hover:bg-slate-100 font-medium'"
-                                        class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs transition-all">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                                    <span>Classroom & Video Suite</span>
-                                </button>
-                                <button type="button"
-                                        @click="currentScreen = 'community'"
-                                        :class="currentScreen === 'community' ? 'bg-brand text-white shadow-xs font-semibold' : 'text-muted hover:text-ink hover:bg-slate-100 font-medium'"
-                                        class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs transition-all">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                                    <span>Community Knowledge Feed</span>
-                                </button>
-                                <button type="button"
-                                        @click="currentScreen = 'pow'"
-                                        :class="currentScreen === 'pow' ? 'bg-brand text-white shadow-xs font-semibold' : 'text-muted hover:text-ink hover:bg-slate-100 font-medium'"
-                                        class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs transition-all">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                                    <span>Proof of Work Verification</span>
-                                </button>
-                            </div>
-                            <div class="hidden sm:flex items-center gap-2 text-xs text-muted">
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 font-medium border border-emerald-200/60">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                    <span>Interactive Mockup</span>
-                                </span>
-                                <span>Click tabs to explore screens</span>
-                            </div>
-                        </div>
-
-                        <!-- Browser Mockup Window Container -->
-                        <div class="relative rounded-2xl border border-slate-700/80 bg-slate-950 shadow-2xl shadow-teal-950/20 overflow-hidden transition-all duration-300">
-                            <!-- Window Chrome Topbar -->
-                            <div class="flex items-center justify-between px-4 py-3 bg-slate-900 border-b border-slate-800">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-3 h-3 rounded-full bg-rose-500/80"></div>
-                                    <div class="w-3 h-3 rounded-full bg-amber-500/80"></div>
-                                    <div class="w-3 h-3 rounded-full bg-emerald-500/80"></div>
-                                    <div class="ml-2 hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-md bg-slate-950/80 border border-slate-800 text-[11px] font-mono text-slate-400">
-                                        <svg class="w-3 h-3 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                                        <span x-text="currentScreen === 'classroom' ? 'https://s-cool.app/communities/python-developers/classroom/courses/1' : (currentScreen === 'community' ? 'https://s-cool.app/communities/maker-school-ai-automation/posts' : 'https://s-cool.app/communities/agentic-ai-founders/proof-of-work/eval')"></span>
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-semibold bg-brand-soft text-brand border border-brand/30">
-                                        S-cool Engine v2.0
-                                    </span>
-                                </div>
-                            </div>
-
-                            <!-- Screen 1: Classroom Course & Video Player -->
-                            <div x-show="currentScreen === 'classroom'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-98" x-transition:enter-end="opacity-100 scale-100" class="p-4 sm:p-6 text-slate-100">
-                                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                                    <!-- Left: Video Player & Overview -->
-                                    <div class="lg:col-span-8 space-y-4">
-                                        <!-- Video Embed Simulated Screen -->
-                                        <div class="relative aspect-video rounded-xl overflow-hidden bg-slate-900 border border-slate-800 shadow-inner group">
-                                            <!-- Video Thumbnail Banner -->
-                                            <img src="https://assets.skool.com/f/bc0ed33173ce43e8b01ed1177f824ee9/dd34c72a727f4764a09543ad70c6be85c6f7df8261494dac8c78d41b8cf9105d-md.jpg"
-                                                 alt="Python Zero to Production Video Lesson"
-                                                 class="w-full h-full object-cover opacity-85 group-hover:scale-102 transition-transform duration-500">
-                                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
-                                            
-                                            <!-- Video Play Button & Overlay -->
-                                            <div class="absolute inset-0 flex items-center justify-center">
-                                                <div class="w-16 h-16 rounded-full bg-brand/90 hover:bg-brand text-white flex items-center justify-center shadow-lg shadow-teal-900/50 backdrop-blur-xs cursor-pointer group-hover:scale-110 transition-transform">
-                                                    <svg class="w-7 h-7 ml-1 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                                </div>
-                                            </div>
-
-                                            <!-- Badges overlay -->
-                                            <div class="absolute top-3 left-3 flex items-center gap-2">
-                                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-900/90 text-[11px] font-semibold text-teal-300 border border-teal-500/30 backdrop-blur-md">
-                                                    <span class="w-1.5 h-1.5 rounded-full bg-teal-400 animate-ping"></span>
-                                                    <span>Lesson 3 of 12</span>
-                                                </span>
-                                                <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-800/80 text-slate-300 backdrop-blur-md">
-                                                    18:42 mins
-                                                </span>
-                                            </div>
-
-                                            <div class="absolute bottom-3 inset-x-3 flex items-center justify-between text-xs text-slate-300">
-                                                <span class="font-medium truncate pr-4">Module 2: Building Production APIs with FastAPI & Async Handlers</span>
-                                                <span class="font-mono text-teal-300 shrink-0">1080p 60fps</span>
-                                            </div>
-                                        </div>
-
-                                        <!-- Lesson Title & AI Co-pilot Summary Widget -->
-                                        <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3">
-                                            <div class="flex items-center justify-between flex-wrap gap-2">
-                                                <h3 class="text-base font-bold text-white tracking-tight">FastAPI Dependency Injection & OpenTelemetry Tracing</h3>
-                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-300 text-xs font-medium border border-teal-500/20">
-                                                    ✨ AI Lesson Digest
-                                                </span>
-                                            </div>
-                                            <p class="text-xs text-slate-400 leading-relaxed">
-                                                In this milestone, you will wire clean dependency injection containers, wrap endpoints with contextual telemetry, and handle async connection pools with resilient retry budgets.
-                                            </p>
-                                            <div class="flex flex-wrap items-center gap-2 pt-1 text-[11px] font-mono text-slate-400">
-                                                <span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700/60 text-slate-300">FastAPI</span>
-                                                <span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700/60 text-slate-300">Pydantic v2</span>
-                                                <span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700/60 text-slate-300">Docker</span>
-                                                <span class="px-2 py-0.5 rounded bg-teal-950 text-teal-300 border border-teal-500/30">Proof of Work Required</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Right: Course Outline & Progress -->
-                                    <div class="lg:col-span-4 space-y-4">
-                                        <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3">
-                                            <div class="flex items-center justify-between text-xs">
-                                                <span class="text-slate-400 font-medium">Curriculum Progress</span>
-                                                <span class="font-bold text-teal-300">75% Complete</span>
-                                            </div>
-                                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                                                <div class="bg-gradient-to-r from-teal-500 to-emerald-400 h-full rounded-full" style="width: 75%"></div>
-                                            </div>
-                                        </div>
-
-                                        <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2">
-                                            <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Module Outline</span>
-                                            <div class="space-y-1.5 text-xs">
-                                                <div class="flex items-center justify-between p-2 rounded-lg bg-teal-950/40 border border-teal-500/30 text-teal-200">
-                                                    <div class="flex items-center gap-2 min-w-0">
-                                                        <svg class="w-4 h-4 text-teal-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                                                        <span class="truncate">01. Architecture Foundations</span>
-                                                    </div>
-                                                    <span class="text-[10px] text-teal-400 font-mono">Done</span>
-                                                </div>
-                                                <div class="flex items-center justify-between p-2 rounded-lg bg-teal-950/40 border border-teal-500/30 text-teal-200">
-                                                    <div class="flex items-center gap-2 min-w-0">
-                                                        <svg class="w-4 h-4 text-teal-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                                                        <span class="truncate">02. Data Structures & Collections</span>
-                                                    </div>
-                                                    <span class="text-[10px] text-teal-400 font-mono">Done</span>
-                                                </div>
-                                                <div class="flex items-center justify-between p-2 rounded-lg bg-brand/20 border border-brand text-white font-medium">
-                                                    <div class="flex items-center gap-2 min-w-0">
-                                                        <span class="w-2 h-2 rounded-full bg-teal-400 shrink-0 animate-ping"></span>
-                                                        <span class="truncate">03. FastAPI Production APIs</span>
-                                                    </div>
-                                                    <span class="text-[10px] text-teal-300 font-mono">Playing</span>
-                                                </div>
-                                                <div class="flex items-center justify-between p-2 rounded-lg bg-slate-950/50 text-slate-500">
-                                                    <div class="flex items-center gap-2 min-w-0">
-                                                        <span class="w-4 h-4 rounded-full border border-slate-700 flex items-center justify-center text-[9px] shrink-0">4</span>
-                                                        <span class="truncate">04. Milestone Rubric Submission</span>
-                                                    </div>
-                                                    <span class="text-[10px] text-slate-600 font-mono">Locked</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Screen 2: Community Knowledge Feed -->
-                            <div x-show="currentScreen === 'community'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-98" x-transition:enter-end="opacity-100 scale-100" class="p-4 sm:p-6 text-slate-100">
-                                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                                    <!-- Discussions Feed -->
-                                    <div class="lg:col-span-8 space-y-3">
-                                        <!-- Post 1 (Pinned) -->
-                                        <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-teal-500/40 transition-colors space-y-2.5">
-                                            <div class="flex items-center justify-between text-xs">
-                                                <div class="flex items-center gap-2">
-                                                    <div class="w-7 h-7 rounded-full bg-teal-700 text-white flex items-center justify-center font-bold text-xs">NL</div>
-                                                    <div>
-                                                        <span class="font-semibold text-white">Nathan Lucas</span>
-                                                        <span class="text-[11px] text-slate-500 ml-1.5">Creator • 2h ago</span>
-                                                    </div>
-                                                </div>
-                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/20">
-                                                    📌 Pinned Announcement
-                                                </span>
-                                            </div>
-                                            <h4 class="text-sm font-bold text-white hover:text-teal-300 transition-colors">
-                                                Weekly Challenge: Build an Autonomous Agent with ReAct Loops & SQLite Persistence
-                                            </h4>
-                                            <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed">
-                                                Submit your pull requests with integration tests before Friday 18:00 UTC. The top 3 vetted implementations will receive mentor rubrics and community grant points.
-                                            </p>
-                                            <div class="flex items-center gap-4 text-xs text-slate-400 pt-1 border-t border-slate-800/80">
-                                                <span class="inline-flex items-center gap-1 text-teal-400">
-                                                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a2 2 0 00-.8 1.4z"/></svg>
-                                                    48 Upvotes
-                                                </span>
-                                                <span class="inline-flex items-center gap-1">
-                                                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                                                    26 Discussions
-                                                </span>
-                                                <span class="text-slate-500">Category: #announcements</span>
-                                            </div>
-                                        </div>
-
-                                        <!-- Post 2 -->
-                                        <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-teal-500/40 transition-colors space-y-2.5">
-                                            <div class="flex items-center justify-between text-xs">
-                                                <div class="flex items-center gap-2">
-                                                    <div class="w-7 h-7 rounded-full bg-emerald-700 text-white flex items-center justify-center font-bold text-xs">VA</div>
-                                                    <div>
-                                                        <span class="font-semibold text-white">Viet Anh</span>
-                                                        <span class="text-[11px] text-slate-500 ml-1.5">Member • 4h ago</span>
-                                                    </div>
-                                                </div>
-                                                <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-800 text-slate-300">
-                                                    #questions
-                                                </span>
-                                            </div>
-                                            <h4 class="text-sm font-bold text-white hover:text-teal-300 transition-colors">
-                                                How to handle graceful shutdown for background websocket workers in n8n?
-                                            </h4>
-                                            <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed">
-                                                When deploying worker nodes behind traefik, SIGTERM signals occasionally drop in-flight queue jobs. Solved this with a custom exponential drain hook! Code snippet attached below.
-                                            </p>
-                                            <div class="flex items-center gap-4 text-xs text-slate-400 pt-1 border-t border-slate-800/80">
-                                                <span class="inline-flex items-center gap-1 text-teal-400">
-                                                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a2 2 0 00-.8 1.4z"/></svg>
-                                                    19 Upvotes
-                                                </span>
-                                                <span class="inline-flex items-center gap-1">
-                                                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                                                    11 Comments
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Sidebar Leaderboard & Activity -->
-                                    <div class="lg:col-span-4 space-y-4">
-                                        <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-3">
-                                            <div class="flex items-center justify-between">
-                                                <span class="text-xs font-bold uppercase tracking-wider text-white">🏆 Cohort Leaderboard</span>
-                                                <span class="text-[10px] text-teal-400 font-mono">This Week</span>
-                                            </div>
-                                            <div class="space-y-2 text-xs">
-                                                <div class="flex items-center justify-between p-2 rounded-lg bg-teal-950/50 border border-teal-500/30">
-                                                    <div class="flex items-center gap-2">
-                                                        <span class="font-bold text-amber-400 text-sm">#1</span>
-                                                        <span class="font-semibold text-white">Alex Rivers</span>
-                                                    </div>
-                                                    <span class="font-mono text-teal-300 font-bold">1,420 pts</span>
-                                                </div>
-                                                <div class="flex items-center justify-between p-2 rounded-lg bg-slate-950 border border-slate-800">
-                                                    <div class="flex items-center gap-2">
-                                                        <span class="font-bold text-slate-400 text-sm">#2</span>
-                                                        <span class="font-medium text-slate-200">Elena Rostova</span>
-                                                    </div>
-                                                    <span class="font-mono text-slate-300">1,180 pts</span>
-                                                </div>
-                                                <div class="flex items-center justify-between p-2 rounded-lg bg-slate-950 border border-slate-800">
-                                                    <div class="flex items-center gap-2">
-                                                        <span class="font-bold text-amber-600 text-sm">#3</span>
-                                                        <span class="font-medium text-slate-200">Kenji Sato</span>
-                                                    </div>
-                                                    <span class="font-mono text-slate-300">940 pts</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2 text-xs">
-                                            <span class="font-semibold text-white">🔥 14-Day Study Streak</span>
-                                            <p class="text-slate-400 text-[11px]">Keep your streak alive by submitting evidence or assisting peers today.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Screen 3: Proof of Work & Verification Suite -->
-                            <div x-show="currentScreen === 'pow'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-98" x-transition:enter-end="opacity-100 scale-100" class="p-4 sm:p-6 text-slate-100">
-                                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                                    <!-- Deliverable Review Details -->
-                                    <div class="lg:col-span-8 space-y-4">
-                                        <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-3">
-                                            <div class="flex items-center justify-between flex-wrap gap-2">
-                                                <div>
-                                                    <span class="text-[10px] font-mono uppercase tracking-wider text-teal-400">Submission Evaluation #POW-882</span>
-                                                    <h4 class="text-base font-bold text-white">Fullstack Agentic Assistant & Evaluator Loop</h4>
-                                                </div>
-                                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/40">
-                                                    ✓ VERIFIED (98.5 / 100)
-                                                </span>
-                                            </div>
-                                            <div class="p-3 rounded-lg bg-slate-950 border border-slate-800 text-xs space-y-1 font-mono text-slate-300">
-                                                <div class="text-slate-500">Repository Evidence:</div>
-                                                <a href="#" class="text-teal-300 hover:underline">https://github.com/scool-fellows/autonomous-eval-pipeline</a>
-                                            </div>
-                                            <!-- Rubric breakdown -->
-                                            <div class="space-y-2 pt-2">
-                                                <span class="text-xs font-semibold text-slate-300">Rubric Criteria Breakdown:</span>
-                                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                                                    <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800 flex justify-between">
-                                                        <span class="text-slate-400">Architecture & Clean State:</span>
-                                                        <span class="font-bold text-teal-300">25 / 25</span>
-                                                    </div>
-                                                    <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800 flex justify-between">
-                                                        <span class="text-slate-400">Exception Handling & Retries:</span>
-                                                        <span class="font-bold text-teal-300">24 / 25</span>
-                                                    </div>
-                                                    <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800 flex justify-between">
-                                                        <span class="text-slate-400">Automated Assertions:</span>
-                                                        <span class="font-bold text-teal-300">25 / 25</span>
-                                                    </div>
-                                                    <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800 flex justify-between">
-                                                        <span class="text-slate-400">Documentation & Screencast:</span>
-                                                        <span class="font-bold text-teal-300">24.5 / 25</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Verifiable Credential Badge -->
-                                    <div class="lg:col-span-4 space-y-4">
-                                        <div class="p-5 rounded-xl bg-gradient-to-b from-slate-900 to-teal-950 border border-teal-500/40 space-y-4 text-center">
-                                            <div class="w-14 h-14 mx-auto rounded-2xl bg-teal-500/20 border border-teal-500/40 text-teal-300 flex items-center justify-center">
-                                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
-                                            </div>
-                                            <div class="space-y-1">
-                                                <span class="text-[10px] font-mono tracking-widest uppercase text-teal-400">Verifiable Credential</span>
-                                                <h5 class="text-sm font-bold text-white">Fullstack AI Systems Pioneer</h5>
-                                                <p class="text-[11px] text-slate-400">Tamper-evident outcome cryptographic proof recorded on cohort ledger.</p>
-                                            </div>
-                                            <div class="pt-2 border-t border-slate-800 text-[10px] font-mono text-slate-400">
-                                                Signer: mentor.scool.eth<br/>
-                                                Status: PASS • MINTED
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
-                </div>
             </div>
 
             <!-- Continuous Infinite Logo Marquee Flow (Full-Width Edge-to-Edge) -->
@@ -1417,7 +1079,7 @@
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                             </div>
                             <div class="space-y-1">
-                                <span class="text-xs font-mono font-semibold text-sky-700 uppercase">deepagents</span>
+                                <span class="text-xs font-mono font-semibold text-brand uppercase">community engine</span>
                                 <h3 class="text-lg font-bold text-ink">Private Cohort Communities</h3>
                                 <p class="text-xs text-muted leading-relaxed">
                                     For highly autonomous, long-running learning spaces with discussion categories and member roles.
@@ -1443,7 +1105,7 @@
                         </div>
 
                         <a href="{{ route('communities.index') }}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-brand hover:text-brand-hover">
-                            <span>Explore deepagents</span>
+                            <span>Explore community engine</span>
                             <span class="text-sm">&rarr;</span>
                         </a>
                     </div>
@@ -1456,7 +1118,7 @@
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                             </div>
                             <div class="space-y-1">
-                                <span class="text-xs font-mono font-semibold text-brand uppercase">langchain</span>
+                                <span class="text-xs font-mono font-semibold text-brand uppercase">classroom suite</span>
                                 <h3 class="text-lg font-bold text-ink">Interactive Classroom</h3>
                                 <p class="text-xs text-muted leading-relaxed">
                                     For building courses fast with video modules, rich markdown lessons, and persistent completion state.
@@ -1481,7 +1143,7 @@
                         </div>
 
                         <a href="{{ route('communities.index') }}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-brand hover:text-brand-hover">
-                            <span>Explore langchain</span>
+                            <span>Explore classroom suite</span>
                             <span class="text-sm">&rarr;</span>
                         </a>
                     </div>
@@ -1494,7 +1156,7 @@
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                             </div>
                             <div class="space-y-1">
-                                <span class="text-xs font-mono font-semibold text-purple-700 uppercase">langgraph</span>
+                                <span class="text-xs font-mono font-semibold text-purple-700 uppercase">proof of work</span>
                                 <h3 class="text-lg font-bold text-ink">Proof of Work Engine</h3>
                                 <p class="text-xs text-muted leading-relaxed">
                                     For milestone reviews that require deterministic verification, peer rubrics, and earned level rewards.
@@ -1520,14 +1182,10 @@
                         </div>
 
                         <a href="{{ route('communities.index') }}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-brand hover:text-brand-hover">
-                            <span>Explore langgraph</span>
+                            <span>Explore proof of work</span>
                             <span class="text-sm">&rarr;</span>
                         </a>
                     </div>
-                    <h3 class="text-base font-bold text-white tracking-tight">Events & Direct Messaging</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">
-                        UTC-synchronized event schedules with secure meeting links and private conversations with refresh-based updates.
-                    </p>
                 </div>
             </div>
         </section>
@@ -1684,8 +1342,73 @@
             </div>
         </section>
 
-        <!-- 5. Metrics & Scale Section ("Trusted by the largest builder community in AI") -->
-        <section class="py-20 md:py-28 bg-canvas border-t border-line">
+        <!-- 5. Metrics & Scale Section ("Trusted by the largest builder community in AI") with Smooth Count-Up Animation -->
+        <section x-data="{
+                    rafId: null,
+                    stat1: 0,
+                    stat2: 0,
+                    stat3: 0,
+                    startCountUp() {
+                        if (this.rafId) {
+                            cancelAnimationFrame(this.rafId);
+                        }
+                        this.stat1 = 0;
+                        this.stat2 = 0;
+                        this.stat3 = 0;
+
+                        const duration = 1600;
+                        const startTime = performance.now();
+                        const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+
+                        const frame = (now) => {
+                            const elapsed = now - startTime;
+                            const progress = Math.min(elapsed / duration, 1);
+                            const eased = easeOutCubic(progress);
+
+                            this.stat1 = Math.round(eased * 350);
+                            this.stat2 = Math.round(eased * 7);
+                            this.stat3 = Math.round(eased * 5);
+
+                            if (progress < 1) {
+                                this.rafId = requestAnimationFrame(frame);
+                            } else {
+                                this.stat1 = 350;
+                                this.stat2 = 7;
+                                this.stat3 = 5;
+                                this.rafId = null;
+                            }
+                        };
+                        this.rafId = requestAnimationFrame(frame);
+                    },
+                    reset() {
+                        if (this.rafId) {
+                            cancelAnimationFrame(this.rafId);
+                            this.rafId = null;
+                        }
+                        this.stat1 = 0;
+                        this.stat2 = 0;
+                        this.stat3 = 0;
+                    },
+                    init() {
+                        if (typeof IntersectionObserver !== 'undefined') {
+                            const observer = new IntersectionObserver((entries) => {
+                                entries.forEach(entry => {
+                                    if (entry.isIntersecting) {
+                                        this.startCountUp();
+                                    } else {
+                                        this.reset();
+                                    }
+                                });
+                            }, { threshold: 0.15 });
+                            observer.observe(this.$el);
+                        } else {
+                            this.stat1 = 350;
+                            this.stat2 = 7;
+                            this.stat3 = 5;
+                        }
+                    }
+                 }"
+                 class="py-20 md:py-28 bg-canvas border-t border-line scroll-mt-12">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center max-w-3xl mx-auto mb-16 space-y-3">
                     <span class="text-xs font-semibold text-brand uppercase tracking-wider">Proven Scale</span>
@@ -1695,21 +1418,27 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <!-- Metric 1 -->
-                    <div class="bg-surface rounded-xl border border-line p-8 text-center shadow-xs space-y-2">
-                        <div class="text-5xl sm:text-6xl font-black text-brand tracking-tight">350K+</div>
+                    <!-- Metric 1: Monthly Active Study Hours -->
+                    <div class="bg-surface rounded-xl border border-line p-8 text-center shadow-xs hover:shadow-md hover:border-brand/40 transition-all space-y-2">
+                        <div class="text-5xl sm:text-6xl font-black text-brand tracking-tight font-sans">
+                            <span x-text="stat1 + 'K+'">350K+</span>
+                        </div>
                         <div class="text-sm text-muted font-medium">Monthly active study & discussion hours</div>
                     </div>
 
-                    <!-- Metric 2 -->
-                    <div class="bg-surface rounded-xl border border-line p-8 text-center shadow-xs space-y-2">
-                        <div class="text-5xl sm:text-6xl font-black text-brand tracking-tight">7K+</div>
+                    <!-- Metric 2: Active Communities -->
+                    <div class="bg-surface rounded-xl border border-line p-8 text-center shadow-xs hover:shadow-md hover:border-brand/40 transition-all space-y-2">
+                        <div class="text-5xl sm:text-6xl font-black text-brand tracking-tight font-sans">
+                            <span x-text="stat2 + 'K+'">7K+</span>
+                        </div>
                         <div class="text-sm text-muted font-medium">Active cohort communities & mentor workspaces</div>
                     </div>
 
-                    <!-- Metric 3 -->
-                    <div class="bg-surface rounded-xl border border-line p-8 text-center shadow-xs space-y-2">
-                        <div class="text-5xl sm:text-6xl font-black text-brand tracking-tight">5 <span class="text-2xl text-muted font-normal">of 10</span></div>
+                    <!-- Metric 3: Accelerator Adoption -->
+                    <div class="bg-surface rounded-xl border border-line p-8 text-center shadow-xs hover:shadow-md hover:border-brand/40 transition-all space-y-2">
+                        <div class="text-5xl sm:text-6xl font-black text-brand tracking-tight font-sans">
+                            <span x-text="stat3">5</span> <span class="text-2xl text-muted font-normal">of 10</span>
+                        </div>
                         <div class="text-sm text-muted font-medium">Leading tech accelerators use S-cool engines</div>
                     </div>
                 </div>
@@ -1857,12 +1586,39 @@
                 </div>
             </div>
 
-            <!-- Giant Watermark Outline Text (matching LangChain outline at bottom of clone) -->
-            <div class="pt-10 overflow-hidden text-center select-none pointer-events-none">
-                <span class="text-7xl sm:text-9xl font-black font-sans tracking-tight text-transparent"
-                      style="-webkit-text-stroke: 1.5px #E2E8F0;">
-                    S-cool
-                </span>
+            <!-- Giant Watermark Outline Text (matching LangChain interactive outline spotlight) -->
+            <div x-data="{
+                    mouseX: 0,
+                    mouseY: 0,
+                    isHover: false,
+                    updatePos(e) {
+                        const rect = this.$el.getBoundingClientRect();
+                        this.mouseX = e.clientX - rect.left;
+                        this.mouseY = e.clientY - rect.top;
+                    }
+                 }"
+                 @mousemove="updatePos($event)"
+                 @mouseenter="isHover = true; updatePos($event)"
+                 @mouseleave="isHover = false"
+                 class="relative pt-10 overflow-hidden text-center select-none cursor-default">
+                
+                <!-- Base Clearly Visible Outline Layer -->
+                <div class="relative z-10">
+                    <span class="text-7xl sm:text-9xl font-black font-sans tracking-tight text-transparent block"
+                          style="-webkit-text-stroke: 1.75px #94A3B8;">
+                        S-cool
+                    </span>
+                </div>
+
+                <!-- Interactive Spotlight Glow Layer (exact overlay matching LangChain cursor glow) -->
+                <div class="absolute inset-0 pt-10 z-20 flex items-center justify-center pointer-events-none transition-opacity duration-200"
+                     :class="isHover ? 'opacity-100' : 'opacity-0'"
+                     :style="`-webkit-mask-image: radial-gradient(260px circle at ${mouseX}px ${mouseY}px, black 30%, transparent 80%); mask-image: radial-gradient(260px circle at ${mouseX}px ${mouseY}px, black 30%, transparent 80%);`">
+                    <span class="text-7xl sm:text-9xl font-black font-sans tracking-tight text-transparent block drop-shadow-[0_0_20px_rgba(15,118,110,0.4)]"
+                          style="-webkit-text-stroke: 2px #0F766E;">
+                        S-cool
+                    </span>
+                </div>
             </div>
 
             <!-- Bottom Sub-Footer: Status & Legal -->

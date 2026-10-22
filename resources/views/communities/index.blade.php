@@ -107,7 +107,7 @@
                 @else
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         @foreach ($communities as $community)
-                            <article class="group relative flex flex-col bg-white rounded-2xl border border-slate-200/80 hover:border-brand-500/30 hover:shadow-xl hover:shadow-brand-950/5 transition-all duration-300 overflow-hidden">
+                            <article class="group relative flex flex-col bg-surface rounded-xl border border-line hover:border-brand/40 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 overflow-hidden shadow-2xs">
                                 <!-- Cover / Educational Graphic Fallback -->
                                 <div class="relative aspect-[16/9] w-full overflow-hidden bg-slate-900">
                                     @if ($community->isActive() && $community->cover_path)
@@ -119,7 +119,7 @@
                                         <!-- Purposeful Educational Fallback with Branded Gradient and Monogram -->
                                         <div class="w-full h-full flex flex-col items-center justify-center p-6 bg-gradient-to-br from-slate-900 via-slate-800 to-brand-950 relative overflow-hidden group-hover:from-slate-850 group-hover:to-brand-900 transition-colors duration-500">
                                             <div class="absolute inset-0 opacity-15 pointer-events-none" style="background-image: radial-gradient(circle at 1px 1px, #14b8a6 1px, transparent 0); background-size: 16px 16px;"></div>
-                                            <div class="relative w-14 h-14 rounded-2xl bg-brand-500/15 border border-brand-500/25 text-brand-300 flex items-center justify-center shadow-inner group-hover:scale-105 group-hover:border-brand-400/40 transition-transform duration-300">
+                                            <div class="relative w-14 h-14 rounded-xl bg-brand-500/15 border border-brand-500/25 text-brand-300 flex items-center justify-center shadow-inner group-hover:scale-105 group-hover:border-brand-400/40 transition-transform duration-300">
                                                 <span class="text-lg font-bold tracking-tight">{{ strtoupper(mb_substr($community->name, 0, 2)) }}</span>
                                             </div>
                                             <span class="relative mt-2 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
@@ -132,26 +132,26 @@
                                     <div class="absolute inset-x-3 top-3 flex items-center justify-between pointer-events-none">
                                         <!-- Role Pill -->
                                         @if ($community->isCreator(auth()->user()))
-                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-900/85 backdrop-blur-md text-brand-300 border border-brand-500/30 shadow-sm">
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-900/85 backdrop-blur-md text-brand-300 border border-brand-500/30 shadow-xs">
                                                 <svg class="w-3 h-3 text-brand-400" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 011-1z" />
+                                                    <path d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 11-1z" />
                                                 </svg>
                                                 {{ __('Creator') }}
                                             </span>
                                         @else
-                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-900/85 backdrop-blur-md text-slate-200 border border-white/10 shadow-sm">
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-900/85 backdrop-blur-md text-slate-200 border border-white/10 shadow-xs">
                                                 {{ __('Member') }}
                                             </span>
                                         @endif
 
                                         <!-- Status Pill -->
                                         @if ($community->isActive())
-                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/20 backdrop-blur-md text-emerald-300 border border-emerald-500/30 shadow-sm">
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-emerald-500/20 backdrop-blur-md text-emerald-300 border border-emerald-500/30 shadow-xs">
                                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5"></span>
                                                 {{ $community->status }}
                                             </span>
                                         @else
-                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/20 backdrop-blur-md text-amber-300 border border-amber-500/40 shadow-sm">
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-amber-500/20 backdrop-blur-md text-amber-300 border border-amber-500/40 shadow-xs">
                                                 {{ $community->status }}
                                             </span>
                                         @endif
@@ -161,7 +161,7 @@
                                 <!-- Card Body -->
                                 <div class="p-5 flex flex-col flex-1">
                                     <div class="mb-2">
-                                        <h3 class="text-base font-bold text-slate-900 group-hover:text-brand-600 transition-colors line-clamp-1">
+                                        <h3 class="text-base font-bold text-ink group-hover:text-brand transition-colors line-clamp-1">
                                             @if ($community->isActive())
                                                 <a href="{{ route('communities.show', $community) }}" class="focus:outline-none focus:underline">
                                                     {{ $community->name }}
@@ -172,25 +172,25 @@
                                         </h3>
                                     </div>
 
-                                    <p class="text-sm text-slate-600 line-clamp-2 leading-relaxed flex-1">
+                                    <p class="text-sm text-muted line-clamp-2 leading-relaxed flex-1">
                                         {{ $community->description ?: __('No description provided.') }}
                                     </p>
 
                                     <!-- Bottom Action Strip -->
-                                    <div class="flex items-center justify-between text-xs pt-4 mt-4 border-t border-slate-100">
-                                        <span class="text-slate-500 font-medium">
+                                    <div class="flex items-center justify-between text-xs pt-4 mt-4 border-t border-line/60">
+                                        <span class="text-muted font-medium">
                                             {{ $community->isCreator(auth()->user()) ? __('Role: Creator') : __('Role: Member') }}
                                         </span>
                                         @if ($community->isActive())
                                             <a href="{{ route('communities.show', $community) }}"
-                                               class="inline-flex items-center font-semibold text-brand-600 hover:text-brand-700 group-hover:translate-x-0.5 transition-all focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1 rounded-md px-1">
+                                               class="inline-flex items-center font-semibold text-brand hover:text-brand-hover group-hover:translate-x-0.5 transition-all focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-1 rounded-md px-1">
                                                 <span>{{ __('Open Community') }}</span>
                                                 <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                                 </svg>
                                             </a>
                                         @else
-                                            <span class="text-slate-400 font-medium">
+                                            <span class="text-muted font-medium">
                                                 {{ __('Access unavailable') }}
                                             </span>
                                         @endif
