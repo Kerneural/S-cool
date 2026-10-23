@@ -13,6 +13,7 @@ use App\Services\CommunityContributionService;
 use App\Services\LearningFocusService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -183,7 +184,7 @@ class PostController extends Controller
     {
         Gate::authorize('view', $post);
 
-        $user = auth()->user();
+        $user = Auth::user();
         $post->load([
             'author:id,name',
             'category',

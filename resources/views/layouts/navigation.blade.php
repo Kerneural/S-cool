@@ -21,7 +21,7 @@
         : collect();
 @endphp
 
-<nav x-data="{ open: false, switcherOpen: false }" class="bg-white border-b border-slate-200/80 sticky top-0 z-40">
+<nav x-data="{ open: false, switcherOpen: false }" class="bg-surface/90 backdrop-blur-md border-b border-line sticky top-0 z-40 transition-all">
     <!-- Primary Navigation Menu (Contextual Shell / Global Shell) -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex min-h-16 flex-wrap items-center justify-between gap-x-3 gap-y-2 py-2">
@@ -29,8 +29,8 @@
             <div class="order-1 flex min-w-0 flex-1 items-center gap-2 md:flex-none md:gap-3">
                 <!-- S-cool Home / Brand Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" aria-label="{{ __('S-cool home') }}">
-                        <x-application-logo class="block h-8 w-auto fill-current text-slate-800" />
+                    <a href="{{ route('dashboard') }}" aria-label="{{ __('S-cool home') }}" class="group focus:outline-none">
+                        <x-application-logo class="block h-8 w-auto fill-current text-slate-800 group-hover:scale-105 transition-transform" />
                     </a>
                 </div>
 
@@ -41,9 +41,9 @@
                                 x-ref="shellSwitcherTrigger" aria-label="{{ __('Switch Community') }}" @click="switcherOpen = !switcherOpen"
                                 :aria-expanded="switcherOpen.toString()"
                                 aria-controls="shell-community-switcher"
-                                class="inline-flex min-h-11 items-center gap-2 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200/80 rounded-xl text-xs sm:text-sm font-bold text-slate-900 transition focus:outline-none focus:ring-2 focus:ring-brand-500 min-w-0 max-w-full md:max-w-[200px] lg:max-w-[260px]">
+                                class="inline-flex min-h-10 items-center gap-2 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-line rounded-lg text-xs sm:text-sm font-semibold text-ink transition focus:outline-none focus:ring-2 focus:ring-brand min-w-0 max-w-full md:max-w-[200px] lg:max-w-[260px] shadow-2xs">
                             <span class="truncate">{{ $authCommunity->name }}</span>
-                            <svg class="w-3.5 h-3.5 text-slate-600 shrink-0 transition-transform duration-150" :class="{ 'rotate-180': switcherOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-3.5 h-3.5 text-muted shrink-0 transition-transform duration-150" :class="{ 'rotate-180': switcherOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
@@ -52,13 +52,13 @@
                              x-show="switcherOpen"
                              @click.outside="switcherOpen = false"
                              x-cloak
-                             x-transition:enter="transition ease-out duration-100"
+                             x-transition:enter="transition ease-out duration-150"
                              x-transition:enter-start="transform opacity-0 scale-95"
                              x-transition:enter-end="transform opacity-100 scale-100"
-                             x-transition:leave="transition ease-in duration-75"
+                             x-transition:leave="transition ease-in duration-100"
                              x-transition:leave-start="transform opacity-100 scale-100"
                              x-transition:leave-end="transform opacity-0 scale-95"
-                             class="origin-top-left absolute left-0 mt-2 w-72 max-w-[calc(100vw-5rem)] max-h-[70vh] overflow-y-auto rounded-2xl shadow-xl bg-white border border-slate-200/80 divide-y divide-slate-100 focus:outline-none z-50">
+                             class="origin-top-left absolute left-0 mt-2 w-72 max-w-[calc(100vw-5rem)] max-h-[70vh] overflow-y-auto rounded-xl shadow-xl shadow-slate-900/10 bg-surface border border-line divide-y divide-line/60 focus:outline-none z-50">
                             <div class="py-1">
                                 <div class="px-4 py-2 text-xs font-semibold text-slate-600 uppercase tracking-wider bg-slate-50">
                                     {{ __('Your Active Communities') }}

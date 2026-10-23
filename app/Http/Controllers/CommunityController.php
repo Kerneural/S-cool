@@ -8,6 +8,7 @@ use App\Services\VideoEmbedService;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -113,10 +114,11 @@ class CommunityController extends Controller
     {
         Gate::authorize('view', $community);
 
+        $user = Auth::user();
         $activeMemberCount = $community->memberships()->effective()->count();
         $roadmap = $community->courses()->published()->ordered();
-        if (! $community->isCreator(auth()->user())) {
-            $roadmap->entitledTo(auth()->user());
+        if (! $community->isCreator($user)) {
+            $roadmap->entitledTo($user);
         }
 
         return view('communities.show', [
@@ -172,7 +174,7 @@ class CommunityController extends Controller
 
         if (! empty($validated['intro_video_url']) && ! VideoEmbedService::isValid($validated['intro_video_url'])) {
             throw ValidationException::withMessages([
-                'intro_video_url' => 'Please provide a valid YouTube or Vimeo URL.',
+                'intro_video_url' => 'Please provide a valid YouTube, Vimeo, or Loom URL.',
             ]);
         }
 
