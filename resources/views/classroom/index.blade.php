@@ -1,8 +1,39 @@
 <x-app-layout>
     <div class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
         <x-community-workspace :community="$community" active-tab="classroom" />
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <h1 class="text-2xl font-bold tracking-tight text-ink">{{ __('Classroom Courses') }}</h1>
+
+            <!-- Classroom Course Search Form with Alpine Debounce -->
+            <form method="GET" action="{{ route('communities.classroom.index', $community) }}" class="flex items-center gap-2" x-data="{
+                timeout: null,
+                liveSearch() {
+                    clearTimeout(this.timeout);
+                    this.timeout = setTimeout(() => {
+                        this.$el.submit();
+                    }, 400);
+                }
+            }">
+                <div class="relative w-full sm:w-72">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <input type="text" name="q" value="{{ $searchQuery ?? '' }}" placeholder="{{ __('Search courses in classroom...') }}"
+                           @input="liveSearch"
+                           autocomplete="off"
+                           class="w-full text-sm rounded-xl border-line pl-9 pr-3 py-2 bg-surface focus:bg-white focus:border-brand focus:ring-brand transition-colors text-ink shadow-2xs">
+                </div>
+                <button type="submit" class="inline-flex items-center px-4 py-2 bg-brand hover:bg-brand-hover text-white font-medium text-xs rounded-xl transition shadow-2xs">
+                    {{ __('Search') }}
+                </button>
+                @if (!empty($searchQuery))
+                    <a href="{{ route('communities.classroom.index', $community) }}" class="text-xs text-muted hover:text-ink underline ml-1">
+                        {{ __('Clear') }}
+                    </a>
+                @endif
+            </form>
         </div>
         <x-classroom-feedback />
 
@@ -39,8 +70,17 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                     </svg>
                 </div>
-                <h3 class="text-base font-semibold text-ink mb-1">{{ __('No courses available') }}</h3>
-                <p class="text-sm text-muted max-w-sm mx-auto">{{ __('There are no published courses in this community classroom yet.') }}</p>
+                <h3 class="text-base font-semibold text-ink mb-1">{{ !empty($searchQuery) ? __('No matching courses') : __('No courses available') }}</h3>
+                <p class="text-sm text-muted max-w-sm mx-auto">
+                    {{ !empty($searchQuery) ? __('No courses matched your query ":query". Try different keywords or clear the search.', ['query' => $searchQuery]) : __('There are no published courses in this community classroom yet.') }}
+                </p>
+                @if (!empty($searchQuery))
+                    <div class="mt-4">
+                        <a href="{{ route('communities.classroom.index', $community) }}" class="inline-flex items-center px-4 py-2 bg-slate-100 hover:bg-slate-200 text-ink text-xs font-semibold rounded-xl transition">
+                            {{ __('Clear search') }}
+                        </a>
+                    </div>
+                @endif
             </div>
         @else
             <div id="courses-list" class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 scroll-mt-6">
