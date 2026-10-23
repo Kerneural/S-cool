@@ -1,0 +1,13 @@
+CaseID,Surface,Query,TargetType,ExpectedOutcome,RelevanceBucket,TestStatus,EvidencePath
+TC-01,Surface 1 - Communities List,dokcer,Community,Finds 'Docker Engineering' via 1-char typo tolerance (dokcer -> docker),Typo Tolerance (Score 40),PASS,testing-docs/M13/PQ-02/chrome-evidence/surface1_desktop_1280_dokcer.png
+TC-02,Surface 1 - Communities List,toan cao cap,Community,Finds 'Toán Cao Cấp A1' with Vietnamese accent stripping,Exact Normalized (Score 100),PASS,tests/Feature/ScopedLiveSearchFeatureTest.php
+TC-03,Surface 1 - Communities List,Engineering Docker,Community,Finds 'Docker Engineering' with word reordering,Reordered Tokens (Score 60),PASS,tests/Feature/ScopedLiveSearchFeatureTest.php
+TC-04,Surface 1 - Communities List,khongtimthay,Community,Displays empty state 'No communities match your search' with Clear filter,Empty State,PASS,testing-docs/M13/PQ-02/chrome-evidence/surface1_desktop_1280_empty.png
+TC-05,Surface 2 - Classroom Courses,dokcer,Course,Finds 'Docker Engineering: Containers to Production' in classroom,Typo Tolerance (Score 40),PASS,testing-docs/M13/PQ-02/chrome-evidence/surface2_desktop_1280_classroom_filtered.png
+TC-06,Surface 2 - Classroom Courses,Containers Production,Course,Matches course with subset of title tokens,Token Substring (Score 60),PASS,tests/Feature/ScopedLiveSearchFeatureTest.php
+TC-07,Surface 2 - Classroom Courses,khongtimthaykhoahoc,Course,Displays empty state 'No matching courses found' with Clear link,Empty State,PASS,testing-docs/M13/PQ-02/chrome-evidence/surface2_desktop_1280_classroom_empty.png
+TC-08,Surface 2 - Classroom Courses,Tenant Isolation,Course,Other community courses (AI / Python) never leak into results,Tenant Boundary,PASS,tests/Feature/ScopedLiveSearchFeatureTest.php
+TC-09,Surface 3 - Typeahead Dropdown,dokcer,Typeahead,Dropdown opens live with ranked result 'Docker Engineering: Containers to Production',Livewire Typeahead,PASS,testing-docs/M13/PQ-02/chrome-evidence/surface3_desktop_1280_typeahead_open.png
+TC-10,Surface 3 - Typeahead Dropdown,Docker,Courses & Lessons,Exact title ranked strictly ahead of approximate titles,Exact Rank (100 > 75),PASS,tests/Feature/ScopedLiveSearchFeatureTest.php
+TC-11,Surface 3 - Full Page Search,dokcer,Courses Tab,Displays 1 Course in Courses tab and cards for Docker course,Full Page Search,PASS,testing-docs/M13/PQ-02/chrome-evidence/surface3_desktop_1280_fullsearch_courses.png
+TC-12,All Surfaces - Wildcard Escaping,%100_Special,Validation,Literal wildcard characters %, _ and \ do not cause full-table dump or SQL injection,SQL Escaping,PASS,tests/Feature/ScopedLiveSearchFeatureTest.php

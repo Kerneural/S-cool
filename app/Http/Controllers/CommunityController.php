@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Community;
 use App\Models\PostCategory;
+use App\Services\Search\SearchNormalizationService;
 use App\Services\VideoEmbedService;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
@@ -41,12 +43,59 @@ class CommunityController extends Controller
 
         $rawQ = $request->query('q');
         $search = is_string($rawQ) ? trim(mb_substr($rawQ, 0, 100)) : '';
-        if ($search !== '') {
-            $escaped = addcslashes($search, '%_\\');
-            $query->where('name', 'like', "%{$escaped}%");
-        }
 
-        $communities = $query->distinct()->orderByDesc('id')->paginate(12)->withQueryString();
+        if ($search !== '') {
+            $escaped = SearchNormalizationService::escapeSqlWildcards($search);
+            $tokens = SearchNormalizationService::tokenize($search);
+
+            $query->where(function ($q) use ($escaped, $tokens): void {
+                $q->where('name', 'like', "%{$escaped}%")
+                    ->orWhere('description', 'like', "%{$escaped}%");
+
+                foreach (array_slice($tokens, 0, 4) as $token) {
+                    if (mb_strlen($token) >= 3) {
+                        $escToken = SearchNormalizationService::escapeSqlWildcards($token);
+                        $q->orWhere('name', 'like', "%{$escToken}%");
+                    }
+                    if (mb_strlen($token) >= 4) {
+                        $prefix2 = SearchNormalizationService::escapeSqlWildcards(mb_substr($token, 0, 2));
+                        $q->orWhere('name', 'like', "{$prefix2}%");
+                    }
+                }
+            });
+
+            // Bounded candidate retrieval (max 50 to prevent memory exhaustion)
+            $candidates = $query->distinct()->take(50)->get();
+
+            $scored = $candidates->map(function ($community) use ($search) {
+                $nameScore = SearchNormalizationService::calculateScore($community->name, $search);
+                $descScore = $community->description ? (int) (SearchNormalizationService::calculateScore($community->description, $search) * 0.8) : 0;
+                $community->search_score = max($nameScore, $descScore);
+
+                return $community;
+            })->filter(fn ($c): bool => ($c->search_score ?? 0) > 0)
+                ->sort(function ($a, $b) {
+                    if ($a->search_score === $b->search_score) {
+                        return $b->id <=> $a->id;
+                    }
+
+                    return $b->search_score <=> $a->search_score;
+                })
+                ->values();
+
+            $page = LengthAwarePaginator::resolveCurrentPage();
+            $perPage = 12;
+            $itemsForCurrentPage = $scored->slice(($page - 1) * $perPage, $perPage)->values();
+            $communities = new LengthAwarePaginator(
+                $itemsForCurrentPage,
+                $scored->count(),
+                $perPage,
+                $page,
+                ['path' => LengthAwarePaginator::resolveCurrentPath(), 'query' => $request->query()]
+            );
+        } else {
+            $communities = $query->distinct()->orderByDesc('id')->paginate(12)->withQueryString();
+        }
 
         return view('communities.index', [
             'communities' => $communities,
