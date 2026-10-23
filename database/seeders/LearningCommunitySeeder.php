@@ -19,7 +19,7 @@ use LogicException;
 
 class LearningCommunitySeeder extends Seeder
 {
-    public function run(): void
+    public function run(bool $preserveExisting = false): void
     {
         if (! app()->environment(['local', 'testing'])) {
             throw new LogicException('Learning community content may only be seeded in local or testing environments.');
@@ -29,7 +29,18 @@ class LearningCommunitySeeder extends Seeder
         $member = User::query()->where('email', 'member@scool.local')->firstOrFail();
 
         foreach ($this->catalog() as $spec) {
-            DB::transaction(function () use ($creator, $member, $spec): void {
+            DB::transaction(function () use ($creator, $member, $spec, $preserveExisting): void {
+                if ($preserveExisting) {
+                    $existing = Community::query()->where('slug', $spec['slug'])->lockForUpdate()->first();
+                    if ($existing !== null) {
+                        if ((int) $existing->creator_id !== (int) $creator->id) {
+                            throw new LogicException("Learning community slug '{$spec['slug']}' is already owned by another user.");
+                        }
+
+                        return; // Sync must retain edited content and access states.
+                    }
+                }
+
                 $community = $this->community($creator, $spec);
 
                 PostCategory::initializeDefaultsFor($community);
