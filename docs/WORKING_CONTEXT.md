@@ -5282,3 +5282,90 @@ the prepared seven-view M11 integration, checkpoint, manifest and 27 selected
 screenshots to PR #49's existing branch, then running its full CI. No raw JSON,
 private files, docs/templates/, merge or Done action is included. The earlier
 proposal for a separate integration PR is superseded by this approved consolidation.
+## EUR-60 through EUR-64 / sequential local PR audit (2026-10-23)
+
+### Authority, source and outcome
+
+- The owner authorized fetching the submitted branches, auditing and correcting confirmed defects in PR order while preserving the submitted UI, and creating missing Linear tracking. This does not authorize commit, push, remote ref repair, merge or Done. All five issues remain In Review; their Linear AC are the acceptance source.
+- The original checkout remains on `eur-51-shell-contributions` at `9e6baddd556b27b4503d7c96109f54ef001f8251`. Its pre-existing tracked edits, untracked internship report/templates and unrelated artifacts were preserved. Work occurred in five separate detached audit worktrees; no index staging or commits were made.
+- Live GitHub readback confirmed all five PRs remain open/unmerged with the heads below. They are a cumulative history, so each incremental review carried the prior corrections rather than treating their cumulative diffs as independent implementations.
+
+| PR / Linear | Fetched remote head | Local audit result |
+|---|---|---|
+| #50 / EUR-60 | `eb9919e88b5ea8722afd6f02039278a6c61bd533` | Corrected landing carousel, clipboard feedback, reduced motion, keyboard disclosures/focus, narrow wrapping and misleading sample claims. |
+| #52 / EUR-61 | `3728b2523bf2463b8d22821eb4d5ef1edfd9d19e` | Preserved the safe Loom parser; corrected non-destructive sample seeding and Loom input/validation/documentation consistency. |
+| #53 / EUR-62 | `8f302794370c3853b257ff2d3164a05d06769b67` | No additional actionable logo/favicon defect confirmed. Branding preserved. |
+| #54 / EUR-63 | `8f302794370c3853b257ff2d3164a05d06769b67` | Remote pointer duplicates #53. Audited the actual intended `fa11044` implementation in a separate local candidate; fixed media safety and narrow/static mockup behavior. Remote provenance reconciliation remains outstanding. |
+| #55 / EUR-64 | `cca6cb1877394f58805ee2e305462efda2588a9e` | Integrated applicable prior corrections; added home-logo keyboard focus and reduced-motion/lifecycle handling for the new count-up and footer spotlight. Retained the new design and the intentional removal of #54's bulky mockup. |
+
+### Confirmed defects and corrections
+
+References below address the corrected #55 candidate unless explicitly identified as the older #54 mockup. Severity describes the reproduced defect, not an outstanding unfixed finding.
+
+- `resources/views/welcome.blade.php:1224` | P2 | Rapid carousel navigation could race a delayed clone reset and overwrite the later selection | Lock an active transition, normalize the clone before release, bound indicator input and cancel timers on teardown.
+- `resources/views/welcome.blade.php:1126` | P2 | Clipboard rejection or unavailable API could present false success | Await the write, report a retryable failure, and show success only after fulfillment.
+- `resources/css/app.css:173` and landing marquee/hero | P2 | Explicit marquee exclusions and timers bypassed reduced-motion preferences; keyboard users lacked equivalent pause/focus handling | Restore the universal preference rule, show a readable static marquee, pause autoplay on focus/hover and add visible focus and disclosure state/Escape behavior.
+- Landing sample stories, metrics, illustrative API traces and newsletter | P2 | Static demonstration material and an unconnected newsletter could imply real customer results or stored subscriptions | Label samples/concepts clearly and report the actual preview-only form outcome. Keep the page structure, brand palette and normal animations.
+- `database/seeders/RealCommunitySampleSeeder.php:179` | P1 | Re-running same-owner sample data overwrote edited content and could restore suspended community/member/course state | Skip an existing same-owner fixture, retaining the prior wrong-owner rejection and local/testing guard.
+- `database/seeders/SkoolMediaSyncSeeder.php:16` | P1 | Media synchronization lacked environment/owner boundaries, could overwrite custom covers and publish a DB path after storage failure | Guard local/testing, scope to the existing demo creator, preserve custom paths, use validated bundled JPEGs only, check storage writes, retain private routes and clean up a newly created file on persistence failure. No runtime remote downloads or repository asset writes.
+- Older #54 mockup | P2 | Narrow selector overflow and static fake product actions | Wrap selectors, expose pressed state and label sample data; remove nonfunctional repository/play affordances. This older mockup is not restored in #55.
+- `resources/views/layouts/navigation.blade.php:32` | P2 | The redesigned home link suppressed its keyboard outline without a replacement | Add an explicit focus-visible brand ring while retaining its layout and styling.
+- `resources/views/welcome.blade.php:1391` and `:1659` | P2 | New count-up/spotlight ignored reduced motion and retained lifecycle work | Set final static values in reduced mode, handle preference changes, cancel animation frames, disconnect the observer/remove listener at teardown and skip cursor spotlight motion in reduced mode.
+
+No confirmed new authorization, tenant or progress mutation defect was found in the incremental shared UI/PostController change. Existing policies, form fields, CSRF, course links and progress bindings were inspected and exercised by the regression suite. This is a bounded audit, not a claim of exhaustive security or visual acceptance.
+
+### Verification and evidence
+
+The final candidate is the uncommitted worktree `pr-55-audit/scool` at the #55 base head above, including all applicable corrections and new tests. No remote CI result is attributed to these unpublished changes.
+
+| Check | Observed result |
+|---|---|
+| Full PHP suite: `APP_ENV=testing DB_CONNECTION=mysql DB_DATABASE=scool_test DB_URL= DATABASE_URL= php artisan test --log-junit /tmp/pr55-final-junit.xml` | **595 passed / 5,917 assertions**, 712.05 seconds, exit 0. Executed in isolated `scool_pr55_audit`; the checked-in TestCase guard runs before RefreshDatabase. No developer database reseed/reset. |
+| JavaScript: `node --test tests/js/*.test.mjs` | **27/27 passed**. Includes 8 landing interaction and 6 motion cases using executable handlers extracted from the submitted source. |
+| Red/green evidence | Original #50: 1/8 interaction cases passed; corrected 8/8. Original #55: 2/6 motion cases passed; corrected 6/6. Corrected fixtures reproduced two destructive-seeding failures before each seeder fix. These are local regression probes, not real-browser emulation. |
+| Focused intermediate checks | #50 and #53 scaffold: each 5 tests / 45 assertions. #52 Loom/sample/About/classroom: 22 / 331. #54 media safety: 5 / 14. These overlap the final suite and are not additional final totals. |
+| `npm run build` | PASS, Vite 6.4.4, 63 modules. Exact existing lockfile, no dependency changes. |
+| `vendor/bin/pint --test` | PASS, 292 files. |
+| `vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M --no-progress` | PASS, no errors. |
+| `bash scripts/verify-agent-contract.sh` | PASS, 11 shared files and structural/privacy gates. Does not prove agent compliance, review, publication or UI acceptance. |
+| `git diff --check` | PASS before checkpoint-only updates; rechecked after them. |
+
+Chrome observations used the isolated candidate at `http://127.0.0.1:8084` and existing synthetic demo data. Default desktop course page opened with 2/2 completed and matching progress; no completion was changed. Classroom -> course -> lesson links loaded. At actual 320 CSS px the lesson had usable/scroll widths 305/305, and its outline opened/closed with matching control state. The lesson discussion link opened the composer with Course #4 / Lesson #2 context. Its modal was within x=16..304 at 320 px; Escape closed it and restored focus to the opening link, without publishing a post. A fresh desktop account menu opened and Escape restored account-button focus. Earlier slow-navigation/viewport-override samples were inconclusive and are not treated as failures or positive evidence.
+
+Local screenshots in the primary checkout's local `output/pr-audit/`: `pr50-fixed-320.png`, `pr50-fixed-desktop.png`, `pr54-mockup-fixed-320.png`, `pr55-course-desktop.png`, `pr55-lesson-320.png`, `pr55-composer-320.png`. They are selected after-state samples, not matched before/after visual-parity evidence. Full PHP/build logs and JUnit remain local; no raw logs or private configuration were staged.
+
+GitNexus was indexed against the final #55 worktree with `--index-only --pdg`; status was up-to-date at `cca6cb1`, current runner identity and no content drift before this documentation-only checkpoint. Context confirmed the media seeder/helper/test references; change detection identified seven affected store/update/seeding flows. Direct source and full regression checks covered those boundaries. `explain` returned no persisted seeder findings, which is not proof of safety. Inline Blade/Alpine behavior, closure/property flows and lower-bound process traversal are incomplete in the graph; executable JS probes and browser observations provide separate evidence.
+
+### Remaining publication and acceptance boundaries
+
+- Keep the five Linear issues In Review. All local fixes remain uncommitted; no commit/push/merge/Done action was authorized for this audit request.
+- PR #54's remote branch must be reconciled with its intended implementation before accepting its advertised scope. Do not silently move the remote pointer or merge the duplicate branding diff as media delivery.
+- Published-head CI, reviewer approval and any required full visual/browser acceptance remain separate. No Edge, exhaustive viewport matrix, live Loom/YouTube/Vimeo playback, production deployment or asset licensing/affiliation verification is claimed.
+- The original app on port 8080 and the internship report were not modified. The final audit preview on port 8084 uses isolated file sessions; worktrees are retained for review and authorized publication.
+
+### Canonical primary-checkout integration (2026-10-23, after local audit)
+
+This section supersedes the earlier runtime handoff that used port 8084. The owner explicitly requested consolidating the audited implementation into the original workspace and retaining the exact canonical origin `http://127.0.0.1:8080` and existing Docker Compose port bindings.
+
+- Primary branch/HEAD remain `eur-51-shell-contributions` / `9e6baddd556b27b4503d7c96109f54ef001f8251`. Integrated source is an uncommitted working-tree change, not a branch switch, reset, new commit or publication.
+- A prepared three-way comparison used the original HEAD, actual dirty primary files and corrected PR #55 candidate. No unresolved conflicts remained. Course/guest overlap resolved to the same corrected candidate; existing M11 corrections and the invitation-runtime regression test were retained. Original primary checkpoint content was preserved and the audit checkpoint appended.
+- Readback now shows PR #55 merged at submitted head `cca6cb1877394f58805ee2e305462efda2588a9e` and EUR-60 through EUR-64 Done in M12. Those externally changed states were not modified by this consolidation. The merged submitted head still excludes the uncommitted corrective patch; do not attribute the local fixes to that merge or its CI.
+- Compared 436 application, route, resource, database, configuration, font, test and dependency/config input files against the corrected candidate after integration: no content differences after line-ending normalization. App and earlier audit containers used the same PHP image `5f3485911f25216bfcf1655e1da19b2c6bd89b1fc89b1942dfdd48b1dcfe5b9e`. The earlier 595-test result is matching-source/image audit evidence, not a new full-suite run on the primary container.
+- Preserved and hash-checked all 19 protected configuration/report/template files, including `.env`, `docker-compose.yml`, `docker/nginx/default.conf` and the internship report artifacts. No developer database migration/reseed/reset, volume deletion, key rotation, shared inbox clearing, dependency additions or port edits.
+- Ran `npm ci --no-audit --no-fund` using the existing audited lockfile, then `npm run build`: PASS, Vite 6.4.4, 63 modules. Vite warned that absolute font URLs were unresolved at build time; all twelve existing font files subsequently returned HTTP 200 on the canonical server. No missing-font runtime failure was observed by this HTTP probe; visual rendering remains a browser concern.
+- `node --test tests/js/*.test.mjs`: **27/27 passed** in the primary workspace. Main Compose app focused PHP run with explicit testing/MySQL/scool_test and empty DB URL overrides: **21 passed / 144 assertions**, 22.39 seconds (LoomVideoEmbedTest, CommunitySampleSafetyTest, FrontendScaffoldTest, LearningWorkspaceUiAuditTest, SkoolMediaSyncSafetyTest).
+- Main Compose app Pint: PASS, 324 discovered PHP files, including local backup fixtures. PHPStan: PASS, no errors. Agent contract: PASS, 11 shared files. Blade compiled views were refreshed. One existing incoming whitespace-only line was cleaned identically in the candidate and primary landing template; no behavior change.
+- Canonical app configuration reports `http://127.0.0.1:8080`. Real HTTP smoke confirmed the new S-cool Engine hero and corrected landing markers, with HTTP 200 for landing, health, favicon, both built entry assets and all twelve font files. No browser automation or visual-parity result is claimed for this follow-up: Browser use was disabled in Work settings.
+- Removed only the agent-created `scool_pr55_audit` container after the canonical smoke passed. Port 8084 is no longer served by that temporary container. Existing Compose app/queue/MySQL/Nginx/Mailpit remain healthy at their original bindings (8080, 3306, 8025, 1025).
+- A local before-state backup and integration hash manifest are retained under `output/pr-audit/unify-8080-20261023/` for recovery. Do not stage private backups, helper scripts, raw logs or report/template work during later publication. Final diff/index checks confirm no staging, commit or push occurred in this task.
+
+
+### Corrective publication preparation (2026-10-23)
+
+The owner requested publishing the latest submitted improvements and local corrective work onto latest main. PR #55 is already merged; fetched main is `d839fc96b533a958059712d08d0380023daf803d`, whose tree exactly matches submitted `cca6cb1877394f58805ee2e305462efda2588a9e`. The original improvements are therefore already present upstream.
+
+- Reused the retained audit checkout, creating neutral branch `eur-64-ui-audit-fixes` from the exact fetched main while retaining only the reviewed corrective diff. No additional runtime/container or port mapping was created. The original workspace continues serving `http://127.0.0.1:8080` with its data, configuration, report/template work and existing branch preserved.
+- Publication scope: eleven application/seeder/presentation/product-note files, this checkpoint and five meaningful regression files; no dependency lockfile, Docker/Compose/port change, original branding/assets, private configuration, local backup/helper/log or internship report is included.
+- The corrected application/test inputs match the 595-test audited candidate and the subsequently verified primary workspace, apart from documentation and a whitespace-only landing cleanup. Full local PHP evidence is reused with that qualification; the 27 JavaScript checks, primary 21-test/144-assertion focused run, production build, Pint, PHPStan and HTTP canonical-origin checks are separately recorded above.
+- Commit/push and creation of a corrective PR against main are authorized by the current publication request. Published-revision CI, manual acceptance and required reviewer approval remain merge gates. No direct push to main, force push, protection bypass or invented CI success is authorized.
+- The earlier In Review / uncommitted / port 8084 statements describe historical audit stages. Latest readback shows the original issues Done in M12 and #55 merged, without the local corrective patch. That existing status is not proof that the new corrective PR is accepted. Record its actual revision and CI/review evidence in GitHub/Linear before final acceptance.

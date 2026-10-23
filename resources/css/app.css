@@ -169,11 +169,9 @@
     animation-play-state: paused !important;
 }
 
-/* Reduced motion contract per design.md section 11.6 (excluding explicitly running marquee displays) */
+/* Reduced motion also applies to landing-page decoration. */
 @media (prefers-reduced-motion: reduce) {
-    *:not(.animate-marquee):not(.animate-marquee-reverse),
-    *:not(.animate-marquee):not(.animate-marquee-reverse)::before,
-    *:not(.animate-marquee):not(.animate-marquee-reverse)::after {
+    *, ::before, ::after {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;

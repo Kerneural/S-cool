@@ -554,6 +554,7 @@ Invalid authentication/reference/amount/currency returns an error, changes no me
 - Server tạo tên file; không dùng trực tiếp tên do user cung cấp.
 - Vì community là private, cover không được lộ qua đường dẫn public cố định. MVP phục vụ ảnh qua route đã authorize hoặc signed temporary URL; không đặt cover vào public disk không kiểm soát.
 - Lesson video uses only validated YouTube/Vimeo HTTPS URLs with server-generated provider embeds; raw iframe/HTML input and arbitrary providers are rejected. No media upload, fetch or proxy.
+- Post-MVP PR #52 extends the same `VideoEmbedService` allowlist to Loom share/embed URLs with 32-character hexadecimal IDs and fixed HTTPS provider hosts. Existing authorization, publication and entitlement checks remain unchanged; no server-side media fetch or playback guarantee is introduced.
 - PDF, MP3, MP4, ZIP và lesson attachment nằm ngoài MVP.
 - Khi cover được thay thế, file cũ được cleanup sau khi database update thành công; lỗi cleanup được log để xử lý sau.
 

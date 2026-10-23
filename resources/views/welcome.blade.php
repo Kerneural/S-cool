@@ -14,13 +14,14 @@
 <body class="min-h-screen w-full font-sans antialiased text-ink bg-canvas selection:bg-brand-soft selection:text-brand flex flex-col overflow-x-hidden">
     <!-- Top Navigation / Header -->
     <header x-data="{ mobileMenuOpen: false, productsOpen: false, learnOpen: false, scrolled: false }"
+            @keydown.escape.stop.prevent="if (productsOpen) $refs.productsTrigger.focus(); else if (learnOpen) $refs.learnTrigger.focus(); else if (mobileMenuOpen) $refs.mobileTrigger.focus(); productsOpen = false; learnOpen = false; mobileMenuOpen = false"
             x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 20 })"
             :class="scrolled ? 'bg-surface/90 backdrop-blur-md border-b border-line shadow-xs' : 'bg-surface/75 backdrop-blur-sm border-b border-line/60'"
             class="sticky top-0 z-50 transition-all duration-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <!-- Left: Brand Logo & Links -->
             <div class="flex items-center gap-8">
-                <a href="/" class="flex items-center gap-2.5 group focus:outline-none" aria-label="S-cool Home">
+                <a href="/" class="flex items-center gap-2.5 group focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2" aria-label="S-cool Home">
                     <x-application-logo class="w-8 h-8 rounded-lg shadow-xs group-hover:scale-105 transition-transform" />
                     <span class="font-bold text-xl text-ink tracking-tight font-sans">S-cool</span>
                 </a>
@@ -30,6 +31,7 @@
                     <!-- Products Dropdown -->
                     <div class="relative" @click.outside="productsOpen = false">
                         <button type="button"
+                                x-ref="productsTrigger" :aria-expanded="productsOpen" aria-controls="landing-products"
                                 @click="productsOpen = !productsOpen; learnOpen = false"
                                 class="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-muted hover:text-ink hover:bg-slate-100/60 rounded-lg transition-colors">
                             <span>Products</span>
@@ -37,7 +39,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-                        <div x-show="productsOpen"
+                        <div id="landing-products" x-show="productsOpen"
                              x-cloak
                              x-transition:enter="transition ease-out duration-150"
                              x-transition:enter-start="opacity-0 translate-y-1"
@@ -79,6 +81,7 @@
                     <!-- Learn Dropdown -->
                     <div class="relative" @click.outside="learnOpen = false">
                         <button type="button"
+                                x-ref="learnTrigger" :aria-expanded="learnOpen" aria-controls="landing-learn"
                                 @click="learnOpen = !learnOpen; productsOpen = false"
                                 class="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-muted hover:text-ink hover:bg-slate-100/60 rounded-lg transition-colors">
                             <span>Learn</span>
@@ -86,7 +89,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-                        <div x-show="learnOpen"
+                        <div id="landing-learn" x-show="learnOpen"
                              x-cloak
                              x-transition:enter="transition ease-out duration-150"
                              x-transition:enter-start="opacity-0 translate-y-1"
@@ -143,8 +146,9 @@
 
                 <!-- Mobile Menu Button -->
                 <button type="button"
+                        x-ref="mobileTrigger" :aria-expanded="mobileMenuOpen" aria-controls="landing-mobile-navigation"
                         @click="mobileMenuOpen = !mobileMenuOpen"
-                        class="md:hidden p-2 rounded-lg text-muted hover:text-ink hover:bg-slate-100 focus:outline-none"
+                        class="md:hidden p-2 rounded-lg text-muted hover:text-ink hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                         aria-label="Toggle Menu">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path x-show="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
@@ -155,7 +159,7 @@
         </div>
 
         <!-- Mobile Menu Drawer -->
-        <div x-show="mobileMenuOpen" x-cloak class="md:hidden border-b border-line bg-surface px-4 py-3 space-y-2">
+        <div id="landing-mobile-navigation" x-show="mobileMenuOpen" x-cloak class="md:hidden border-b border-line bg-surface px-4 py-3 space-y-2">
             <a href="{{ route('communities.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-slate-50">Communities</a>
             <a href="{{ route('help.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-slate-50">Docs & Help Center</a>
             <a href="#features" class="block px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-slate-50">Features</a>
@@ -174,13 +178,16 @@
         <!-- 1. Hero Section -->
         <section x-data="{
                     activeSet: 0,
+                    heroPaused: false,
                     sets: [
                         { id: 'community', name: 'Community', headline: 'Put insights to work', badge: 'Continuous Improvement', desc: 'Autonomous peer discussion, structured categories, and real-time moderation that elevates member experience.' },
                         { id: 'classroom', name: 'Classroom', headline: 'Smarter after every launch', badge: 'Compound Knowledge', desc: 'Turn progressive course curriculums and video modules into structured completion rubrics that scale effortlessly.' },
                         { id: 'verification', name: 'Verification', headline: 'We catch your drift', badge: 'Proof of Work', desc: 'Verifiable deliverable submissions, peer reviews, and transparent scoring that validate genuine student outcomes.' }
                     ]
                  }"
-                 x-init="setInterval(() => { activeSet = (activeSet + 1) % sets.length }, 8000)"
+                 x-init="setInterval(() => { if (!heroPaused && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) activeSet = (activeSet + 1) % sets.length }, 8000)"
+                 @mouseenter="heroPaused = true" @mouseleave="heroPaused = false"
+                 @focusin="heroPaused = true" @focusout="heroPaused = $el.contains($event.relatedTarget)"
                  class="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-28 bg-canvas">
 
             <!-- Atmospheric Subtle Brand Glows (per design.md restrained accents) -->
@@ -193,7 +200,7 @@
             <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <!-- Theme / Set Switcher Pill -->
                 <div class="flex flex-col items-center justify-center text-center">
-                    <div class="inline-flex items-center gap-1.5 p-1 rounded-full bg-surface border border-line shadow-xs mb-6">
+                    <div class="inline-flex max-w-full flex-wrap justify-center items-center gap-1.5 p-1 rounded-full bg-surface border border-line shadow-xs mb-6">
                         <span class="px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand bg-brand-soft rounded-full">
                             Engine v2.0
                         </span>
@@ -251,7 +258,7 @@
             <!-- Continuous Infinite Logo Marquee Flow (Full-Width Edge-to-Edge) -->
             <div class="w-full pt-16 border-t border-line/60 mt-16 text-center overflow-hidden">
                 <p class="text-xs uppercase tracking-widest text-muted font-medium mb-8 px-4">
-                    Trusted by leading learning teams, universities & cohorts worldwide
+                    Learning resources and communities — independent links, not partnerships
                 </p>
 
                     <!-- Scoped styles to guarantee marquee animation regardless of browser cache or reduced-motion defaults -->
@@ -278,6 +285,23 @@
                         }
                         .animate-marquee:hover, .animate-marquee-reverse:hover {
                             animation-play-state: paused !important;
+                        }
+                        .animate-marquee:focus-within, .animate-marquee-reverse:focus-within {
+                            animation-play-state: paused !important;
+                        }
+                        @media (prefers-reduced-motion: reduce) {
+                            .animate-marquee, .animate-marquee-reverse {
+                                animation: none !important;
+                                transform: none !important;
+                                width: 100% !important;
+                            }
+                            .animate-marquee > div, .animate-marquee-reverse > div {
+                                flex-wrap: wrap;
+                                justify-content: center;
+                            }
+                            .animate-marquee > [aria-hidden="true"], .animate-marquee-reverse > [aria-hidden="true"] {
+                                display: none;
+                            }
                         }
                     </style>
 
@@ -948,7 +972,7 @@
                         Accelerating the Community Learning Lifecycle
                     </h2>
                     <p class="text-muted text-base sm:text-lg">
-                        From curriculum conception to certified mastery, S-cool provides a complete operating system for private cohort education.
+                        Concept preview: simulated traces, APIs, scoring and credentials below are illustrative, not implemented services. The app supports private learning and creator feedback.
                     </p>
                 </div>
 
@@ -1065,14 +1089,14 @@
                         </h2>
                     </div>
                     <div class="md:col-span-5 text-muted text-sm sm:text-base leading-relaxed">
-                        Build engaging spaces fast with complete control. Choose the right workflow for the job, from zero-code templates to programmatic APIs.
+                        Build engaging spaces fast with complete control. Choose the right workflow for the job, from illustrative templates to conceptual APIs (not a public API).
                     </div>
                 </div>
 
                 <!-- Exactly 3 Framework Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <!-- Card 1: Community Engine -->
-                    <div x-data="{ copied: false, code: `Community::create([\n    'name' => 'AI Pioneers',\n    'governance' => 'moderated'\n]);` }"
+                    <div x-data="{ copied: false, copyError: false, code: `Community::create([\n    'name' => 'AI Pioneers',\n    'governance' => 'moderated'\n]);` }"
                          class="bg-surface rounded-xl border border-line p-6 shadow-xs hover:shadow-md hover:border-brand/40 transition-all flex flex-col justify-between space-y-6">
                         <div class="space-y-4">
                             <div class="w-12 h-12 rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center border border-sky-100">
@@ -1095,10 +1119,11 @@
                                     ]);
                                 </div>
                                 <button type="button"
-                                        @click="navigator.clipboard.writeText(code); copied = true; setTimeout(() => copied = false, 2000)"
+                                        @click="copied = false; copyError = false; try { await navigator.clipboard.writeText(code); copied = true; setTimeout(() => copied = false, 2000); } catch { copyError = true; }"
                                         class="absolute top-2 right-2 px-2 py-1 bg-surface border border-line rounded text-[10px] font-medium text-muted hover:text-ink shadow-xs opacity-80 hover:opacity-100 transition-opacity flex items-center gap-1"
                                         aria-label="Copy snippet">
-                                    <span x-show="!copied">Copy</span>
+                                    <span x-show="!copied && !copyError">Copy</span>
+                                    <span x-show="copyError" x-cloak role="status">Copy unavailable</span>
                                     <span x-show="copied" x-cloak class="text-brand font-semibold">✓ Copied</span>
                                 </button>
                             </div>
@@ -1111,7 +1136,7 @@
                     </div>
 
                     <!-- Card 2: Classroom Suite -->
-                    <div x-data="{ copied: false, code: `$course->addSection('Tracing')\n    ->attachLesson('Sandboxes')\n    ->requireProofOfWork();` }"
+                    <div x-data="{ copied: false, copyError: false, code: `$course->addSection('Tracing')\n    ->attachLesson('Sandboxes')\n    ->requireProofOfWork();` }"
                          class="bg-surface rounded-xl border border-line p-6 shadow-xs hover:shadow-md hover:border-brand/40 transition-all flex flex-col justify-between space-y-6">
                         <div class="space-y-4">
                             <div class="w-12 h-12 rounded-xl bg-brand-soft text-brand flex items-center justify-center border border-brand/20">
@@ -1133,10 +1158,11 @@
                                     &nbsp;&nbsp;-&gt;requireProofOfWork();
                                 </div>
                                 <button type="button"
-                                        @click="navigator.clipboard.writeText(code); copied = true; setTimeout(() => copied = false, 2000)"
+                                        @click="copied = false; copyError = false; try { await navigator.clipboard.writeText(code); copied = true; setTimeout(() => copied = false, 2000); } catch { copyError = true; }"
                                         class="absolute top-2 right-2 px-2 py-1 bg-surface border border-line rounded text-[10px] font-medium text-muted hover:text-ink shadow-xs opacity-80 hover:opacity-100 transition-opacity flex items-center gap-1"
                                         aria-label="Copy snippet">
-                                    <span x-show="!copied">Copy</span>
+                                    <span x-show="!copied && !copyError">Copy</span>
+                                    <span x-show="copyError" x-cloak role="status">Copy unavailable</span>
                                     <span x-show="copied" x-cloak class="text-brand font-semibold">✓ Copied</span>
                                 </button>
                             </div>
@@ -1149,7 +1175,7 @@
                     </div>
 
                     <!-- Card 3: Proof of Work & Leaderboards -->
-                    <div x-data="{ copied: false, code: `ProofOfWork::submit([\n    'student' => $user->id,\n    'url' => 'github.com/demo'\n])->evaluate();` }"
+                    <div x-data="{ copied: false, copyError: false, code: `ProofOfWork::submit([\n    'student' => $user->id,\n    'url' => 'github.com/demo'\n])->evaluate();` }"
                          class="bg-surface rounded-xl border border-line p-6 shadow-xs hover:shadow-md hover:border-brand/40 transition-all flex flex-col justify-between space-y-6">
                         <div class="space-y-4">
                             <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center border border-purple-100">
@@ -1172,10 +1198,11 @@
                                     ])-&gt;evaluate();
                                 </div>
                                 <button type="button"
-                                        @click="navigator.clipboard.writeText(code); copied = true; setTimeout(() => copied = false, 2000)"
+                                        @click="copied = false; copyError = false; try { await navigator.clipboard.writeText(code); copied = true; setTimeout(() => copied = false, 2000); } catch { copyError = true; }"
                                         class="absolute top-2 right-2 px-2 py-1 bg-surface border border-line rounded text-[10px] font-medium text-muted hover:text-ink shadow-xs opacity-80 hover:opacity-100 transition-opacity flex items-center gap-1"
                                         aria-label="Copy snippet">
-                                    <span x-show="!copied">Copy</span>
+                                    <span x-show="!copied && !copyError">Copy</span>
+                                    <span x-show="copyError" x-cloak role="status">Copy unavailable</span>
                                     <span x-show="copied" x-cloak class="text-brand font-semibold">✓ Copied</span>
                                 </button>
                             </div>
@@ -1190,10 +1217,12 @@
             </div>
         </section>
 
-        <!-- 4. Customer Stories Carousel ("Learn from teams running cohorts on S-cool") with Smooth Slide Transition -->
+        <!-- 4. Customer Stories Carousel ("Explore example cohort scenarios") with Smooth Slide Transition -->
         <section x-data="{
                     activeStory: 0,
                     isTransitioning: true,
+                    isMoving: false,
+                    wrapTimer: null,
                     isPaused: false,
                     autoplayTimer: null,
                     stories: [
@@ -1207,22 +1236,27 @@
                         return [...this.stories, ...this.stories.slice(0, 3)];
                     },
                     next() {
-                        if (!this.isTransitioning) return;
+                        if (this.isMoving) return;
+                        this.isMoving = true;
                         this.activeStory++;
-                        if (this.activeStory === this.stories.length) {
-                            setTimeout(() => {
+                        this.wrapTimer = setTimeout(() => {
+                            if (this.activeStory === this.stories.length) {
                                 this.isTransitioning = false;
                                 this.activeStory = 0;
                                 this.$nextTick(() => {
                                     requestAnimationFrame(() => {
                                         this.isTransitioning = true;
+                                        this.isMoving = false;
                                     });
                                 });
-                            }, 500);
-                        }
+                            } else {
+                                this.isMoving = false;
+                            }
+                        }, 500);
                     },
                     prev() {
-                        if (!this.isTransitioning) return;
+                        if (this.isMoving) return;
+                        this.isMoving = true;
                         if (this.activeStory === 0) {
                             this.isTransitioning = false;
                             this.activeStory = this.stories.length;
@@ -1230,37 +1264,45 @@
                                 requestAnimationFrame(() => {
                                     this.isTransitioning = true;
                                     this.activeStory = this.stories.length - 1;
+                                    this.wrapTimer = setTimeout(() => { this.isMoving = false; }, 500);
                                 });
                             });
                         } else {
                             this.activeStory--;
+                            this.wrapTimer = setTimeout(() => { this.isMoving = false; }, 500);
                         }
                     },
                     goTo(idx) {
+                        if (this.isMoving || idx < 0 || idx >= this.stories.length) return;
                         this.isTransitioning = true;
                         this.activeStory = idx;
                     },
                     startAutoplay() {
                         this.stopAutoplay();
                         this.autoplayTimer = setInterval(() => {
-                            if (!this.isPaused) this.next();
+                            if (!this.isPaused && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) this.next();
                         }, 6000);
                     },
                     stopAutoplay() {
                         if (this.autoplayTimer) clearInterval(this.autoplayTimer);
+                    },
+                    destroy() {
+                        this.stopAutoplay();
+                        clearTimeout(this.wrapTimer);
                     }
                  }"
                  x-init="startAutoplay()"
                  @mouseenter="isPaused = true"
                  @mouseleave="isPaused = false"
+                 @focusin="isPaused = true" @focusout="isPaused = $el.contains($event.relatedTarget)"
                  class="py-20 md:py-28 bg-surface border-t border-line">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <!-- Header with Title & Action Button -->
                 <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-12">
                     <div class="space-y-2">
-                        <span class="text-xs font-semibold text-brand uppercase tracking-wider">Success Stories</span>
+                        <span class="text-xs font-semibold text-brand uppercase tracking-wider">Illustrative demo stories — not customer results</span>
                         <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-ink font-sans">
-                            Learn from teams running cohorts on S-cool
+                            Explore example cohort scenarios
                         </h2>
                     </div>
                     <a href="{{ route('help.index') }}"
@@ -1317,7 +1359,7 @@
                             <button type="button"
                                     @click="goTo(idx)"
                                     :class="(activeStory % stories.length) === idx ? 'w-6 bg-brand' : 'w-2 bg-slate-300 hover:bg-slate-400'"
-                                    class="h-2 rounded-full transition-all duration-300 focus:outline-none cursor-pointer"
+                                    class="h-2 rounded-full transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 cursor-pointer"
                                     :aria-label="'Go to slide ' + (idx + 1)">
                             </button>
                         </template>
@@ -1345,12 +1387,22 @@
         <!-- 5. Metrics & Scale Section ("Trusted by the largest builder community in AI") with Smooth Count-Up Animation -->
         <section x-data="{
                     rafId: null,
+                    observer: null,
+                    motionMedia: null,
+                    motionChanged: null,
                     stat1: 0,
                     stat2: 0,
                     stat3: 0,
                     startCountUp() {
                         if (this.rafId) {
                             cancelAnimationFrame(this.rafId);
+                            this.rafId = null;
+                        }
+                        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                            this.stat1 = 350;
+                            this.stat2 = 7;
+                            this.stat3 = 5;
+                            return;
                         }
                         this.stat1 = 0;
                         this.stat2 = 0;
@@ -1385,13 +1437,18 @@
                             cancelAnimationFrame(this.rafId);
                             this.rafId = null;
                         }
-                        this.stat1 = 0;
-                        this.stat2 = 0;
-                        this.stat3 = 0;
+                        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                        this.stat1 = reduced ? 350 : 0;
+                        this.stat2 = reduced ? 7 : 0;
+                        this.stat3 = reduced ? 5 : 0;
                     },
                     init() {
+                        this.motionMedia = window.matchMedia('(prefers-reduced-motion: reduce)');
+                        this.motionChanged = () => { if (this.motionMedia.matches) this.startCountUp(); };
+                        this.motionMedia.addEventListener?.('change', this.motionChanged);
+                        if (this.motionMedia.matches) this.startCountUp();
                         if (typeof IntersectionObserver !== 'undefined') {
-                            const observer = new IntersectionObserver((entries) => {
+                            this.observer = new IntersectionObserver((entries) => {
                                 entries.forEach(entry => {
                                     if (entry.isIntersecting) {
                                         this.startCountUp();
@@ -1400,20 +1457,26 @@
                                     }
                                 });
                             }, { threshold: 0.15 });
-                            observer.observe(this.$el);
+                            this.observer.observe(this.$el);
                         } else {
                             this.stat1 = 350;
                             this.stat2 = 7;
                             this.stat3 = 5;
                         }
+                    },
+                    destroy() {
+                        if (this.rafId !== null) cancelAnimationFrame(this.rafId);
+                        this.rafId = null;
+                        this.observer?.disconnect();
+                        this.motionMedia?.removeEventListener?.('change', this.motionChanged);
                     }
                  }"
                  class="py-20 md:py-28 bg-canvas border-t border-line scroll-mt-12">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center max-w-3xl mx-auto mb-16 space-y-3">
-                    <span class="text-xs font-semibold text-brand uppercase tracking-wider">Proven Scale</span>
+                    <span class="text-xs font-semibold text-brand uppercase tracking-wider">Illustrative metrics — not live usage</span>
                     <h2 class="text-3xl sm:text-5xl font-bold tracking-tight text-ink font-sans">
-                        Trusted by the largest community of builders & learners
+                        Demo scale visualization
                     </h2>
                 </div>
 
@@ -1501,20 +1564,21 @@
                 <!-- Newsletter Subscription Form with Alpine feedback -->
                 <div class="lg:col-span-7 space-y-3">
                     <div class="text-xs font-semibold text-ink">
-                        Sign up for our newsletter to stay up to date
+                        Newsletter preview — subscriptions are not available yet
                     </div>
-                    <div x-show="subscribed" x-cloak class="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs">
-                        ✓ Thank you! You have been subscribed to S-cool community updates.
+                    <div x-show="subscribed" x-cloak role="status" class="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs">
+                        Preview only. No subscription was created and your email was not saved.
                     </div>
                     <form x-show="!subscribed" @submit.prevent="if (email.trim()) { subscribed = true; email = ''; }" class="flex flex-col sm:flex-row gap-2 max-w-md">
                         <input type="email"
+                               aria-label="Email for newsletter preview"
                                x-model="email"
                                placeholder="Your email"
                                required
-                               class="px-3.5 py-2 rounded-lg bg-white border border-line text-xs text-ink placeholder-muted focus:outline-none focus:border-brand flex-1 transition-colors">
+                               class="px-3.5 py-2 rounded-lg bg-white border border-line text-xs text-ink placeholder-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus:border-brand flex-1 transition-colors">
                         <button type="submit"
                                 class="px-5 py-2 rounded-lg bg-brand hover:bg-brand-hover text-white text-xs font-semibold shadow-xs transition-colors shrink-0">
-                            Subscribe
+                            Preview
                         </button>
                     </form>
                 </div>
@@ -1592,6 +1656,10 @@
                     mouseY: 0,
                     isHover: false,
                     updatePos(e) {
+                        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                            this.isHover = false;
+                            return;
+                        }
                         const rect = this.$el.getBoundingClientRect();
                         this.mouseX = e.clientX - rect.left;
                         this.mouseY = e.clientY - rect.top;
@@ -1601,7 +1669,7 @@
                  @mouseenter="isHover = true; updatePos($event)"
                  @mouseleave="isHover = false"
                  class="relative pt-10 overflow-hidden text-center select-none cursor-default">
-                
+
                 <!-- Base Clearly Visible Outline Layer -->
                 <div class="relative z-10">
                     <span class="text-7xl sm:text-9xl font-black font-sans tracking-tight text-transparent block"
@@ -1625,7 +1693,7 @@
             <div class="pt-6 border-t border-line flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted">
                 <div class="flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span>All systems operational</span>
+                    <span>Local demonstration — service status is not monitored here</span>
                 </div>
                 <div class="flex items-center gap-6">
                     <a href="{{ route('help.index') }}" class="hover:text-ink transition-colors">Privacy policy</a>

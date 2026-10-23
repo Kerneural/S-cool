@@ -355,6 +355,7 @@ Kết quả: nền tảng có cơ chế kiểm soát tối thiểu mà không ca
 - `CONFIRMED (2026-10-07)`: An active member can view a lesson only when both its course and the lesson are `PUBLISHED`, inside an `ACTIVE` community. Creator draft preview remains restricted to the owning creator.
 - `CONFIRMED (2026-10-07)`: Unpublishing a course or lesson blocks member reads and progress writes without deleting existing progress. Republishing restores visibility of that retained progress to its owner when access is valid again.
 - `CONFIRMED (2026-10-07)`: MVP video embeds accept only validated YouTube/Vimeo HTTPS URLs. Raw iframe/HTML input, arbitrary embed providers and server-side fetching/proxying are excluded.
+- Post-MVP PR #52 adds validated Loom HTTPS share/embed URLs to that allowlist. Fixed provider hosts and IDs are normalized server-side; raw HTML, arbitrary providers and server-side fetching remain excluded. An app response does not prove third-party playback availability.
 
 ### Events
 

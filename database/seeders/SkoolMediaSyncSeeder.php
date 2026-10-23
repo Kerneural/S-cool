@@ -4,24 +4,25 @@ namespace Database\Seeders;
 
 use App\Models\Community;
 use App\Models\Course;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Storage;
+use LogicException;
 
 class SkoolMediaSyncSeeder extends Seeder
 {
     public function run(): void
     {
-        $disk = Storage::disk('community_media');
+        if (! app()->environment(['local', 'testing'])) {
+            throw new LogicException('Sample media may only be seeded in local or testing environments.');
+        }
 
+        $creator = User::query()->where('email', 'creator@scool.local')->firstOrFail();
         // Assets directory
         $commAssetsDir = database_path('seeders/assets/community-covers');
         $courseAssetsDir = database_path('seeders/assets/course-covers');
-        if (! is_dir($commAssetsDir)) {
-            mkdir($commAssetsDir, 0755, true);
-        }
-        if (! is_dir($courseAssetsDir)) {
-            mkdir($courseAssetsDir, 0755, true);
-        }
+        // Read bundled assets only. Source URLs below document provenance;
+        // seeding must not fetch remote content or modify repository assets.
 
         $items = [
             [
@@ -81,7 +82,8 @@ class SkoolMediaSyncSeeder extends Seeder
         ];
 
         foreach ($items as $item) {
-            $community = Community::query()->where('slug', $item['slug'])->first();
+            $community = Community::query()->where('slug', $item['slug'])
+                ->where('creator_id', $creator->id)->first();
             if (! $community) {
                 continue;
             }
@@ -89,23 +91,8 @@ class SkoolMediaSyncSeeder extends Seeder
             // 1. Sync Community Cover if specified
             if ($item['comm_url'] !== null) {
                 $commLocalPath = $commAssetsDir.'/'.$item['slug'].'.jpg';
-                if (! file_exists($commLocalPath)) {
-                    $content = @file_get_contents($item['comm_url']);
-                    if ($content !== false) {
-                        file_put_contents($commLocalPath, $content);
-                    }
-                }
-
-                if (file_exists($commLocalPath)) {
-                    $raw = file_get_contents($commLocalPath);
-                    $storagePath = $community->id.'/'.sha1('scool-comm-cover:'.$community->slug).'.jpg';
-                    $disk->put($storagePath, $raw);
-                    $absPath = $disk->path($storagePath);
-                    @chmod(dirname($absPath), 0755);
-                    @chmod($absPath, 0644);
-                    $community->forceFill(['cover_path' => $storagePath])->save();
-                    echo "Updated cover for community: {$community->name} ({$storagePath})\n";
-                }
+                $storagePath = $community->id.'/'.sha1('scool-comm-cover:'.$community->slug).'.jpg';
+                $this->seedCover($community, $commLocalPath, $storagePath, 2 * 1024 * 1024);
             }
 
             // 2. Sync Course Cover
@@ -113,25 +100,38 @@ class SkoolMediaSyncSeeder extends Seeder
                 $course = $community->courses()->where('title', $item['course_title'])->first();
                 if ($course) {
                     $courseLocalPath = $courseAssetsDir.'/'.sha1($item['course_title']).'.jpg';
-                    if (! file_exists($courseLocalPath)) {
-                        $content = @file_get_contents($item['course_url']);
-                        if ($content !== false) {
-                            file_put_contents($courseLocalPath, $content);
-                        }
-                    }
-
-                    if (file_exists($courseLocalPath)) {
-                        $raw = file_get_contents($courseLocalPath);
-                        $courseStoragePath = $community->id.'/courses/'.sha1('scool-course-cover:'.$course->id).'.jpg';
-                        $disk->put($courseStoragePath, $raw);
-                        $absPath = $disk->path($courseStoragePath);
-                        @chmod(dirname($absPath), 0755);
-                        @chmod($absPath, 0644);
-                        $course->forceFill(['cover_path' => $courseStoragePath])->save();
-                        echo "Updated cover for course: {$course->title} ({$courseStoragePath})\n";
-                    }
+                    $courseStoragePath = $community->id.'/courses/'.sha1('scool-course-cover:'.$course->id).'.jpg';
+                    $this->seedCover($course, $courseLocalPath, $courseStoragePath, 5 * 1024 * 1024);
                 }
             }
+        }
+    }
+
+    private function seedCover(Community|Course $target, string $source, string $path, int $maxBytes): void
+    {
+        if ($target->cover_path !== null && $target->cover_path !== $path) {
+            return; // Preserve manually uploaded covers, including demo-owner edits.
+        }
+
+        $image = is_file($source) ? @getimagesize($source) : false;
+        if ($image === false || ($image['mime'] ?? null) !== 'image/jpeg'
+            || $image[0] > 4096 || $image[1] > 4096 || filesize($source) > $maxBytes) {
+            throw new LogicException('A valid bundled JPEG sample cover is required.');
+        }
+
+        $disk = Storage::disk('community_media');
+        $existed = $disk->exists($path);
+        if (! $existed && ! $disk->put($path, file_get_contents($source))) {
+            throw new \RuntimeException('Sample cover storage failed.');
+        }
+
+        try {
+            $target->forceFill(['cover_path' => $path])->saveOrFail();
+        } catch (\Throwable $exception) {
+            if (! $existed) {
+                $disk->delete($path);
+            }
+            throw $exception;
         }
     }
 }
