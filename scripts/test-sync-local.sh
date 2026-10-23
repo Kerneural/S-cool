@@ -99,6 +99,9 @@ case "$1" in
                 [[ " $args " == *' -e APP_CONFIG_CACHE=/dev/null/scool-sync-config.php '* ]] || exit 8
                 [[ "${MOCK_FAIL:-}" != origin && ! -e "$MOCK_ROOT/.git/config-changed" ]] || exit 7 ;;
             *' php artisan migrate --no-interaction') [[ "${MOCK_FAIL:-}" != migrate ]] || exit 7 ;;
+            *' php artisan db:seed --class=LocalDemoSyncSeeder --no-interaction')
+                [[ " $args " == *' run --rm --no-deps --user www-data app '* ]] || exit 8
+                [[ "${MOCK_FAIL:-}" != demo ]] || exit 7 ;;
             *) exit 8 ;;
         esac ;;
     *) exit 8 ;;
@@ -200,7 +203,12 @@ reject_case 'unsafe database' 'artisan migrate' MOCK_FAIL=database
 reject_case 'noncanonical origin' 'artisan migrate' MOCK_FAIL=origin
 reject_case 'configuration changes after preflight' 'artisan migrate' MOCK_FAIL=late-origin
 [[ "$(< "$fixture/output")" == *'Local sync stopped'* ]] || { printf '[FAIL] Late configuration mismatch was not classified as an update failure.\n'; exit 1; }
-reject_case 'migration failure' 'verify --mode' MOCK_FAIL=migrate
+reject_case 'migration failure' 'db:seed' MOCK_FAIL=migrate
+reject_case 'demo synchronization failure' 'verify --mode' MOCK_FAIL=demo
+[[ "$(< "$fixture/output")" != *'[PASS] Local sync complete'* ]] || exit 1
+if grep -Eq ' up -d --wait --wait-timeout 120$' "$TRACE"; then
+    printf '[FAIL] Stack restarted after failed demo synchronization.\n'; exit 1
+fi
 reject_case 'stack readiness failure' 'verify --mode' MOCK_FAIL=health
 reject_case 'Verify failure' '' MOCK_FAIL=verify
 [[ "$(< "$fixture/output")" != *'[PASS] Local sync complete'* ]] || exit 1
@@ -221,8 +229,9 @@ for stack in up down; do
     [[ "$(< "$fixture/output")" == *'[PASS] Local sync complete; HEAD=after-sha;'* ]] || exit 1
     [[ "$(cksum "$MOCK_ROOT/.env")" == "$before" && ! -d "$MOCK_ROOT/.git/scool-sync.lock" ]] || exit 1
     trace="$(< "$TRACE")"
-    [[ "$trace" == *'-e APP_CONFIG_CACHE=/dev/null/scool-sync-config.php app php -r'*'git fetch origin main'*' stop nginx queue app'*'git merge --ff-only origin/main'*' build app queue'*'composer install'*'npm ci'*'config:clear'*'verify-runtime.php config'*'-e APP_CONFIG_CACHE=/dev/null/scool-sync-config.php app php -r'*'artisan migrate --no-interaction'*'verify --mode verify'* ]] || { printf '[FAIL] Incorrect sync ordering.\n'; exit 1; }
-    [[ "$trace" != *'migrate:fresh'* && "$trace" != *'key:generate'* && "$trace" != *'db:seed'* && "$trace" != *' down '* && "$trace" != *'queue:flush'* ]] || exit 1
+    [[ "$trace" == *'-e APP_CONFIG_CACHE=/dev/null/scool-sync-config.php app php -r'*'git fetch origin main'*' stop nginx queue app'*'git merge --ff-only origin/main'*' build app queue'*'composer install'*'npm ci'*'config:clear'*'verify-runtime.php config'*'-e APP_CONFIG_CACHE=/dev/null/scool-sync-config.php app php -r'*'artisan migrate --no-interaction'*' run --rm --no-deps --user www-data app php artisan db:seed --class=LocalDemoSyncSeeder --no-interaction'*' up -d --wait --wait-timeout 120'*'verify --mode verify'* ]] || { printf '[FAIL] Incorrect sync ordering.\n'; exit 1; }
+    [[ "$(grep -c 'php artisan db:seed' "$TRACE")" == 1 ]] || { printf '[FAIL] Expected exactly the curated demo seeder.\n'; exit 1; }
+    [[ "$trace" != *'migrate:fresh'* && "$trace" != *'key:generate'* && "$trace" != *'--class=DatabaseSeeder'* && "$trace" != *'--class=DemoContentSeeder'* && "$trace" != *' down '* && "$trace" != *'queue:flush'* ]] || exit 1
     passed=$((passed+1))
 done
 printf '[PASS] %s local-sync regression cases with mocked CLIs. No live upgrade, independent-host or production claim.\n' "$passed"

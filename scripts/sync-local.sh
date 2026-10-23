@@ -134,6 +134,7 @@ run 'Validate local scool and isolated scool_test' "${compose[@]}" run --rm --no
 check_local_config 'Local URL/SMTP recheck before migrations'
 assert_env_unchanged
 run 'Apply pending forward migrations' "${compose[@]}" run --rm --no-deps app php artisan migrate --no-interaction
+run 'Synchronize curated local demo content and bundled private media' "${compose[@]}" run --rm --no-deps --user www-data app php artisan db:seed --class=LocalDemoSyncSeeder --no-interaction
 run 'Start updated stack' "${compose[@]}" up -d --wait --wait-timeout 120
 # Verify already builds assets and checks runtime/queue, style and guarded tests.
 run 'Integrated Verify' "$BASH" "$script_dir/verify-fresh-setup.sh" --mode verify

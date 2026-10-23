@@ -30,7 +30,8 @@ bash scripts/sync-local.sh
 The script checks fresh local URL/SMTP configuration before stopping services,
 then fetches main, stops web/worker, fast-forwards main and rebuilds PHP images,
 installs locked dependencies, validates the local databases, applies pending migrations,
-restarts the stack and runs Verify (including `npm run build` and tests).
+synchronizes curated demo content and bundled media, restarts the stack and runs Verify
+(including `npm run build` and tests).
 Wait for **`[PASS] Local sync complete`**, then create your next issue branch from main.
 
 A URL/SMTP preflight rejection names each incorrect setting without printing its value.
@@ -39,8 +40,19 @@ then rerun sync. Pull never replaces `.env`; an old `localhost` value stays unti
 
 Sync refuses dirty/feature branches, unpublished main commits, Vite's hot file,
 missing installations and stacks owned by another checkout. It never stashes/resets work,
-replaces `.env`, regenerates keys, seeds/resets data or deletes volumes.
-Each machine keeps its own data; this synchronizes code/schema/runtime, not databases.
+replaces `.env`, regenerates keys, resets data or deletes volumes.
+Each machine keeps its own database. Sync fills missing demo accounts and nine standard
+communities (four technical learning communities and five additional samples), then fills
+bundled community/course covers through `LocalDemoSyncSeeder`. Existing accounts keep
+their passwords, verification and roles. Existing community content, access states and
+custom covers are retained; a slug owned by another creator stops sync for review.
+This does not copy another developer's DB or recreate EUR/QA fixtures or the legacy
+Demo Free/Paid Learning communities. Bootstrap's seed/repair path remains separate.
+The demo step runs as `www-data` before the web/worker restart so new private image
+files belong to the HTTP service user. No remote image downloads are required.
+An interrupted demo step may leave completed additions; correct the reported failure
+and rerun sync. Do not reset the DB. Changes to the curated catalog or bundled assets
+must be reviewed in Git; existing edited records are not force-upgraded on each sync.
 Review migrations before merging: sync applies them, but is not a backup or automatic rollback.
 On failure the stack may stay stopped/partially updated. Fix the reported step and rerun;
 do not rerun Bootstrap or delete data. An interrupted run may leave an empty
