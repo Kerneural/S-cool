@@ -5,9 +5,7 @@ namespace Database\Seeders;
 use App\Models\Community;
 use App\Models\Course;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use LogicException;
 
 class SkoolMediaSyncSeeder extends Seeder
 {
