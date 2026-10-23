@@ -11,7 +11,7 @@
     </div>
 
     <div>
-        <label for="{{ $formKey }}-video-url" class="block text-xs font-bold text-ink uppercase tracking-wider mb-1.5">{{ __('Video URL (YouTube or Vimeo HTTPS only)') }}</label>
+        <label for="{{ $formKey }}-video-url" class="block text-xs font-bold text-ink uppercase tracking-wider mb-1.5">{{ __('Video URL (YouTube, Vimeo or Loom HTTPS only)') }}</label>
         <input id="{{ $formKey }}-video-url" type="url" name="video_url" maxlength="500" value="{{ $value('video_url', $lesson?->video_url) }}" placeholder="https://www.youtube.com/watch?v=..." class="block w-full border-slate-300 focus:border-brand-500 focus:ring-brand-500 rounded-xl shadow-xs text-sm text-ink placeholder-slate-400 p-2.5">
     </div>
 

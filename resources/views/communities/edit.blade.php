@@ -99,7 +99,7 @@
 
                         <!-- Introduction Video URL -->
                         <div>
-                            <x-input-label for="intro_video_url" :value="__('Introduction Video URL (YouTube or Vimeo)')" />
+                            <x-input-label for="intro_video_url" :value="__('Introduction Video URL (YouTube, Vimeo or Loom)')" />
                             <x-text-input id="intro_video_url" name="intro_video_url" type="url" class="mt-1.5 block w-full rounded-xl border-slate-200 py-2.5" :value="old('intro_video_url', $community->intro_video_url)" placeholder="https://www.youtube.com/watch?v=..." />
                             <x-input-error class="mt-1.5" :messages="$errors->get('intro_video_url')" />
                             <p class="mt-1 text-xs text-gray-500">{{ __('Optional video displayed on the community About page.') }}</p>

@@ -176,7 +176,13 @@ class RealCommunitySampleSeeder extends Seeder
                     throw new LogicException("Community slug '{$data['slug']}' is already owned by another user.");
                 }
 
-                $community ??= new Community;
+                // Re-running an opt-in fixture must not overwrite local edits,
+                // reopen a suspended community, or restore revoked member access.
+                if ($community !== null) {
+                    return;
+                }
+
+                $community = new Community;
                 $community->forceFill([
                     'creator_id' => $creator->id,
                     'name' => $data['name'],

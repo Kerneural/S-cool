@@ -6,7 +6,7 @@ class VideoEmbedService
 {
     /**
      * Parse and validate a video URL.
-     * Returns an array with ['provider' => 'youtube'|'vimeo', 'video_id' => '...', 'embed_url' => '...']
+     * Returns an array with ['provider' => 'youtube'|'vimeo'|'loom', 'video_id' => '...', 'embed_url' => '...']
      * or null if invalid.
      *
      * @return array{provider: string, video_id: string, embed_url: string}|null

@@ -93,7 +93,7 @@ class LessonController extends Controller
 
         if (($validated['video_url'] ?? null) !== null && ! VideoEmbedService::isValid($validated['video_url'])) {
             throw ValidationException::withMessages([
-                'video_url' => 'The video URL must be a valid HTTPS link from YouTube or Vimeo.',
+                'video_url' => 'The video URL must be a valid HTTPS link from YouTube, Vimeo or Loom.',
             ]);
         }
 
@@ -135,7 +135,7 @@ class LessonController extends Controller
 
         if (($validated['video_url'] ?? null) !== null && ! VideoEmbedService::isValid($validated['video_url'])) {
             throw ValidationException::withMessages([
-                'video_url' => 'The video URL must be a valid HTTPS link from YouTube or Vimeo.',
+                'video_url' => 'The video URL must be a valid HTTPS link from YouTube, Vimeo or Loom.',
             ]);
         }
 
