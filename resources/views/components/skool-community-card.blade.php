@@ -12,7 +12,10 @@
         <!-- Cover Image (16:9 Aspect Ratio) -->
         <div class="aspect-[16/9] w-full overflow-hidden bg-slate-900 relative">
             @if ($community->cover_path)
-                <img src="{{ route('communities.cover.show', $community) }}" alt="{{ $community->name }}" class="w-full h-full object-cover">
+                <div class="w-full h-full bg-cover bg-center bg-no-repeat"
+                     :style="{ backgroundImage: 'url(\'' + @js(route('communities.cover.show', $community)) + '\')', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }"
+                     role="img"
+                     aria-label="{{ $community->name }}"></div>
             @else
                 <div class="w-full h-full bg-gradient-to-br from-brand-700 via-teal-800 to-slate-900 flex items-center justify-center p-4">
                     <span class="text-white/90 text-sm font-bold uppercase tracking-wider line-clamp-1">{{ $community->name }}</span>
