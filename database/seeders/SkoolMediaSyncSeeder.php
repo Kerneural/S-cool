@@ -32,28 +32,52 @@ class SkoolMediaSyncSeeder extends Seeder
                 'course_url' => 'https://assets.skool.com/f/bc0ed33173ce43e8b01ed1177f824ee9/d47926a44ecb4aea84f1ead852ceb6dbe8d72f50a7014416a9c24da77c949a2c',
             ],
             [
-                'slug' => 'ai-video-bootcamp',
-                'comm_url' => 'https://assets.skool.com/f/1a18982c15714b0c97031894dbdb3900/b8b1878300654c3da413bd6a7dc17372bbb442197c2d49dc93504dd94d258fa4-md.jpg',
-                'course_title' => 'AI Cinematic Filmmaking Masterclass',
-                'course_url' => 'https://assets.skool.com/f/1a18982c15714b0c97031894dbdb3900/8c7712a783ff4d40bb8659aac5b03a529f406294777b4502afa85a0a7a6fa00c.jpg',
+                'slug' => 'ai-automation-society',
+                'comm_url' => 'https://assets.skool.com/f/b51c57150c70495899bf4bc8aaee8166/ef969dbbebb3454a95f009eecf68564e39d455ef8d644ae1a1be7f88bb295297.png',
+                'course_title' => 'Start Here',
+                'course_url' => 'https://assets.skool.com/f/b51c57150c70495899bf4bc8aaee8166/cb1da39e8fae4851afabe1a50c0fda3c1cfa43c79b7041778874c96634651ad1.jpg',
             ],
             [
-                'slug' => 'maker-school-ai-automation',
-                'comm_url' => 'https://assets.skool.com/f/e256cd9ef1ac4dbe9197634db46e9e3b/56cb44fa92ce4a2a950a286352392ff96e45d3d056e740e4a30c12dbb52faad4-md.jpg',
-                'course_title' => 'Enterprise AI Automations Blueprint',
-                'course_url' => 'https://assets.skool.com/f/e256cd9ef1ac4dbe9197634db46e9e3b/7a0881d755cd45d69679b78d418b803a475d563a4bc4476ea3dfc1ad682b0551.jpg',
+                'slug' => 'ai-automation-society',
+                'comm_url' => null,
+                'course_title' => '7 Day AIS Challenge',
+                'course_url' => 'https://assets.skool.com/f/b51c57150c70495899bf4bc8aaee8166/1fc00d46830d472bbdffc95db0d07e340f3fbf3de2c24286a1293bd83dec3cf7.jpg',
             ],
             [
-                'slug' => 'agentic-ai-founders',
-                'comm_url' => 'https://assets.skool.com/f/be9ac25c58f14ae1a4a93519ccf67319/739ecf918ff445499d85d265e754961fc7c073c31dae4d13acb9f05a9e4516dd-md.jpg',
-                'course_title' => 'Autonomous Agent Systems at Scale',
-                'course_url' => 'https://assets.skool.com/f/be9ac25c58f14ae1a4a93519ccf67319/b112225121dc41a2bae9e12bf0bae52fb51244b84aae4678b3276268e2bdbe61.jpg',
+                'slug' => 'learn-ai',
+                'comm_url' => 'https://assets.skool.com/f/83f66d7eb37844e2adbdab53dd48b3ce/c70ea5a870fc469ba0c0f42434397da604abe53a2f674dfcbee7a0fb4c7ace86.png',
+                'course_title' => 'Start Here',
+                'course_url' => 'https://assets.skool.com/f/83f66d7eb37844e2adbdab53dd48b3ce/84d3ff0d13d44c6ab136e23568b8a59f9be09a1adc8247e98b99baf3e87870df.jpg',
             ],
             [
-                'slug' => 'tattoo-masterclass',
-                'comm_url' => 'https://assets.skool.com/f/51bfeba6acd545fcab2e789b178a1e26/4eb1ff5661a74adc83c414706b37afcc634cef6e51f54483a2074d72e44a45e8-md.jpg',
-                'course_title' => 'Precision Tattooing: Needle Theory & Skin Dynamics',
-                'course_url' => 'https://assets.skool.com/f/51bfeba6acd545fcab2e789b178a1e26/cb00ce3805ac41729ed4fa23f13f7c8a464e81ac03da42a0a1af2f5a27d7e6fb.jpg',
+                'slug' => 'learn-ai',
+                'comm_url' => null,
+                'course_title' => 'AI Consultant Pathway',
+                'course_url' => 'https://assets.skool.com/f/83f66d7eb37844e2adbdab53dd48b3ce/1c82af0c33aa41108c9a344eb5f7ae448b1a9a46ab53475f84009a68111ffcaa.jpg',
+            ],
+            [
+                'slug' => 'max-business-school',
+                'comm_url' => 'https://assets.skool.com/f/9fed30752196495cbc84dcf7d93febd2/efb59c37e16f4625927b0de00eef866f7b7aaa5631024d7fb3a5ca4502736b05',
+                'course_title' => 'FREE Master in Digital Marketing & Business',
+                'course_url' => 'https://assets.skool.com/f/9fed30752196495cbc84dcf7d93febd2/efb59c37e16f4625927b0de00eef866f7b7aaa5631024d7fb3a5ca4502736b05',
+            ],
+            [
+                'slug' => 'the-ai-advantage',
+                'comm_url' => 'https://assets.skool.com/f/f09a730f782d4507a02c22164695a366/413f33448216462e9aa2326df42b6235905382bb4f5c4592a1f2fdc50c357334.jpg',
+                'course_title' => 'Start Here',
+                'course_url' => 'https://assets.skool.com/f/f09a730f782d4507a02c22164695a366/6d1faedee6ce4e02984cd117a95a69e7038ec46cbc0f46c9854d4c0303e9255b.jpg',
+            ],
+            [
+                'slug' => 'the-ai-advantage',
+                'comm_url' => null,
+                'course_title' => "Get Started with Claude: Even If You've Tried It",
+                'course_url' => 'https://assets.skool.com/f/f09a730f782d4507a02c22164695a366/f8eaa46a17ac4e47a6ca7b701d31f7a636ea2f94042a44fca7a919650bc2fc10.jpg',
+            ],
+            [
+                'slug' => 'cliefnotes',
+                'comm_url' => 'https://assets.skool.com/f/9a42d1d697754c499c3effeee8135e03/f1ad7e97ae994efdb0ef35af54331e1f3025ba2af59d4962a0699273b3a763c3.png',
+                'course_title' => 'The Foundation',
+                'course_url' => 'https://assets.skool.com/f/9a42d1d697754c499c3effeee8135e03/2a4034245dd24171bd768b5ccd85ec20ecbb1a2c1b7f4e35ac716031e73d2ded.jpg',
             ],
             [
                 'slug' => 'docker-engineering',
@@ -102,6 +126,40 @@ class SkoolMediaSyncSeeder extends Seeder
                     $courseLocalPath = $courseAssetsDir.'/'.sha1($item['course_title']).'.jpg';
                     $courseStoragePath = $community->id.'/courses/'.sha1('scool-course-cover:'.$course->id).'.jpg';
                     $this->seedCover($course, $courseLocalPath, $courseStoragePath, 5 * 1024 * 1024);
+                }
+            }
+        }
+
+        // 3. Sync all courses from crawled real communities
+        $jsonPath = database_path('seeders/data/skool-real-communities.json');
+        if (file_exists($jsonPath)) {
+            $rawJson = json_decode(file_get_contents($jsonPath), true);
+            foreach ($rawJson['communities'] ?? [] as $cData) {
+                $community = Community::query()->where('slug', $cData['slug'])
+                    ->where('creator_id', $creator->id)->first();
+                if (! $community) {
+                    continue;
+                }
+
+                foreach ($cData['courses'] ?? [] as $courseData) {
+                    $courseTitle = $courseData['title'] ?? null;
+                    if (! $courseTitle) {
+                        continue;
+                    }
+
+                    $course = $community->courses()->where('title', $courseTitle)->first();
+                    if (! $course) {
+                        continue;
+                    }
+
+                    $scopedLocalPath = $courseAssetsDir.'/'.sha1($community->slug.':'.$courseTitle).'.jpg';
+                    $legacyLocalPath = $courseAssetsDir.'/'.sha1($courseTitle).'.jpg';
+                    $courseLocalPath = file_exists($scopedLocalPath) ? $scopedLocalPath : $legacyLocalPath;
+
+                    if (file_exists($courseLocalPath)) {
+                        $courseStoragePath = $community->id.'/courses/'.sha1('scool-course-cover:'.$course->id).'.jpg';
+                        $this->seedCover($course, $courseLocalPath, $courseStoragePath, 5 * 1024 * 1024);
+                    }
                 }
             }
         }

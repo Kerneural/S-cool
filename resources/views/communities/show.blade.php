@@ -41,8 +41,8 @@
                                 </svg>
                                 <span>{{ __('Introduction Video') }}</span>
                             </h2>
-                            <div class="aspect-video w-full rounded-2xl overflow-hidden shadow-sm border border-slate-200 bg-slate-950">
-                                <iframe src="{{ $community->intro_embed_url }}" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            <div>
+                                <x-secure-video-player :url="$community->intro_video_url" :title="$community->name" />
                             </div>
                         </div>
                     @endif
@@ -86,6 +86,8 @@
 
                 <!-- Right: Identity, Useful Destinations & Private Status (4 cols on lg) -->
                 <aside class="min-w-0 lg:col-span-4 space-y-6">
+                    <x-skool-community-card :community="$community" />
+
                     <!-- Community Identity Card -->
                     <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-5 space-y-4">
                         <div class="flex items-center gap-3">

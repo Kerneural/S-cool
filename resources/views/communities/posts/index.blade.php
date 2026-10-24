@@ -408,9 +408,10 @@
 
                 <!-- Context Sidebar Column (4 cols on lg, 280-300px target) -->
                 <aside class="min-w-0 lg:col-span-4 space-y-6">
+                    <x-skool-community-card :community="$community" />
+
                     <!-- Consolidated Contextual Learning Rail (EUR-50 AC-13) -->
                     <x-contextual-learning-rail :community="$community" :learning-focus="$learningFocus" :mini-ranking="$miniRanking" />
-
                 </aside>
             </div>
         </div>
