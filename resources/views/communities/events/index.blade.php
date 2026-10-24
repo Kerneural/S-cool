@@ -91,8 +91,10 @@
             </div>
 
             <!-- Main Content Area -->
-            @if ($view === 'month')
-                @if (! empty($hasMoreEvents))
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <div class="min-w-0 lg:col-span-8 space-y-6">
+                    @if ($view === 'month')
+                        @if (! empty($hasMoreEvents))
                     <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200/80 text-amber-800 text-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div class="flex items-center gap-2">
                             <svg class="w-5 h-5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -261,6 +263,13 @@
                     </div>
                 </div>
             @endif
+                </div>
+
+                <!-- Context Sidebar Column with Skool Community Card -->
+                <aside class="min-w-0 lg:col-span-4 space-y-6">
+                    <x-skool-community-card :community="$community" />
+                </aside>
+            </div>
         </div>
     </div>
 </x-app-layout>

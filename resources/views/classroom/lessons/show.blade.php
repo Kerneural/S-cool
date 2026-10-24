@@ -39,19 +39,30 @@
                     </h1>
                 </div>
 
-                <!-- Responsive 16:9 Video Embed Player (if video URL provided) -->
+                <!-- Responsive Secure Video Player (if video URL provided) -->
                 @if ($lesson->embed_url)
                     <div x-data="{ showVideo: true }" class="space-y-3">
-                        <div x-show="showVideo" class="aspect-video overflow-hidden rounded-xl bg-slate-950 shadow-2xs border border-line">
-                            <iframe src="{{ $lesson->embed_url }}" title="{{ $lesson->title }}" class="h-full w-full border-0" allow="fullscreen; picture-in-picture" allowfullscreen></iframe>
+                        <div x-show="showVideo">
+                            <x-secure-video-player :url="$lesson->video_url" :title="$lesson->title" />
                         </div>
                         <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-muted pt-1">
-                            <p>
-                                {{ __('Video unavailable?') }}
-                                <a class="break-all font-semibold text-brand hover:underline" href="{{ $lesson->provider_url }}" target="_blank" rel="noopener noreferrer">
-                                    {{ __('Open on provider') }}
-                                </a>
-                            </p>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <p class="flex items-center gap-1.5 text-slate-500">
+                                    <svg class="w-3.5 h-3.5 text-emerald-500 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                    </svg>
+                                    <span>{{ __('Protected stream — Direct downloads disabled') }}</span>
+                                </p>
+                                @if ($lesson->provider_url)
+                                    <span class="text-slate-300">•</span>
+                                    <p>
+                                        {{ __('Video unavailable?') }}
+                                        <a class="break-all font-semibold text-brand hover:underline" href="{{ $lesson->provider_url }}" target="_blank" rel="noopener noreferrer">
+                                            {{ __('Open on provider') }}
+                                        </a>
+                                    </p>
+                                @endif
+                            </div>
                             <button type="button" @click="showVideo = !showVideo" class="font-semibold text-muted hover:text-ink transition cursor-pointer">
                                 <span x-show="showVideo">{{ __('Hide video') }}</span>
                                 <span x-show="!showVideo" x-cloak>{{ __('Show video') }}</span>

@@ -226,7 +226,7 @@ jobs:
             -e APP_ENV=testing \
             -e DB_DATABASE=scool_test \
             scool-php:ci \
-            php artisan test \
+            php -d memory_limit=512M artisan test \
               --fail-on-skipped \
               --fail-on-empty-test-suite \
               --log-junit storage/framework/testing/junit.xml

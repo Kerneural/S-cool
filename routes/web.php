@@ -6,6 +6,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\CommunityCoverController;
 use App\Http\Controllers\CommunityInvitationController;
+use App\Http\Controllers\CommunityJoinController;
 use App\Http\Controllers\CommunityLeaderboardController;
 use App\Http\Controllers\CommunityMemberController;
 use App\Http\Controllers\CommunityMessageController;
@@ -35,6 +36,7 @@ use App\Http\Controllers\ProofOfWorkController;
 use App\Http\Controllers\ProofOfWorkReviewController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\SecureVideoStreamController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -55,6 +57,10 @@ Route::post('/invitations/{invitation}/accept', [CommunityInvitationController::
     ->whereNumber('invitation')->middleware(['auth', 'verified', 'throttle:10,1'])->name('invitations.accept');
 Route::post('/invitations/{invitation}/checkout', [PaymentController::class, 'initiate'])
     ->whereNumber('invitation')->middleware(['auth', 'verified', 'throttle:10,1'])->name('invitations.checkout');
+
+Route::post('/communities/{community:slug}/join', [CommunityJoinController::class, 'join'])
+    ->middleware('throttle:20,1')
+    ->name('communities.join');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -190,5 +196,7 @@ Route::middleware(['auth', 'verified', 'platform-admin'])->prefix('admin')->name
     Route::post('/communities/{community}/suspend', [AdminCommunityController::class, 'suspend'])->name('communities.suspend');
     Route::post('/communities/{community}/reactivate', [AdminCommunityController::class, 'reactivate'])->name('communities.reactivate');
 });
+
+Route::get('/secure-stream/video', [SecureVideoStreamController::class, 'stream'])->name('secure-stream.video');
 
 require __DIR__.'/auth.php';

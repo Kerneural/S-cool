@@ -4,116 +4,138 @@
             <x-community-workspace :community="$community" active-tab="leaderboard" />
             <h1 class="sr-only">{{ __('Community leaderboard') }}</h1>
 
-            <!-- Top Row: User Progress + Points Guide Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                <!-- User Progress Card (8 cols on lg) -->
-                <div class="lg:col-span-8 bg-white rounded-2xl shadow-xs border border-slate-200/80 p-5 sm:p-6 space-y-5">
-                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                        <div class="flex items-center gap-4">
-                            <div class="relative shrink-0">
+            <!-- User Level Progress Card (Figure Matching Skool Specs - Full Width) -->
+            <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-6 sm:p-8">
+                <div class="flex flex-col md:flex-row items-center md:items-start gap-8 lg:gap-14">
+                    <!-- Left Column: Circular Avatar with Progress Arc & Level Badge -->
+                    <div class="flex flex-col items-center shrink-0 text-center pt-2" style="width: 180px; min-width: 180px;">
+                        <div class="relative flex items-center justify-center shrink-0" style="width: 160px; height: 160px;">
+                            <!-- Outer SVG Progress Circle -->
+                            <svg class="-rotate-90 transform" viewBox="0 0 160 160" style="width: 160px; height: 160px;">
+                                <circle cx="80" cy="80" r="68" class="text-slate-100" stroke-width="4" stroke="currentColor" fill="transparent" />
+                                <circle cx="80" cy="80" r="68" class="text-[#3B82F6] transition-all duration-700 ease-out"
+                                        stroke-width="5"
+                                        stroke-dasharray="427.26"
+                                        stroke-dashoffset="{{ 427.26 * (1 - max(0.12, ($userProgress['progress_pct'] / 100))) }}"
+                                        stroke-linecap="round"
+                                        stroke="currentColor"
+                                        fill="transparent" />
+                            </svg>
+
+                            <!-- Avatar Inside Circle -->
+                            <div class="absolute rounded-full overflow-hidden bg-slate-900 border-2 border-white shadow-inner flex items-center justify-center" style="width: 126px; height: 126px;">
                                 @if (auth()->user()->avatar_path)
-                                    <img src="{{ route('communities.directory.avatar', [$community, auth()->user()]) }}" alt="{{ auth()->user()->name }}" class="w-14 h-14 rounded-full object-cover border-2 border-brand-200">
+                                    <img src="{{ route('communities.directory.avatar', [$community, auth()->user()]) }}" alt="{{ auth()->user()->name }}" class="w-full h-full object-cover">
                                 @else
-                                    <div class="w-14 h-14 rounded-full bg-brand-50 text-brand-700 flex items-center justify-center font-bold text-xl border-2 border-brand-200">
+                                    <div class="w-full h-full bg-gradient-to-tr from-slate-800 to-indigo-900 text-white flex items-center justify-center font-bold text-3xl">
                                         {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                                     </div>
                                 @endif
-                                <span class="absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold shadow-sm {{ $userProgress['level'] === 5 ? 'bg-amber-500 text-white' : ($userProgress['level'] >= 3 ? 'bg-brand-600 text-white' : 'bg-slate-700 text-white') }}">
-                                    L{{ $userProgress['level'] }}
-                                </span>
                             </div>
 
-                            <div>
-                                <div class="flex items-center gap-2">
-                                    <h2 class="text-lg font-bold text-slate-900">{{ auth()->user()->name }}</h2>
-                                    <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full {{ $userProgress['level'] === 5 ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-brand-50 text-brand-700 border border-brand-200' }}">
-                                        {{ __('Level :level', ['level' => $userProgress['level']]) }}
-                                    </span>
-                                </div>
-                                <p class="text-xs text-slate-500 mt-1">
-                                    {{ __('Lifetime: :pts points', ['pts' => $lifetimePoints]) }} &bull;
-                                    {{ __('This Month (UTC): :pts points', ['pts' => $monthPoints]) }}
-                                </p>
+                            <!-- Bottom Right Circular Level Badge (like '0' in user's image) -->
+                            <div class="absolute bottom-1 right-2 rounded-full bg-[#3B82F6] text-white font-extrabold text-sm flex items-center justify-center shadow-md ring-4 ring-white" style="width: 36px; height: 36px;">
+                                {{ $userLevel }}
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-6 sm:text-right">
-                            <div>
-                                <span class="block text-xs uppercase tracking-wider font-semibold text-slate-600">{{ __('Your Rank') }}</span>
-                                <span class="text-2xl font-black text-slate-900 tabular-nums">
-                                    {{ $userRank ? '#' . $userRank : __('Unranked') }}
-                                </span>
-                                <span class="block text-[11px] text-slate-600 font-medium">
-                                    @if ($metric === 'verified_skills')
-                                        {{ __(':count verified works', ['count' => $userMetricScore]) }}
-                                    @elseif ($metric === 'helpful_answers')
-                                        {{ __(':count helpful answers', ['count' => $userMetricScore]) }}
-                                    @else
-                                        {{ __(':count points (:p)', ['count' => $userMetricScore, 'p' => $period === 'month' ? 'month' : 'lifetime']) }}
-                                    @endif
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Level Progress Bar -->
-                    <div class="pt-4 border-t border-slate-100">
-                        <div class="flex items-center justify-between text-xs mb-1.5 font-medium">
-                            <span class="text-slate-600">
-                                @if ($userProgress['level'] === 5)
-                                    <span class="text-amber-600 font-bold">{{ __('Maximum Level Reached (60+ points)') }}</span>
-                                @else
-                                    {{ __('Progress to Level :next (:needed points needed)', ['next' => $userProgress['level'] + 1, 'needed' => $userProgress['points_needed']]) }}
-                                @endif
+                        <!-- User Name & Level Subtitle -->
+                        <h3 class="text-lg font-bold text-slate-900 mt-4 leading-tight">
+                            {{ auth()->user()->name }}
+                        </h3>
+                        <p class="text-xs font-semibold text-[#3B82F6] mt-1">
+                            {{ __('Level :level', ['level' => $userLevel]) }}
+                        </p>
+                        @if ($userLevel >= 5 || ($userProgress['level'] ?? 1) >= 5)
+                            <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                                {{ __('Maximum Level Reached') }}
                             </span>
-                            <span class="text-slate-900 font-bold tabular-nums">{{ $userProgress['progress_pct'] }}%</span>
-                        </div>
-                        <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                            <div class="h-2.5 rounded-full transition-all duration-500 {{ $userProgress['level'] === 5 ? 'bg-gradient-to-r from-amber-400 to-amber-500' : 'bg-gradient-to-r from-brand-500 to-brand-600' }}"
-                                 style="width: {{ $userProgress['progress_pct'] }}%"></div>
-                        </div>
-                        <div class="flex justify-between text-[10px] text-slate-600 mt-1.5 font-mono">
-                            <span>L1 (0)</span>
-                            <span>L2 (5)</span>
-                            <span>L3 (15)</span>
-                            <span>L4 (30)</span>
-                            <span>L5 (60+)</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Metric Explanation Guide (4 cols on lg) -->
-                <div class="lg:col-span-4 bg-gradient-to-br from-white via-slate-50/50 to-amber-50/30 rounded-2xl p-5 border border-slate-200/80 shadow-xs space-y-3 text-xs text-slate-600">
-                    <div class="flex items-center gap-2 text-slate-900 font-bold text-sm">
-                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-amber-500 text-white shrink-0">
-                            ★
-                        </span>
-                        <span>{{ __('Leaderboard & Scoring') }}</span>
+                        @endif
                     </div>
 
-                    @if ($metric === 'verified_skills')
-                        <p class="leading-relaxed">
-                            {{ __('Lifetime ranking by current eligible creator-verified practical assignments, not distinct skill labels. Ties use member ID ascending.') }}
-                        </p>
-                    @elseif ($metric === 'helpful_answers')
-                        <p class="leading-relaxed">
-                            {{ __('Lifetime ranking by eligible community creator-accepted helpful answers in contextual discussions. Unavailable sources do not count. Creator cannot accept own answers.') }}
-                        </p>
-                    @else
-                        <p class="leading-relaxed">
-                            {{ __('Authors receive +1 point per valid like from other members. Self-likes do not count. Unliking removes the point.') }}
-                        </p>
-                    @endif
+                    <!-- Right Column: 2-Column Grid of 9 Levels -->
+                    <div class="flex-1 min-w-0 w-full grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 items-start pt-1">
+                        <!-- Column 1: Levels 1 to 5 -->
+                        <div class="space-y-4">
+                            @foreach (array_slice($communityLevels, 0, 5, true) as $lvlNum => $lvl)
+                                @php($isUnlocked = $userLevel >= $lvlNum)
+                                <div class="flex items-start gap-3.5">
+                                    <!-- Icon Circle (lock or unlocked) -->
+                                    <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 {{ $isUnlocked ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-400' }}">
+                                        @if ($isUnlocked)
+                                            <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                            </svg>
+                                        @else
+                                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                            </svg>
+                                        @endif
+                                    </div>
 
-                    <div class="pt-2 border-t border-slate-200/60 text-[11px] text-slate-500 space-y-1">
-                        <div>&bull; {{ __('Distinct rankings for engagement, verified practice, and answers.') }}</div>
-                        <div>&bull; {{ __('Tie-breaking: highest score first, then member ID ascending.') }}</div>
+                                    <!-- Level Title & Perks in English -->
+                                    <div class="min-w-0 flex-1">
+                                        <div class="text-sm font-semibold text-slate-900 leading-snug">
+                                            {{ __('Level :num - :title', ['num' => $lvlNum, 'title' => $lvl['title']]) }}
+                                        </div>
+                                        <div class="text-xs text-slate-500 leading-normal mt-0.5">
+                                            @if (! empty($lvl['perk']))
+                                                {{ __('Unlocks') }} <span class="text-blue-600 font-medium">{{ $lvl['perk'] }}</span> {{ $lvl['members_pct'] }} {{ __('of members') }}
+                                            @else
+                                                {{ $lvl['members_pct'] }} {{ __('of members') }}
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <!-- Column 2: Levels 6 to 9 -->
+                        <div class="space-y-4">
+                            @foreach (array_slice($communityLevels, 5, 4, true) as $lvlNum => $lvl)
+                                @php($isUnlocked = $userLevel >= $lvlNum)
+                                <div class="flex items-start gap-3.5">
+                                    <!-- Icon Circle -->
+                                    <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 {{ $isUnlocked ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-400' }}">
+                                        @if ($isUnlocked)
+                                            <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                            </svg>
+                                        @else
+                                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                            </svg>
+                                        @endif
+                                    </div>
+
+                                    <!-- Level Title & Perks in English -->
+                                    <div class="min-w-0 flex-1">
+                                        <div class="text-sm font-semibold text-slate-900 leading-snug">
+                                            {{ __('Level :num - :title', ['num' => $lvlNum, 'title' => $lvl['title']]) }}
+                                        </div>
+                                        <div class="text-xs text-slate-500 leading-normal mt-0.5">
+                                            @if (! empty($lvl['perk']))
+                                                {{ __('Unlocks') }} <span class="text-blue-600 font-medium">{{ $lvl['perk'] }}</span> {{ $lvl['members_pct'] }} {{ __('of members') }}
+                                            @else
+                                                {{ $lvl['members_pct'] }} {{ __('of members') }}
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Leaderboard Table and Filter Tabs (AC-03) -->
-            <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
+            <!-- Main Leaderboard 2-Column Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- Main Content Column (8 cols on lg) -->
+                <div class="min-w-0 lg:col-span-8 space-y-6">
+                    <!-- Leaderboard Table and Filter Tabs (AC-03) -->
+                    <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
                 <!-- Metric Navigation Tabs -->
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between px-6 py-4 border-b border-slate-100 gap-3">
                     <div class="inline-flex flex-wrap rounded-xl bg-slate-100 p-0.5 text-xs">
@@ -248,6 +270,42 @@
                         </div>
                     @endif
                 @endif
+                    </div>
+                </div>
+
+                <!-- Context Sidebar Column with Skool Community Card & Metric Guide -->
+                <aside class="min-w-0 lg:col-span-4 space-y-6">
+                    <x-skool-community-card :community="$community" />
+
+                    <!-- Metric Explanation Guide (4 cols on lg) -->
+                    <div class="bg-gradient-to-br from-white via-slate-50/50 to-amber-50/30 rounded-2xl p-5 border border-slate-200/80 shadow-xs space-y-3 text-xs text-slate-600">
+                        <div class="flex items-center gap-2 text-slate-900 font-bold text-sm">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-amber-500 text-white shrink-0">
+                                ★
+                            </span>
+                            <span>{{ __('Leaderboard & Scoring') }}</span>
+                        </div>
+
+                        @if ($metric === 'verified_skills')
+                            <p class="leading-relaxed">
+                                {{ __('Lifetime ranking by current eligible creator-verified practical assignments, not distinct skill labels. Ties use member ID ascending.') }}
+                            </p>
+                        @elseif ($metric === 'helpful_answers')
+                            <p class="leading-relaxed">
+                                {{ __('Lifetime ranking by eligible community creator-accepted helpful answers in contextual discussions. Unavailable sources do not count. Creator cannot accept own answers.') }}
+                            </p>
+                        @else
+                            <p class="leading-relaxed">
+                                {{ __('Authors receive +1 point per valid like from other members. Self-likes do not count. Unliking removes the point.') }}
+                            </p>
+                        @endif
+
+                        <div class="pt-2 border-t border-slate-200/60 text-[11px] text-slate-500 space-y-1">
+                            <div>&bull; {{ __('Distinct rankings for engagement, verified practice, and answers.') }}</div>
+                            <div>&bull; {{ __('Tie-breaking: highest score first, then member ID ascending.') }}</div>
+                        </div>
+                    </div>
+                </aside>
             </div>
         </div>
     </div>
