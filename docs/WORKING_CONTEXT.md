@@ -2,6 +2,24 @@
 
 A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
+## EUR-71 (PQ-05) landing artwork and marquee checkpoint (2026-10-25)
+
+- Authority: Linear issue EUR-71 (PQ-05) approved by product owner.
+- Working checkout: `eur-71-landing-artwork-marquee`, base `real-free-communities`, HEAD `0d50a4c71f13f6506ab92286a658efa954afd3b7`.
+- Delivered Scope:
+  - AC-01: Original symbolic hero illustration SVG `public/images/landing/hero-symbolic-mesh.svg` with S-cool palette (`#0F766E`, `#0D9488`, `#D97706`, `#1E293B`) and graceful `onerror` fallback.
+  - AC-02: Genuine product visuals captured from running application (`public/images/landing/product/product-community-feed.png`, `product-classroom-outline.png`, `product-proof-of-work.png`) with provenance recorded in `visual-change-and-assets.md`.
+  - AC-03 & AC-04: Controllable horizontal logo strip with Alpine state (`isPaused`, `manualPaused`), accessible Pause/Resume button (`:aria-pressed`, `:aria-label`), pointer hover/focus pause, manual-pause persistence, and `prefers-reduced-motion` static wrapping strip hiding clones (`[aria-hidden="true"] { display: none }`).
+  - AC-05: Responsive without horizontal overflow at 320px, 375px, 768px, 1280px, and 200% zoom. No external animation libraries.
+  - AC-06: Docs CTA points to `route('help.index')`; logos truthfully describe learning topics.
+  - AC-07: Complete evidence pack in `docs/testing-docs/M13/PQ-05/` (`visual-change-and-assets.md`, `landing-checks.md`, `before-after/`, `marquee-controls.mp4`).
+- Verification Results:
+  - JS unit tests: 29/29 PASS (`node --test tests/js/*.test.mjs`).
+  - PHP feature tests: 40/40 PASS (350 assertions) across targeted suites (`LandingArtworkMarqueeTest`, `CommunityLeaderboardTest`, `MemberDirectoryProfileTest`, `LocalDemoSyncTest`, `LearningWorkspaceProofOfWorkTest`).
+  - Code style: Pint PASS on 300 files (`./vendor/bin/pint --test`).
+  - Shared agent contract: PASS (`bash scripts/verify-agent-contract.sh`).
+- Next: Move EUR-71 to In Review, post handoff comment, and present full report to product owner.
+
 ## EUR-50/51 experience-completion planning amendment (2026-10-16)
 
 - Authority: user approved normalizing the Skool reference, placing suitable

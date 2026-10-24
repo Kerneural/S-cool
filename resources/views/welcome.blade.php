@@ -252,14 +252,135 @@
                         </a>
                     </div>
 
+                    <!-- Composed Hero Artwork & Faithful Product Visuals (AC-01, AC-02) -->
+                    <div class="mt-12 relative max-w-5xl mx-auto w-full">
+                        <div class="relative rounded-2xl border border-line/80 bg-surface/90 p-3 sm:p-5 shadow-xl backdrop-blur-xs overflow-hidden">
+                            <!-- Showcase Canvas Area -->
+                            <div class="relative w-full aspect-16/10 sm:aspect-16/9 min-h-[300px] sm:min-h-[420px] rounded-xl overflow-hidden bg-slate-900/5 flex items-center justify-center border border-line/50">
+                                <!-- Original Symbolic S-cool Hero Illustration (AC-01) -->
+                                <img src="{{ asset('images/landing/hero-symbolic-mesh.svg') }}"
+                                     alt="S-cool Knowledge, Community and Proof-of-Work Symbolic Constellation"
+                                     class="w-full h-full object-contain pointer-events-none select-none transition-opacity duration-300"
+                                     loading="eager"
+                                     onerror="this.style.display='none'" />
+
+                                <!-- Floating Genuine Product Visual Previews linked to activeSet (AC-02) -->
+                                <div class="absolute inset-0 p-3 sm:p-6 flex items-end justify-center pointer-events-none">
+                                    <!-- Set 0: Community Feed Preview -->
+                                    <div x-show="activeSet === 0"
+                                         x-transition:enter="transition ease-out duration-300"
+                                         x-transition:enter-start="opacity-0 translate-y-4 scale-95"
+                                         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                                         class="w-full max-w-2xl bg-surface/95 backdrop-blur-md rounded-xl border border-line shadow-2xl overflow-hidden pointer-events-auto">
+                                        <div class="px-4 py-2 bg-slate-50/90 border-b border-line flex items-center justify-between text-xs">
+                                            <div class="flex items-center gap-2">
+                                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                                                <span class="font-semibold text-ink">Genuine Product Visual: Community Feed</span>
+                                            </div>
+                                            <span class="text-muted text-[11px] font-mono">/communities/the-ai-advantage</span>
+                                        </div>
+                                        <div class="relative aspect-16/9 max-h-[240px] sm:max-h-[280px] overflow-hidden bg-slate-100">
+                                            <img src="{{ asset('images/landing/product/product-community-feed.png') }}"
+                                                 alt="S-cool Community Feed Screenshot"
+                                                 class="w-full h-full object-cover object-top"
+                                                 onerror="this.style.display='none'" />
+                                        </div>
+                                    </div>
+
+                                    <!-- Set 1: Classroom Curriculum Preview -->
+                                    <div x-show="activeSet === 1"
+                                         x-cloak
+                                         x-transition:enter="transition ease-out duration-300"
+                                         x-transition:enter-start="opacity-0 translate-y-4 scale-95"
+                                         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                                         class="w-full max-w-2xl bg-surface/95 backdrop-blur-md rounded-xl border border-line shadow-2xl overflow-hidden pointer-events-auto">
+                                        <div class="px-4 py-2 bg-slate-50/90 border-b border-line flex items-center justify-between text-xs">
+                                            <div class="flex items-center gap-2">
+                                                <span class="w-2.5 h-2.5 rounded-full bg-brand"></span>
+                                                <span class="font-semibold text-ink">Genuine Product Visual: Classroom Outline</span>
+                                            </div>
+                                            <span class="text-muted text-[11px] font-mono">/communities/the-ai-advantage/classroom</span>
+                                        </div>
+                                        <div class="relative aspect-16/9 max-h-[240px] sm:max-h-[280px] overflow-hidden bg-slate-100">
+                                            <img src="{{ asset('images/landing/product/product-classroom-outline.png') }}"
+                                                 alt="S-cool Classroom Outline Screenshot"
+                                                 class="w-full h-full object-cover object-top"
+                                                 onerror="this.style.display='none'" />
+                                        </div>
+                                    </div>
+
+                                    <!-- Set 2: Proof of Work Verification Preview -->
+                                    <div x-show="activeSet === 2"
+                                         x-cloak
+                                         x-transition:enter="transition ease-out duration-300"
+                                         x-transition:enter-start="opacity-0 translate-y-4 scale-95"
+                                         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                                         class="w-full max-w-2xl bg-surface/95 backdrop-blur-md rounded-xl border border-line shadow-2xl overflow-hidden pointer-events-auto">
+                                        <div class="px-4 py-2 bg-slate-50/90 border-b border-line flex items-center justify-between text-xs">
+                                            <div class="flex items-center gap-2">
+                                                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                                                <span class="font-semibold text-ink">Genuine Product Visual: Proof of Work & Leaderboard</span>
+                                            </div>
+                                            <span class="text-muted text-[11px] font-mono">/communities/the-ai-advantage/leaderboard</span>
+                                        </div>
+                                        <div class="relative aspect-16/9 max-h-[240px] sm:max-h-[280px] overflow-hidden bg-slate-100">
+                                            <img src="{{ asset('images/landing/product/product-proof-of-work.png') }}"
+                                                 alt="S-cool Proof of Work Screenshot"
+                                                 class="w-full h-full object-cover object-top"
+                                                 onerror="this.style.display='none'" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Caption distinguishing literal screenshots from symbolic art (AC-02) -->
+                            <div class="mt-3 px-2 sm:px-3 py-1 flex flex-wrap items-center justify-between gap-2 text-xs text-muted">
+                                <span>Symbolic Knowledge Constellation (original art) with live demo screenshots.</span>
+                                <span class="font-mono text-[11px]">S-cool Engine v2.0 • Curated Demo Catalog</span>
+                            </div>
+                        </div>
+                    </div>
+
                     </div>
             </div>
 
-            <!-- Continuous Infinite Logo Marquee Flow (Full-Width Edge-to-Edge) -->
-            <div class="w-full pt-16 border-t border-line/60 mt-16 text-center overflow-hidden">
-                <p class="text-xs uppercase tracking-widest text-muted font-medium mb-8 px-4">
-                    Learning resources and communities — independent links, not partnerships
-                </p>
+            <!-- Continuous Infinite Logo Marquee Flow (Full-Width Edge-to-Edge) (AC-03, AC-04) -->
+            <div x-data="{
+                     manualPaused: false,
+                     isHovered: false,
+                     isFocused: false,
+                     get isPaused() {
+                         return this.manualPaused || this.isHovered || this.isFocused;
+                     },
+                     togglePause() {
+                         this.manualPaused = !this.manualPaused;
+                     }
+                 }"
+                 @mouseenter="isHovered = true"
+                 @mouseleave="isHovered = false"
+                 @focusin="isFocused = true"
+                 @focusout="isFocused = $el.contains($event.relatedTarget)"
+                 :class="{ 'marquee-paused': isPaused }"
+                 class="w-full pt-16 border-t border-line/60 mt-16 text-center overflow-hidden">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <p class="text-xs uppercase tracking-widest text-muted font-medium text-center sm:text-left">
+                        Learning resources and communities — independent links, not partnerships
+                    </p>
+                    <!-- Accessible Marquee Pause/Resume Button (AC-03) -->
+                    <button type="button"
+                            @click="togglePause()"
+                            :aria-pressed="manualPaused ? 'true' : 'false'"
+                            :aria-label="manualPaused ? 'Resume marquee animation' : 'Pause marquee animation'"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-surface border border-line text-slate-700 hover:text-ink hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand shadow-2xs transition-colors shrink-0 cursor-pointer">
+                        <svg x-show="!manualPaused" class="w-3.5 h-3.5 text-muted" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                        <svg x-show="manualPaused" x-cloak class="w-3.5 h-3.5 text-brand" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                        </svg>
+                        <span x-text="manualPaused ? 'Resume motion' : 'Pause motion'"></span>
+                    </button>
+                </div>
 
                     <!-- Scoped styles to guarantee marquee animation regardless of browser cache or reduced-motion defaults -->
                     <style>
@@ -283,9 +404,9 @@
                             will-change: transform;
                             animation: marquee-reverse 35s linear infinite !important;
                         }
-                        .animate-marquee:hover, .animate-marquee-reverse:hover {
-                            animation-play-state: paused !important;
-                        }
+                        .marquee-paused .animate-marquee,
+                        .marquee-paused .animate-marquee-reverse,
+                        .animate-marquee:hover, .animate-marquee-reverse:hover,
                         .animate-marquee:focus-within, .animate-marquee-reverse:focus-within {
                             animation-play-state: paused !important;
                         }
@@ -295,12 +416,14 @@
                                 transform: none !important;
                                 width: 100% !important;
                             }
-                            .animate-marquee > div, .animate-marquee-reverse > div {
+                            .animate-marquee > div:not([aria-hidden="true"]),
+                            .animate-marquee-reverse > div:not([aria-hidden="true"]) {
                                 flex-wrap: wrap;
                                 justify-content: center;
                             }
-                            .animate-marquee > [aria-hidden="true"], .animate-marquee-reverse > [aria-hidden="true"] {
-                                display: none;
+                            .animate-marquee > [aria-hidden="true"],
+                            .animate-marquee-reverse > [aria-hidden="true"] {
+                                display: none !important;
                             }
                         }
                     </style>
@@ -313,8 +436,7 @@
                         <!-- Right fade transition overlay -->
                         <div class="pointer-events-none absolute inset-y-0 right-0 w-24 sm:w-44 md:w-64 bg-gradient-to-l from-[#F8FAFC] via-[#F8FAFC]/90 to-transparent z-10 transition-opacity duration-300"></div>
 
-                        <div class="animate-marquee py-2 items-center text-muted flex w-max shrink-0"
-                             style="display: flex; width: max-content; animation: marquee 35s linear infinite; will-change: transform;">
+                        <div class="animate-marquee py-2 items-center text-muted flex w-max shrink-0">
                             <!-- Group 1 -->
                             <div class="flex items-center gap-6 sm:gap-8 pr-6 sm:pr-8 shrink-0">
                                 <a href="https://ocw.mit.edu"  target="_blank" rel="noopener noreferrer"
@@ -587,8 +709,7 @@
                         <!-- Right fade transition overlay -->
                         <div class="pointer-events-none absolute inset-y-0 right-0 w-24 sm:w-44 md:w-64 bg-gradient-to-l from-[#F8FAFC] via-[#F8FAFC]/90 to-transparent z-10 transition-opacity duration-300"></div>
 
-                        <div class="animate-marquee-reverse py-2 items-center text-muted flex w-max shrink-0"
-                             style="display: flex; width: max-content; animation: marquee-reverse 35s linear infinite; will-change: transform;">
+                        <div class="animate-marquee-reverse py-2 items-center text-muted flex w-max shrink-0">
                             <!-- Group 2 -->
                             <div class="flex items-center gap-6 sm:gap-8 pr-6 sm:pr-8 shrink-0">
                                 <a href="https://github.com/edu"  target="_blank" rel="noopener noreferrer"
