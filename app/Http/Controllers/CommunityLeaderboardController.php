@@ -66,6 +66,9 @@ class CommunityLeaderboardController extends Controller
             $leaderboard->appends(['metric' => $metric]);
         }
 
+        $communityLevels = $this->getCommunityLevels($community);
+        $userLevel = $lifetimePoints > 0 ? $userProgress['level'] : 0;
+
         return view('communities.leaderboard', [
             'community' => $community,
             'leaderboard' => $leaderboard,
@@ -74,9 +77,76 @@ class CommunityLeaderboardController extends Controller
             'lifetimePoints' => $lifetimePoints,
             'monthPoints' => $monthPoints,
             'userProgress' => $userProgress,
+            'userLevel' => $userLevel,
+            'communityLevels' => $communityLevels,
             'userRank' => $userRank,
             'userMetricScore' => $userMetricScore,
         ]);
+    }
+
+    /**
+     * Get 9 gamification levels matching Skool specification.
+     *
+     * @return array<int, array{level: int, title: string, perk: ?string, members_pct: string}>
+     */
+    protected function getCommunityLevels(Community $community): array
+    {
+        return [
+            1 => [
+                'level' => 1,
+                'title' => 'AI Explorer 🛠',
+                'perk' => null,
+                'members_pct' => '89%',
+            ],
+            2 => [
+                'level' => 2,
+                'title' => 'Automation Novice 🛠',
+                'perk' => 'Post to feed',
+                'members_pct' => '4%',
+            ],
+            3 => [
+                'level' => 3,
+                'title' => 'AI Operator 🛠',
+                'perk' => 'Chat with members, "Build Your AI OS"',
+                'members_pct' => '1%',
+            ],
+            4 => [
+                'level' => 4,
+                'title' => 'Agent Builder 🤖',
+                'perk' => null,
+                'members_pct' => '1%',
+            ],
+            5 => [
+                'level' => 5,
+                'title' => 'Agent Orchestrator 🤖',
+                'perk' => null,
+                'members_pct' => '1%',
+            ],
+            6 => [
+                'level' => 6,
+                'title' => 'AI Engineer 🤖',
+                'perk' => null,
+                'members_pct' => '1%',
+            ],
+            7 => [
+                'level' => 7,
+                'title' => 'AI Visionary 💎',
+                'perk' => null,
+                'members_pct' => '1%',
+            ],
+            8 => [
+                'level' => 8,
+                'title' => 'AI Mastermind ✨',
+                'perk' => null,
+                'members_pct' => '1%',
+            ],
+            9 => [
+                'level' => 9,
+                'title' => 'AI Grandmaster 🚀',
+                'perk' => null,
+                'members_pct' => '1%',
+            ],
+        ];
     }
 
     /**

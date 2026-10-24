@@ -1,6 +1,7 @@
 <x-app-layout>
     <div class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
         <x-community-workspace :community="$community" active-tab="classroom" />
+
         <div class="flex items-center justify-between">
             <h1 class="text-2xl font-bold tracking-tight text-ink">{{ __('Classroom Courses') }}</h1>
         </div>

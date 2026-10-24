@@ -41,7 +41,12 @@ class ClassroomRegressionTest extends TestCase
             $fields = $xpath->query('//form//input[@type!="hidden"] | //form//textarea | //form//select');
             $checked = 0;
 
+            /** @var \DOMElement $field */
             foreach ($fields as $field) {
+                if (! $field instanceof \DOMElement) {
+                    continue;
+                }
+
                 if (! in_array($field->getAttribute('name'), ['title', 'description', 'access_mode', 'price', 'status', 'video_url', 'content'], true)) {
                     continue;
                 }
