@@ -530,6 +530,13 @@ contain only JUnit, the tested SHA and built manifest/assets, with seven-day ret
 inspect/sanitize reports before sharing. Failure logs remain in Actions. Cleanup stops only
 runner services without deleting volumes. This is CI, not production deployment/CD.
 
+The PHP image build and CI also run `php /usr/local/bin/scool-verify-php-security.php`.
+The supported 8.2 runtime must be at least 8.2.35 (CVE-2026-109618/CVE-2026-109619),
+with `session.upload_progress.enabled=Off` and exception arguments hidden. Bootstrap
+and local sync build with `--pull`; existing containers need recreation to receive
+the updated image. Verify checks the running app and worker too. A clean Composer
+audit or Alpine package scan alone does not establish that PHP itself is patched.
+
 ## Safety
 
 - Tests use `scool_test`, separate from development `scool`. The test DB is created on initial volume setup; older volumes missing it need separate investigation.
