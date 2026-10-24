@@ -25,8 +25,11 @@ RUN docker-php-ext-install \
     opcache
 
 RUN apk upgrade --no-cache
+RUN apk upgrade --no-cache libexpat brotli-libs
 
     # Cài đặt Composer chính thức từ Docker Hub
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 COPY docker/php/security.ini /usr/local/etc/php/conf.d/zz-scool-security.ini
+COPY docker/php/verify-security.php /usr/local/bin/scool-verify-php-security.php
+RUN php /usr/local/bin/scool-verify-php-security.php
 WORKDIR /var/www/html

@@ -125,7 +125,7 @@ fi
 [[ "$(git rev-parse HEAD)" == "$(git rev-parse origin/main)" ]] || { fail 'Sync requires main to match fetched origin/main.'; exit 1; }
 expected_revision=$(git rev-parse HEAD)
 run 'Stop web and worker for runtime update' "${compose[@]}" stop nginx queue app
-run 'Build PHP images' "${compose[@]}" build app queue
+run 'Build patched PHP images' "${compose[@]}" build --pull app queue
 run 'MySQL readiness' "${compose[@]}" up -d --wait --wait-timeout 120 mysql
 run 'Locked PHP dependencies' "${compose[@]}" run --rm --no-deps app composer install --no-interaction --prefer-dist
 run 'Locked frontend dependencies' npm ci

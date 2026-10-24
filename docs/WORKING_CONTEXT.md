@@ -5411,3 +5411,36 @@ The owner requested publishing the latest submitted improvements and local corre
 - Publication authority update: the owner explicitly approved committing/pushing exactly these seven files and opening a PR to main for CI. The unrelated .gitignore change and private artifacts remain excluded. Merge and required reviewer approval are not waived.
 
 - Pre-publication navigation: GitNexus mapped six existing learning-seed flows, but its MCP context explicitly reported a cached index twenty commits behind and lower-bound callers. It is not acceptance evidence for this patch. Direct source review and the completed targeted Bootstrap/new-sync regressions cover the changed boundary; published CI remains required.
+
+
+## PHP runtime security correction — 2026-10-24
+
+- Scope: remediate CVE-2026-109618/CVE-2026-109619 on the supported PHP 8.2
+  runtime. Publication branch `php-critical-runtime-fix` starts from main
+  `1fe9d3e317f283de8f0a07486d6855d8d0ded10a`. Unrelated local design/product/
+  delivery documentation is excluded. No schema, dependency lockfile or port change.
+- Docker build and CI execute the standalone PHP security gate: 8.2.35 or newer
+  within minor 8.2, session upload progress Off, exception arguments hidden.
+  Sync/bootstrap use `build --pull`; Verify probes running app and queue.
+- The image scan additionally found inherited CVE-2026-111497 in brotli-libs;
+  the targeted APK upgrade installs 1.2.1-r0 while retaining libexpat 2.9.0-r0.
+  Final local image Trivy 0.75.0 HIGH/CRITICAL scan passed with zero findings.
+  Alpine/Composer scans alone do not establish the PHP interpreter patch level.
+- Primary-checkout evidence on 3b1d6c6 plus the security diff: 39 targeted MySQL
+  scool_test tests / 434 assertions / 148.87s, including uploads, isolation,
+  concurrent invitation acceptance and real worker/Mailpit delivery; original
+  8.2.34 rejection and two unsafe INI override rejection checks passed. Setup
+  helpers: 19 regressions. This is not a full suite on the publication revision.
+- Live local app/queue are PHP 8.2.35 with hardening and patched Brotli, healthy
+  at http://127.0.0.1:8080. Real daemon smoke handled its unique marker exactly
+  once. Existing development row counts, .env checksum, database volume identity
+  and all 313 storage/app files were preserved; no reset, reseed or inbox clearing.
+- Azure already ran PHP 8.2.35. Separately authorized, backed-up private Compose
+  mounts disable upload progress for app/queue; HTTPS health returned 200 and
+  pending/failed jobs were zero. Its existing image/source/secrets were retained.
+  Azure Brotli remains 1.2.0-r1: additional image replacement was explicitly
+  deferred by the owner. This PR does not deploy Azure or CloudPanel.
+- Publication-base `bash scripts/test-sync-local.sh`: 45 mocked cases passed;
+  shell syntax, workflow YAML, scoped diff and agent contract passed. Remote CI
+  and independent PR approval must be verified before merge. No full-suite, browser or cross-host sync claim
+  is inferred from the bounded local evidence above.

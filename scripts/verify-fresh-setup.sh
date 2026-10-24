@@ -59,7 +59,7 @@ if [[ "$mode" == bootstrap ]]; then
     [[ -z "$existing$named$volumes" ]] || { fail 'Bootstrap refuses an existing stack/volume. Nothing was deleted.'; exit 1; }
     # Noclobber protects an env file created concurrently; never overwrite an existing key.
     (set -o noclobber; while IFS= read -r line || [[ -n "$line" ]]; do printf '%s\n' "$line"; done < .env.example > .env)
-    run 'PHP image build' "${compose[@]}" build app queue
+    run 'Patched PHP image build' "${compose[@]}" build --pull app queue
     run 'Composer install' "${compose[@]}" run --rm --no-deps app composer install --no-interaction --prefer-dist
     run 'Application key' "${compose[@]}" run --rm --no-deps app php artisan key:generate --no-interaction
     run 'Frontend lockfile install' npm ci
@@ -84,6 +84,9 @@ for service in app nginx mysql mailpit queue; do
     assert_single_id "$service" "$id"
     state=$(run 'Service health' docker inspect --format '{{.State.Status}}|{{if .State.Health}}{{.State.Health.Status}}{{end}}' "$id")
     assert_service_state "$service" "${state//$'\r'/}"
+    if [[ "$service" == app || "$service" == queue ]]; then
+        run 'PHP runtime security gate' "${compose[@]}" exec -T "$service" php /usr/local/bin/scool-verify-php-security.php
+    fi
     [[ "$service" != app ]] || app_id=$id
 done
 owner=$(run 'Checkout ownership' docker inspect --format '{{ index .Config.Labels "com.docker.compose.project.working_dir" }}' "$app_id")
