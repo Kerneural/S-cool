@@ -40,7 +40,7 @@
                 </div>
 
                 <!-- Responsive Secure Video Player (if video URL provided) -->
-                @if ($lesson->embed_url)
+                @if ($lesson->embed_url || $lesson->video_url)
                     <div x-data="{ showVideo: true }" class="space-y-3">
                         <div x-show="showVideo">
                             <x-secure-video-player :url="$lesson->video_url" :title="$lesson->title" />
