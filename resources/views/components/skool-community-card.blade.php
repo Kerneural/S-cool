@@ -12,7 +12,7 @@
         <!-- Cover Image (16:9 Aspect Ratio) -->
         <div class="aspect-[16/9] w-full overflow-hidden bg-slate-900 relative">
             @if ($community->cover_path)
-                <img src="{{ route('communities.cover.show', $community) }}" alt="{{ $community->name }}" class="w-full h-full object-cover">
+                <div class="w-full h-full bg-cover bg-center" :style="{ backgroundImage: 'url(\'' + @js(route('communities.cover.show', $community)) + '\')' }" role="img" aria-label="{{ $community->name }}"></div>
             @else
                 <div class="w-full h-full bg-gradient-to-br from-brand-700 via-teal-800 to-slate-900 flex items-center justify-center p-4">
                     <span class="text-white/90 text-sm font-bold uppercase tracking-wider line-clamp-1">{{ $community->name }}</span>
@@ -77,18 +77,17 @@
                     @if ($member->avatar_path)
                         <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover"
                              src="{{ route('communities.directory.avatar', [$community, $member]) }}"
-                             alt="{{ $member->name }}"
-                             title="{{ $member->name }}">
+                             alt="{{ __('Member') }}">
                     @else
                         <div class="inline-flex items-center justify-center h-8 w-8 rounded-full ring-2 ring-white bg-slate-100 text-slate-700 font-bold text-xs"
-                             title="{{ $member->name }}">
+                             aria-label="{{ __('Member') }}">
                             {{ strtoupper(substr($member->name ?? '?', 0, 1)) }}
                         </div>
                     @endif
                 @empty
                     @if ($community->creator)
                         <div class="inline-flex items-center justify-center h-8 w-8 rounded-full ring-2 ring-white bg-amber-100 text-amber-800 font-bold text-xs"
-                             title="{{ $community->creator->name }}">
+                             aria-label="{{ __('Creator') }}">
                             {{ strtoupper(substr($community->creator->name, 0, 1)) }}
                         </div>
                     @endif

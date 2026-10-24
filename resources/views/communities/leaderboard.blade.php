@@ -46,6 +46,11 @@
                         <p class="text-xs font-semibold text-[#3B82F6] mt-1">
                             {{ __('Level :level', ['level' => $userLevel]) }}
                         </p>
+                        @if ($userLevel >= 5 || ($userProgress['level'] ?? 1) >= 5)
+                            <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                                {{ __('Maximum Level Reached') }}
+                            </span>
+                        @endif
                     </div>
 
                     <!-- Right Column: 2-Column Grid of 9 Levels -->
