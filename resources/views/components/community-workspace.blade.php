@@ -9,12 +9,6 @@
 @endphp
 
 <div class="space-y-4">
-    @if ($community->cover_path && $activeTab === 'about')
-        <div class="relative w-full h-32 sm:h-44 rounded-xl overflow-hidden shadow-2xs border border-line">
-            <img src="{{ route('communities.cover.show', $community) }}" alt="{{ $community->name }}" class="w-full h-full object-cover">
-        </div>
-    @endif
-
     <div class="bg-surface rounded-xl shadow-2xs border border-line p-4 sm:p-5">
         <!-- Compact community identity and mode controls -->
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">

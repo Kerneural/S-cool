@@ -23,9 +23,9 @@ class LocalDemoSyncTest extends TestCase
         $this->seed(LocalDemoSyncSeeder::class);
 
         $this->assertSame(5, User::count());
-        $this->assertSame(9, Community::count());
-        $this->assertSame(9, Course::count());
-        $this->assertSame(18, count(Storage::disk('community_media')->allFiles()));
+        $this->assertSame(10, Community::count());
+        $this->assertSame(63, Course::count());
+        $this->assertSame(73, count(Storage::disk('community_media')->allFiles()));
         $member = User::where('email', 'member@scool.local')->firstOrFail();
         $this->actingAs($member);
         foreach (Community::all() as $community) {

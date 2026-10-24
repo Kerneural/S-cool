@@ -3,8 +3,10 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
             <x-community-workspace :community="$community" active-tab="directory" />
 
-            <!-- Directory Toolbar -->
-            <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-5 sm:p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <div class="min-w-0 lg:col-span-8 space-y-6">
+                    <!-- Directory Toolbar -->
+                    <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-5 sm:p-6">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
                         <h1 class="font-bold text-xl text-slate-900 tracking-tight">{{ __('Community Members') }}</h1>
@@ -95,6 +97,13 @@
                         {{ $members->links() }}
                     </div>
                 @endif
+                    </div>
+                </div>
+
+                <!-- Context Sidebar Column with Skool Community Card -->
+                <aside class="min-w-0 lg:col-span-4 space-y-6">
+                    <x-skool-community-card :community="$community" />
+                </aside>
             </div>
         </div>
     </div>
