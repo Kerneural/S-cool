@@ -19,6 +19,49 @@ A checkpoint is historical context, not current Linear/Git/runtime evidence. Ver
   - Code style: Pint PASS on 300 files (`./vendor/bin/pint --test`).
   - Shared agent contract: PASS (`bash scripts/verify-agent-contract.sh`).
 - Next: Move EUR-71 to In Review, post handoff comment, and present full report to product owner.
+- Follow-up landing layout and motion (2026-10-25, owner request via private handoff; no Linear change):
+  - Checkout `landing-layout-motion` from `main` `f0250e71590cf883afcfe31d3293973163cf8035`; uncommitted diff in `welcome.blade.php`, `app.css`, `app.js`, new `landing-reveal.js`, landing JS/feature tests and `design.md` section 11.8.
+  - Delivered: inset sticky navbar; new hero copy with mesh edge art and captioned screenshot crossfade (leaderboard labeled as such); manual marquee Pause/Resume removed per owner, marquee CSS consolidated (35s, per-row hover/focus pause); Discover -> Discuss -> Learn -> Practice -> Review journey replacing simulated traces; three product pillars replacing invented API snippets; carousel partial next card and active emphasis; static decorative footer wordmark replacing the pointer spotlight; one-time section reveal with visible-by-default fallback.
+  - Also fixed: reduced-motion marquee groups did not wrap, clipping logos beyond the viewport.
+  - Results: `node --test tests/js/*.test.mjs` 42/42 PASS (new tests fail against HEAD via `LANDING_SOURCE_REF=HEAD`: 10 failures); guarded `scool_test` `LandingArtworkMarqueeTest` + `ExampleTest` 2 tests / 23 assertions PASS; `npm run build` PASS (existing font URL warnings); Pint on changed test PASS; `git diff --check` PASS; agent contract PASS. Runtime 127.0.0.1:8080 serves the new build (HTTP 200, manifest hashes match); no horizontal overflow at 320/375/768/1280 CSS px; stage/selector clicks settle on the last choice.
+  - Unverified: normal-motion autoplay/reveal (browser has reduced motion enabled; owner must disable it for the demo); visual screenshots and transitions in the hidden browser pane; real 200% zoom; before/after recording.
+  - Owner correction (2026-10-25, later request): Windows animations are intentionally disabled, but the landing must autoplay without changing OS/browser preferences or adding a motion toggle. Supersedes the preceding reduced-motion demo requirement. Scope: landing HTML root, marquee/reduced-motion CSS, hero/story timers and reveal module; preserve the existing layout, application reduced-motion behavior and all unrelated dirty work. Branch/HEAD remains `landing-layout-motion` / `f0250e71590cf883afcfe31d3293973163cf8035` plus the uncommitted landing diff; no Linear/publication/deployment authority.
+  - Correction delivered: explicit `data-landing-motion="autoplay"` on the landing root, reduced-motion CSS exempting only that page, hero/story autoplay independent of OS motion, and one-time reveals honoring the explicit landing policy. Hover/focus pause, hidden-page timer guards, clone keyboard exclusion and failure-visible reveal fallback remain. `design.md` 11.8 and the private ignored handoff record the revised scope.
+  - Correction verification: 25/25 affected JS tests PASS (`node --test --test-reporter=dot tests/js/landing-motion.test.mjs tests/js/landing-interactions.test.mjs tests/js/landing-reveal.test.mjs`), `npm run build` PASS (existing font-resolution warnings), `git diff --check` PASS. An initial test-only regex incorrectly stopped at Blade's PHP `->`; corrected before the successful run. No PHP/DB mutation was required or performed.
+  - Live canonical browser proof: `http://127.0.0.1:8080/` serves CSS `app--2o26bUY.css`; `prefers-reduced-motion: reduce` remains true, both marquee animations report 35s/running and transforms changed across observations, hero changed from Community to Classroom automatically, and `landing-reveal-ready` is active. Keyboard focus paused only the first logo row; removing focus resumed both. Visible hero screenshot inspected; viewport 1536/document 1521px, no horizontal overflow. Full visual acceptance/200% zoom/recording remain unverified; no claim of full accessibility conformance.
+  - Later owner follow-up (same date): section reveals must replay after scrolling away and back, rather than stop after the first appearance. Removed per-element observer detachment; each viewport exit resets the reveal class and re-entry adds it again, while the same observer remains until teardown. Added a CSS focus-within visibility override; missing observer/setup failure/teardown still leave content visible. Updated the existing three-cycle JS regression, design 11.8 and the private handoff. Affected JS tests 25/25 PASS, build PASS (existing font warnings), diff check PASS; latest runtime assets `app-C4nIOMOb.css` / `app-kFJEA_JX.js`.
+  - Replay browser proof at canonical 8080: three repeated trips between the hero and journey heading each reset the journey reveal to false offscreen and restore true/opacity 1 on return, with a 400ms transition. Journey screenshot inspected. An initial rapid Home/wheel probe raced smooth scrolling and did not reach the target; those observations were not counted as replay evidence. No OS settings, DB, ports, Git publication, Linear or deployment changes.
+
+## Learning reader and application UI follow-up preparation (2026-10-25)
+
+- Authority/AC source: direct owner request to analyze the raw-Markdown lesson,
+  course outline/resources and remaining application UI, prepare implementation
+  handoff, then review the resulting diff. No new Linear issue/status is asserted.
+- Source/runtime verified: `landing-layout-motion` at `f0250e71590cf883afcfe31d3293973163cf8035`
+  plus 10 existing dirty paths; preserve the complete landing diff. `scool_app`
+  binds this checkout to `/var/www/html`, with primary storage/vendor mounts.
+  Canonical origin remains `http://127.0.0.1:8080`. Primary checkout remains
+  `community-directory-local` at `3b1d6c6` with 26 unrelated dirty paths.
+- Confirmed browser/source findings: lesson 848 renders Markdown inside an escaped
+  paragraph (lesson view lines 75-76); no article subheadings are produced. Outline
+  renders all 70 permitted lessons, is static at about 389px on the observed
+  1536px viewport, repeats visible Incomplete labels and starts with unrelated
+  sections. Continuation links are duplicated. Resource lesson 798 has the same
+  rendering problem; Must Have Resources is a CourseSection of lessons, not files.
+  Course 68 puts progress/large cover before its title and has no prominent
+  Start/Continue entry action. Classroom, Feed and Profile were also inspected;
+  Creator/Admin/commerce/guest screens have source inventory only at this point.
+- Preparation: design section 11.9 records the selected reader/outline, Markdown,
+  resource grouping, course overview and motion direction. Root private ignored
+  `contract_handoff.md` replaces the completed landing-only task with a staged
+  implementation/review contract. Baseline images remain local under
+  `.agent/lesson-ux-audit-2026-10-25/`. References are official course-player,
+  curriculum, CommonMark/Laravel and WAI accordion documentation, not visual UAT.
+- Delivery state: documentation/handoff only; no application source, DB, assets,
+  runtime configuration, publication, deployment or Linear state changed. No
+  application tests/build were run for this preparation. Next: implement learning
+  batch first, complete remaining route batches, then review actual diff and
+  canonical browser behavior using the handoff's AC/evidence matrix.
 
 ## EUR-50/51 experience-completion planning amendment (2026-10-16)
 

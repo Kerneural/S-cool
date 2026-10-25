@@ -139,39 +139,153 @@
     }
 }
 
-/* Continuous infinite marquee for partner/community logos */
-@keyframes marquee {
-    0% { transform: translate3d(0, 0, 0); }
-    100% { transform: translate3d(-50%, 0, 0); }
+/* Landing page motion (welcome.blade.php only). One authoritative marquee definition. */
+@keyframes landing-marquee {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-50%, 0, 0); }
 }
 
-@keyframes marquee-reverse {
-    0% { transform: translate3d(-50%, 0, 0); }
-    100% { transform: translate3d(0, 0, 0); }
+@keyframes landing-marquee-reverse {
+    from { transform: translate3d(-50%, 0, 0); }
+    to { transform: translate3d(0, 0, 0); }
 }
 
-.animate-marquee {
-    display: flex !important;
-    width: max-content !important;
+@keyframes landing-rise {
+    from { opacity: 0; transform: translate3d(0, 12px, 0); }
+    to { opacity: 1; transform: none; }
+}
+
+.animate-marquee,
+.animate-marquee-reverse {
+    display: flex;
+    width: max-content;
     will-change: transform;
-    animation: marquee 30s linear infinite !important;
+    animation: landing-marquee 35s linear infinite;
 }
 
 .animate-marquee-reverse {
-    display: flex !important;
-    width: max-content !important;
-    will-change: transform;
-    animation: marquee-reverse 30s linear infinite !important;
+    animation-name: landing-marquee-reverse;
 }
 
+.landing-marquee-row {
+    -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+/* Hover or keyboard focus pauses only the row being used. */
 .animate-marquee:hover,
-.animate-marquee-reverse:hover {
-    animation-play-state: paused !important;
+.animate-marquee-reverse:hover,
+.animate-marquee:focus-within,
+.animate-marquee-reverse:focus-within {
+    animation-play-state: paused;
 }
 
-/* Reduced motion also applies to landing-page decoration. */
+/* Hero copy enters once: 450ms each, 80ms stagger, 12px travel. */
+.landing-rise {
+    animation: landing-rise 450ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(var(--rise-order, 0) * 80ms);
+}
+
+/* Replay on viewport entry; content stays visible unless the observer is running. */
+.landing-reveal-ready [data-reveal]:not(.is-revealed) {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+}
+
+.landing-reveal-ready [data-reveal] {
+    transition: opacity 400ms ease-out, transform 400ms ease-out;
+    transition-delay: var(--reveal-delay, 0ms);
+}
+
+/* Keyboard navigation must never focus visually hidden reveal content. */
+.landing-reveal-ready [data-reveal]:focus-within {
+    opacity: 1;
+    transform: none;
+}
+
+.landing-card {
+    transition: transform 200ms ease-out, box-shadow 200ms ease-out, border-color 200ms ease-out;
+}
+
+.landing-card:hover,
+.landing-card:focus-within {
+    transform: translate3d(0, -3px, 0);
+    border-color: color-mix(in srgb, var(--color-brand) 40%, transparent);
+    box-shadow: 0 10px 24px -12px rgb(15 23 42 / 0.18);
+}
+
+.landing-arrow {
+    display: inline-block;
+    transition: transform 160ms ease-out;
+}
+
+a:hover > .landing-arrow,
+a:focus-visible > .landing-arrow {
+    transform: translate3d(2px, 0, 0);
+}
+
+.landing-fade {
+    transition: opacity 280ms ease-out, visibility 280ms;
+}
+
+.landing-fade-fast {
+    transition: opacity 200ms ease-out, visibility 200ms;
+}
+
+.landing-wordmark {
+    -webkit-text-stroke: 1.5px #94A3B8;
+    color: transparent;
+}
+
 @media (prefers-reduced-motion: reduce) {
-    *, ::before, ::after {
+    html:not([data-landing-motion="autoplay"]) .animate-marquee,
+    html:not([data-landing-motion="autoplay"]) .animate-marquee-reverse {
+        animation: none;
+        transform: none;
+        width: 100%;
+    }
+
+    html:not([data-landing-motion="autoplay"]) .landing-marquee-row {
+        -webkit-mask-image: none;
+        mask-image: none;
+    }
+
+    html:not([data-landing-motion="autoplay"]) .landing-marquee-fade {
+        display: none;
+    }
+
+    html:not([data-landing-motion="autoplay"]) .animate-marquee > div:not([aria-hidden="true"]),
+    html:not([data-landing-motion="autoplay"]) .animate-marquee-reverse > div:not([aria-hidden="true"]) {
+        flex: 1 1 100%;
+        padding-inline: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+        row-gap: 0.75rem;
+    }
+
+    html:not([data-landing-motion="autoplay"]) .animate-marquee > [aria-hidden="true"],
+    html:not([data-landing-motion="autoplay"]) .animate-marquee-reverse > [aria-hidden="true"] {
+        display: none;
+    }
+
+    html:not([data-landing-motion="autoplay"]) .landing-rise {
+        animation: none;
+    }
+
+    html:not([data-landing-motion="autoplay"]) .landing-card:hover,
+    html:not([data-landing-motion="autoplay"]) .landing-card:focus-within,
+    html:not([data-landing-motion="autoplay"]) a:hover > .landing-arrow,
+    html:not([data-landing-motion="autoplay"]) a:focus-visible > .landing-arrow {
+        transform: none;
+    }
+}
+
+/* Keep application reduced motion; the owner-selected landing autoplays independently. */
+@media (prefers-reduced-motion: reduce) {
+    html:not([data-landing-motion="autoplay"]),
+    html:not([data-landing-motion="autoplay"]) *,
+    html:not([data-landing-motion="autoplay"]) ::before,
+    html:not([data-landing-motion="autoplay"]) ::after {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;

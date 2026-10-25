@@ -53,14 +53,15 @@ function carousel() {
     const timer = clock();
     const ticks = [];
     const browser = { reducedMotion: false, matchMedia: () => ({ matches: browser.reducedMotion }) };
-    const globals = { ...timer, window: browser };
+    const page = { hidden: false };
+    const globals = { ...timer, window: browser, document: page };
     const state = Function(...Object.keys(globals), `return (${componentAttribute('activeStory:')});`)(...Object.values(globals));
     state.$nextTick = callback => ticks.push(callback);
     const flushTicks = () => {
         while (ticks.length) ticks.shift()();
     };
     return {
-        state, browser,
+        state, browser, page,
         advance(duration) {
             flushTicks();
             timer.tick(duration);
@@ -110,18 +111,18 @@ test('a dot selection during a wrap is either deferred or survives the pending c
     assert.equal(state.activeStory, accepted ? 2 : 0, 'An accepted dot selection must not be overwritten by a stale wrap');
 });
 
-test('autoplay respects reduced motion including preference changes while open', () => {
+test('landing carousel autoplays independently of OS motion preference changes', () => {
     const { state, browser, advance } = carousel();
     browser.reducedMotion = true;
     state.startAutoplay();
-    advance(12000);
-    assert.equal(state.activeStory, 0);
-    browser.reducedMotion = false;
     advance(6000);
     assert.equal(state.activeStory, 1);
+    browser.reducedMotion = false;
+    advance(6000);
+    assert.equal(state.activeStory, 2);
     browser.reducedMotion = true;
-    advance(12000);
-    assert.equal(state.activeStory, 1);
+    advance(6000);
+    assert.equal(state.activeStory, 3);
 });
 
 test('autoplay pauses during interaction and stops when the component is destroyed', () => {
@@ -138,65 +139,28 @@ test('autoplay pauses during interaction and stops when the component is destroy
     assert.equal(state.activeStory, 1);
 });
 
-function copyButtons() {
-    const components = [...source.matchAll(/x-data="([^"]*)"/gs)].filter(match => match[1].includes('copied:'));
-    const handlers = [...source.matchAll(/@click="([^"]*navigator\.clipboard[^\"]*)"/gs)];
-    assert.equal(components.length, 3);
-    assert.equal(handlers.length, components.length);
-    return components.map((component, index) => ({ component: decodeAttribute(component[1]), handler: decodeAttribute(handlers[index][1]) }));
-}
-
-const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
-
-function copyState(button, navigator) {
-    const timer = clock();
-    const state = Function(`return (${button.component});`)();
-    const click = new AsyncFunction('state', 'navigator', 'setTimeout', `with (state) { ${button.handler} }`);
-    return { state, timer, click: () => click(state, navigator, timer.setTimeout) };
-}
-
-test('each copy button waits for clipboard confirmation before showing success', async () => {
-    for (const button of copyButtons()) {
-        let resolveWrite;
-        let written;
-        const pending = new Promise(resolve => { resolveWrite = resolve; });
-        const { state, timer, click } = copyState(button, { clipboard: { writeText: value => { written = value; return pending; } } });
-        const completion = click();
-        assert.equal(state.copied, false, 'A pending clipboard write is not success');
-        assert.equal(written, state.code);
-        resolveWrite();
-        await completion;
-        assert.equal(state.copied, true);
-        timer.tick(2000);
-        assert.equal(state.copied, false);
-    }
+test('autoplay does not advance while the page is hidden', () => {
+    const { state, page, advance } = carousel();
+    state.startAutoplay();
+    page.hidden = true;
+    advance(18000);
+    assert.equal(state.activeStory, 0);
+    page.hidden = false;
+    advance(6000);
+    assert.equal(state.activeStory, 1);
+    state.destroy();
 });
 
-test('each copy button reports clipboard denial and can retry successfully', async () => {
-    for (const button of copyButtons()) {
-        let rejectWrite;
-        const denied = new Promise((_, reject) => { rejectWrite = reject; });
-        // Prevent the original fire-and-forget handler from leaking an unhandled rejection during the red run.
-        denied.catch(() => {});
-        const navigator = { clipboard: { writeText: () => denied } };
-        const { state, click } = copyState(button, navigator);
-        const completion = click();
-        rejectWrite(new Error('NotAllowedError'));
-        await completion;
-        assert.equal(state.copied, false);
-        assert.equal(state.copyError, true);
-        navigator.clipboard.writeText = async () => {};
-        await click();
-        assert.equal(state.copyError, false);
-        assert.equal(state.copied, true);
-    }
+test('product cards show real product visuals instead of fabricated API snippets', () => {
+    assert.ok(!source.includes('navigator.clipboard'), 'No copy-to-clipboard code samples remain');
+    assert.ok(!/ProofOfWork::submit|Community::create|->evaluate\(\)/.test(source), 'No invented API calls are presented');
+    assert.match(source, /'eyebrow' => 'Practical review'/, 'Practical review is explained as its own pillar');
 });
 
-test('each copy button handles an unavailable clipboard without reporting success', async () => {
-    for (const button of copyButtons()) {
-        const { state, click } = copyState(button, {});
-        await click();
-        assert.equal(state.copied, false);
-        assert.equal(state.copyError, true);
-    }
+test('learning journey offers the five real stages and never labels the leaderboard as review', () => {
+    const stages = [...source.matchAll(/'name' => '(\w+)',\n\s*'title'/g)].map(match => match[1]);
+    assert.deepEqual(stages, ['Discover', 'Discuss', 'Learn', 'Practice', 'Review']);
+    const journey = source.slice(source.indexOf('$journeyStages = ['), source.indexOf('<!-- 3. Product pillars'));
+    assert.ok(!journey.includes('product-proof-of-work.png'), 'The leaderboard capture is not used for Practice/Review');
+    assert.ok(journey.includes('Illustration — simplified view, not a screenshot or real data.'));
 });

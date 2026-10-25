@@ -4,9 +4,12 @@ import { readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
 const viewPath = 'resources/views/welcome.blade.php';
-const source = process.env.LANDING_SOURCE_REF
-    ? execFileSync('git', ['show', `${process.env.LANDING_SOURCE_REF}:${viewPath}`], { encoding: 'utf8' })
-    : readFileSync(new URL(`../../${viewPath}`, import.meta.url), 'utf8');
+const cssPath = 'resources/css/app.css';
+const read = path => process.env.LANDING_SOURCE_REF
+    ? execFileSync('git', ['show', `${process.env.LANDING_SOURCE_REF}:${path}`], { encoding: 'utf8' })
+    : readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8');
+const source = read(viewPath);
+const css = read(cssPath);
 
 function component(marker) {
     const match = [...source.matchAll(/x-data="([^"]*)"/gs)].find(attribute => attribute[1].includes(marker));
@@ -140,58 +143,107 @@ test('without IntersectionObserver the counters retain their static final fallba
     assert.equal(env.frames.size, 0);
 });
 
-test('the decorative watermark ignores pointer motion while reduced motion is enabled', () => {
-    const env = environment();
-    const state = env.instantiate('mouseX:');
-    state.updatePos({ clientX: 40, clientY: 70 });
-    assert.deepEqual([state.mouseX, state.mouseY], [30, 50]);
-    env.preferReducedMotion(true);
-    state.updatePos({ clientX: 100, clientY: 200 });
-    assert.deepEqual([state.mouseX, state.mouseY], [30, 50]);
+test('the footer wordmark is static decoration excluded from the accessibility tree', () => {
+    assert.ok(!source.includes('mouseX:'), 'No pointer-tracking spotlight remains');
+    assert.match(source, /<div[^>]*aria-hidden="true"[^>]*>\s*<span class="landing-wordmark/);
 });
 
-test('marquee manual pause toggles state and persists across pointer leave and focus changes', () => {
-    const env = environment();
-    const state = env.instantiate('manualPaused:');
-    assert.equal(state.manualPaused, false, 'Manual pause is initially false');
-    assert.equal(state.isPaused, false, 'Marquee is initially running');
+function hero({ reduced = false } = {}) {
+    let now = 0;
+    let sequence = 0;
+    const jobs = new Map();
+    const browser = { reducedMotion: reduced, matchMedia: () => ({ matches: browser.reducedMotion }) };
+    const page = { hidden: false };
+    const globals = {
+        window: browser,
+        document: page,
+        setInterval: (callback, delay) => { const id = ++sequence; jobs.set(id, { callback, delay, at: now + delay }); return id; },
+        clearInterval: id => jobs.delete(id),
+    };
+    const attribute = component('heroTimer').replace(/\{\{[^}]*\}\}/g, '3');
+    const state = Function(...Object.keys(globals), `return (${attribute});`)(...Object.values(globals));
+    return {
+        state, browser, page, jobs,
+        advance(duration) {
+            const until = now + duration;
+            for (;;) {
+                const due = [...jobs.values()].filter(job => job.at <= until).sort((a, b) => a.at - b.at)[0];
+                if (!due) break;
+                now = due.at;
+                due.at += due.delay;
+                due.callback();
+            }
+            now = until;
+        },
+    };
+}
 
-    // Pointer hover pauses
-    state.isHovered = true;
-    assert.equal(state.isPaused, true, 'Hovering pauses marquee');
-    state.isHovered = false;
-    assert.equal(state.isPaused, false, 'Leaving resumes when not manually paused');
-
-    // Focus pauses
-    state.isFocused = true;
-    assert.equal(state.isPaused, true, 'Focus within pauses marquee');
-    state.isFocused = false;
-    assert.equal(state.isPaused, false, 'Blur resumes when not manually paused');
-
-    // Explicit manual toggle wins and persists
-    state.togglePause();
-    assert.equal(state.manualPaused, true, 'togglePause activates manual pause');
-    assert.equal(state.isPaused, true, 'Marquee remains paused');
-
-    // Pointer and focus movements cannot unpause a manually paused marquee
-    state.isHovered = true;
-    assert.equal(state.isPaused, true);
-    state.isHovered = false;
-    assert.equal(state.isPaused, true, 'Pointer leave does not resume a manually paused marquee');
-    state.isFocused = false;
-    assert.equal(state.isPaused, true, 'Focus change does not resume a manually paused marquee');
-
-    // Explicit toggle resumes
-    state.togglePause();
-    assert.equal(state.manualPaused, false, 'togglePause deactivates manual pause');
-    assert.equal(state.isPaused, false, 'Marquee resumes after explicit unpause');
+test('hero preview rotates every 8 seconds with a single interval', () => {
+    const { state, jobs, advance } = hero();
+    state.init();
+    assert.equal(jobs.size, 1);
+    advance(7999);
+    assert.equal(state.activeSet, 0);
+    advance(1);
+    assert.equal(state.activeSet, 1);
+    advance(16000);
+    assert.equal(state.activeSet, 0, 'Rotation wraps after the third screenshot');
+    assert.equal(jobs.size, 1, 'No intervals accumulate');
 });
 
-test('marquee markup contains accessible pause/resume control and hides reduced-motion clones', () => {
-    // Assert accessible button and markup contracts
-    assert.ok(source.includes(':aria-pressed="manualPaused ? \'true\' : \'false\'"'), 'Accessible aria-pressed attribute present');
-    assert.ok(source.includes(':aria-label="manualPaused ? \'Resume marquee animation\' : \'Pause marquee animation\'"'), 'Accessible aria-label toggle present');
-    assert.ok(source.includes('aria-hidden="true"'), 'Marquee clones are hidden from assistive technology');
+test('hero pauses for interaction and hidden pages but autoplays despite reduced OS motion', () => {
+    const { state, browser, page, advance } = hero();
+    state.init();
+    state.heroPaused = true;
+    advance(16000);
+    assert.equal(state.activeSet, 0);
+    state.heroPaused = false;
+    page.hidden = true;
+    advance(16000);
+    assert.equal(state.activeSet, 0);
+    page.hidden = false;
+    browser.reducedMotion = true;
+    advance(16000);
+    assert.equal(state.activeSet, 2, 'Owner-selected landing autoplay is independent of OS motion');
+    state.select(2);
+    assert.equal(state.activeSet, 2, 'Manual selection remains immediate');
+    browser.reducedMotion = false;
+    advance(8000);
+    assert.equal(state.activeSet, 0);
+});
+
+test('hero destroy clears the rotation interval', () => {
+    const { state, jobs, advance } = hero();
+    state.init();
+    state.destroy();
+    assert.equal(jobs.size, 0);
+    advance(24000);
+    assert.equal(state.activeSet, 0);
+});
+
+test('hero screenshots, captions and selectors are rendered from one slide list with reserved dimensions', () => {
+    assert.match(source, /'label' => 'Leaderboard', 'image' => 'product-proof-of-work\.png'/, 'The leaderboard capture is labeled as a leaderboard');
+    assert.ok(source.includes('not practical-work verification'), 'Leaderboard caption does not claim review');
+    assert.ok(source.includes('width="1280" height="800"'), 'Screenshot dimensions are reserved');
+});
+
+test('marquee has no manual pause control and pauses only through hover or focus', () => {
+    assert.ok(!source.includes('manualPaused'), 'Manual pause state removed');
+    assert.ok(!/Pause motion|Resume motion/.test(source), 'Visible pause/resume control removed');
+    assert.ok(!source.includes('@keyframes'), 'Marquee keyframes are not duplicated inline in the view');
+    assert.match(css, /\.animate-marquee:hover,[\s\S]*?\.animate-marquee:focus-within,[\s\S]*?animation-play-state: paused;/);
+    assert.equal((css.match(/@keyframes landing-marquee \{/g) || []).length, 1, 'One authoritative marquee keyframe');
+    assert.match(css, /animation: landing-marquee 35s linear infinite;/);
+});
+
+test('autoplay is landing-only; other pages retain the static reduced-motion fallback', () => {
+    const reduced = css.slice(css.indexOf('@media (prefers-reduced-motion: reduce)'));
+    assert.ok(/^<html[^\n]*data-landing-motion="autoplay"/m.test(source), 'Only the landing root opts into autoplay');
+    assert.match(reduced, /html:not\(\[data-landing-motion="autoplay"\]\) \.animate-marquee-reverse \{\s*animation: none;/);
+    assert.match(reduced, /html:not\(\[data-landing-motion="autoplay"\]\) \*,/);
+    assert.match(reduced, /> \[aria-hidden="true"\][\s\S]*?display: none;/);
+    assert.match(reduced, /flex-wrap: wrap;/);
+    const clones = [...source.matchAll(/<!-- Duplicate for seamless infinite loop -->\s*<div[^>]*aria-hidden="true"/g)];
+    assert.equal(clones.length, 2, 'Both duplicate groups are hidden from assistive technology');
     assert.ok(source.includes('tabindex="-1"'), 'Cloned links are excluded from keyboard tab order');
-    assert.ok(source.includes('.marquee-paused .animate-marquee'), 'Paused style selector is wired');
 });

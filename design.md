@@ -617,3 +617,93 @@ access/history/referrals/help; Creator operations; checkout/status; guest/auth;
 Platform Admin. Record each route/role/state, viewport and evidence or blocker in
 the existing issue checkpoint/PR. Apply section 11.5 responsive/accessibility gates
 and section 11.6 motion review. No new standalone coverage/roadmap file is needed.
+
+### 11.8 Landing layout and motion (2026-10-25)
+
+Scope: `resources/views/welcome.blade.php` only. This is the separate landing-page
+motion scope referenced in section 11.6; it does not change application screens.
+
+- Composition: inset sticky navbar, centered hero with one h1 and two CTAs, original
+  mesh art as low-contrast edge framing, captioned product screenshots, resource
+  marquee, five-stage learning journey, three product pillars, labeled example
+  scenarios, closing CTA and a static decorative outlined wordmark.
+- Honesty: every visual matches its label. The leaderboard capture is never presented
+  as practical-work review; illustrative panels are labeled as illustrations. No
+  customer claims, invented metrics, API snippets or subscription success.
+- Motion: CSS transform/opacity, existing Alpine and one small IntersectionObserver
+  reveal module (`resources/js/landing-reveal.js`). Hero entrance 450ms/80ms stagger/
+  12px; reveals replay on viewport re-entry at 400ms; card lift at most 3px; stage/screenshot crossfades
+  200–280ms; marquee about 35s per loop defined once in `resources/css/app.css`.
+  Content stays visible if scripts or the observer fail. Timers pause while the page
+  is hidden and are cleared on teardown.
+- Owner-requested exception: the marquee has no visible Pause/Resume control. It
+  pauses only while the pointer is over, or keyboard focus is inside, the row in use.
+  This narrows the earlier EUR-71 explicit-control requirement; hover/focus pause
+  alone is not a claim of accessibility conformance for moving content.
+- Owner revision (2026-10-25): the landing explicitly uses `data-landing-motion="autoplay"`
+  and runs its marquee, screenshot/scenario rotation and entrance/reveal effects even
+  when Windows/browser reports reduced motion. No OS/browser preference change is
+  required. Hover/focus pause and hidden-page timer guards remain. Application screens
+  retain reduced-motion behavior; this is a landing-only exception, not a claim of
+  full accessibility conformance. Manual selectors, arrows and dots remain available.
+
+### 11.9 Learning reader and application polish follow-up (2026-10-25)
+
+Status: owner-requested implementation direction, not delivered/accepted UI. The
+landing in 11.8 is the retained baseline. Implement the following learning pattern
+first, then apply the existing system to remaining routed screens in functional
+batches. The private root handoff records the dated source observations and work
+sequence; this section owns the reusable visual direction.
+
+- Lesson desktop: compact breadcrumb/context, flexible reading region, 300px right
+  course rail, 24px gap. At wide sizes cap prose around 72ch; body 16-17px with
+  1.7 line height, distinct headings, lists, links, quotes, code and tables. Keep
+  the lesson body in normal document flow. Text-only lessons start with content;
+  video lessons use the existing safe player at its intended aspect ratio.
+- Render lesson Markdown through the installed server-side CommonMark stack, with
+  raw HTML stripped and unsafe link schemes disabled. Style a scoped lesson-prose
+  region instead of assuming an uninstalled typography plugin. Preserve stored
+  content, authored code and ordinary text; source errors are not corrected by
+  silently rewriting the development database. Raw iframe/script HTML is not an
+  alternative to the existing video/media authorization route.
+- Course rail: sticky below the actual header; compact labeled progress; searchable
+  permitted lesson titles; collapsible sections with true lesson/completion counts.
+  Open the current section initially, highlight the current lesson and keep it
+  reachable within the rail. Other sections start collapsed. Use readable titles,
+  neutral incomplete circles and completed checkmarks with accessible state text;
+  remove repeated visible Incomplete labels. Keep draft visibility creator-only.
+- Must Have Resources is an existing section of lessons, not an attachment model.
+  Use the same polished section header/lesson-row pattern for every section, without
+  hardcoded title/ID exceptions. Links open existing lessons; do not invent file
+  downloads, file sizes, durations, prerequisite gates or resource taxonomy.
+- Course overview: title/description and one clear Start/Continue action before a
+  long curriculum; compact progress and balanced cover treatment. Use reusable
+  section accordions and lesson rows. Preserve creator edit/reorder controls in
+  an explicitly labeled management region, including validation reopening.
+- Lesson footer: one completion form and one previous/next navigation region.
+  Completion retains the current server-confirmed progress contract; Next remains
+  navigation, with no silent mark-complete or auto-advance. Contextual questions
+  and practical evidence/review stay discoverable with their current semantics.
+- Mobile/tablet: reading uses available width; put a Course content disclosure
+  control near the lesson heading, not only after a long article. Its panel is
+  keyboard operable, closes without stranded focus and retains a no-JS route to
+  the curriculum. Code/tables may scroll locally; the page itself must reflow.
+- Remaining surfaces use the existing light/teal identity and shared components:
+  discovery/feed/discussion, directory/activity/events/about, inbox/notices,
+  account/access/commerce, creator operations, authentication/help and Admin.
+  Improve task hierarchy, density, primary actions and real error/empty states;
+  do not introduce decorative features or change business/access rules.
+- Interaction motion: 140-180ms control feedback, 180-220ms menus/dialogs,
+  180-240ms outline disclosure and up to 2px card lift. Animate persisted progress
+  only after success. Reading text/video/tables remain stable and immediately
+  readable. No repeated scroll reveals, marquee, autoplay panels or parallax here.
+- Owner motion preference for this follow-up: Windows animations remain disabled.
+  Essential short state feedback must remain perceptible without changing OS or
+  browser settings. Use brief opacity/color feedback in reduced mode while removing
+  translation, lift and height animation. Preserve the landing autoplay exception;
+  do not implement a global force-animation override or add a motion settings UI.
+
+Acceptance remains separate: real populated lesson/resource/course screens, small
+viewports, keyboard/no-JS behavior, progress failure/success and guarded tests must
+be observed on the final runtime. Coverage of remaining routes must be recorded;
+a shared CSS change alone does not establish screen-by-screen completion.

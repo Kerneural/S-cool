@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full scroll-smooth">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full scroll-smooth" data-landing-motion="autoplay">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,30 +12,31 @@
     @livewireStyles
 </head>
 <body class="min-h-screen w-full font-sans antialiased text-ink bg-canvas selection:bg-brand-soft selection:text-brand flex flex-col overflow-x-hidden">
-    <!-- Top Navigation / Header -->
-    <header x-data="{ mobileMenuOpen: false, productsOpen: false, learnOpen: false, scrolled: false }"
+    <!-- Top Navigation / Header: inset, sticky, stable light surface -->
+    <header x-data="{ mobileMenuOpen: false, productsOpen: false, learnOpen: false, scrolled: window.scrollY > 20 }"
             @keydown.escape.stop.prevent="if (productsOpen) $refs.productsTrigger.focus(); else if (learnOpen) $refs.learnTrigger.focus(); else if (mobileMenuOpen) $refs.mobileTrigger.focus(); productsOpen = false; learnOpen = false; mobileMenuOpen = false"
-            x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 20 })"
-            :class="scrolled ? 'bg-surface/90 backdrop-blur-md border-b border-line shadow-xs' : 'bg-surface/75 backdrop-blur-sm border-b border-line/60'"
-            class="sticky top-0 z-50 transition-all duration-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            @scroll.window.passive="scrolled = window.scrollY > 20"
+            class="sticky top-0 z-50 px-3 pt-3 sm:px-4 lg:px-6 lg:pt-4">
+        <div :class="scrolled ? 'shadow-md border-line' : 'shadow-xs border-line/70'"
+             class="max-w-7xl mx-auto rounded-2xl border bg-surface/95 backdrop-blur-md transition-[box-shadow,border-color] duration-[180ms]">
+        <div class="px-4 sm:px-5 h-16 flex items-center justify-between">
             <!-- Left: Brand Logo & Links -->
             <div class="flex items-center gap-8">
-                <a href="/" class="flex items-center gap-2.5 group focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2" aria-label="S-cool Home">
-                    <x-application-logo class="w-8 h-8 rounded-lg shadow-xs group-hover:scale-105 transition-transform" />
+                <a href="/" class="flex items-center gap-2.5 group focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 rounded-lg" aria-label="S-cool Home">
+                    <x-application-logo class="w-8 h-8 rounded-lg shadow-xs" />
                     <span class="font-bold text-xl text-ink tracking-tight font-sans">S-cool</span>
                 </a>
 
                 <!-- Desktop Navigation Menu -->
-                <nav class="hidden md:flex items-center gap-1">
+                <nav class="hidden md:flex items-center gap-1" aria-label="Landing">
                     <!-- Products Dropdown -->
                     <div class="relative" @click.outside="productsOpen = false">
                         <button type="button"
                                 x-ref="productsTrigger" :aria-expanded="productsOpen" aria-controls="landing-products"
                                 @click="productsOpen = !productsOpen; learnOpen = false"
-                                class="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-muted hover:text-ink hover:bg-slate-100/60 rounded-lg transition-colors">
+                                class="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-muted hover:text-ink hover:bg-slate-100/60 rounded-lg transition-colors duration-150">
                             <span>Products</span>
-                            <svg class="w-3.5 h-3.5 text-muted transition-transform duration-200" :class="productsOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg class="w-3.5 h-3.5 text-muted transition-transform duration-200" :class="productsOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
@@ -50,29 +51,29 @@
                              class="absolute left-0 mt-1.5 w-72 bg-surface rounded-xl border border-line shadow-lg p-2 z-50">
                             <a href="{{ route('communities.index') }}" class="flex items-start gap-3 p-2.5 rounded-lg hover:bg-slate-50 transition-colors">
                                 <div class="w-8 h-8 rounded-lg bg-brand-soft text-brand flex items-center justify-center shrink-0">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                                 </div>
                                 <div>
-                                    <div class="text-xs font-semibold text-ink">Community Engine</div>
+                                    <div class="text-xs font-semibold text-ink">Community</div>
                                     <div class="text-[11px] text-muted">Private feeds, member roles & moderation</div>
                                 </div>
                             </a>
                             <a href="{{ route('communities.index') }}" class="flex items-start gap-3 p-2.5 rounded-lg hover:bg-slate-50 transition-colors">
                                 <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                                 </div>
                                 <div>
-                                    <div class="text-xs font-semibold text-ink">Classroom Suite</div>
-                                    <div class="text-[11px] text-muted">Curriculums, video lessons & tracking</div>
+                                    <div class="text-xs font-semibold text-ink">Classroom</div>
+                                    <div class="text-[11px] text-muted">Courses, lessons & completion progress</div>
                                 </div>
                             </a>
                             <a href="{{ route('communities.index') }}" class="flex items-start gap-3 p-2.5 rounded-lg hover:bg-slate-50 transition-colors">
                                 <div class="w-8 h-8 rounded-lg bg-amber-50 text-reward flex items-center justify-center shrink-0">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
                                 </div>
                                 <div>
-                                    <div class="text-xs font-semibold text-ink">Proof of Work</div>
-                                    <div class="text-[11px] text-muted">Peer review rubric & submission feedback</div>
+                                    <div class="text-xs font-semibold text-ink">Practical review</div>
+                                    <div class="text-[11px] text-muted">Submitted work with creator feedback</div>
                                 </div>
                             </a>
                         </div>
@@ -83,9 +84,9 @@
                         <button type="button"
                                 x-ref="learnTrigger" :aria-expanded="learnOpen" aria-controls="landing-learn"
                                 @click="learnOpen = !learnOpen; productsOpen = false"
-                                class="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-muted hover:text-ink hover:bg-slate-100/60 rounded-lg transition-colors">
+                                class="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-muted hover:text-ink hover:bg-slate-100/60 rounded-lg transition-colors duration-150">
                             <span>Learn</span>
-                            <svg class="w-3.5 h-3.5 text-muted transition-transform duration-200" :class="learnOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg class="w-3.5 h-3.5 text-muted transition-transform duration-200" :class="learnOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
@@ -109,35 +110,35 @@
                         </div>
                     </div>
 
-                    <a href="{{ route('help.index') }}" class="px-3 py-2 text-sm font-medium text-muted hover:text-ink hover:bg-slate-100/60 rounded-lg transition-colors">
+                    <a href="{{ route('help.index') }}" class="px-3 py-2 text-sm font-medium text-muted hover:text-ink hover:bg-slate-100/60 rounded-lg transition-colors duration-150">
                         Docs
                     </a>
-                    <a href="{{ route('communities.index') }}" class="px-3 py-2 text-sm font-medium text-muted hover:text-ink hover:bg-slate-100/60 rounded-lg transition-colors">
+                    <a href="{{ route('communities.index') }}" class="px-3 py-2 text-sm font-medium text-muted hover:text-ink hover:bg-slate-100/60 rounded-lg transition-colors duration-150">
                         Communities
                     </a>
-                    <a href="#features" class="px-3 py-2 text-sm font-medium text-muted hover:text-ink hover:bg-slate-100/60 rounded-lg transition-colors">
+                    <a href="#features" class="px-3 py-2 text-sm font-medium text-muted hover:text-ink hover:bg-slate-100/60 rounded-lg transition-colors duration-150">
                         Features
                     </a>
                 </nav>
             </div>
 
             <!-- Right: Action Buttons -->
-            <div class="flex items-center gap-2.5 sm:gap-3">
+            <div class="flex items-center gap-2 sm:gap-3">
                 @auth
                     <a href="{{ route('communities.index') }}"
-                       class="inline-flex items-center gap-1.5 px-4 py-2 bg-brand hover:bg-brand-hover text-white rounded-lg text-xs font-semibold shadow-xs transition-colors">
+                       class="inline-flex items-center gap-1.5 px-4 py-2 bg-brand hover:bg-brand-hover text-white rounded-lg text-xs font-semibold shadow-xs transition-colors duration-150">
                         <span>Dashboard</span>
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        <svg class="landing-arrow w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                     </a>
                 @else
-                    <a href="{{ route('login') }}" class="px-3 py-2 text-xs font-medium text-muted hover:text-ink rounded-lg transition-colors">
+                    <a href="{{ route('login') }}" class="hidden sm:inline-flex px-3 py-2 text-xs font-medium text-muted hover:text-ink rounded-lg transition-colors duration-150">
                         Log In
                     </a>
                     @if (Route::has('register'))
                         <a href="{{ route('register') }}"
-                           class="inline-flex items-center gap-1.5 px-4 py-2 bg-brand hover:bg-brand-hover text-white rounded-lg text-xs font-semibold shadow-xs transition-colors">
+                           class="inline-flex items-center gap-1.5 px-4 py-2 bg-brand hover:bg-brand-hover text-white rounded-lg text-xs font-semibold shadow-xs transition-colors duration-150">
                             <span>Get Started</span>
-                            <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none">
+                            <svg class="landing-arrow w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                                 <path d="M11.9852 4L12 10.7704H10.9314V6.60741L10.9462 5.80741L4.74211 12L4 11.2444L10.2041 5.03704L9.47681 5.05185L5.21707 5.05185V4L11.9852 4Z" fill="currentColor"/>
                             </svg>
                         </a>
@@ -150,7 +151,7 @@
                         @click="mobileMenuOpen = !mobileMenuOpen"
                         class="md:hidden p-2 rounded-lg text-muted hover:text-ink hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                         aria-label="Toggle Menu">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path x-show="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                         <path x-show="mobileMenuOpen" x-cloak stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
@@ -159,10 +160,10 @@
         </div>
 
         <!-- Mobile Menu Drawer -->
-        <div id="landing-mobile-navigation" x-show="mobileMenuOpen" x-cloak class="md:hidden border-b border-line bg-surface px-4 py-3 space-y-2">
-            <a href="{{ route('communities.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-slate-50">Communities</a>
+        <div id="landing-mobile-navigation" x-show="mobileMenuOpen" x-cloak class="md:hidden border-t border-line px-4 py-3 space-y-2">
+            <a href="{{ route('communities.index') }}" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-slate-50">Communities</a>
             <a href="{{ route('help.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-slate-50">Docs & Help Center</a>
-            <a href="#features" class="block px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-slate-50">Features</a>
+            <a href="#features" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-slate-50">Features</a>
             @guest
                 <div class="pt-2 border-t border-line flex flex-col gap-2">
                     <a href="{{ route('login') }}" class="w-full text-center py-2 text-sm font-medium text-muted hover:text-ink">Log In</a>
@@ -170,273 +171,148 @@
                 </div>
             @endguest
         </div>
+        </div>
     </header>
 
     <!-- Main Landing Page Content -->
     <main class="flex-1">
 
         <!-- 1. Hero Section -->
+        @php
+            $heroSlides = [
+                ['label' => 'Community', 'image' => 'product-community-feed.png', 'alt' => 'S-cool Community Feed Screenshot', 'caption' => 'Community Feed — discussions inside a private learning community.'],
+                ['label' => 'Classroom', 'image' => 'product-classroom-outline.png', 'alt' => 'S-cool Classroom Outline Screenshot', 'caption' => 'Classroom Outline — course modules and lesson progress.'],
+                ['label' => 'Leaderboard', 'image' => 'product-proof-of-work.png', 'alt' => 'S-cool Member Leaderboard Screenshot', 'caption' => 'Member Leaderboard — community engagement points, not practical-work verification.'],
+            ];
+        @endphp
         <section x-data="{
                     activeSet: 0,
+                    count: {{ count($heroSlides) }},
                     heroPaused: false,
                     heroTimer: null,
-                    destroy() { clearInterval(this.heroTimer); },
-                    sets: [
-                        { id: 'community', name: 'Community', headline: 'Put insights to work', badge: 'Continuous Improvement', desc: 'Autonomous peer discussion, structured categories, and real-time moderation that elevates member experience.' },
-                        { id: 'classroom', name: 'Classroom', headline: 'Smarter after every launch', badge: 'Compound Knowledge', desc: 'Turn progressive course curriculums and video modules into structured completion rubrics that scale effortlessly.' },
-                        { id: 'verification', name: 'Verification', headline: 'We catch your drift', badge: 'Proof of Work', desc: 'Verifiable deliverable submissions, peer reviews, and transparent scoring that validate genuine student outcomes.' }
-                    ]
+                    init() {
+                        this.heroTimer = setInterval(() => this.advance(), 8000);
+                    },
+                    advance() {
+                        if (this.heroPaused || document.hidden) return;
+                        this.activeSet = (this.activeSet + 1) % this.count;
+                    },
+                    select(idx) {
+                        this.activeSet = idx;
+                    },
+                    destroy() {
+                        clearInterval(this.heroTimer);
+                        this.heroTimer = null;
+                    }
                  }"
-                 x-init="heroTimer = setInterval(() => { if (!heroPaused && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) activeSet = (activeSet + 1) % sets.length }, 8000)"
-                 @mouseenter="heroPaused = true" @mouseleave="heroPaused = false"
-                 @focusin="heroPaused = true" @focusout="heroPaused = $el.contains($event.relatedTarget)"
-                 class="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-28 bg-canvas">
+                 class="relative overflow-hidden -mt-20 pt-32 pb-20 md:pt-40 md:pb-24 bg-canvas">
 
-            <!-- Atmospheric Subtle Brand Glows (per design.md restrained accents) -->
+            <!-- Atmospheric subtle brand glow -->
             <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[450px] bg-gradient-to-b from-brand/10 via-brand-soft to-transparent blur-[110px] pointer-events-none rounded-full" aria-hidden="true"></div>
-            <div class="absolute top-40 right-[-80px] w-[450px] h-[350px] bg-teal-500/5 blur-[120px] pointer-events-none rounded-full" aria-hidden="true"></div>
 
             <!-- Fine Decorative Grid Pattern -->
             <div class="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f080_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f080_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" aria-hidden="true"></div>
 
+            <!-- Original symbolic mesh framing the copy from both edges (decorative, AC-01) -->
+            <div class="hidden lg:block absolute top-24 left-0 w-[30vw] max-w-[420px] h-[520px] overflow-hidden pointer-events-none opacity-30 [mask-image:linear-gradient(to_right,#000_40%,transparent)]" aria-hidden="true">
+                <img src="{{ asset('images/landing/hero-symbolic-mesh.svg') }}" alt="" width="1000" height="700"
+                     class="h-full w-auto max-w-none object-cover object-left select-none" loading="eager"
+                     onerror="this.parentElement.style.display='none'" />
+            </div>
+            <div class="hidden lg:block absolute top-24 right-0 w-[30vw] max-w-[420px] h-[520px] overflow-hidden pointer-events-none opacity-30 [mask-image:linear-gradient(to_left,#000_40%,transparent)]" aria-hidden="true">
+                <img src="{{ asset('images/landing/hero-symbolic-mesh.svg') }}" alt="" width="1000" height="700"
+                     class="absolute right-0 h-full w-auto max-w-none select-none" loading="eager"
+                     onerror="this.parentElement.style.display='none'" />
+            </div>
+
             <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <!-- Theme / Set Switcher Pill -->
                 <div class="flex flex-col items-center justify-center text-center">
-                    <div class="inline-flex max-w-full flex-wrap justify-center items-center gap-1.5 p-1 rounded-full bg-surface border border-line shadow-xs mb-6">
-                        <span class="px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand bg-brand-soft rounded-full">
-                            Engine v2.0
-                        </span>
-                        <div class="flex items-center gap-1">
-                            <template x-for="(set, idx) in sets" :key="set.id">
-                                <button type="button"
-                                        @click="activeSet = idx"
-                                        :class="activeSet === idx ? 'bg-brand text-white shadow-xs' : 'text-muted hover:text-ink hover:bg-slate-100'"
-                                        class="px-3 py-1 text-xs font-medium rounded-full transition-all"
-                                        x-text="set.name">
-                                </button>
-                            </template>
-                        </div>
-                    </div>
-
-                    <!-- Main Dynamic Headline -->
-                    <div class="max-w-4xl mx-auto space-y-4">
-                        <h1 class="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-ink font-sans">
-                            Meet <span class="bg-gradient-to-r from-brand via-teal-700 to-emerald-600 bg-clip-text text-transparent">S-cool Engine</span>
-                            <span class="inline-block text-brand text-3xl sm:text-5xl lg:text-6xl">&nearr;</span>
+                    <div class="max-w-4xl mx-auto space-y-5">
+                        <h1 class="landing-rise text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-ink font-sans text-balance" style="--rise-order: 0">
+                            Build a community where <span class="text-brand">learning becomes practice.</span>
                         </h1>
-
-                        <!-- Dynamic Alternating Sub-heading with smooth transition -->
-                        <div class="min-h-[44px] sm:min-h-[56px] flex items-center justify-center">
-                            <h2 class="text-2xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-brand transition-all duration-300"
-                                x-text="sets[activeSet].headline">
-                            </h2>
-                        </div>
-
-                        <p class="max-w-2xl mx-auto text-base sm:text-lg text-muted font-normal leading-relaxed"
-                           x-text="sets[activeSet].desc">
+                        <p class="landing-rise max-w-2xl mx-auto text-base sm:text-lg text-muted font-normal leading-relaxed" style="--rise-order: 1">
+                            Bring discussions, structured courses and creator feedback into one learning space.
                         </p>
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="pt-8 flex flex-wrap items-center justify-center gap-3.5">
+                    <div class="landing-rise pt-8 flex flex-wrap items-center justify-center gap-3" style="--rise-order: 2">
                         <a href="{{ route('communities.index') }}"
-                           class="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-semibold text-white bg-brand hover:bg-brand-hover rounded-lg shadow-sm transition-all group">
+                           class="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-semibold text-white bg-brand hover:bg-brand-hover rounded-lg shadow-sm transition-colors duration-150">
                             <span>Explore Communities</span>
-                            <svg class="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" viewBox="0 0 16 16" fill="none">
+                            <svg class="landing-arrow w-4 h-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                                 <path d="M11.9852 4L12 10.7704H10.9314V6.60741L10.9462 5.80741L4.74211 12L4 11.2444L10.2041 5.03704L9.47681 5.05185L5.21707 5.05185V4L11.9852 4Z" fill="currentColor"/>
                             </svg>
                         </a>
 
                         <a href="{{ route('help.index') }}"
-                           class="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-medium text-ink bg-surface hover:bg-slate-50 border border-line rounded-lg shadow-xs transition-all">
-                            <span>Platform Guidelines</span>
-                            <svg class="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                           class="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-medium text-ink bg-surface hover:bg-slate-50 border border-line hover:border-slate-300 rounded-lg shadow-xs transition-colors duration-150">
+                            <span>How S-cool works</span>
+                            <svg class="landing-arrow w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                         </a>
                     </div>
 
-                    <!-- Composed Hero Artwork & Faithful Product Visuals (AC-01, AC-02) -->
-                    <div class="mt-12 relative max-w-5xl mx-auto w-full">
-                        <div class="relative rounded-2xl border border-line/80 bg-surface/90 p-3 sm:p-5 shadow-xl backdrop-blur-xs overflow-hidden">
-                            <!-- Showcase Canvas Area -->
-                            <div class="relative w-full aspect-16/10 sm:aspect-16/9 min-h-[300px] sm:min-h-[420px] rounded-xl overflow-hidden bg-slate-900/5 flex items-center justify-center border border-line/50">
-                                <!-- Original Symbolic S-cool Hero Illustration (AC-01) -->
-                                <img src="{{ asset('images/landing/hero-symbolic-mesh.svg') }}"
-                                     alt="S-cool Knowledge, Community and Proof-of-Work Symbolic Constellation"
-                                     class="w-full h-full object-contain pointer-events-none select-none transition-opacity duration-300"
-                                     loading="eager"
-                                     onerror="this.style.display='none'" />
+                    <!-- Product preview: selectors, crossfading genuine screenshots and matching captions (AC-02) -->
+                    <div class="mt-14 relative max-w-5xl mx-auto w-full"
+                         @mouseenter="heroPaused = true" @mouseleave="heroPaused = false"
+                         @focusin="heroPaused = true" @focusout="heroPaused = $el.contains($event.relatedTarget)">
+                        <div class="flex justify-center mb-4">
+                            <div class="inline-flex max-w-full flex-wrap justify-center gap-1 p-1 rounded-full bg-surface border border-line shadow-xs" role="group" aria-label="Product preview">
+                                @foreach ($heroSlides as $index => $slide)
+                                    <button type="button"
+                                            @click="select({{ $index }})"
+                                            :aria-pressed="activeSet === {{ $index }} ? 'true' : 'false'"
+                                            :class="{ 'bg-brand text-white shadow-xs': activeSet === {{ $index }}, 'text-muted hover:text-ink hover:bg-slate-100': activeSet !== {{ $index }} }"
+                                            class="px-4 py-1.5 text-xs font-medium rounded-full transition-colors duration-150 {{ $index === 0 ? 'bg-brand text-white shadow-xs' : 'text-muted hover:text-ink hover:bg-slate-100' }}">
+                                        {{ $slide['label'] }}
+                                    </button>
+                                @endforeach
+                            </div>
+                        </div>
 
-                                <!-- Floating Genuine Product Visual Previews linked to activeSet (AC-02) -->
-                                <div class="absolute inset-0 p-3 sm:p-6 flex items-end justify-center pointer-events-none">
-                                    <!-- Set 0: Community Feed Preview -->
-                                    <div x-show="activeSet === 0"
-                                         x-transition:enter="transition ease-out duration-300"
-                                         x-transition:enter-start="opacity-0 translate-y-4 scale-95"
-                                         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                                         class="w-full max-w-2xl bg-surface/95 backdrop-blur-md rounded-xl border border-line shadow-2xl overflow-hidden pointer-events-auto">
-                                        <div class="px-4 py-2 bg-slate-50/90 border-b border-line flex items-center justify-between text-xs">
-                                            <div class="flex items-center gap-2">
-                                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                                                <span class="font-semibold text-ink">Genuine Product Visual: Community Feed</span>
-                                            </div>
-                                            <span class="text-muted text-[11px] font-mono">/communities/the-ai-advantage</span>
-                                        </div>
-                                        <div class="relative aspect-16/9 max-h-[240px] sm:max-h-[280px] overflow-hidden bg-slate-100">
-                                            <img src="{{ asset('images/landing/product/product-community-feed.png') }}"
-                                                 alt="S-cool Community Feed Screenshot"
-                                                 class="w-full h-full object-cover object-top"
-                                                 onerror="this.style.display='none'" />
-                                        </div>
-                                    </div>
-
-                                    <!-- Set 1: Classroom Curriculum Preview -->
-                                    <div x-show="activeSet === 1"
-                                         x-cloak
-                                         x-transition:enter="transition ease-out duration-300"
-                                         x-transition:enter-start="opacity-0 translate-y-4 scale-95"
-                                         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                                         class="w-full max-w-2xl bg-surface/95 backdrop-blur-md rounded-xl border border-line shadow-2xl overflow-hidden pointer-events-auto">
-                                        <div class="px-4 py-2 bg-slate-50/90 border-b border-line flex items-center justify-between text-xs">
-                                            <div class="flex items-center gap-2">
-                                                <span class="w-2.5 h-2.5 rounded-full bg-brand"></span>
-                                                <span class="font-semibold text-ink">Genuine Product Visual: Classroom Outline</span>
-                                            </div>
-                                            <span class="text-muted text-[11px] font-mono">/communities/the-ai-advantage/classroom</span>
-                                        </div>
-                                        <div class="relative aspect-16/9 max-h-[240px] sm:max-h-[280px] overflow-hidden bg-slate-100">
-                                            <img src="{{ asset('images/landing/product/product-classroom-outline.png') }}"
-                                                 alt="S-cool Classroom Outline Screenshot"
-                                                 class="w-full h-full object-cover object-top"
-                                                 onerror="this.style.display='none'" />
-                                        </div>
-                                    </div>
-
-                                    <!-- Set 2: Proof of Work Verification Preview -->
-                                    <div x-show="activeSet === 2"
-                                         x-cloak
-                                         x-transition:enter="transition ease-out duration-300"
-                                         x-transition:enter-start="opacity-0 translate-y-4 scale-95"
-                                         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                                         class="w-full max-w-2xl bg-surface/95 backdrop-blur-md rounded-xl border border-line shadow-2xl overflow-hidden pointer-events-auto">
-                                        <div class="px-4 py-2 bg-slate-50/90 border-b border-line flex items-center justify-between text-xs">
-                                            <div class="flex items-center gap-2">
-                                                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                                                <span class="font-semibold text-ink">Genuine Product Visual: Member Leaderboard</span>
-                                            </div>
-                                            <span class="text-muted text-[11px] font-mono">/communities/the-ai-advantage/leaderboard</span>
-                                        </div>
-                                        <div class="relative aspect-16/9 max-h-[240px] sm:max-h-[280px] overflow-hidden bg-slate-100">
-                                            <img src="{{ asset('images/landing/product/product-proof-of-work.png') }}"
-                                                 alt="S-cool Member Leaderboard Screenshot"
-                                                 class="w-full h-full object-cover object-top"
-                                                 onerror="this.style.display='none'" />
-                                        </div>
-                                    </div>
-                                </div>
+                        <div class="relative rounded-2xl border border-line/80 bg-surface p-2 sm:p-3 shadow-xl">
+                            <div class="relative w-full aspect-[16/10] rounded-xl overflow-hidden bg-slate-100 border border-line/60">
+                                @foreach ($heroSlides as $index => $slide)
+                                    <img src="{{ asset('images/landing/product/'.$slide['image']) }}"
+                                         alt="{{ $slide['alt'] }}"
+                                         width="1280" height="800"
+                                         loading="{{ $index === 0 ? 'eager' : 'lazy' }}"
+                                         :class="{ 'opacity-0 invisible': activeSet !== {{ $index }} }"
+                                         class="landing-fade absolute inset-0 w-full h-full object-cover object-top {{ $index === 0 ? '' : 'opacity-0 invisible' }}"
+                                         onerror="this.style.display='none'" />
+                                @endforeach
                             </div>
 
                             <!-- Caption distinguishing literal screenshots from symbolic art (AC-02) -->
-                            <div class="mt-3 px-2 sm:px-3 py-1 flex flex-wrap items-center justify-between gap-2 text-xs text-muted">
-                                <span>Symbolic Knowledge Constellation (original art) with live demo screenshots.</span>
-                                <span class="font-mono text-[11px]">S-cool Engine v2.0 • Curated Demo Catalog</span>
+                            <div class="grid mt-2.5 px-2 sm:px-3 py-1 text-left text-xs text-muted">
+                                @foreach ($heroSlides as $index => $slide)
+                                    <p :class="{ 'opacity-0 invisible': activeSet !== {{ $index }} }"
+                                       class="landing-fade col-start-1 row-start-1 {{ $index === 0 ? '' : 'opacity-0 invisible' }}">
+                                        <span class="font-semibold text-ink">Live demo screenshot:</span> {{ $slide['caption'] }}
+                                    </p>
+                                @endforeach
                             </div>
                         </div>
+                        <p class="mt-3 text-[11px] text-muted">Symbolic Knowledge Constellation (original art) with live demo screenshots.</p>
                     </div>
-
-                    </div>
+                </div>
             </div>
 
-            <!-- Continuous Infinite Logo Marquee Flow (Full-Width Edge-to-Edge) (AC-03, AC-04) -->
-            <div x-data="{
-                     manualPaused: false,
-                     isHovered: false,
-                     isFocused: false,
-                     get isPaused() {
-                         return this.manualPaused || this.isHovered || this.isFocused;
-                     },
-                     togglePause() {
-                         this.manualPaused = !this.manualPaused;
-                     }
-                 }"
-                 @mouseenter="isHovered = true"
-                 @mouseleave="isHovered = false"
-                 @focusin="isFocused = true"
-                 @focusout="isFocused = $el.contains($event.relatedTarget)"
-                 :class="{ 'marquee-paused': isPaused }"
-                 class="w-full pt-16 border-t border-line/60 mt-16 text-center overflow-hidden">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <p class="text-xs uppercase tracking-widest text-muted font-medium text-center sm:text-left">
+            <!-- Continuous logo marquee: owner-selected autoplay, independent of OS motion preferences; hover/focus pauses the row in use. -->
+            <div class="w-full pt-14 border-t border-line/60 mt-16 text-center overflow-hidden">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
+                    <p class="text-xs uppercase tracking-widest text-muted font-medium">
                         Learning resources and communities — independent links, not partnerships
                     </p>
-                    <!-- Accessible Marquee Pause/Resume Button (AC-03) -->
-                    <button type="button"
-                            @click="togglePause()"
-                            :aria-pressed="manualPaused ? 'true' : 'false'"
-                            :aria-label="manualPaused ? 'Resume marquee animation' : 'Pause marquee animation'"
-                            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-surface border border-line text-slate-700 hover:text-ink hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand shadow-2xs transition-colors shrink-0 cursor-pointer">
-                        <svg x-show="!manualPaused" class="w-3.5 h-3.5 text-muted" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                        </svg>
-                        <svg x-show="manualPaused" x-cloak class="w-3.5 h-3.5 text-brand" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
-                        </svg>
-                        <span x-text="manualPaused ? 'Resume motion' : 'Pause motion'"></span>
-                    </button>
                 </div>
 
-                    <!-- Scoped styles to guarantee marquee animation regardless of browser cache or reduced-motion defaults -->
-                    <style>
-                        @keyframes marquee {
-                            0% { transform: translate3d(0, 0, 0); }
-                            100% { transform: translate3d(-50%, 0, 0); }
-                        }
-                        @keyframes marquee-reverse {
-                            0% { transform: translate3d(-50%, 0, 0); }
-                            100% { transform: translate3d(0, 0, 0); }
-                        }
-                        .animate-marquee {
-                            display: flex !important;
-                            width: max-content !important;
-                            will-change: transform;
-                            animation: marquee 35s linear infinite !important;
-                        }
-                        .animate-marquee-reverse {
-                            display: flex !important;
-                            width: max-content !important;
-                            will-change: transform;
-                            animation: marquee-reverse 35s linear infinite !important;
-                        }
-                        .marquee-paused .animate-marquee,
-                        .marquee-paused .animate-marquee-reverse,
-                        .animate-marquee:hover, .animate-marquee-reverse:hover,
-                        .animate-marquee:focus-within, .animate-marquee-reverse:focus-within {
-                            animation-play-state: paused !important;
-                        }
-                        @media (prefers-reduced-motion: reduce) {
-                            .animate-marquee, .animate-marquee-reverse {
-                                animation: none !important;
-                                transform: none !important;
-                                width: 100% !important;
-                            }
-                            .animate-marquee > div:not([aria-hidden="true"]),
-                            .animate-marquee-reverse > div:not([aria-hidden="true"]) {
-                                flex-wrap: wrap;
-                                justify-content: center;
-                            }
-                            .animate-marquee > [aria-hidden="true"],
-                            .animate-marquee-reverse > [aria-hidden="true"] {
-                                display: none !important;
-                            }
-                        }
-                    </style>
-
                     <!-- Row 1: Leftward infinite flow with side gradient fade transition overlays -->
-                    <div class="relative overflow-hidden group/marquee"
-                         style="-webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent); mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);">
+                    <div class="landing-marquee-row relative overflow-hidden group/marquee">
                         <!-- Left fade transition overlay -->
-                        <div class="pointer-events-none absolute inset-y-0 left-0 w-24 sm:w-44 md:w-64 bg-gradient-to-r from-[#F8FAFC] via-[#F8FAFC]/90 to-transparent z-10 transition-opacity duration-300"></div>
+                        <div aria-hidden="true" class="landing-marquee-fade pointer-events-none absolute inset-y-0 left-0 w-24 sm:w-44 md:w-64 bg-gradient-to-r from-[#F8FAFC] via-[#F8FAFC]/90 to-transparent z-10 transition-opacity duration-300"></div>
                         <!-- Right fade transition overlay -->
-                        <div class="pointer-events-none absolute inset-y-0 right-0 w-24 sm:w-44 md:w-64 bg-gradient-to-l from-[#F8FAFC] via-[#F8FAFC]/90 to-transparent z-10 transition-opacity duration-300"></div>
+                        <div aria-hidden="true" class="landing-marquee-fade pointer-events-none absolute inset-y-0 right-0 w-24 sm:w-44 md:w-64 bg-gradient-to-l from-[#F8FAFC] via-[#F8FAFC]/90 to-transparent z-10 transition-opacity duration-300"></div>
 
                         <div class="animate-marquee py-2 items-center text-muted flex w-max shrink-0">
                             <!-- Group 1 -->
@@ -704,12 +580,11 @@
                     </div>
 
                     <!-- Row 2: Rightward infinite flow with side gradient fade transition overlays -->
-                    <div class="relative overflow-hidden mt-5 group/marquee"
-                         style="-webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent); mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);">
+                    <div class="landing-marquee-row relative overflow-hidden mt-5 group/marquee">
                         <!-- Left fade transition overlay -->
-                        <div class="pointer-events-none absolute inset-y-0 left-0 w-24 sm:w-44 md:w-64 bg-gradient-to-r from-[#F8FAFC] via-[#F8FAFC]/90 to-transparent z-10 transition-opacity duration-300"></div>
+                        <div aria-hidden="true" class="landing-marquee-fade pointer-events-none absolute inset-y-0 left-0 w-24 sm:w-44 md:w-64 bg-gradient-to-r from-[#F8FAFC] via-[#F8FAFC]/90 to-transparent z-10 transition-opacity duration-300"></div>
                         <!-- Right fade transition overlay -->
-                        <div class="pointer-events-none absolute inset-y-0 right-0 w-24 sm:w-44 md:w-64 bg-gradient-to-l from-[#F8FAFC] via-[#F8FAFC]/90 to-transparent z-10 transition-opacity duration-300"></div>
+                        <div aria-hidden="true" class="landing-marquee-fade pointer-events-none absolute inset-y-0 right-0 w-24 sm:w-44 md:w-64 bg-gradient-to-l from-[#F8FAFC] via-[#F8FAFC]/90 to-transparent z-10 transition-opacity duration-300"></div>
 
                         <div class="animate-marquee-reverse py-2 items-center text-muted flex w-max shrink-0">
                             <!-- Group 2 -->
@@ -964,378 +839,204 @@
                 </div>
         </section>
 
-        <!-- 2. Lifecycle Section ("Accelerating the Community Learning Lifecycle") -->
+        <!-- 2. Learning journey: Discover -> Discuss -> Learn -> Practice -> Review -->
+        @php
+            $journeyStages = [
+                [
+                    'name' => 'Discover',
+                    'title' => 'Find a community that matches what you want to learn.',
+                    'points' => ['Browse public communities and their descriptions', 'Join a free community or request an invitation to a private one', 'Open the community you belong to from one dashboard'],
+                    'visual' => 'directory',
+                ],
+                [
+                    'name' => 'Discuss',
+                    'title' => 'Ask questions and share progress in the community feed.',
+                    'points' => ['Post in categories chosen by the creator', 'Comment, react and save useful discussions', 'Search discussions inside the communities you can access'],
+                    'visual' => 'product-community-feed.png',
+                    'alt' => 'S-cool Community Feed Screenshot',
+                    'caption' => 'Live demo screenshot: Community Feed',
+                ],
+                [
+                    'name' => 'Learn',
+                    'title' => 'Follow structured courses at your own pace.',
+                    'points' => ['Work through modules and lessons in order', 'Mark lessons complete and see your course progress', 'Return to the next unfinished lesson'],
+                    'visual' => 'product-classroom-outline.png',
+                    'alt' => 'S-cool Classroom Outline Screenshot',
+                    'caption' => 'Live demo screenshot: Classroom Outline',
+                ],
+                [
+                    'name' => 'Practice',
+                    'title' => 'Turn a lesson into practical work you can show.',
+                    'points' => ['Submit a link, notes or image for lessons that ask for practical work', 'Keep a draft until you are ready to send it', 'Completing a lesson is tracked separately from submitted work'],
+                    'visual' => 'practice',
+                ],
+                [
+                    'name' => 'Review',
+                    'title' => 'Receive feedback from the community creator.',
+                    'points' => ['Creators review waiting submissions from their queue', 'Work is marked Verified, Needs revision or Rejected with feedback', 'Revise and resubmit when changes are requested'],
+                    'visual' => 'review',
+                ],
+            ];
+        @endphp
         <section id="features"
-                 x-data="{
-                    activePhase: 'build',
-                    phases: {
-                        build: {
-                            name: 'Build',
-                            title: 'Build structured courses fast with or without code. Own your curriculum.',
-                            bullets: [
-                                { verb: 'Start', text: 'with proven cohort blueprints, customize lesson structure when you need control' },
-                                { verb: 'Own', text: 'your course outline, video hosting, member access, and community identity' },
-                                { verb: 'Enable', text: 'students to submit verifiable deliverables and assignments naturally' }
-                            ],
-                            badges: ['Classrooms', 'Video Modules', 'Curriculum Outline', 'Cohort Blueprints'],
-                            telemetryTitle: 'Proof-Of-Work Curriculum Builder',
-                            sessionId: '#POW-BUILD-01',
-                            traces: [
-                                { tag: 'INIT', tagClass: 'bg-brand-soft text-brand', label: 'CURRICULUM_INIT', time: '8ms', text: 'Creator @lead published cohort blueprint: Fullstack AI Architecture.' },
-                                { tag: 'OUTLINE', tagClass: 'bg-blue-50 text-blue-700', label: 'SECTION_COMPOSE', time: '14ms', text: 'Structured 6 milestone modules with video embeds & reading notes.' },
-                                { tag: 'RUBRIC', tagClass: 'bg-amber-50 text-amber-700', label: 'EVAL_ATTACH', time: '22ms', text: 'Attached peer review rubric with mandatory repository verification.' },
-                                { tag: 'TIER', tagClass: 'bg-emerald-50 text-emerald-700', label: 'ACCESS_RESTRICT', time: '11ms', text: 'Applied cohort membership gating: Cohort Pioneer Tier required.' },
-                                { tag: 'DEPLOY', tagClass: 'bg-brand text-white', label: 'WORKSPACE_LIVE', time: '30ms', text: 'Curriculum activated. Ready for member enrollment and milestone submissions.' }
-                            ]
-                        },
-                        test: {
-                            name: 'Test',
-                            title: 'Validate student submissions before awarding milestone credentials.',
-                            bullets: [
-                                { verb: 'Debug', text: 'assignment submissions with structured criteria and automated checks' },
-                                { verb: 'Query', text: 'student progress across hundreds of cohort members in seconds' },
-                                { verb: 'Turn', text: 'expert mentor reviews into standardized scoring rubrics' }
-                            ],
-                            badges: ['Proof of Work', 'Rubric Scoring', 'Automated Assertions', 'Mentor Queue'],
-                            telemetryTitle: 'Submission Validation Suite',
-                            sessionId: '#POW-TEST-02',
-                            traces: [
-                                { tag: 'SUBMIT', tagClass: 'bg-brand-soft text-brand', label: 'INTAKE_VERIFY', time: '12ms', text: 'Student @vietanh submitted milestone #4 repository URL.' },
-                                { tag: 'STATIC', tagClass: 'bg-blue-50 text-blue-700', label: 'CODE_ANALYSIS', time: '28ms', text: 'Static lint check PASS: 0 syntax issues, correct file conventions.' },
-                                { tag: 'ASSERT', tagClass: 'bg-amber-50 text-amber-700', label: 'TEST_RUNNER', time: '142ms', text: 'Automated test suite execution: 24/24 assertions passed (100% green).' },
-                                { tag: 'RUBRIC', tagClass: 'bg-emerald-50 text-emerald-700', label: 'PEER_SCORE', time: '34ms', text: 'Mentor review criteria met. Score calculated: 98.5/100 points.' },
-                                { tag: 'PASS', tagClass: 'bg-brand text-white', label: 'MILESTONE_ACCEPTED', time: '40ms', text: 'Submission approved. Emitted verifiable credential signature.' }
-                            ]
-                        },
-                        deploy: {
-                            name: 'Deploy',
-                            title: 'Ship community spaces on infrastructure built for long-running learning cohorts.',
-                            bullets: [
-                                { verb: 'Build', text: 'the right cohort experience with customizable role permissions' },
-                                { verb: 'Standardize', text: 'on unified membership access and gated classroom tiers' },
-                                { verb: 'Run', text: 'live workshop events and private discussion channels securely' }
-                            ],
-                            badges: ['Role-based Tiers', 'Event Calendars', 'Direct Messages', 'Private Spaces'],
-                            telemetryTitle: 'Cohort Infrastructure Gateway',
-                            sessionId: '#POW-DEPLOY-03',
-                            traces: [
-                                { tag: 'SPACES', tagClass: 'bg-brand-soft text-brand', label: 'CHANNEL_PROVISION', time: '15ms', text: 'Allocated 4 private discussion categories and 1 pinned announcement feed.' },
-                                { tag: 'ROLES', tagClass: 'bg-blue-50 text-blue-700', label: 'RBAC_ENFORCE', time: '19ms', text: 'Configured roles: Mentor, Teaching Assistant, Cohort Member, Guest.' },
-                                { tag: 'CALENDAR', tagClass: 'bg-amber-50 text-amber-700', label: 'EVENT_DISPATCH', time: '24ms', text: 'Scheduled weekly live workshop event with timezone auto-conversion.' },
-                                { tag: 'MEMBER', tagClass: 'bg-emerald-50 text-emerald-700', label: 'ONBOARD_QUEUE', time: '32ms', text: 'Invited 120 initial members. Welcome workflow activated.' },
-                                { tag: 'LIVE', tagClass: 'bg-brand text-white', label: 'COMMUNITY_ONLINE', time: '45ms', text: 'Community active with sub-second websocket notification delivery.' }
-                            ]
-                        },
-                        monitor: {
-                            name: 'Monitor',
-                            title: 'Catch student hurdles with online progress dashboards and drop-off alerts.',
-                            bullets: [
-                                { verb: 'Measure', text: 'completion rates across video lessons and quizzes' },
-                                { verb: 'Catch', text: 'student disengagement before milestones are missed' },
-                                { verb: 'Track', text: 'leaderboard points, active hours, and community interactions' }
-                            ],
-                            badges: ['Leaderboard Engine', 'Progress Analytics', 'Engagement Scores', 'Activity Feeds'],
-                            telemetryTitle: 'Telemetry & Engagement Monitor',
-                            sessionId: '#POW-MONITOR-04',
-                            traces: [
-                                { tag: 'METRICS', tagClass: 'bg-brand-soft text-brand', label: 'DAILY_ACTIVE', time: '10ms', text: 'Aggregate daily study time: 1,420 hours across active cohorts.' },
-                                { tag: 'ALERT', tagClass: 'bg-blue-50 text-blue-700', label: 'DROP_OFF_DETECT', time: '16ms', text: '3 students flagged for inactivity on Lesson 5. Nudge email queued.' },
-                                { tag: 'POINTS', tagClass: 'bg-amber-50 text-amber-700', label: 'LEADERBOARD_SYNC', time: '28ms', text: 'Updated weekly rankings. 450 total reputation points awarded.' },
-                                { tag: 'HEALTH', tagClass: 'bg-emerald-50 text-emerald-700', label: 'COMMUNITY_VITALS', time: '35ms', text: 'Discussion response rate: 94% within 2 hours. Mentor ratio optimal.' },
-                                { tag: 'STATUS', tagClass: 'bg-brand text-white', label: 'DASHBOARD_FRESH', time: '50ms', text: 'Creator analytics refreshed with 0 latency deviations.' }
-                            ]
-                        },
-                        iterate: {
-                            name: 'Iterate',
-                            title: 'Compound community knowledge through continuous feedback loops.',
-                            bullets: [
-                                { verb: 'Detect', text: 'curriculum bottlenecks automatically with student feedback metrics' },
-                                { verb: 'Find', text: 'root causes of concept confusion and update lessons instantly' },
-                                { verb: 'Feed', text: 'every student review back into curriculum improvement cycles' }
-                            ],
-                            badges: ['Discussion Threads', 'Content Reports', 'Creator Notes', 'Knowledge Base'],
-                            telemetryTitle: 'Knowledge Compounding Engine',
-                            sessionId: '#POW-ITERATE-05',
-                            traces: [
-                                { tag: 'FEEDBACK', tagClass: 'bg-brand-soft text-brand', label: 'SENTIMENT_SCAN', time: '14ms', text: 'Student discussion analysis identified friction in Docker deployment task.' },
-                                { tag: 'UPDATE', tagClass: 'bg-blue-50 text-blue-700', label: 'LESSON_REVISE', time: '20ms', text: 'Creator updated Lesson 3 notes with troubleshooting guide.' },
-                                { tag: 'RE_EVAL', tagClass: 'bg-amber-50 text-amber-700', label: 'RUBRIC_POLISH', time: '26ms', text: 'Adjusted grading rubric assertions for Windows path compatibility.' },
-                                { tag: 'SYNC', tagClass: 'bg-emerald-50 text-emerald-700', label: 'PEER_BENCHMARK', time: '38ms', text: 'Average completion time decreased by 35% after revision.' },
-                                { tag: 'CYCLE', tagClass: 'bg-brand text-white', label: 'KNOWLEDGE_COMPOUNDED', time: '48ms', text: 'Knowledge base updated with resolved student FAQ items.' }
-                            ]
-                        },
-                        govern: {
-                            name: 'Govern',
-                            title: 'Control membership tiers and sandbox payments with transparent records.',
-                            bullets: [
-                                { verb: 'Control', text: 'membership invitations, seating limits, and member approval queues' },
-                                { verb: 'Require', text: 'creator approval for sensitive assignments and certification' },
-                                { verb: 'Simulate', text: 'SePay sandbox IPN checkouts with idempotent audit logs' }
-                            ],
-                            badges: ['SePay Sandbox', 'Audit Logs', 'Admin Policies', 'Idempotent IPN'],
-                            telemetryTitle: 'Governance & Payment Audit Engine',
-                            sessionId: '#POW-GOVERN-06',
-                            traces: [
-                                { tag: 'POLICY', tagClass: 'bg-brand-soft text-brand', label: 'ACCESS_GATE', time: '11ms', text: 'Member invitation verified. Seat allocation 45/50 claimed.' },
-                                { tag: 'WEBHOOK', tagClass: 'bg-blue-50 text-blue-700', label: 'SEPAY_IPN_INTAKE', time: '18ms', text: 'Received simulated sandbox IPN payload: Order #ORD-8921.' },
-                                { tag: 'IDEMPOTENT', tagClass: 'bg-amber-50 text-amber-700', label: 'DUPLICATE_GUARD', time: '25ms', text: 'Transaction signature unique. Idempotency key verified.' },
-                                { tag: 'UNLOCK', tagClass: 'bg-emerald-50 text-emerald-700', label: 'TIER_ACTIVATED', time: '34ms', text: 'Unlocked Premium Cohort membership. Audit log recorded.' },
-                                { tag: 'SECURE', tagClass: 'bg-brand text-white', label: 'COMPLIANCE_VERIFIED', time: '44ms', text: 'All security boundaries, role permissions and ledger states verified.' }
-                            ]
-                        }
-                    }
-                 }"
-                 class="py-20 md:py-28 bg-surface border-y border-line">
+                 x-data="{ activeStage: 0 }"
+                 class="scroll-mt-28 py-20 md:py-28 bg-surface border-y border-line">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center max-w-3xl mx-auto mb-16 space-y-3">
+                <div class="text-center max-w-3xl mx-auto mb-12 md:mb-14 space-y-3" data-reveal>
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-brand-soft text-brand border border-brand/20">
-                        End-to-End Learning Architecture
+                        The learning journey
                     </span>
-                    <h2 class="text-3xl sm:text-5xl font-bold tracking-tight text-ink font-sans">
-                        Accelerating the Community Learning Lifecycle
+                    <h2 class="text-3xl sm:text-5xl font-bold tracking-tight text-ink font-sans text-balance">
+                        From finding a community to reviewed practical work
                     </h2>
                     <p class="text-muted text-base sm:text-lg">
-                        Concept preview: simulated traces, APIs, scoring and credentials below are illustrative, not implemented services. The app supports private learning and creator feedback.
+                        Five steps that S-cool supports today. Screenshots come from the local demo; the Discover, Practice and Review panels are simplified illustrations.
                     </p>
                 </div>
 
-                <!-- Two-Column Interactive Lifecycle View -->
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                    <!-- Left: Step Selector & Description -->
-                    <div class="lg:col-span-6 space-y-8">
-                        <!-- Step Buttons -->
-                        <div class="flex flex-wrap gap-2 p-1.5 bg-slate-100/70 rounded-xl border border-line">
+                <!-- Stage selector -->
+                <div class="flex justify-center mb-8" data-reveal>
+                    <div class="flex max-w-full flex-wrap justify-center gap-1 p-1.5 bg-slate-100/70 rounded-xl border border-line" role="group" aria-label="Learning journey stage">
+                        @foreach ($journeyStages as $index => $stage)
                             <button type="button"
-                                    @click="activePhase = 'build'"
-                                    :class="activePhase === 'build' ? 'bg-brand text-white font-semibold shadow-xs' : 'text-muted hover:text-ink'"
-                                    class="px-4 py-2 rounded-lg text-xs transition-all">Build</button>
-                            <button type="button"
-                                    @click="activePhase = 'test'"
-                                    :class="activePhase === 'test' ? 'bg-brand text-white font-semibold shadow-xs' : 'text-muted hover:text-ink'"
-                                    class="px-4 py-2 rounded-lg text-xs transition-all">Test</button>
-                            <button type="button"
-                                    @click="activePhase = 'deploy'"
-                                    :class="activePhase === 'deploy' ? 'bg-brand text-white font-semibold shadow-xs' : 'text-muted hover:text-ink'"
-                                    class="px-4 py-2 rounded-lg text-xs transition-all">Deploy</button>
-                            <button type="button"
-                                    @click="activePhase = 'monitor'"
-                                    :class="activePhase === 'monitor' ? 'bg-brand text-white font-semibold shadow-xs' : 'text-muted hover:text-ink'"
-                                    class="px-4 py-2 rounded-lg text-xs transition-all">Monitor</button>
-                            <button type="button"
-                                    @click="activePhase = 'iterate'"
-                                    :class="activePhase === 'iterate' ? 'bg-brand text-white font-semibold shadow-xs' : 'text-muted hover:text-ink'"
-                                    class="px-4 py-2 rounded-lg text-xs transition-all">Iterate</button>
-                            <button type="button"
-                                    @click="activePhase = 'govern'"
-                                    :class="activePhase === 'govern' ? 'bg-brand text-white font-semibold shadow-xs' : 'text-muted hover:text-ink'"
-                                    class="px-4 py-2 rounded-lg text-xs transition-all">Govern</button>
-                        </div>
-
-                        <!-- Active Step Content -->
-                        <div class="space-y-6">
-                            <div class="space-y-3">
-                                <h3 class="text-2xl sm:text-3xl font-bold text-ink tracking-tight" x-text="phases[activePhase].name"></h3>
-                                <p class="text-base text-muted leading-relaxed" x-text="phases[activePhase].title"></p>
-                            </div>
-
-                            <!-- Bullet Points with Bold Action Verbs -->
-                            <ul class="space-y-3.5">
-                                <template x-for="bullet in phases[activePhase].bullets" :key="bullet.verb">
-                                    <li class="flex items-start gap-3">
-                                        <div class="w-5 h-5 rounded-full bg-brand-soft text-brand flex items-center justify-center shrink-0 mt-0.5">
-                                            <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                            </svg>
-                                        </div>
-                                        <div class="text-sm text-ink leading-normal">
-                                            <strong class="font-semibold text-brand" x-text="bullet.verb"></strong>
-                                            <span class="text-muted" x-text="bullet.text"></span>
-                                        </div>
-                                    </li>
-                                </template>
-                            </ul>
-
-                            <!-- Badge tags -->
-                            <div class="pt-4 flex flex-wrap gap-2">
-                                <template x-for="badge in phases[activePhase].badges" :key="badge">
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-50 text-slate-700 border border-line">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-brand"></span>
-                                        <span x-text="badge"></span>
-                                    </span>
-                                </template>
-                            </div>
-                        </div>
+                                    @click="activeStage = {{ $index }}"
+                                    :aria-pressed="activeStage === {{ $index }} ? 'true' : 'false'"
+                                    :class="{ 'bg-brand text-white font-semibold shadow-xs': activeStage === {{ $index }}, 'text-muted hover:text-ink hover:bg-surface': activeStage !== {{ $index }} }"
+                                    class="inline-flex shrink-0 items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm transition-colors duration-150 {{ $index === 0 ? 'bg-brand text-white font-semibold shadow-xs' : 'text-muted hover:text-ink hover:bg-surface' }}">
+                                <span class="tabular-nums opacity-70" aria-hidden="true">{{ $index + 1 }}</span>
+                                <span>{{ $stage['name'] }}</span>
+                            </button>
+                        @endforeach
                     </div>
+                </div>
 
-                    <!-- Right: Dynamic Live Telemetry / Execution Preview Card -->
-                    <div class="lg:col-span-6">
-                        <div class="bg-surface rounded-xl border border-line shadow-sm overflow-hidden">
-                            <!-- Telemetry Card Header -->
-                            <div class="bg-slate-50/80 px-4 py-3 border-b border-line flex items-center justify-between">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                    <span class="text-xs font-mono font-semibold text-ink" x-text="phases[activePhase].telemetryTitle"></span>
+                <!-- Stage panels share one grid cell so the container keeps the tallest panel's height -->
+                <div class="grid" data-reveal style="--reveal-delay: 80ms">
+                    @foreach ($journeyStages as $index => $stage)
+                        <div :class="{ 'opacity-0 invisible': activeStage !== {{ $index }} }"
+                             class="landing-fade-fast col-start-1 row-start-1 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center {{ $index === 0 ? '' : 'opacity-0 invisible' }}">
+                            <div class="lg:col-span-5 space-y-5">
+                                <div class="space-y-3">
+                                    <p class="text-xs font-semibold uppercase tracking-wider text-brand">Step {{ $index + 1 }} of {{ count($journeyStages) }}</p>
+                                    <h3 class="text-2xl sm:text-3xl font-bold text-ink tracking-tight">{{ $stage['name'] }}</h3>
+                                    <p class="text-base text-muted leading-relaxed">{{ $stage['title'] }}</p>
                                 </div>
-                                <span class="text-[11px] font-mono text-muted bg-white px-2 py-0.5 rounded border border-line" x-text="phases[activePhase].sessionId"></span>
+                                <ul class="space-y-3">
+                                    @foreach ($stage['points'] as $point)
+                                        <li class="flex items-start gap-3">
+                                            <span class="w-5 h-5 rounded-full bg-brand-soft text-brand flex items-center justify-center shrink-0 mt-0.5" aria-hidden="true">
+                                                <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                            </span>
+                                            <span class="text-sm text-ink leading-normal">{{ $point }}</span>
+                                        </li>
+                                    @endforeach
+                                </ul>
                             </div>
 
-                            <!-- Execution Trace Steps -->
-                            <div class="p-5 space-y-3 font-mono text-xs">
-                                <template x-for="(trace, tIdx) in phases[activePhase].traces" :key="trace.label">
-                                    <div class="p-3 rounded-lg bg-slate-50 border border-line/80 space-y-1 transition-all">
-                                        <div class="flex items-center justify-between text-[11px]">
-                                            <div class="flex items-center gap-2">
-                                                <span :class="trace.tagClass" class="px-1.5 py-0.5 rounded font-bold text-[10px]" x-text="trace.tag"></span>
-                                                <span class="text-slate-700 font-semibold" x-text="trace.label"></span>
-                                            </div>
-                                            <span class="text-muted" x-text="trace.time"></span>
+                            <div class="lg:col-span-7">
+                                @if (str_ends_with($stage['visual'], '.png'))
+                                    <figure class="rounded-xl border border-line bg-surface p-2 shadow-sm">
+                                        <div class="aspect-[16/10] overflow-hidden rounded-lg bg-slate-100">
+                                            <img src="{{ asset('images/landing/product/'.$stage['visual']) }}" alt="{{ $stage['alt'] }}"
+                                                 width="1280" height="800" loading="lazy"
+                                                 class="w-full h-full object-cover object-top" onerror="this.style.display='none'" />
                                         </div>
-                                        <p class="text-slate-600 font-sans text-xs" x-text="trace.text"></p>
-                                    </div>
-                                </template>
+                                        <figcaption class="px-2 pt-2 text-xs text-muted">{{ $stage['caption'] }}</figcaption>
+                                    </figure>
+                                @else
+                                    <figure class="rounded-xl border border-line bg-canvas p-4 sm:p-6 shadow-sm">
+                                        <div class="aspect-[16/10] flex flex-col justify-center gap-3 overflow-hidden">
+                                            @if ($stage['visual'] === 'directory')
+                                                @foreach ([['Example design community', 'Free', 'Join'], ['Example coding cohort', 'Private', 'Request invitation'], ['Example language club', 'Free', 'Join']] as [$name, $access, $action])
+                                                    <div class="flex items-center gap-3 rounded-lg border border-line bg-surface p-3">
+                                                        <span class="w-10 h-10 rounded-lg bg-brand-soft shrink-0" aria-hidden="true"></span>
+                                                        <div class="min-w-0 flex-1">
+                                                            <p class="truncate text-sm font-semibold text-ink">{{ $name }}</p>
+                                                            <p class="text-xs text-muted">{{ $access }} community</p>
+                                                        </div>
+                                                        <span class="shrink-0 rounded-md border border-line px-2.5 py-1 text-xs font-medium text-ink">{{ $action }}</span>
+                                                    </div>
+                                                @endforeach
+                                            @elseif ($stage['visual'] === 'practice')
+                                                <div class="rounded-lg border border-line bg-surface p-4 space-y-3">
+                                                    <p class="text-sm font-semibold text-ink">Practical work for this lesson</p>
+                                                    <div class="rounded-md border border-control-line/40 bg-canvas px-3 py-2 text-xs text-muted">Link to your work</div>
+                                                    <div class="rounded-md border border-control-line/40 bg-canvas px-3 py-2 text-xs text-muted h-14">Summary of your work</div>
+                                                    <div class="flex flex-wrap items-center justify-between gap-2">
+                                                        <span class="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-700">Draft</span>
+                                                        <span class="rounded-md bg-brand px-3 py-1.5 text-xs font-semibold text-white">Submit for review</span>
+                                                    </div>
+                                                </div>
+                                            @else
+                                                @foreach ([['Waiting', 'Submitted, waiting in the creator queue', 'bg-sky-50 text-sky-700 border-sky-200'], ['Needs revision', 'Creator feedback asks for changes', 'bg-amber-50 text-amber-800 border-amber-200'], ['Verified', 'Creator confirmed the practical work', 'bg-emerald-50 text-emerald-700 border-emerald-200']] as [$status, $note, $tone])
+                                                    <div class="flex items-center gap-3 rounded-lg border border-line bg-surface p-3">
+                                                        <span class="shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-semibold {{ $tone }}">{{ $status }}</span>
+                                                        <p class="text-xs text-muted">{{ $note }}</p>
+                                                    </div>
+                                                @endforeach
+                                            @endif
+                                        </div>
+                                        <figcaption class="pt-3 text-xs text-muted">Illustration — simplified view, not a screenshot or real data.</figcaption>
+                                    </figure>
+                                @endif
                             </div>
                         </div>
-                    </div>
+                    @endforeach
                 </div>
             </div>
         </section>
 
-        <!-- 3. Frameworks Grid ("Build with our open source frameworks") -->
+        <!-- 3. Product pillars: Community, Classroom, Practical review -->
         <section class="py-20 md:py-28 bg-canvas">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <!-- Section Header -->
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-end mb-14">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-end mb-12" data-reveal>
                     <div class="md:col-span-7 space-y-2">
-                        <span class="text-xs uppercase tracking-wider font-semibold text-brand">Modular Architecture</span>
+                        <span class="text-xs uppercase tracking-wider font-semibold text-brand">What S-cool brings together</span>
                         <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-ink font-sans">
                             Built for creators, mentors, and cohorts
                         </h2>
                     </div>
-                    <div class="md:col-span-5 text-muted text-sm sm:text-base leading-relaxed">
-                        Build engaging spaces fast with complete control. Choose the right workflow for the job, from illustrative templates to conceptual APIs (not a public API).
-                    </div>
+                    <p class="md:col-span-5 text-muted text-sm sm:text-base leading-relaxed">
+                        Discussion, courses and creator-reviewed practical work live in the same private community, so learners always know the next step.
+                    </p>
                 </div>
 
-                <!-- Exactly 3 Framework Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- Card 1: Community Engine -->
-                    <div x-data="{ copied: false, copyError: false, code: `Community::create([\n    'name' => 'AI Pioneers',\n    'governance' => 'moderated'\n]);` }"
-                         class="bg-surface rounded-xl border border-line p-6 shadow-xs hover:shadow-md hover:border-brand/40 transition-all flex flex-col justify-between space-y-6">
-                        <div class="space-y-4">
-                            <div class="w-12 h-12 rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center border border-sky-100">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @foreach ([
+                        ['eyebrow' => 'Community', 'title' => 'Private learning communities', 'text' => 'Members discuss in creator-defined categories with roles, moderation and invitations that control who can see what.', 'image' => 'product-community-feed.png', 'alt' => 'S-cool Community Feed Screenshot', 'link' => route('communities.index'), 'cta' => 'Explore communities'],
+                        ['eyebrow' => 'Classroom', 'title' => 'Structured courses', 'text' => 'Modules and lessons with media and reading, plus completion progress so learners can pick up where they left off.', 'image' => 'product-classroom-outline.png', 'alt' => 'S-cool Classroom Outline Screenshot', 'link' => route('communities.index'), 'cta' => 'Browse classrooms'],
+                        ['eyebrow' => 'Practical review', 'title' => 'Creator-reviewed work', 'text' => 'Completing a lesson is not the same as proving a skill. Learners submit practical work and the creator verifies it or asks for revision.', 'image' => null, 'alt' => null, 'link' => route('help.index'), 'cta' => 'How review works'],
+                    ] as $index => $pillar)
+                        <article class="landing-card group relative flex flex-col rounded-xl border border-line bg-surface shadow-xs overflow-hidden {{ $index === 2 ? 'md:col-span-2 lg:col-span-1' : '' }}"
+                                 data-reveal style="--reveal-delay: {{ $index * 80 }}ms">
+                            <div class="aspect-[16/10] border-b border-line bg-slate-100 overflow-hidden">
+                                @if ($pillar['image'])
+                                    <img src="{{ asset('images/landing/product/'.$pillar['image']) }}" alt="{{ $pillar['alt'] }}"
+                                         width="1280" height="800" loading="lazy"
+                                         class="w-full h-full object-cover object-top" onerror="this.style.display='none'" />
+                                @else
+                                    <div class="h-full flex flex-col justify-center gap-2 p-5 bg-canvas" role="img" aria-label="Illustration of practical work moving from Waiting to Verified">
+                                        @foreach ([['Waiting', 'bg-sky-50 text-sky-700 border-sky-200'], ['Needs revision', 'bg-amber-50 text-amber-800 border-amber-200'], ['Verified', 'bg-emerald-50 text-emerald-700 border-emerald-200']] as [$status, $tone])
+                                            <div class="flex items-center gap-3 rounded-lg border border-line bg-surface px-3 py-2" aria-hidden="true">
+                                                <span class="rounded-full border px-2 py-0.5 text-[11px] font-semibold {{ $tone }}">{{ $status }}</span>
+                                                <span class="h-2 flex-1 rounded-full bg-slate-100"></span>
+                                            </div>
+                                        @endforeach
+                                        <p class="text-[11px] text-muted" aria-hidden="true">Illustration — not real data</p>
+                                    </div>
+                                @endif
                             </div>
-                            <div class="space-y-1">
-                                <span class="text-xs font-mono font-semibold text-brand uppercase">community engine</span>
-                                <h3 class="text-lg font-bold text-ink">Private Cohort Communities</h3>
-                                <p class="text-xs text-muted leading-relaxed">
-                                    For highly autonomous, long-running learning spaces with discussion categories and member roles.
-                                </p>
+                            <div class="flex flex-1 flex-col gap-2 p-6">
+                                <span class="text-xs font-semibold uppercase tracking-wider text-brand">{{ $pillar['eyebrow'] }}</span>
+                                <h3 class="text-lg font-semibold text-ink">{{ $pillar['title'] }}</h3>
+                                <p class="text-sm text-muted leading-relaxed">{{ $pillar['text'] }}</p>
+                                <a href="{{ $pillar['link'] }}" class="mt-auto pt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-brand hover:text-brand-hover transition-colors duration-150">
+                                    <span>{{ $pillar['cta'] }}</span>
+                                    <span class="landing-arrow" aria-hidden="true">&rarr;</span>
+                                </a>
                             </div>
-
-                            <!-- Styled Code Widget with Copy Button -->
-                            <div class="relative group/code">
-                                <div class="bg-slate-50 border border-line rounded-lg p-3 text-[11px] font-mono text-ink overflow-x-auto pr-16">
-                                    <span class="text-brand font-semibold">Community</span>::create([<br/>
-                                    &nbsp;&nbsp;<span class="text-reward">'name'</span> =&gt; <span class="text-emerald-700">'AI Pioneers'</span>,<br/>
-                                    &nbsp;&nbsp;<span class="text-reward">'governance'</span> =&gt; <span class="text-emerald-700">'moderated'</span><br/>
-                                    ]);
-                                </div>
-                                <button type="button"
-                                        @click="copied = false; copyError = false; try { await navigator.clipboard.writeText(code); copied = true; setTimeout(() => copied = false, 2000); } catch { copyError = true; }"
-                                        class="absolute top-2 right-2 px-2 py-1 bg-surface border border-line rounded text-[10px] font-medium text-muted hover:text-ink shadow-xs opacity-80 hover:opacity-100 transition-opacity flex items-center gap-1"
-                                        aria-label="Copy snippet">
-                                    <span x-show="!copied && !copyError">Copy</span>
-                                    <span x-show="copyError" x-cloak role="status">Copy unavailable</span>
-                                    <span x-show="copied" x-cloak class="text-brand font-semibold">✓ Copied</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <a href="{{ route('communities.index') }}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-brand hover:text-brand-hover">
-                            <span>Explore community engine</span>
-                            <span class="text-sm">&rarr;</span>
-                        </a>
-                    </div>
-
-                    <!-- Card 2: Classroom Suite -->
-                    <div x-data="{ copied: false, copyError: false, code: `$course->addSection('Tracing')\n    ->attachLesson('Sandboxes')\n    ->requireProofOfWork();` }"
-                         class="bg-surface rounded-xl border border-line p-6 shadow-xs hover:shadow-md hover:border-brand/40 transition-all flex flex-col justify-between space-y-6">
-                        <div class="space-y-4">
-                            <div class="w-12 h-12 rounded-xl bg-brand-soft text-brand flex items-center justify-center border border-brand/20">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                            </div>
-                            <div class="space-y-1">
-                                <span class="text-xs font-mono font-semibold text-brand uppercase">classroom suite</span>
-                                <h3 class="text-lg font-bold text-ink">Interactive Classroom</h3>
-                                <p class="text-xs text-muted leading-relaxed">
-                                    For building courses fast with video modules, rich markdown lessons, and persistent completion state.
-                                </p>
-                            </div>
-
-                            <!-- Styled Code Widget with Copy Button -->
-                            <div class="relative group/code">
-                                <div class="bg-slate-50 border border-line rounded-lg p-3 text-[11px] font-mono text-ink overflow-x-auto pr-16">
-                                    <span class="text-brand font-semibold">$course</span>-&gt;addSection(<span class="text-emerald-700">'Tracing'</span>)<br/>
-                                    &nbsp;&nbsp;-&gt;attachLesson(<span class="text-emerald-700">'Sandboxes'</span>)<br/>
-                                    &nbsp;&nbsp;-&gt;requireProofOfWork();
-                                </div>
-                                <button type="button"
-                                        @click="copied = false; copyError = false; try { await navigator.clipboard.writeText(code); copied = true; setTimeout(() => copied = false, 2000); } catch { copyError = true; }"
-                                        class="absolute top-2 right-2 px-2 py-1 bg-surface border border-line rounded text-[10px] font-medium text-muted hover:text-ink shadow-xs opacity-80 hover:opacity-100 transition-opacity flex items-center gap-1"
-                                        aria-label="Copy snippet">
-                                    <span x-show="!copied && !copyError">Copy</span>
-                                    <span x-show="copyError" x-cloak role="status">Copy unavailable</span>
-                                    <span x-show="copied" x-cloak class="text-brand font-semibold">✓ Copied</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <a href="{{ route('communities.index') }}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-brand hover:text-brand-hover">
-                            <span>Explore classroom suite</span>
-                            <span class="text-sm">&rarr;</span>
-                        </a>
-                    </div>
-
-                    <!-- Card 3: Proof of Work & Leaderboards -->
-                    <div x-data="{ copied: false, copyError: false, code: `ProofOfWork::submit([\n    'student' => $user->id,\n    'url' => 'github.com/demo'\n])->evaluate();` }"
-                         class="bg-surface rounded-xl border border-line p-6 shadow-xs hover:shadow-md hover:border-brand/40 transition-all flex flex-col justify-between space-y-6">
-                        <div class="space-y-4">
-                            <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center border border-purple-100">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                            </div>
-                            <div class="space-y-1">
-                                <span class="text-xs font-mono font-semibold text-purple-700 uppercase">proof of work</span>
-                                <h3 class="text-lg font-bold text-ink">Proof of Work Engine</h3>
-                                <p class="text-xs text-muted leading-relaxed">
-                                    For milestone reviews that require deterministic verification, peer rubrics, and earned level rewards.
-                                </p>
-                            </div>
-
-                            <!-- Styled Code Widget with Copy Button -->
-                            <div class="relative group/code">
-                                <div class="bg-slate-50 border border-line rounded-lg p-3 text-[11px] font-mono text-ink overflow-x-auto pr-16">
-                                    <span class="text-brand font-semibold">ProofOfWork</span>::submit([<br/>
-                                    &nbsp;&nbsp;<span class="text-reward">'student'</span> =&gt; <span class="text-slate-700">$user</span>-&gt;id,<br/>
-                                    &nbsp;&nbsp;<span class="text-reward">'url'</span> =&gt; <span class="text-emerald-700">'github.com/demo'</span><br/>
-                                    ])-&gt;evaluate();
-                                </div>
-                                <button type="button"
-                                        @click="copied = false; copyError = false; try { await navigator.clipboard.writeText(code); copied = true; setTimeout(() => copied = false, 2000); } catch { copyError = true; }"
-                                        class="absolute top-2 right-2 px-2 py-1 bg-surface border border-line rounded text-[10px] font-medium text-muted hover:text-ink shadow-xs opacity-80 hover:opacity-100 transition-opacity flex items-center gap-1"
-                                        aria-label="Copy snippet">
-                                    <span x-show="!copied && !copyError">Copy</span>
-                                    <span x-show="copyError" x-cloak role="status">Copy unavailable</span>
-                                    <span x-show="copied" x-cloak class="text-brand font-semibold">✓ Copied</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <a href="{{ route('communities.index') }}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-brand hover:text-brand-hover">
-                            <span>Explore proof of work</span>
-                            <span class="text-sm">&rarr;</span>
-                        </a>
-                    </div>
+                        </article>
+                    @endforeach
                 </div>
             </div>
         </section>
@@ -1356,7 +1057,7 @@
                         { company: 'Example community', badge: 'Membership', quote: 'Use invitations and the existing access rules to manage a private learning space.', metric: 'Private access' }
                     ],
                     get allCards() {
-                        return [...this.stories, ...this.stories.slice(0, 3)];
+                        return [...this.stories, ...this.stories.slice(0, 4)];
                     },
                     next() {
                         if (this.isMoving) return;
@@ -1403,7 +1104,7 @@
                     startAutoplay() {
                         this.stopAutoplay();
                         this.autoplayTimer = setInterval(() => {
-                            if (!this.isPaused && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) this.next();
+                            if (!this.isPaused && !document.hidden) this.next();
                         }, 6000);
                     },
                     stopAutoplay() {
@@ -1421,7 +1122,7 @@
                  class="py-20 md:py-28 bg-surface border-t border-line">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <!-- Header with Title & Action Button -->
-                <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-12">
+                <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-12" data-reveal>
                     <div class="space-y-2">
                         <span class="text-xs font-semibold text-brand uppercase tracking-wider">Illustrative demo stories — not customer results</span>
                         <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-ink font-sans">
@@ -1437,23 +1138,35 @@
 
                 <!-- Scoped Responsive Slide Step Definition -->
                 <style>
+                    /* Card width leaves a partial next card visible; one step = one card plus the 1.5rem gap. */
                     .stories-carousel-track {
-                        --story-step: calc(100% + 1.5rem);
+                        --story-card: 85%;
+                        --story-step: calc(var(--story-card) + 1.5rem);
+                    }
+                    .stories-carousel-track > * {
+                        width: var(--story-card);
                     }
                     @media (min-width: 768px) {
                         .stories-carousel-track {
-                            --story-step: calc((100% + 1.5rem) / 3);
+                            --story-card: calc((100% - 1.5rem) / 2.25);
+                        }
+                    }
+                    @media (min-width: 1024px) {
+                        .stories-carousel-track {
+                            --story-card: calc((100% - 3rem) / 3.25);
                         }
                     }
                 </style>
 
                 <!-- Smooth Sliding Carousel Viewport -->
-                <div class="overflow-hidden py-2 -mx-1 px-1">
+                <div class="overflow-hidden py-2 -mx-1 px-1" data-reveal style="--reveal-delay: 80ms">
                     <div class="stories-carousel-track flex gap-6 will-change-transform"
                          :class="isTransitioning ? 'transition-transform duration-500 ease-out' : 'transition-none'"
                          :style="`transform: translate3d(calc(-1 * ${activeStory} * var(--story-step)), 0, 0);`">
                         <template x-for="(story, idx) in allCards" :key="idx">
-                            <div class="w-full md:w-[calc((100%-3rem)/3)] shrink-0 bg-canvas rounded-xl border border-line p-6 shadow-xs flex flex-col justify-between space-y-6 hover:border-brand/40 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200">
+                            <div :aria-hidden="idx >= stories.length ? 'true' : 'false'"
+                                 :class="idx === activeStory ? 'border-brand/50 bg-surface shadow-md' : 'border-line bg-canvas shadow-xs'"
+                                 class="landing-card shrink-0 rounded-xl border p-6 flex flex-col justify-between space-y-6">
                                 <div class="space-y-4">
                                     <div class="flex items-center justify-between">
                                         <span class="font-bold text-base text-ink tracking-tight" x-text="story.company"></span>
@@ -1464,9 +1177,9 @@
 
                                 <div class="pt-4 border-t border-line/80 flex items-center justify-between">
                                     <span class="text-xs font-bold text-brand" x-text="story.metric"></span>
-                                    <a href="{{ route('help.index') }}" class="text-xs font-semibold text-muted hover:text-brand inline-flex items-center gap-1 transition-colors">
+                                    <a href="{{ route('help.index') }}" :tabindex="idx >= stories.length ? -1 : null" class="text-xs font-semibold text-muted hover:text-brand inline-flex items-center gap-1 transition-colors duration-150">
                                         <span>Read Use Case</span>
-                                        <span class="text-sm">&nearr;</span>
+                                        <span class="landing-arrow text-sm" aria-hidden="true">&nearr;</span>
                                     </a>
                                 </div>
                             </div>
@@ -1492,13 +1205,13 @@
                     <div class="flex items-center gap-2">
                         <button type="button"
                                 @click="prev()"
-                                class="w-8 h-8 rounded-lg border border-line bg-surface text-muted hover:text-brand hover:border-brand/40 hover:bg-brand-soft flex items-center justify-center shadow-xs transition-all duration-150 active:scale-95 cursor-pointer"
+                                class="w-10 h-10 rounded-lg border border-line bg-surface text-muted hover:text-brand hover:border-brand/40 hover:bg-brand-soft flex items-center justify-center shadow-xs transition-all duration-150 active:scale-95 cursor-pointer"
                                 aria-label="Previous story">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                         </button>
                         <button type="button"
                                 @click="next()"
-                                class="w-8 h-8 rounded-lg border border-line bg-surface text-muted hover:text-brand hover:border-brand/40 hover:bg-brand-soft flex items-center justify-center shadow-xs transition-all duration-150 active:scale-95 cursor-pointer"
+                                class="w-10 h-10 rounded-lg border border-line bg-surface text-muted hover:text-brand hover:border-brand/40 hover:bg-brand-soft flex items-center justify-center shadow-xs transition-all duration-150 active:scale-95 cursor-pointer"
                                 aria-label="Next story">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                         </button>
@@ -1596,14 +1309,14 @@
                  }"
                  class="py-20 md:py-28 bg-canvas border-t border-line scroll-mt-12">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center max-w-3xl mx-auto mb-16 space-y-3">
+                <div class="text-center max-w-3xl mx-auto mb-16 space-y-3" data-reveal>
                     <span class="text-xs font-semibold text-brand uppercase tracking-wider">Learn with your community</span>
                     <h2 class="text-3xl sm:text-5xl font-bold tracking-tight text-ink font-sans">
                         Discuss, learn, and put skills into practice
                     </h2>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8" data-reveal style="--reveal-delay: 80ms">
                     <!-- Metric 1: Monthly Active Study Hours -->
                     <div class="bg-surface rounded-xl border border-line p-8 text-center shadow-xs hover:shadow-md hover:border-brand/40 transition-all space-y-2">
                         <div class="text-5xl sm:text-6xl font-black text-brand tracking-tight font-sans">
@@ -1631,30 +1344,30 @@
             </div>
         </section>
 
-        <!-- 6. Call to Action Banner ("Get started with LangSmith") -->
+        <!-- 6. Closing call to action -->
         <section class="py-16 md:py-24 bg-surface border-t border-line">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="bg-gradient-to-br from-brand/5 via-brand-soft to-slate-50 border border-brand/20 rounded-2xl p-8 sm:p-14 text-center shadow-xs relative overflow-hidden">
+                <div data-reveal class="bg-gradient-to-br from-brand/5 via-brand-soft to-slate-50 border border-brand/20 rounded-2xl p-8 sm:p-14 text-center shadow-xs relative overflow-hidden">
                     <div class="relative max-w-2xl mx-auto space-y-6">
                         <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-ink font-sans">
-                            Get started with S-cool
+                            Start learning in practice
                         </h2>
                         <p class="text-base sm:text-lg text-muted font-normal leading-relaxed">
-                            Use S-cool, the community learning platform, to improve every step of the student journey from discussion to creator-reviewed practical work.
+                            Join a community, follow its courses and get creator feedback on the work you build.
                         </p>
 
                         <div class="pt-4 flex flex-wrap items-center justify-center gap-3.5">
                             @auth
                                 <a href="{{ route('communities.index') }}"
-                                   class="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-semibold text-white bg-brand hover:bg-brand-hover rounded-lg shadow-sm transition-all">
+                                   class="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-semibold text-white bg-brand hover:bg-brand-hover rounded-lg shadow-sm transition-colors duration-150">
                                     <span>Go to Dashboard</span>
-                                    <span>&rarr;</span>
+                                    <span class="landing-arrow" aria-hidden="true">&rarr;</span>
                                 </a>
                             @else
                                 <a href="{{ route('register') }}"
-                                   class="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-semibold text-white bg-brand hover:bg-brand-hover rounded-lg shadow-sm transition-all">
+                                   class="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-semibold text-white bg-brand hover:bg-brand-hover rounded-lg shadow-sm transition-colors duration-150">
                                     <span>Start building</span>
-                                    <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none"><path d="M11.9852 4L12 10.7704H10.9314V6.60741L10.9462 5.80741L4.74211 12L4 11.2444L10.2041 5.03704L9.47681 5.05185L5.21707 5.05185V4L11.9852 4Z" fill="currentColor"/></svg>
+                                    <svg class="landing-arrow w-4 h-4" aria-hidden="true" viewBox="0 0 16 16" fill="none"><path d="M11.9852 4L12 10.7704H10.9314V6.60741L10.9462 5.80741L4.74211 12L4 11.2444L10.2041 5.03704L9.47681 5.05185L5.21707 5.05185V4L11.9852 4Z" fill="currentColor"/></svg>
                                 </a>
                                 <a href="{{ route('communities.index') }}"
                                    class="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-medium text-ink bg-surface hover:bg-slate-50 border border-line rounded-lg shadow-xs transition-all">
@@ -1773,43 +1486,9 @@
                 </div>
             </div>
 
-            <!-- Giant Watermark Outline Text (matching LangChain interactive outline spotlight) -->
-            <div x-data="{
-                    mouseX: 0,
-                    mouseY: 0,
-                    isHover: false,
-                    updatePos(e) {
-                        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                            this.isHover = false;
-                            return;
-                        }
-                        const rect = this.$el.getBoundingClientRect();
-                        this.mouseX = e.clientX - rect.left;
-                        this.mouseY = e.clientY - rect.top;
-                    }
-                 }"
-                 @mousemove="updatePos($event)"
-                 @mouseenter="isHover = true; updatePos($event)"
-                 @mouseleave="isHover = false"
-                 class="relative pt-10 overflow-hidden text-center select-none cursor-default">
-
-                <!-- Base Clearly Visible Outline Layer -->
-                <div class="relative z-10">
-                    <span class="text-7xl sm:text-9xl font-black font-sans tracking-tight text-transparent block"
-                          style="-webkit-text-stroke: 1.75px #94A3B8;">
-                        S-cool
-                    </span>
-                </div>
-
-                <!-- Interactive Spotlight Glow Layer (exact overlay matching LangChain cursor glow) -->
-                <div class="absolute inset-0 pt-10 z-20 flex items-center justify-center pointer-events-none transition-opacity duration-200"
-                     :class="isHover ? 'opacity-100' : 'opacity-0'"
-                     :style="`-webkit-mask-image: radial-gradient(260px circle at ${mouseX}px ${mouseY}px, black 30%, transparent 80%); mask-image: radial-gradient(260px circle at ${mouseX}px ${mouseY}px, black 30%, transparent 80%);`">
-                    <span class="text-7xl sm:text-9xl font-black font-sans tracking-tight text-transparent block drop-shadow-[0_0_20px_rgba(15,118,110,0.4)]"
-                          style="-webkit-text-stroke: 2px #0F766E;">
-                        S-cool
-                    </span>
-                </div>
+            <!-- Static outlined wordmark: decorative, excluded from the accessibility tree -->
+            <div class="pt-6 overflow-hidden text-center select-none" aria-hidden="true">
+                <span class="landing-wordmark block text-[22vw] sm:text-9xl lg:text-[11rem] leading-none font-black font-sans tracking-tight">S-cool</span>
             </div>
 
             <!-- Bottom Sub-Footer: Status & Legal -->
