@@ -12,7 +12,7 @@
 The applied demo catalog seeder (`Database\Seeders\RealCommunitySampleSeeder`) is designed with strict idempotency and zero-destruction safety guarantees:
 
 ```php
-public function run(bool $forceUpdate = false): void
+public function run(): void
 {
     if (! app()->environment(['local', 'testing'])) {
         throw new LogicException('Real community sample content may only be seeded in local or testing environments.');
@@ -22,7 +22,7 @@ public function run(bool $forceUpdate = false): void
     $member = User::query()->where('email', 'member@scool.local')->firstOrFail();
 
     foreach ($this->catalog() as $data) {
-        DB::transaction(function () use ($creator, $member, $data, $forceUpdate): void {
+        DB::transaction(function () use ($creator, $member, $data): void {
             $community = Community::query()->where('slug', $data['slug'])->first();
 
             // Guard 1: Ownership Check
@@ -31,13 +31,17 @@ public function run(bool $forceUpdate = false): void
             }
 
             // Guard 2: Default Preservation (Opt-in fixture safety)
-            if ($community !== null && ! $forceUpdate) {
+            if ($community !== null) {
                 return;
             }
             ...
 ```
 
-### Key Mechanisms:
+### Review correction (2026-10-25)
+
+The unsafe `forceUpdate` path has been removed. All references below to forced updates are historical implementation claims, not supported commands. The current seeder creates missing communities and preserves existing communities wholesale. AC-05 managed-content upgrades and a second receiving environment are still pending; default-rerun safety does not prove those outcomes.
+
+### Historical Key Mechanisms:
 1. **Environment Gate**: Strictly rejects execution if `app()->environment()` is not `local` or `testing`. Prevents catastrophic demo data injection into production.
 2. **Deterministic Ownership Boundary**: Verifies that any existing community matching a Group B slug is owned by the canonical demo creator (`creator@scool.local`). If an existing user created a community with the same slug, the seeder aborts with a `LogicException`, protecting developer workspaces.
 3. **Preservation Default (`$forceUpdate = false`)**: When executed as part of routine test runs or general seeders (`php artisan db:seed`), existing communities, courses, lessons, and user memberships are left 100% untouched.
