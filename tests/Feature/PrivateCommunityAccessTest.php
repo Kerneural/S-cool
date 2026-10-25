@@ -21,7 +21,7 @@ class PrivateCommunityAccessTest extends TestCase
         Storage::fake('community_media');
     }
 
-    public function test_dashboard_lists_owned_and_active_joined_communities_not_other_tenants(): void
+    public function test_dashboard_discovers_metadata_but_joined_filter_only_lists_effective_memberships(): void
     {
         $user = User::factory()->create();
         $own = Community::factory()->create(['creator_id' => $user->id]);
@@ -29,7 +29,9 @@ class PrivateCommunityAccessTest extends TestCase
         $pending = CommunityMembership::factory()->create(['user_id' => $user->id]);
         $other = Community::factory()->create();
         $this->actingAs($user)->get('/dashboard')->assertOk()->assertSee($own->name)
-            ->assertSee($joined->community->name)->assertDontSee($pending->community->name)->assertDontSee($other->name);
+            ->assertSee($joined->community->name)->assertSee($pending->community->name)->assertSee($other->name);
+        $this->get('/communities?filter=joined')->assertOk()->assertSee($joined->community->name)
+            ->assertDontSee($pending->community->name)->assertDontSee($other->name);
         $this->get('/communities')->assertOk()->assertSee('Role: Member');
     }
 
@@ -54,7 +56,8 @@ class PrivateCommunityAccessTest extends TestCase
             $membership = CommunityMembership::factory()->create(['user_id' => $user->id, 'status' => $state]);
             $this->actingAs($user)->get('/communities/'.$membership->community->slug)->assertNotFound()->assertDontSee($membership->community->name);
             $this->get('/communities/'.$membership->community->slug.'/cover')->assertNotFound();
-            $this->get('/communities')->assertDontSee($membership->community->name);
+            $this->get('/communities')->assertSee($membership->community->name)->assertSee('Invitation required');
+            $this->get('/communities?filter=joined')->assertDontSee($membership->community->name);
         }
         $other = Community::factory()->create();
         $this->get('/communities/'.$other->slug)->assertNotFound();
@@ -70,7 +73,8 @@ class PrivateCommunityAccessTest extends TestCase
         $this->get('/communities/'.$other->slug)->assertNotFound();
         $member->transitionTo('SUSPENDED');
         $this->get('/communities/'.$member->community->slug)->assertNotFound();
-        $this->get('/dashboard')->assertDontSee($member->community->name);
+        $this->get('/communities?filter=joined')->assertDontSee($member->community->name);
+        $this->get('/dashboard')->assertSee($member->community->name)->assertSee('Invitation required');
     }
 
     public function test_inactive_community_blocks_members_and_media_even_with_active_membership(): void
@@ -98,7 +102,7 @@ class PrivateCommunityAccessTest extends TestCase
         $this->assertStringContainsString('no-store', $response->headers->get('Cache-Control'));
         $member = CommunityMembership::factory()->active()->create(['community_id' => $community->id]);
         $this->actingAs($member->user)->get($base)->assertOk();
-        $this->actingAs(User::factory()->create())->get($base)->assertNotFound();
+        $this->actingAs(User::factory()->create())->get($base)->assertOk();
         // Laravel's signed local-storage route denies unsigned public access.
         $this->get('/storage/'.$old)->assertForbidden();
         $this->get('/community-media/'.$old)->assertNotFound();

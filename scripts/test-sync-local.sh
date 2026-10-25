@@ -89,7 +89,7 @@ case "$1" in
                 mock_container_id "$service"; printf '\n'
                 if [[ "${MOCK_DUPLICATE_SERVICE:-}" == "$service" ]]; then mock_container_id "$service" 1; printf '\n'; fi ;;
             *' stop '*) [[ "${MOCK_FAIL:-}" != stop ]] || exit 7 ;;
-            *' build app queue') [[ "${MOCK_FAIL:-}" != build ]] || exit 7 ;;
+            *' build --pull app queue') [[ "${MOCK_FAIL:-}" != build ]] || exit 7 ;;
             *' up -d --wait --wait-timeout 120 mysql') [[ "${MOCK_FAIL:-}" != mysql ]] || exit 7 ;;
             *' up -d --wait --wait-timeout 120') [[ "${MOCK_FAIL:-}" != health ]] || exit 7 ;;
             *' composer install '*) [[ "${MOCK_FAIL:-}" != composer ]] || exit 7 ;;
@@ -229,7 +229,7 @@ for stack in up down; do
     [[ "$(< "$fixture/output")" == *'[PASS] Local sync complete; HEAD=after-sha;'* ]] || exit 1
     [[ "$(cksum "$MOCK_ROOT/.env")" == "$before" && ! -d "$MOCK_ROOT/.git/scool-sync.lock" ]] || exit 1
     trace="$(< "$TRACE")"
-    [[ "$trace" == *'-e APP_CONFIG_CACHE=/dev/null/scool-sync-config.php app php -r'*'git fetch origin main'*' stop nginx queue app'*'git merge --ff-only origin/main'*' build app queue'*'composer install'*'npm ci'*'config:clear'*'verify-runtime.php config'*'-e APP_CONFIG_CACHE=/dev/null/scool-sync-config.php app php -r'*'artisan migrate --no-interaction'*' run --rm --no-deps --user www-data app php artisan db:seed --class=LocalDemoSyncSeeder --no-interaction'*' up -d --wait --wait-timeout 120'*'verify --mode verify'* ]] || { printf '[FAIL] Incorrect sync ordering.\n'; exit 1; }
+    [[ "$trace" == *'-e APP_CONFIG_CACHE=/dev/null/scool-sync-config.php app php -r'*'git fetch origin main'*' stop nginx queue app'*'git merge --ff-only origin/main'*' build --pull app queue'*'composer install'*'npm ci'*'config:clear'*'verify-runtime.php config'*'-e APP_CONFIG_CACHE=/dev/null/scool-sync-config.php app php -r'*'artisan migrate --no-interaction'*' run --rm --no-deps --user www-data app php artisan db:seed --class=LocalDemoSyncSeeder --no-interaction'*' up -d --wait --wait-timeout 120'*'verify --mode verify'* ]] || { printf '[FAIL] Incorrect sync ordering.\n'; exit 1; }
     [[ "$(grep -c 'php artisan db:seed' "$TRACE")" == 1 ]] || { printf '[FAIL] Expected exactly the curated demo seeder.\n'; exit 1; }
     [[ "$trace" != *'migrate:fresh'* && "$trace" != *'key:generate'* && "$trace" != *'--class=DatabaseSeeder'* && "$trace" != *'--class=DemoContentSeeder'* && "$trace" != *' down '* && "$trace" != *'queue:flush'* ]] || exit 1
     passed=$((passed+1))

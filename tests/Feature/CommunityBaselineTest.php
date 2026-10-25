@@ -417,18 +417,18 @@ class CommunityBaselineTest extends TestCase
         }
     }
 
-    public function test_community_index_is_owner_scoped_and_paginated(): void
+    public function test_owned_community_index_is_owner_scoped_and_paginated(): void
     {
         $creator = User::factory()->create();
         Community::factory()->count(13)->create(['creator_id' => $creator->id]);
         $other = Community::factory()->create(['name' => 'Other tenant secret']);
 
-        $first = $this->actingAs($creator)->get('/communities')->assertOk()
+        $first = $this->actingAs($creator)->get('/communities?filter=owned')->assertOk()
             ->assertDontSee($other->name)->viewData('communities');
         $this->assertSame(13, $first->total());
         $this->assertCount(12, $first->items());
 
-        $second = $this->actingAs($creator)->get('/communities?page=2')->assertOk()
+        $second = $this->actingAs($creator)->get('/communities?filter=owned&page=2')->assertOk()
             ->assertDontSee($other->name)->viewData('communities');
         $this->assertCount(1, $second->items());
     }

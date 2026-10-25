@@ -108,7 +108,7 @@
                             <p class="text-sm text-slate-500 mb-6 max-w-md mx-auto">{{ __('You have not joined any communities as a member yet.') }}</p>
                         @else
                             <h3 class="text-base font-semibold text-slate-900 mb-1">{{ __('Welcome to S-cool') }}</h3>
-                            <p class="text-sm text-slate-500 mb-6 max-w-md mx-auto">{{ __('You have no accessible communities yet. Create one or accept an invitation sent to your email.') }}</p>
+                            <p class="text-sm text-slate-500 mb-6 max-w-md mx-auto">{{ __('No active communities are available yet. Create the first learning community.') }}</p>
                             <a href="{{ route('communities.create') }}" class="inline-flex items-center px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-medium text-xs rounded-xl transition shadow-sm shadow-brand-500/20">
                                 {{ __('Get Started — Create a Community') }}
                             </a>
@@ -117,6 +117,11 @@
                 @else
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         @foreach ($communities as $community)
+                            @php
+                                $isCreator = $community->isCreator(auth()->user());
+                                $isMember = (bool) $community->has_effective_membership;
+                                $canOpen = $community->isActive() && ($isCreator || $isMember);
+                            @endphp
                             <article class="group relative flex flex-col bg-surface rounded-xl border border-line hover:border-brand/40 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 overflow-hidden shadow-2xs">
                                 <!-- Cover / Educational Graphic Fallback -->
                                 <div class="relative aspect-[16/9] w-full overflow-hidden bg-slate-900">
@@ -141,7 +146,7 @@
                                     <!-- Cover Overlay Badges -->
                                     <div class="absolute inset-x-3 top-3 flex items-center justify-between pointer-events-none">
                                         <!-- Role Pill -->
-                                        @if ($community->isCreator(auth()->user()))
+                                        @if ($isCreator)
                                             <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-900/85 backdrop-blur-md text-brand-300 border border-brand-500/30 shadow-xs">
                                                 <svg class="w-3 h-3 text-brand-400" fill="currentColor" viewBox="0 0 20 20">
                                                     <path d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 11-1z" />
@@ -150,7 +155,7 @@
                                             </span>
                                         @else
                                             <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-900/85 backdrop-blur-md text-slate-200 border border-white/10 shadow-xs">
-                                                {{ __('Member') }}
+                                                {{ $isMember ? __('Member') : __('Not joined') }}
                                             </span>
                                         @endif
 
@@ -172,7 +177,7 @@
                                 <div class="p-5 flex flex-col flex-1">
                                     <div class="mb-2">
                                         <h3 class="text-base font-bold text-ink group-hover:text-brand transition-colors line-clamp-1">
-                                            @if ($community->isActive())
+                                            @if ($canOpen)
                                                 <a href="{{ route('communities.show', $community) }}" class="focus:outline-none focus:underline">
                                                     {{ $community->name }}
                                                 </a>
@@ -189,9 +194,9 @@
                                     <!-- Bottom Action Strip -->
                                     <div class="flex items-center justify-between text-xs pt-4 mt-4 border-t border-line/60">
                                         <span class="text-muted font-medium">
-                                            {{ $community->isCreator(auth()->user()) ? __('Role: Creator') : __('Role: Member') }}
+                                            {{ $isCreator ? __('Role: Creator') : ($isMember ? __('Role: Member') : __('Not joined')) }}
                                         </span>
-                                        @if ($community->isActive())
+                                        @if ($canOpen)
                                             <a href="{{ route('communities.show', $community) }}"
                                                class="inline-flex items-center font-semibold text-brand hover:text-brand-hover group-hover:translate-x-0.5 transition-all focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-1 rounded-md px-1">
                                                 <span>{{ __('Open Community') }}</span>
@@ -201,7 +206,7 @@
                                             </a>
                                         @else
                                             <span class="text-muted font-medium">
-                                                {{ __('Access unavailable') }}
+                                                {{ $community->isActive() ? __('Invitation required') : __('Access unavailable') }}
                                             </span>
                                         @endif
                                     </div>
