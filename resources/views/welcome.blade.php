@@ -1349,11 +1349,11 @@
                     isPaused: false,
                     autoplayTimer: null,
                     stories: [
-                        { company: 'Klarna', badge: 'Financial Tech', quote: 'Klarna\'s AI academy reduced student onboarding time by 80% with S-cool Classroom', metric: '80% Reduction' },
-                        { company: 'Monday.com', badge: 'Work OS', quote: 'Monday Service achieved 8.7x faster milestone feedback loops with peer reviews', metric: '8.7x Faster' },
-                        { company: 'Podium', badge: 'Communications', quote: 'Podium reduced mentor escalation and duplicate questions by 90% with structured discussions', metric: '90% Drop' },
-                        { company: 'C.H. Robinson', badge: 'Logistics', quote: 'Automated 5,500 assignment submissions per cohort, saving 600+ hours daily with rubrics', metric: '600+ Hours' },
-                        { company: 'ServiceNow', badge: 'Enterprise', quote: 'Orchestrated technical certification across 8 structured milestones with transparent leaderboards', metric: '8 Stages' }
+                        { company: 'Example cohort', badge: 'Learning', quote: 'Organize a curriculum with published modules and visible lesson progress.', metric: 'Course outline' },
+                        { company: 'Example workshop', badge: 'Practice', quote: 'Submit practical work and receive creator feedback through the implemented review workflow.', metric: 'Practical review' },
+                        { company: 'Example study group', badge: 'Discussion', quote: 'Ask questions and find existing discussions within an authorized community.', metric: 'Scoped search' },
+                        { company: 'Example class', badge: 'Progress', quote: 'Track lesson completion separately from verified practical work.', metric: 'Learning progress' },
+                        { company: 'Example community', badge: 'Membership', quote: 'Use invitations and the existing access rules to manage a private learning space.', metric: 'Private access' }
                     ],
                     get allCards() {
                         return [...this.stories, ...this.stories.slice(0, 3)];
@@ -1430,7 +1430,7 @@
                     </div>
                     <a href="{{ route('help.index') }}"
                        class="inline-flex items-center gap-1.5 px-4 py-2 bg-surface hover:bg-slate-50 text-ink border border-line text-xs font-semibold rounded-lg shadow-xs transition-colors shrink-0">
-                        <span>More customer stories</span>
+                        <span>More learning scenarios</span>
                         <svg class="w-3.5 h-3.5 text-muted" viewBox="0 0 16 16" fill="none"><path d="M4.61538 4V5.23077H9.90154L4 11.1323L4.86769 12L10.7692 6.09846V11.3846H12V4H4.61538Z" fill="currentColor"/></svg>
                     </a>
                 </div>
@@ -1597,9 +1597,9 @@
                  class="py-20 md:py-28 bg-canvas border-t border-line scroll-mt-12">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center max-w-3xl mx-auto mb-16 space-y-3">
-                    <span class="text-xs font-semibold text-brand uppercase tracking-wider">Illustrative metrics — not live usage</span>
+                    <span class="text-xs font-semibold text-brand uppercase tracking-wider">Learn with your community</span>
                     <h2 class="text-3xl sm:text-5xl font-bold tracking-tight text-ink font-sans">
-                        Demo scale visualization
+                        Discuss, learn, and put skills into practice
                     </h2>
                 </div>
 
@@ -1607,25 +1607,25 @@
                     <!-- Metric 1: Monthly Active Study Hours -->
                     <div class="bg-surface rounded-xl border border-line p-8 text-center shadow-xs hover:shadow-md hover:border-brand/40 transition-all space-y-2">
                         <div class="text-5xl sm:text-6xl font-black text-brand tracking-tight font-sans">
-                            <span x-text="stat1 + 'K+'">350K+</span>
+                            <span class="text-3xl">Discuss</span>
                         </div>
-                        <div class="text-sm text-muted font-medium">Monthly active study & discussion hours</div>
+                        <div class="text-sm text-muted font-medium">Share questions and feedback in your community</div>
                     </div>
 
                     <!-- Metric 2: Active Communities -->
                     <div class="bg-surface rounded-xl border border-line p-8 text-center shadow-xs hover:shadow-md hover:border-brand/40 transition-all space-y-2">
                         <div class="text-5xl sm:text-6xl font-black text-brand tracking-tight font-sans">
-                            <span x-text="stat2 + 'K+'">7K+</span>
+                            <span class="text-3xl">Learn</span>
                         </div>
-                        <div class="text-sm text-muted font-medium">Active cohort communities & mentor workspaces</div>
+                        <div class="text-sm text-muted font-medium">Follow course lessons and track your progress</div>
                     </div>
 
                     <!-- Metric 3: Accelerator Adoption -->
                     <div class="bg-surface rounded-xl border border-line p-8 text-center shadow-xs hover:shadow-md hover:border-brand/40 transition-all space-y-2">
                         <div class="text-5xl sm:text-6xl font-black text-brand tracking-tight font-sans">
-                            <span x-text="stat3">5</span> <span class="text-2xl text-muted font-normal">of 10</span>
+                            <span class="text-3xl">Practice</span>
                         </div>
-                        <div class="text-sm text-muted font-medium">Leading tech accelerators use S-cool engines</div>
+                        <div class="text-sm text-muted font-medium">Submit practical work for creator review</div>
                     </div>
                 </div>
             </div>
@@ -1640,7 +1640,7 @@
                             Get started with S-cool
                         </h2>
                         <p class="text-base sm:text-lg text-muted font-normal leading-relaxed">
-                            Use S-cool, the community learning platform, to improve every step of the student journey from discussion to verified certification.
+                            Use S-cool, the community learning platform, to improve every step of the student journey from discussion to creator-reviewed practical work.
                         </p>
 
                         <div class="pt-4 flex flex-wrap items-center justify-center gap-3.5">

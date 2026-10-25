@@ -6,13 +6,13 @@
     </x-slot>
 
     <div class="py-8 sm:py-10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div data-live-search-surface class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
             <!-- Contextual Workspace Header -->
             <x-community-workspace :community="$community" active-tab="search" />
 
             <!-- Search Input Card -->
             <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-5 sm:p-6">
-                <form method="GET" action="{{ route('communities.search', $community) }}" class="space-y-4">
+                <form method="GET" action="{{ route('communities.search', $community) }}" class="space-y-4" x-data="liveListSearch" @submit.prevent="search()">
                     <input type="hidden" name="type" value="{{ $type }}">
 
                     <div class="flex flex-col sm:flex-row gap-3">
@@ -24,7 +24,7 @@
                             </div>
                             <input type="text"
                                    name="q"
-                                   id="search-input"
+                                   id="search-input" @input="liveSearch" aria-label="Search community content" maxlength="100"
                                    value="{{ $searchQuery ?? '' }}"
                                    placeholder="{{ __('Search discussions, courses, lessons, and members...') }}"
                                    class="block w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition">
@@ -50,11 +50,17 @@
                     @error('type')
                         <p class="text-xs text-rose-600 mt-1 font-medium">{{ $message }}</p>
                     @enderror
-                </form>
+
+                        <p x-show="loading" x-cloak role="status" class="basis-full text-xs text-muted">{{ __('Searching…') }}</p>
+                        <div x-show="error" x-cloak role="alert" class="basis-full text-xs text-rose-700">
+                            <span x-text="error"></span>
+                            <button type="button" @click="search()" class="ml-2 underline font-semibold">{{ __('Retry') }}</button>
+                        </div>
+</form>
 
                 <!-- Type Selector Tabs -->
                 <div class="mt-6 border-b border-slate-100">
-                    <nav class="-mb-px flex flex-wrap gap-4 sm:gap-8" aria-label="Search Type Tabs">
+                    <nav data-live-search-tabs class="-mb-px flex flex-wrap gap-4 sm:gap-8" aria-label="Search Type Tabs">
                         @php
                             $tabs = [
                                 'posts' => __('Discussions'),
@@ -90,7 +96,7 @@
             </div>
 
             <!-- Results Section -->
-            <div>
+            <div data-live-search-results>
                 @if ($results === null)
                     <!-- Initial Idle State -->
                     <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-12 text-center text-slate-500">

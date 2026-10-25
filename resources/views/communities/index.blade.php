@@ -19,7 +19,7 @@
     </x-slot>
 
     <div class="py-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div data-live-search-surface class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
             @if (session('status'))
                 <div class="flex items-center p-4 text-sm font-medium text-emerald-800 bg-emerald-50 rounded-xl border border-emerald-200/70">
                     <svg class="w-5 h-5 text-emerald-600 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -33,7 +33,7 @@
             <div class="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-sm">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                     <!-- Filter Tabs -->
-                    <nav class="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl" aria-label="Filters">
+                    <nav data-live-search-tabs class="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 rounded-xl" aria-label="Filters">
                         <a href="{{ route('communities.index', array_filter(['filter' => 'all', 'q' => $searchQuery ?? ''])) }}"
                            class="px-3.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all {{ ($currentFilter ?? 'all') === 'all' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-white/50' }}">
                             {{ __('All') }}
@@ -49,15 +49,7 @@
                     </nav>
 
                     <!-- Search Form -->
-                    <form method="GET" action="{{ route('communities.index') }}" class="flex items-center gap-2" x-data="{
-                        timeout: null,
-                        liveSearch() {
-                            clearTimeout(this.timeout);
-                            this.timeout = setTimeout(() => {
-                                this.$el.submit();
-                            }, 400);
-                        }
-                    }">
+                    <form method="GET" action="{{ route('communities.index') }}" class="flex flex-wrap items-center gap-2 min-w-0" x-data="liveListSearch" @submit.prevent="search()">
                         <input type="hidden" name="filter" value="{{ $currentFilter ?? 'all' }}">
                         <div class="relative flex-1 sm:w-72">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -65,7 +57,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                             </div>
-                            <input type="text" name="q" value="{{ $searchQuery ?? '' }}" placeholder="{{ __('Search communities...') }}"
+                            <input type="text" name="q" aria-label="Search communities" maxlength="100" value="{{ $searchQuery ?? '' }}" placeholder="{{ __('Search communities...') }}"
                                    @input="liveSearch"
                                    autocomplete="off"
                                    class="w-full text-sm rounded-xl border-slate-200 pl-9 pr-3 py-2 bg-slate-50/50 focus:bg-white focus:border-brand-500 focus:ring-brand-500 transition-colors">
@@ -73,17 +65,21 @@
                         <button type="submit" class="inline-flex items-center px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs rounded-xl transition shadow-sm">
                             {{ __('Search') }}
                         </button>
-                        @if (!empty($searchQuery))
                             <a href="{{ route('communities.index', ['filter' => $currentFilter ?? 'all']) }}" class="text-xs text-slate-500 hover:text-slate-800 underline ml-1">
                                 {{ __('Clear') }}
                             </a>
-                        @endif
-                    </form>
+
+                        <p x-show="loading" x-cloak role="status" class="basis-full text-xs text-muted">{{ __('Searching…') }}</p>
+                        <div x-show="error" x-cloak role="alert" class="basis-full text-xs text-rose-700">
+                            <span x-text="error"></span>
+                            <button type="button" @click="search()" class="ml-2 underline font-semibold">{{ __('Retry') }}</button>
+                        </div>
+</form>
                 </div>
             </div>
 
             <!-- Communities Grid -->
-            <div>
+            <div data-live-search-results>
                 @if ($communities->isEmpty())
                     <div class="bg-white rounded-2xl border border-slate-200/80 p-12 text-center shadow-sm">
                         <div class="mx-auto w-14 h-14 rounded-2xl bg-brand-50 border border-brand-100 flex items-center justify-center text-brand-600 mb-4">

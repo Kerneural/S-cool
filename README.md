@@ -44,8 +44,9 @@ replaces `.env`, regenerates keys, resets data or deletes volumes.
 Each machine keeps its own database. Sync fills missing demo accounts and nine standard
 communities (four technical learning communities and five additional samples), then fills
 bundled community/course covers through `LocalDemoSyncSeeder`. Existing accounts keep
-their passwords, verification and roles. Existing community content, access states and
-custom covers are retained; a slug owned by another creator stops sync for review.
+their passwords, verification and roles. Edited community content, access states and
+custom covers are retained. Recognized unedited Group B baselines receive a versioned
+content upgrade; a slug owned by another creator stops sync for review.
 This does not copy another developer's DB or recreate EUR/QA fixtures or the legacy
 Demo Free/Paid Learning communities. Bootstrap's seed/repair path remains separate.
 The demo step runs as `www-data` before the web/worker restart so new private image
@@ -53,6 +54,8 @@ files belong to the HTTP service user. No remote image downloads are required.
 An interrupted demo step may leave completed additions; correct the reported failure
 and rerun sync. Do not reset the DB. Changes to the curated catalog or bundled assets
 must be reviewed in Git; existing edited records are not force-upgraded on each sync.
+Preview Group B updates with `php artisan demo:upgrade-applied` inside the app container;
+`--apply` only upgrades recognized outlines. Review reported conflicts instead of resetting the DB.
 Review migrations before merging: sync applies them, but is not a backup or automatic rollback.
 On failure the stack may stay stopped/partially updated. Fix the reported step and rerun;
 do not rerun Bootstrap or delete data. An interrupted run may leave an empty

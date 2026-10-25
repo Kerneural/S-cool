@@ -69,6 +69,7 @@ class ClassroomController extends Controller
             });
 
             // Bounded candidate retrieval (max 50 to prevent memory exhaustion)
+            SearchNormalizationService::prioritizeCandidates($coursesQuery, 'title', $search);
             $candidates = $coursesQuery->withExists(['entitlements as search_entitled' => fn ($q) => $q->where('user_id', $user->id)])->take(50)->get();
 
             $scored = $candidates->map(function ($course) use ($search, $isCreator) {

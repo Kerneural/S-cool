@@ -1,26 +1,18 @@
 <x-app-layout>
-    <div class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+    <div data-live-search-surface class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
         <x-community-workspace :community="$community" active-tab="classroom" />
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <h1 class="text-2xl font-bold tracking-tight text-ink">{{ __('Classroom Courses') }}</h1>
 
             <!-- Classroom Course Search Form with Alpine Debounce -->
-            <form method="GET" action="{{ route('communities.classroom.index', $community) }}" class="flex items-center gap-2" x-data="{
-                timeout: null,
-                liveSearch() {
-                    clearTimeout(this.timeout);
-                    this.timeout = setTimeout(() => {
-                        this.$el.submit();
-                    }, 400);
-                }
-            }">
+            <form method="GET" action="{{ route('communities.classroom.index', $community) }}" class="flex flex-wrap items-center gap-2 min-w-0" x-data="liveListSearch" @submit.prevent="search()">
                 <div class="relative w-full sm:w-72">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </div>
-                    <input type="text" name="q" value="{{ $searchQuery ?? '' }}" placeholder="{{ __('Search courses in classroom...') }}"
+                    <input type="text" name="q" aria-label="Search courses in classroom" maxlength="100" value="{{ $searchQuery ?? '' }}" placeholder="{{ __('Search courses in classroom...') }}"
                            @input="liveSearch"
                            autocomplete="off"
                            class="w-full text-sm rounded-xl border-line pl-9 pr-3 py-2 bg-surface focus:bg-white focus:border-brand focus:ring-brand transition-colors text-ink shadow-2xs">
@@ -28,12 +20,16 @@
                 <button type="submit" class="inline-flex items-center px-4 py-2 bg-brand hover:bg-brand-hover text-white font-medium text-xs rounded-xl transition shadow-2xs">
                     {{ __('Search') }}
                 </button>
-                @if (!empty($searchQuery))
                     <a href="{{ route('communities.classroom.index', $community) }}" class="text-xs text-muted hover:text-ink underline ml-1">
                         {{ __('Clear') }}
                     </a>
-                @endif
-            </form>
+
+                        <p x-show="loading" x-cloak role="status" class="basis-full text-xs text-muted">{{ __('Searching…') }}</p>
+                        <div x-show="error" x-cloak role="alert" class="basis-full text-xs text-rose-700">
+                            <span x-text="error"></span>
+                            <button type="button" @click="search()" class="ml-2 underline font-semibold">{{ __('Retry') }}</button>
+                        </div>
+</form>
         </div>
         <x-classroom-feedback />
 
@@ -63,6 +59,7 @@
             </details>
         @endif
 
+        <div data-live-search-results>
         @if ($courses->isEmpty())
             <div class="rounded-xl bg-surface p-12 text-center border border-line shadow-2xs">
                 <div class="mx-auto w-12 h-12 rounded-xl bg-brand-soft border border-brand/20 flex items-center justify-center text-brand mb-3">
@@ -182,5 +179,6 @@
                 {{ $courses->links() }}
             </div>
         @endif
+        </div>
     </div>
 </x-app-layout>

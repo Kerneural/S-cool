@@ -1,5 +1,7 @@
 <div class="relative w-full sm:w-64 md:w-72 lg:w-80"
-     x-data="{ isFocused: false }"
+     x-data="{ isFocused: false, networkError: false }"
+     @search-request-failed="networkError = true"
+     @input="networkError = false"
      data-request-id="{{ $requestId }}"
      data-last-processed-id="{{ $lastProcessedRequestId }}"
      @keydown.escape.window="$wire.closeDropdown()">
@@ -56,8 +58,12 @@
         @endif
     </form>
 
+    <div x-show="networkError" x-cloak role="alert" class="mt-2 rounded-lg bg-rose-50 p-3 text-xs text-rose-800">
+        {{ __('Search request failed. Check your connection and retry.') }}
+        <button type="button" @click="networkError = false; $wire.updatedQuery()" class="ml-2 underline font-semibold">{{ __('Retry') }}</button>
+    </div>
     <!-- Screen Reader Status Announcements -->
-    <div class="sr-only" role="status" aria-live="polite" aria-atomic="true">
+    <div x-show="!networkError" class="sr-only" role="status" aria-live="polite" aria-atomic="true">
         @if ($errorMessage)
             {{ $errorMessage }}
         @elseif ($isOpen && $totalResultsCount > 0)
@@ -70,6 +76,7 @@
     <!-- Floating Dropdown Suggestions Panel -->
     @if ($isOpen)
         <div id="community-search-results"
+             x-show="!networkError"
              role="listbox"
              aria-label="{{ __('Search suggestions') }}"
              class="absolute left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-slate-200/90 overflow-hidden z-50 max-h-[75vh] flex flex-col focus:outline-none">

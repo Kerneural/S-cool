@@ -4,6 +4,22 @@ namespace App\Services\Search;
 
 class SearchNormalizationService
 {
+    /** Order authorized SQL candidates before applying the bounded in-memory scorer. */
+    public static function prioritizeCandidates($query, string $field, string $search, string $tieDirection = 'asc'): void
+    {
+        if (! in_array($field, ['title', 'name'], true)) {
+            throw new \LogicException('Unsupported search ordering field.');
+        }
+        $normalized = self::normalize($search);
+        $tokens = array_slice(self::tokenize($search), 0, 4);
+        $allTokens = $tokens === [] ? '1 = 0' : implode(' AND ', array_fill(0, count($tokens), $field.' LIKE ?'));
+        $bindings = [$normalized, self::escapeSqlWildcards($normalized).'%'];
+        foreach ($tokens as $token) {
+            $bindings[] = '%'.self::escapeSqlWildcards($token).'%';
+        }
+        $query->reorder()->orderByRaw('CASE WHEN '.$field.' = ? THEN 0 WHEN '.$field.' LIKE ? THEN 1 WHEN ('.$allTokens.') THEN 2 ELSE 3 END', $bindings)->orderBy('id', $tieDirection);
+    }
+
     /**
      * Map of Vietnamese accented characters to ASCII equivalents.
      *
