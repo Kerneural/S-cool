@@ -5426,3 +5426,63 @@ The owner requested publishing the latest submitted improvements and local corre
   shell syntax, workflow YAML, scoped diff and agent contract passed. Remote CI
   and independent PR approval must be verified before merge. No full-suite, browser or cross-host sync claim
   is inferred from the bounded local evidence above.
+
+## Authenticated community discovery / local verification (2026-10-25)
+
+- Authority/AC source: the current owner request supersedes the former no-directory
+  decision for authenticated community metadata. All must list ACTIVE communities
+  for a new account without ownership/membership; Owned and Joined keep their
+  existing filters. Discovery must not grant internal content or self-join access.
+  The follow-up request authorizes scoped commit/push/PR creation. Independent
+  review and CI still gate merge; no CloudPanel deployment or Linear mutation.
+- Baseline: primary checkout HEAD `3b1d6c6a19ec650cefe9d84a2228527b2a69816a`;
+  local branch `community-directory-local`. Existing runtime/security, sync-script,
+  README/design and shared-document edits were retained; only task-scoped hunks
+  were added. No dependencies or database schema changes.
+- Runtime verified: `scool_app` bind-mounts this checkout; `scool_nginx` publishes
+  exactly `127.0.0.1:8080`. A local-only, target-guarded QA account (ID 11) was
+  created without ownership or memberships; no QA communities were created.
+- Reproduction: the same account initially saw an empty All listing despite 11
+  ACTIVE communities in `scool`. Three new regression scenarios failed before
+  the fix (missing discovery, missing unrelated search result, denied cover read).
+- Implementation: the index selects discovery fields, queries ACTIVE communities
+  for All and preloads an effective-membership existence flag. The shared
+  `accessibleTo` scope and internal view policy are unchanged. A separate
+  `viewCover` policy permits authenticated reads of ACTIVE community covers;
+  path validation, no-store headers, direct storage protection and creator-only
+  uploads remain. Non-members see Not joined / Invitation required without links
+  into protected content. Existing card styling and layout were preserved.
+- Contract alignment: Product Scope, Architecture and README document the bounded
+  metadata exception. Legacy access/expiry tests now assert discovery separately
+  from Joined filtering and internal-content denial; they retain negative access,
+  mutation, suspended/archive and storage-isolation checks.
+- Browser evidence: Chrome at the canonical origin, same new QA session before
+  and after the patch. All shows 11 cards; all 9 actual covers load, 2 communities
+  use their existing fallback. Owned and Joined are empty; searching Maker finds
+  its unrelated community; directly opening that community returns 404. Desktop
+  before/after screenshots were captured; no horizontal overflow observed.
+  Post-check DB reads retain 11 ACTIVE communities and 9 courses; QA ownership
+  and membership counts remain zero. No production data was queried or changed.
+- Verification: targeted suite passed 68 tests / 596 assertions (81.49s). The full
+  suite on guarded `scool_test` completed with 597 passed and 2 legacy-expectation
+  failures / 5,861 assertions (511.61s). Those failures expected unrelated paid
+  demo metadata and ACTIVE community covers to be hidden. Both expectations were
+  updated to the approved discovery contract, retaining Joined-filter and protected
+  course/content denials. Re-running `DemoReadinessTest.php` and
+  `SkoolMediaSyncSafetyTest.php` passed 8 tests / 74 assertions (16.82s). Application
+  code was unchanged between the full run and this corrective test rerun; a second
+  all-green full-suite invocation is not claimed. The additional guest-login
+  regression passed in the full run. Focused Pint passed all 10 touched PHP files
+  in two scoped invocations; PHPStan reported no errors. Agent contract
+  `--require-tracked` passed 11 shared files and routing/privacy gates; whitespace
+  check passed. These results do not establish remote CI or production acceptance.
+- Navigation limitation: GitNexus registration points to historical worktrees /
+  stale local HEAD; the local status command stalled and was interrupted. No
+  graph-derived safety claim is made. Direct source/caller searches, guarded
+  regression tests and canonical runtime/browser evidence are used instead.
+- Publication preparation: a separate `community-directory-discovery` worktree is
+  based on current `origin/main` at `7d0f725`, retaining the merged demo-sync and PHP
+  runtime fixes. Only discovery code/tests and scoped documentation are included;
+  unrelated primary-checkout changes remain local. Browser validation is bounded
+  to this behavior, not a complete accessibility/device UAT. CI/review and host
+  deployment are separate pending gates.
