@@ -89,7 +89,11 @@ class DemoReadinessTest extends TestCase
         $this->actingAs($member)->get(route('dashboard'))
             ->assertOk()
             ->assertSee($free->name)
-            ->assertDontSee($paid->name);
+            ->assertSee($paid->name)
+            ->assertSee('Invitation required');
+        $this->get(route('communities.index', ['filter' => 'joined']))
+            ->assertOk()->assertSee($free->name)->assertDontSee($paid->name);
+        $this->get(route('communities.show', $paid))->assertNotFound();
         $this->get(route('communities.posts.index', $free))->assertOk()->assertSee('Welcome to the free demo community');
         $this->get(route('communities.classroom.index', $free))->assertOk()->assertSee($freeCourse->title);
         $this->get(route('communities.lessons.show', [$free, $freeCourse, $freeLesson]))->assertOk()->assertSee($freeLesson->title);

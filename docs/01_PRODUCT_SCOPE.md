@@ -9,7 +9,7 @@
 ## 1. Các quyết định đã chốt
 
 - `DECISION`: S-cool là nền tảng **multi-community** theo yêu cầu của mentor.
-- `DECISION`: Mọi community trong MVP là **private và invite-only**; không có danh mục, discovery, public join hoặc landing page công khai.
+- `DECISION` (updated 2026-10-25): Community content remains **private and invitation-only**. Authenticated users can discover every ACTIVE community's name, slug, description and cover in **All**, including accounts without memberships. Owned/Joined retain their ownership/effective-membership filters. This supersedes earlier no-directory statements only for this metadata listing; guest browsing, self-join and internal-content access are not enabled.
 - `DECISION`: Creator tạo community riêng cho từng nhóm cụ thể và mời đúng người vào nhóm đó. Đây là biện pháp giới hạn phạm vi truy cập, không phải tuyên bố đã giải quyết toàn bộ nghĩa vụ pháp lý.
 - `PROPOSED`: Invitation ràng buộc với email cụ thể, token một lần và có thời hạn. Hoàng cần xác nhận cơ chế này trước khi thiết kế migration.
 - `DECISION`: Dùng thuật ngữ **Creator** cho người tạo và sở hữu community.

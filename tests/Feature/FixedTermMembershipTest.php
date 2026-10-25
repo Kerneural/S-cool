@@ -77,8 +77,9 @@ class FixedTermMembershipTest extends TestCase
         $this->post(route('communities.lessons.progress.update', [$community, $course, $lesson]), ['completed' => true])->assertNotFound();
         $this->post(route('communities.posts.store', $community), ['title' => 'Forbidden', 'body' => 'Expired writer'])->assertNotFound();
         $this->post(route('communities.onboarding.video', $community))->assertNotFound();
-        $this->get(route('communities.cover.show', $community))->assertNotFound();
-        $this->get(route('communities.index'))->assertOk()->assertDontSee($community->name);
+        $this->get(route('communities.cover.show', $community))->assertOk();
+        $this->get(route('communities.index'))->assertOk()->assertSee($community->name)->assertSee('Invitation required');
+        $this->get(route('communities.index', ['filter' => 'joined']))->assertOk()->assertDontSee($community->name);
         $this->get(route('account.memberships.show', $membership))->assertOk()->assertSee('Expired access')->assertSee('Start Test Renewal')->assertDontSee('Open Community');
         $this->get(route('account.payment-history.index'))->assertOk();
         $this->assertFalse($membership->hasEffectiveAccess());

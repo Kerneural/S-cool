@@ -12,7 +12,7 @@
 ### Functional drivers
 
 - Nền tảng multi-community; một user có thể sở hữu và tham gia nhiều community.
-- Mọi community là private; membership bắt đầu từ invitation, không từ public discovery/join. Email-bound invitation là baseline đề xuất chờ Hoàng xác nhận trước migration.
+- Community content is private and membership begins through invitations. The 2026-10-25 owner-approved discovery exception exposes only ACTIVE community names, slugs, descriptions and covers to authenticated users through the All listing. It supersedes earlier no-discovery constraints for these fields only; it does not authorize content, self-join, or guest access.
 - Creator tự vận hành community, không có Community Admin/Moderator trong MVP.
 - Feed, classroom, lesson progress và event cùng nằm trong ranh giới community.
 - Free membership và paid membership đều yêu cầu invitation; paid flow dùng SePay Sandbox one-time checkout/IPN.
@@ -445,8 +445,12 @@ Invalid authentication/reference/amount/currency returns an error, changes no me
   A used token returns 404 without another membership or restoring revoked access.
   LEFT rejoin requires a new invitation; SUSPENDED/REMOVED/PENDING_PAYMENT cannot
   bypass their state through free acceptance. PAID remains fail-closed until Billing.
-- `Community::accessibleTo()` is a paginated list scope, not a blanket authorization
-  grant. Owners can see their inactive status; internal view/media require ACTIVE
+- `Community::accessibleTo()` remains the access scope for the workspace switcher,
+  not the All discovery listing and not a blanket authorization grant. All lists
+  ACTIVE community metadata, while Owned also retains the owner's inactive status.
+  Cover reads use the separate `viewCover` policy (authenticated + ACTIVE);
+  cover path validation, storage isolation and creator-only uploads are unchanged.
+  Internal views and other media require ACTIVE
   tenant plus ownership or ACTIVE membership. Creator-only writes are separate from
   member reads. Nested invitations use scoped route binding and action rechecks.
   Future content/learning/event policies must scope nested resources the same way;

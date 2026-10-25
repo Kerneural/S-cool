@@ -69,7 +69,7 @@ class SkoolMediaSyncSafetyTest extends TestCase
         $member = User::where('email', 'member@scool.local')->firstOrFail();
         $this->actingAs($member)->get(route('communities.cover.show', $community))->assertOk();
         $this->get(route('communities.courses.cover', [$community, $course]))->assertOk();
-        $this->actingAs(User::factory()->create())->get(route('communities.cover.show', $community))->assertNotFound();
+        $this->actingAs(User::factory()->create())->get(route('communities.cover.show', $community))->assertOk();
         $this->get(route('communities.courses.cover', [$community, $course]))->assertNotFound();
     }
 

@@ -172,7 +172,12 @@ rows survive a normal forward migration; no reset or reseed is required.
 
 ## M2 private-community flow
 
-The dashboard lists communities you own or actively belong to (open [Dashboard](http://127.0.0.1:8080/dashboard)). Create a private community,
+The dashboard and **All** list every ACTIVE community's name, description and cover
+for signed-in users, including new accounts without memberships (open [Dashboard](http://127.0.0.1:8080/dashboard)).
+**Owned** lists your created communities; **Joined** lists your effective memberships.
+Discovery does not grant content access: non-members see **Invitation required**,
+while authorized users can open the community. The workspace switcher still lists
+only communities you can access. Create a private community,
 open **Invitations**, and invite an email. Check [Mailpit](http://127.0.0.1:8025), sign in at `http://127.0.0.1:8080/login` with that email,
 verify it if needed, then reopen the email link and click **Accept invitation**.
 Use the host configured in `APP_URL` (local default `http://127.0.0.1:8080`) for both login and invitation links so the browser sends the same session cookie. If upgrading from the earlier `localhost` default, change only `APP_URL` in your existing `.env`, then run `docker compose -p scool exec -T app php artisan config:clear` and `docker compose -p scool restart queue`. Do not replace `.env` or regenerate the key. Sign in again on `127.0.0.1`; previously delivered email links retain their old host, so revoke/reissue pending invitations if needed.
@@ -529,6 +534,13 @@ The image is loaded into the runner, not pushed to a registry. Successful-run ar
 contain only JUnit, the tested SHA and built manifest/assets, with seven-day retention;
 inspect/sanitize reports before sharing. Failure logs remain in Actions. Cleanup stops only
 runner services without deleting volumes. This is CI, not production deployment/CD.
+
+The PHP image build and CI also run `php /usr/local/bin/scool-verify-php-security.php`.
+The supported 8.2 runtime must be at least 8.2.35 (CVE-2026-109618/CVE-2026-109619),
+with `session.upload_progress.enabled=Off` and exception arguments hidden. Bootstrap
+and local sync build with `--pull`; existing containers need recreation to receive
+the updated image. Verify checks the running app and worker too. A clean Composer
+audit or Alpine package scan alone does not establish that PHP itself is patched.
 
 ## Safety
 
