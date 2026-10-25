@@ -408,7 +408,7 @@ class LearningWorkspaceProofOfWorkTest extends TestCase
 
     public function test_course_cover_upload_replace_and_delete_with_private_headers_ac08(): void
     {
-        Storage::fake('community_media');
+        $storage = Storage::fake('community_media');
         [$community, $creator, $member, $course] = $this->setupPracticalLesson();
 
         $this->actingAs($creator);
@@ -422,7 +422,7 @@ class LearningWorkspaceProofOfWorkTest extends TestCase
 
         $course->refresh();
         $this->assertNotNull($course->cover_path);
-        Storage::disk('community_media')->assertExists($course->cover_path);
+        $storage->assertExists($course->cover_path);
         $firstPath = $course->cover_path;
 
         // 2. Private delivery returns correct security headers
@@ -440,8 +440,8 @@ class LearningWorkspaceProofOfWorkTest extends TestCase
 
         $course->refresh();
         $this->assertNotEquals($firstPath, $course->cover_path);
-        Storage::disk('community_media')->assertExists($course->cover_path);
-        Storage::disk('community_media')->assertMissing($firstPath); // Replaced file cleaned up
+        $storage->assertExists($course->cover_path);
+        $storage->assertMissing($firstPath); // Replaced file cleaned up
 
         // 4. Delete cover
         $deleteResponse = $this->delete(route('communities.courses.cover.destroy', [$community, $course]));
@@ -453,7 +453,7 @@ class LearningWorkspaceProofOfWorkTest extends TestCase
 
     public function test_course_cover_invalid_image_and_cleanup_on_failure_ac08(): void
     {
-        Storage::fake('community_media');
+        $storage = Storage::fake('community_media');
         [$community, $creator, $member, $course] = $this->setupPracticalLesson();
         $this->actingAs($creator);
 
@@ -466,7 +466,7 @@ class LearningWorkspaceProofOfWorkTest extends TestCase
         $validPath = $course->cover_path;
 
         // Attempt replacing with oversized dimensions (> 4096px)
-        $hugeDimensions = UploadedFile::fake()->image('too_wide.png', 5000, 1000);
+        $hugeDimensions = UploadedFile::fake()->image('too_wide.png', 4097, 10);
         $failedResponse = $this->post(route('communities.courses.cover.store', [$community, $course]), [
             'cover' => $hugeDimensions,
         ]);
@@ -475,7 +475,7 @@ class LearningWorkspaceProofOfWorkTest extends TestCase
         // Original cover is preserved
         $course->refresh();
         $this->assertEquals($validPath, $course->cover_path);
-        Storage::disk('community_media')->assertExists($validPath);
+        $storage->assertExists($validPath);
     }
 
     public function test_classroom_renders_16_by_9_cards_and_locked_courses_do_not_leak_details_ac09(): void

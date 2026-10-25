@@ -11,10 +11,14 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Throwable;
 
 class CommunityController extends Controller
 {
@@ -133,28 +137,58 @@ class CommunityController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'slug' => ['bail', 'required', 'string', 'max:255', 'alpha_dash:ascii', Rule::notIn(['create']), 'unique:communities,slug'],
             'description' => ['nullable', 'string', 'max:1000'],
+            'cover' => [
+                'nullable',
+                File::image()->dimensions(Rule::dimensions()->maxWidth(4096)->maxHeight(4096)),
+                File::types(['jpg', 'jpeg', 'png', 'webp'])->extensions(['jpg', 'jpeg', 'png', 'webp'])->max(2048),
+            ],
             'access_mode' => ['sometimes', 'required', Rule::in(['FREE', 'PAID'])],
             'price_vnd' => ['nullable', 'required_if:access_mode,PAID', 'integer', 'min:1', 'max:4294967295'],
             'billing_period' => ['sometimes', 'required', Rule::in(['ONE_TIME', 'TERM_30_DAYS'])],
             'referral_commission_rate' => ['sometimes', 'integer', 'min:0', 'max:30'],
         ]);
 
+        $disk = Storage::disk('community_media');
+        $coverPath = null;
+        $community = null;
+
         try {
-            /** @var Community $community */
-            $community = $request->user()->createdCommunities()->make([
-                'name' => $validated['name'],
-                'slug' => $validated['slug'],
-                'description' => $validated['description'] ?? null,
-            ]);
-            $mode = $validated['access_mode'] ?? 'FREE';
-            $community->forceFill(['access_mode' => $mode, 'price_vnd' => $mode === 'PAID' ? $validated['price_vnd'] : null,
-                'billing_period' => $mode === 'PAID' ? ($validated['billing_period'] ?? 'ONE_TIME') : 'ONE_TIME',
-                'referral_commission_rate' => $validated['referral_commission_rate'] ?? 0,
-            ])->save();
-            PostCategory::initializeDefaultsFor($community);
+            DB::transaction(function () use ($request, $validated, $disk, &$community, &$coverPath): void {
+                /** @var Community $community */
+                $community = $request->user()->createdCommunities()->make([
+                    'name' => $validated['name'],
+                    'slug' => $validated['slug'],
+                    'description' => $validated['description'] ?? null,
+                ]);
+                $mode = $validated['access_mode'] ?? 'FREE';
+                $community->forceFill([
+                    'access_mode' => $mode,
+                    'price_vnd' => $mode === 'PAID' ? $validated['price_vnd'] : null,
+                    'billing_period' => $mode === 'PAID' ? ($validated['billing_period'] ?? 'ONE_TIME') : 'ONE_TIME',
+                    'referral_commission_rate' => $validated['referral_commission_rate'] ?? 0,
+                ])->save();
+
+                if ($request->hasFile('cover')) {
+                    $coverPath = $disk->putFile((string) $community->id, $request->file('cover'));
+                    if (! is_string($coverPath)) {
+                        throw new \RuntimeException('Cover storage failed.');
+                    }
+                    $community->forceFill(['cover_path' => $coverPath])->save();
+                }
+
+                PostCategory::initializeDefaultsFor($community);
+            });
         } catch (UniqueConstraintViolationException) {
+            if (is_string($coverPath) && $community !== null) {
+                $this->cleanupCover($coverPath, $community->id);
+            }
             // The slug is the only client-controlled unique key on this insert.
             throw ValidationException::withMessages(['slug' => 'The slug is not available.']);
+        } catch (Throwable $exception) {
+            if (is_string($coverPath) && $community !== null) {
+                $this->cleanupCover($coverPath, $community->id);
+            }
+            throw $exception;
         }
 
         return redirect()->route('communities.show', $community)->with('status', 'community-created');
@@ -255,5 +289,17 @@ class CommunityController extends Controller
         ])->save();
 
         return redirect()->route('communities.show', $community)->with('status', 'community-updated');
+    }
+
+    private function cleanupCover(string $path, int $communityId): void
+    {
+        if (preg_match('/\A'.preg_quote((string) $communityId, '/').'\/[a-zA-Z0-9]{40}\.(?:jpg|jpeg|png|webp)\z/D', $path) !== 1) {
+            return;
+        }
+
+        try {
+            Storage::disk('community_media')->delete($path);
+        } catch (Throwable) {
+        }
     }
 }

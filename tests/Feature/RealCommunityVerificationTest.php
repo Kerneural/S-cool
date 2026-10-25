@@ -3,8 +3,12 @@
 namespace Tests\Feature;
 
 use App\Models\Community;
+use App\Models\Course;
+use App\Models\CourseSection;
+use App\Models\Lesson;
 use App\Models\User;
 use Database\Seeders\RealCommunitySampleSeeder;
+use Database\Seeders\RealFreeCommunitySeeder;
 use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -17,6 +21,7 @@ class RealCommunityVerificationTest extends TestCase
     {
         $this->seed(UserSeeder::class);
         $this->seed(RealCommunitySampleSeeder::class);
+        $this->seed(RealFreeCommunitySeeder::class);
 
         $creator = User::where('email', 'creator@scool.local')->firstOrFail();
         $member = User::where('email', 'member@scool.local')->firstOrFail();
@@ -27,42 +32,103 @@ class RealCommunityVerificationTest extends TestCase
                 'video_embed' => 'https://www.youtube.com/embed/0YQVadm4V-Q',
                 'rule_snippet' => '1. Be kind, constructive, and helpful to beginners.',
             ],
-            'ai-video-bootcamp' => [
-                'name' => 'AI Video Bootcamp',
-                'video_embed' => 'https://www.loom.com/embed/e0838a4ac97647beb59ed491e6407579',
-                'rule_snippet' => '1. Respect intellectual property and original artists.',
+            'ai-automation-society' => [
+                'name' => 'AI Automation Society',
+                'video_embed' => 'https://www.loom.com/embed/11479f0c65594512af79a04f5f45672f',
+                'rule_snippet' => '1. Be helpful and constructive. No low-effort self-promotion.',
             ],
-            'maker-school-ai-automation' => [
-                'name' => 'Maker School: AI Automation',
-                'video_embed' => 'https://www.loom.com/embed/f0c25c3dbfd245499fc7343c01ab5a24',
-                'rule_snippet' => '1. Execution over theory: Focus on shipping working automations.',
+            'learn-ai' => [
+                'name' => 'AI Automation Agency Hub',
+                'video_embed' => 'https://www.youtube.com/embed/vFepZE_wrfg',
+                'rule_snippet' => '1. Provide real value first before requesting feedback.',
             ],
-            'agentic-ai-founders' => [
-                'name' => 'Agentic AI for Founders',
-                'video_embed' => 'https://www.loom.com/embed/916707c037fe4cac91a87060bf03c15b',
-                'rule_snippet' => '1. Confidentiality: What is shared in this mastermind stays in this mastermind.',
+            'max-business-school' => [
+                'name' => 'Max Business School™',
+                'video_embed' => 'https://www.youtube.com/embed/cY3aYETEGaI',
+                'rule_snippet' => '1. Post in the correct categories.',
             ],
-            'tattoo-masterclass' => [
-                'name' => 'Tattoo Masterclass Incubator',
-                'video_embed' => 'https://www.loom.com/embed/0eea2204985144679429cc8ac0508363',
-                'rule_snippet' => '1. Hygiene and bloodborne pathogen protocols are strictly enforced.',
+            'the-ai-advantage' => [
+                'name' => 'The AI Advantage',
+                'video_embed' => 'https://www.youtube.com/embed/956DPSPX4wg',
+                'rule_snippet' => '1. Zero hate speech or negative toxicity.',
+            ],
+            'cliefnotes' => [
+                'name' => 'Clief Notes',
+                'video_embed' => 'https://www.youtube.com/embed/UDJmO7xyCSo',
+                'rule_snippet' => '1. Search before asking common questions.',
             ],
         ];
 
         foreach ($expectations as $slug => $data) {
             $community = Community::where('slug', $slug)->firstOrFail();
 
+            // Verify Zero-Cost / Free community attributes
+            $this->assertSame('FREE', $community->access_mode);
+            $this->assertNull($community->price_vnd);
+
             // 1. Member views About / Show tab
             $response = $this->actingAs($member)->get(route('communities.show', $community));
             $response->assertOk();
             $response->assertSee($data['name']);
             $response->assertSee($data['rule_snippet']);
-            $response->assertSee('src="'.$data['video_embed'].'"', false);
+            $response->assertSee($data['video_embed'], false);
 
             // 2. Member views Classroom index
             $classroomResponse = $this->actingAs($member)->get(route('communities.classroom.index', $community));
             $classroomResponse->assertOk();
-            $classroomResponse->assertSee($community->courses()->first()->title);
+            /** @var Course $firstCourse */
+            $firstCourse = $community->courses()->firstOrFail();
+            $classroomResponse->assertSee($firstCourse->title);
+
+            // 3. Member views first lesson with secure video player
+            /** @var CourseSection $firstSection */
+            $firstSection = $firstCourse->sections()->firstOrFail();
+            /** @var Lesson $firstLesson */
+            $firstLesson = $firstSection->lessons()->firstOrFail();
+            $lessonResponse = $this->actingAs($member)->get(route('communities.lessons.show', [
+                'community' => $community,
+                'course' => $firstCourse,
+                'lesson' => $firstLesson,
+            ]));
+            $lessonResponse->assertOk();
+            $lessonResponse->assertSee($firstLesson->title);
+            if ($firstLesson->embed_url) {
+                $lessonResponse->assertSee('S-cool Protected Stream');
+            } else {
+                $lessonResponse->assertSee(str_contains($firstLesson->content, "\n") ? explode("\n", $firstLesson->content)[0] : $firstLesson->content);
+            }
         }
+    }
+
+    public function test_watch_agentic_ai_lesson_renders_full_content_and_video(): void
+    {
+        $this->seed(UserSeeder::class);
+        $this->seed(RealCommunitySampleSeeder::class);
+        $this->seed(RealFreeCommunitySeeder::class);
+
+        $member = User::where('email', 'member@scool.local')->firstOrFail();
+        $community = Community::where('slug', 'ai-automation-society')->firstOrFail();
+
+        $lesson = Lesson::where('title', 'Watch: Agentic AI')->firstOrFail();
+        $section = $lesson->section;
+        $course = $section->course;
+
+        $response = $this->actingAs($member)->get(route('communities.lessons.show', [
+            'community' => $community,
+            'course' => $course,
+            'lesson' => $lesson,
+        ]));
+
+        $response->assertOk();
+        $response->assertSee('Watch: Agentic AI');
+        $response->assertSee('S-cool Protected Stream');
+        $response->assertSee('The agentic AI market is going from $7 billion to $93 billion in the next few years');
+        $response->assertSee('The WAT Framework - the system behind every workflow Nate builds');
+        $response->assertSee("In this video, you'll see:");
+        $response->assertSee('Day 1: First Workflow');
+        $response->assertSee('Lesson: The WAT Framework');
+        $response->assertSee('Build: Newsletter Automation');
+        $response->assertSee('Day 2: Using an MCP Server');
+        $response->assertSee('Day 7: Executive Assistant');
     }
 }

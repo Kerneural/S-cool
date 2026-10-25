@@ -177,4 +177,44 @@ class PrivateCommunityAccessTest extends TestCase
         $this->post($url, ['cover' => UploadedFile::fake()->image('replacement.png')])->assertStatus(500);
         $this->assertSame($old, $community->refresh()->cover_path);
     }
+
+    public function test_user_can_create_community_with_uploaded_cover_image(): void
+    {
+        $creator = User::factory()->create();
+        $file = UploadedFile::fake()->image('my-community-cover.png', 1280, 720);
+
+        $response = $this->actingAs($creator)->post('/communities', [
+            'name' => 'Custom Design Hub',
+            'slug' => 'custom-design-hub',
+            'description' => 'A vibrant design community.',
+            'cover' => $file,
+        ]);
+
+        $response->assertRedirect('/communities/custom-design-hub');
+
+        $community = Community::where('slug', 'custom-design-hub')->firstOrFail();
+        $this->assertNotNull($community->cover_path);
+        Storage::disk('community_media')->assertExists($community->cover_path);
+
+        // Creator can view the cover
+        $this->get('/communities/'.$community->slug.'/cover')->assertOk();
+
+        // Index shows the cover
+        $this->get('/communities')->assertOk()->assertSee(route('communities.cover.show', $community));
+    }
+
+    public function test_community_creation_rejects_invalid_cover_file(): void
+    {
+        $creator = User::factory()->create();
+        $invalidFile = UploadedFile::fake()->create('malicious.php', 10, 'text/plain');
+
+        $response = $this->actingAs($creator)->post('/communities', [
+            'name' => 'Hacker Hub',
+            'slug' => 'hacker-hub',
+            'cover' => $invalidFile,
+        ]);
+
+        $response->assertSessionHasErrors('cover');
+        $this->assertDatabaseMissing('communities', ['slug' => 'hacker-hub']);
+    }
 }
