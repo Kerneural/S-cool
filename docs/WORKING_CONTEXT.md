@@ -2,6 +2,24 @@
 
 A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
+## EUR-71 (PQ-05) landing artwork and marquee checkpoint (2026-10-25)
+
+- Authority: Linear issue EUR-71 (PQ-05) approved by product owner.
+- Working checkout: `eur-71-landing-artwork-marquee`, base `real-free-communities`, HEAD `0d50a4c71f13f6506ab92286a658efa954afd3b7`.
+- Delivered Scope:
+  - AC-01: Original symbolic hero illustration SVG `public/images/landing/hero-symbolic-mesh.svg` with S-cool palette (`#0F766E`, `#0D9488`, `#D97706`, `#1E293B`) and graceful `onerror` fallback.
+  - AC-02: Genuine product visuals captured from running application (`public/images/landing/product/product-community-feed.png`, `product-classroom-outline.png`, `product-proof-of-work.png`) with provenance recorded in `visual-change-and-assets.md`.
+  - AC-03 & AC-04: Controllable horizontal logo strip with Alpine state (`isPaused`, `manualPaused`), accessible Pause/Resume button (`:aria-pressed`, `:aria-label`), pointer hover/focus pause, manual-pause persistence, and `prefers-reduced-motion` static wrapping strip hiding clones (`[aria-hidden="true"] { display: none }`).
+  - AC-05: Responsive without horizontal overflow at 320px, 375px, 768px, 1280px, and 200% zoom. No external animation libraries.
+  - AC-06: Docs CTA points to `route('help.index')`; logos truthfully describe learning topics.
+  - AC-07: Complete evidence pack in `docs/testing-docs/M13/PQ-05/` (`visual-change-and-assets.md`, `landing-checks.md`, `before-after/`, `marquee-controls.mp4`).
+- Verification Results:
+  - JS unit tests: 29/29 PASS (`node --test tests/js/*.test.mjs`).
+  - PHP feature tests: 40/40 PASS (350 assertions) across targeted suites (`LandingArtworkMarqueeTest`, `CommunityLeaderboardTest`, `MemberDirectoryProfileTest`, `LocalDemoSyncTest`, `LearningWorkspaceProofOfWorkTest`).
+  - Code style: Pint PASS on 300 files (`./vendor/bin/pint --test`).
+  - Shared agent contract: PASS (`bash scripts/verify-agent-contract.sh`).
+- Next: Move EUR-71 to In Review, post handoff comment, and present full report to product owner.
+
 ## EUR-50/51 experience-completion planning amendment (2026-10-16)
 
 - Authority: user approved normalizing the Skool reference, placing suitable
@@ -5518,3 +5536,11 @@ The owner requested publishing the latest submitted improvements and local corre
 - Removed early Blob revocation, src removal and property traps that break seeking/replay. Blob URLs live until component teardown; teardown aborts fetch, disconnects the extension observer and clears the watermark interval. Normalized local storage URLs to disk-relative paths. These deterrents are not DRM or a guarantee against an authorized viewer copying media.
 - Direct PHPUnit: SecureVideoStreamTest, StreamAuthorizationRegressionTest, ClassroomRegressionTest and JoinSecurityRegressionTest: PASS 25 tests / 307 assertions / 18.578s on guarded scool_test. First added test attempted a mass-assignment update of a protected field; corrected to the explicit fixture forceFill/save. Build and scoped Pint passed.
 - No standalone Linear issue contract was found for this extra PR. This is a bounded regression/code review, not real-provider, full-browser playback or new public-join approval. No production/local application data change. Final CI and code review remain required.
+
+
+## PR #63 / EUR-71 bounded audit and five-PR integration — 2026-10-25
+
+- Submitted head `a578a46`. Preserved original hero SVG, three screenshot assets, palette, existing layout and marquee controls. Added hero timer cleanup and corrected the screenshot label to Member Leaderboard rather than claiming it shows practical-work verification. Preserved all preceding catalog, search, upload/card and video corrections.
+- Compared the Classroom conflict against base/incoming/current; retained the search toolbar and full-width three-column course grid. Only the conflicting heading wrapper/blank line needed resolution; no whole-view replacement. Runtime hardening remains the targeted libexpat/Brotli upgrade and existing PHP security gate.
+- Source at integration `66f843a` and later history-only merge `3125cb1` was identical across app/resources/routes/database/phpunit/runtime paths. Direct guarded scool_test PHPUnit selection passed 58 tests / 661 assertions / 50.048s: landing, Join abuse, card/discovery, scoped/full/Livewire search privacy, stream authorization/ranges, Classroom and safe demo sync. JS suite passed 29/29; final production build passed with existing font URL warnings. An initial Node directory invocation was invalid; the file-list invocation is authoritative. Subsequent source change is limited to the truthful screenshot caption/alt text.
+- This is the requested quick implementation audit, not fresh browser/zoom/provider/rights/owner UAT or formal M13 acceptance. Existing screenshots/recordings are submitted artifacts. No 8084 preview, Compose port change, canonical development DB/seed/media mutation, Azure or CloudPanel deployment. Required CI/review gate merge; Linear completion remains separate.

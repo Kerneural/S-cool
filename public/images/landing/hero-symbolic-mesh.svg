@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" fill="none" class="w-full h-auto select-none" role="img" aria-label="S-cool Knowledge, Community and Proof-of-Work Symbolic Constellation">
+    <defs>
+        <!-- Gradients based on S-cool token palette -->
+        <linearGradient id="scoolTealGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#0F766E" />
+            <stop offset="50%" stop-color="#0D9488" />
+            <stop offset="100%" stop-color="#059669" />
+        </linearGradient>
+        <linearGradient id="scoolAmberGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#D97706" />
+            <stop offset="100%" stop-color="#F59E0B" />
+        </linearGradient>
+        <linearGradient id="scoolSlateGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1E293B" />
+            <stop offset="100%" stop-color="#475569" />
+        </linearGradient>
+        <linearGradient id="scoolGlowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#0F766E" stop-opacity="0.15" />
+            <stop offset="60%" stop-color="#14B8A6" stop-opacity="0.05" />
+            <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+        </linearGradient>
+        <radialGradient id="centralAura" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#0F766E" stop-opacity="0.22" />
+            <stop offset="50%" stop-color="#0D9488" stop-opacity="0.08" />
+            <stop offset="100%" stop-color="#0F172A" stop-opacity="0" />
+        </radialGradient>
+        <filter id="subtleGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="8" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+    </defs>
+
+    <!-- Ambient Aura -->
+    <circle cx="500" cy="350" r="320" fill="url(#centralAura)" />
+
+    <!-- Orbital Fine Engraving Rings -->
+    <circle cx="500" cy="350" r="280" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="3 6" opacity="0.7" />
+    <circle cx="500" cy="350" r="210" stroke="#94A3B8" stroke-width="1" stroke-dasharray="6 8" opacity="0.6" />
+    <circle cx="500" cy="350" r="140" stroke="#0F766E" stroke-width="1.5" stroke-dasharray="2 4" opacity="0.5" />
+    <circle cx="500" cy="350" r="70" stroke="#D97706" stroke-width="1" opacity="0.4" />
+
+    <!-- Isometric Knowledge Lattice & Constellation Lines -->
+    <!-- Major axes connecting nodes -->
+    <path d="M500 70 L500 630" stroke="#E2E8F0" stroke-width="1.5" stroke-dasharray="4 6" />
+    <path d="M220 350 L780 350" stroke="#E2E8F0" stroke-width="1.5" stroke-dasharray="4 6" />
+    <path d="M302 152 L698 548" stroke="#E2E8F0" stroke-width="1" stroke-dasharray="3 5" />
+    <path d="M698 152 L302 548" stroke="#E2E8F0" stroke-width="1" stroke-dasharray="3 5" />
+
+    <!-- Fine Geometrical Polyhedral Shells -->
+    <polygon points="500,140 682,245 682,455 500,560 318,455 318,245"
+             stroke="#0F766E" stroke-width="1.5" fill="none" opacity="0.35" />
+    <polygon points="500,180 647,265 647,435 500,520 353,435 353,265"
+             stroke="#0D9488" stroke-width="1" stroke-dasharray="4 4" fill="none" opacity="0.4" />
+
+    <!-- Diagonal Lattice Interconnects (Engraving style) -->
+    <line x1="500" y1="140" x2="647" y2="435" stroke="#CBD5E1" stroke-width="0.8" opacity="0.5" />
+    <line x1="500" y1="140" x2="353" y2="435" stroke="#CBD5E1" stroke-width="0.8" opacity="0.5" />
+    <line x1="500" y1="560" x2="647" y2="265" stroke="#CBD5E1" stroke-width="0.8" opacity="0.5" />
+    <line x1="500" y1="560" x2="353" y2="265" stroke="#CBD5E1" stroke-width="0.8" opacity="0.5" />
+
+    <!-- Satellite Nodes: Community, Classroom, Proof of Work -->
+    <!-- Top Node: Community Dialogue -->
+    <g transform="translate(500, 140)">
+        <circle cx="0" cy="0" r="32" fill="#FFFFFF" stroke="#0F766E" stroke-width="2" filter="url(#subtleGlow)" />
+        <circle cx="0" cy="0" r="26" fill="#F0FDFA" />
+        <!-- Dialogue / Community Icon -->
+        <path d="M-10 -6 H10 C12 -6 13 -5 13 -3 V5 C13 7 12 8 10 8 H-2 L-8 13 V8 H-10 C-12 8 -13 7 -13 5 V-3 C-13 -5 -12 -6 -10 -6 Z"
+              fill="none" stroke="#0F766E" stroke-width="2" stroke-linejoin="round" />
+        <circle cx="-5" cy="1" r="1.5" fill="#0F766E" />
+        <circle cx="0" cy="1" r="1.5" fill="#0F766E" />
+        <circle cx="5" cy="1" r="1.5" fill="#0F766E" />
+        <text x="0" y="48" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#0F766E" text-anchor="middle" letter-spacing="0.5">PEER COMMUNITY</text>
+    </g>
+
+    <!-- Right Node: Structured Classroom -->
+    <g transform="translate(682, 350)">
+        <circle cx="0" cy="0" r="32" fill="#FFFFFF" stroke="#0D9488" stroke-width="2" filter="url(#subtleGlow)" />
+        <circle cx="0" cy="0" r="26" fill="#F0FDFA" />
+        <!-- Classroom Outline Icon -->
+        <path d="M-9 -8 L9 -8 L9 8 L-9 8 Z" fill="none" stroke="#0D9488" stroke-width="2" />
+        <path d="M-6 -4 L6 -4" stroke="#0D9488" stroke-width="1.8" stroke-linecap="round" />
+        <path d="M-6 0 L6 0" stroke="#0D9488" stroke-width="1.8" stroke-linecap="round" />
+        <path d="M-6 4 L2 4" stroke="#0D9488" stroke-width="1.8" stroke-linecap="round" />
+        <text x="0" y="48" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#0D9488" text-anchor="middle" letter-spacing="0.5">STRUCTURED COURSES</text>
+    </g>
+
+    <!-- Bottom Node: Proof of Work Verification -->
+    <g transform="translate(500, 560)">
+        <circle cx="0" cy="0" r="32" fill="#FFFFFF" stroke="#D97706" stroke-width="2" filter="url(#subtleGlow)" />
+        <circle cx="0" cy="0" r="26" fill="#FFFBEB" />
+        <!-- Verification Shield / Checkmark Icon -->
+        <path d="M0 -9 L9 -5 V2 C9 7 5 11 0 13 C-5 11 -9 7 -9 2 V-5 Z" fill="none" stroke="#D97706" stroke-width="2" stroke-linejoin="round" />
+        <path d="M-4 1 L-1 4 L5 -2" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        <text x="0" y="48" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#D97706" text-anchor="middle" letter-spacing="0.5">PROOF OF WORK</text>
+    </g>
+
+    <!-- Left Node: Knowledge Compounding / Library -->
+    <g transform="translate(318, 350)">
+        <circle cx="0" cy="0" r="32" fill="#FFFFFF" stroke="#334155" stroke-width="2" filter="url(#subtleGlow)" />
+        <circle cx="0" cy="0" r="26" fill="#F8FAFC" />
+        <!-- Open Book / Codex Icon -->
+        <path d="M-9 7 C-6 5 -3 5 0 7 C3 5 6 5 9 7 V-7 C6 -9 3 -9 0 -7 C-3 -9 -6 -9 -9 -7 Z"
+              fill="none" stroke="#334155" stroke-width="2" stroke-linejoin="round" />
+        <line x1="0" y1="-7" x2="0" y2="7" stroke="#334155" stroke-width="1.8" />
+        <text x="0" y="48" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#334155" text-anchor="middle" letter-spacing="0.5">SHARED CODEX</text>
+    </g>
+
+    <!-- Centerpiece Emblem: S-cool Learning Core -->
+    <g transform="translate(500, 350)">
+        <!-- Multi-layered Outer Concentric Rings -->
+        <circle cx="0" cy="0" r="62" fill="#FFFFFF" stroke="#0F766E" stroke-width="3" filter="url(#subtleGlow)" />
+        <circle cx="0" cy="0" r="54" fill="url(#scoolGlowGrad)" stroke="#CBD5E1" stroke-width="1" />
+        <circle cx="0" cy="0" r="46" fill="#F8FAFC" stroke="#0F766E" stroke-width="1.5" stroke-dasharray="3 3" />
+        <circle cx="0" cy="0" r="38" fill="url(#scoolTealGrad)" />
+
+        <!-- Stylized S-cool Monogram & Core Energy Lattice -->
+        <path d="M-12 -14 C-4 -20 12 -16 14 -8 C15 -1 6 3 0 6 C-8 10 -12 14 -10 20 C-8 25 2 26 10 22"
+              fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+        <circle cx="10" cy="-14" r="3" fill="#F59E0B" />
+        <circle cx="-10" cy="20" r="3" fill="#F59E0B" />
+    </g>
+
+    <!-- Micro Star / Milestone Points & Engraving Crosses -->
+    <g fill="#94A3B8" opacity="0.6">
+        <circle cx="210" cy="210" r="2.5" />
+        <circle cx="790" cy="210" r="2.5" />
+        <circle cx="210" cy="490" r="2.5" />
+        <circle cx="790" cy="490" r="2.5" />
+        <circle cx="420" cy="230" r="2" />
+        <circle cx="580" cy="230" r="2" />
+        <circle cx="420" cy="470" r="2" />
+        <circle cx="580" cy="470" r="2" />
+    </g>
+
+    <!-- Fine Coordinate Marks -->
+    <path d="M495 65 H505 M500 60 V70" stroke="#94A3B8" stroke-width="1" />
+    <path d="M495 635 H505 M500 630 V640" stroke="#94A3B8" stroke-width="1" />
+    <path d="M215 350 H225 M220 345 V355" stroke="#94A3B8" stroke-width="1" />
+    <path d="M775 350 H785 M780 345 V355" stroke="#94A3B8" stroke-width="1" />
+</svg>

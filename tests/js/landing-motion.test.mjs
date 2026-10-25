@@ -149,3 +149,49 @@ test('the decorative watermark ignores pointer motion while reduced motion is en
     state.updatePos({ clientX: 100, clientY: 200 });
     assert.deepEqual([state.mouseX, state.mouseY], [30, 50]);
 });
+
+test('marquee manual pause toggles state and persists across pointer leave and focus changes', () => {
+    const env = environment();
+    const state = env.instantiate('manualPaused:');
+    assert.equal(state.manualPaused, false, 'Manual pause is initially false');
+    assert.equal(state.isPaused, false, 'Marquee is initially running');
+
+    // Pointer hover pauses
+    state.isHovered = true;
+    assert.equal(state.isPaused, true, 'Hovering pauses marquee');
+    state.isHovered = false;
+    assert.equal(state.isPaused, false, 'Leaving resumes when not manually paused');
+
+    // Focus pauses
+    state.isFocused = true;
+    assert.equal(state.isPaused, true, 'Focus within pauses marquee');
+    state.isFocused = false;
+    assert.equal(state.isPaused, false, 'Blur resumes when not manually paused');
+
+    // Explicit manual toggle wins and persists
+    state.togglePause();
+    assert.equal(state.manualPaused, true, 'togglePause activates manual pause');
+    assert.equal(state.isPaused, true, 'Marquee remains paused');
+
+    // Pointer and focus movements cannot unpause a manually paused marquee
+    state.isHovered = true;
+    assert.equal(state.isPaused, true);
+    state.isHovered = false;
+    assert.equal(state.isPaused, true, 'Pointer leave does not resume a manually paused marquee');
+    state.isFocused = false;
+    assert.equal(state.isPaused, true, 'Focus change does not resume a manually paused marquee');
+
+    // Explicit toggle resumes
+    state.togglePause();
+    assert.equal(state.manualPaused, false, 'togglePause deactivates manual pause');
+    assert.equal(state.isPaused, false, 'Marquee resumes after explicit unpause');
+});
+
+test('marquee markup contains accessible pause/resume control and hides reduced-motion clones', () => {
+    // Assert accessible button and markup contracts
+    assert.ok(source.includes(':aria-pressed="manualPaused ? \'true\' : \'false\'"'), 'Accessible aria-pressed attribute present');
+    assert.ok(source.includes(':aria-label="manualPaused ? \'Resume marquee animation\' : \'Pause marquee animation\'"'), 'Accessible aria-label toggle present');
+    assert.ok(source.includes('aria-hidden="true"'), 'Marquee clones are hidden from assistive technology');
+    assert.ok(source.includes('tabindex="-1"'), 'Cloned links are excluded from keyboard tab order');
+    assert.ok(source.includes('.marquee-paused .animate-marquee'), 'Paused style selector is wired');
+});
