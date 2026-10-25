@@ -136,7 +136,7 @@ class CommunitySearchTypeahead extends Component
                     }
                 })
                 ->with(['author:id,name', 'category:id,name'])
-                ->orderByDesc('id')
+                ->tap(fn ($query) => SearchNormalizationService::prioritizeCandidates($query, 'title', $trimmed, 'desc'))
                 ->limit(20)
                 ->get();
 
@@ -183,12 +183,13 @@ class CommunitySearchTypeahead extends Component
                 $coursesQuery->published()->entitledTo($user);
             }
 
-            $coursesCandidates = $coursesQuery->orderBy('order')
-                ->orderByDesc('id')
+            SearchNormalizationService::prioritizeCandidates($coursesQuery, 'title', $trimmed);
+            $coursesCandidates = $coursesQuery
+                ->withExists(['entitlements as search_entitled' => fn ($query) => $query->where('user_id', $user->id)])
                 ->limit(20)
                 ->get();
 
-            $courses = $coursesCandidates->map(function ($c) use ($trimmed, $community, $user) {
+            $courses = $coursesCandidates->map(function ($c) use ($trimmed, $community) {
                 $scoreTitle = SearchNormalizationService::calculateScore($c->title, $trimmed);
                 $scoreDesc = $c->description ? (int) (SearchNormalizationService::calculateScore($c->description, $trimmed) * 0.8) : 0;
                 $score = max($scoreTitle, $scoreDesc);
@@ -198,7 +199,7 @@ class CommunitySearchTypeahead extends Component
                     'item' => [
                         'id' => 'course-'.$c->id,
                         'title' => $c->title,
-                        'subtitle' => $c->isOneTime() ? ($c->isEntitledFor($user) ? 'Purchased' : $c->formattedPrice()) : 'Included',
+                        'subtitle' => $c->isOneTime() ? ($c->search_entitled ? 'Purchased' : $c->formattedPrice()) : 'Included',
                         'badge' => 'Course',
                         'url' => route('communities.courses.show', [$community, $c]),
                     ],
@@ -239,7 +240,7 @@ class CommunitySearchTypeahead extends Component
             }
 
             $lessonsCandidates = $lessonsQuery->with(['courseSection.course'])
-                ->orderBy('id')
+                ->tap(fn ($query) => SearchNormalizationService::prioritizeCandidates($query, 'title', $trimmed))
                 ->limit(20)
                 ->get();
 

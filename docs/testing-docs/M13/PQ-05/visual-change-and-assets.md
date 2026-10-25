@@ -35,13 +35,13 @@
 
 ## 3. Genuine Product Visuals (AC-02)
 
-All screenshots were captured directly from the running local application (`http://127.0.0.1:8080`) using real seeded demo data without mock data, fake metrics, or artificial scaling:
+Historical submission states that screenshots were captured from the running local application (`http://127.0.0.1:8080`) using real seeded demo data without mock data, fake metrics, or artificial scaling:
 
 | Visual | File Path | Origin / Source Route | Description |
 |---|---|---|---|
 | Community Feed | `public/images/landing/product/product-community-feed.png` | `http://127.0.0.1:8080/communities/the-ai-advantage` | Real conversational feed with pinned notices, likes, comments, and creator role badge. |
 | Classroom Outline | `public/images/landing/product/product-classroom-outline.png` | `http://127.0.0.1:8080/communities/the-ai-advantage/classroom` | Structured syllabus modules, video lessons, and completion markers. |
-| Proof of Work | `public/images/landing/product/product-proof-of-work.png` | `http://127.0.0.1:8080/communities/the-ai-advantage/leaderboard` | Real community leaderboard showing student rankings, points, and 7-day challenge milestones. |
+| Leaderboard preview | `public/images/landing/product/product-proof-of-work.png` | `http://127.0.0.1:8080/communities/the-ai-advantage/leaderboard` | Real community leaderboard showing student rankings, points, and 7-day challenge milestones. |
 
 ---
 
@@ -72,4 +72,4 @@ Logos represent educational topics, open learning resources, and community refer
 
 - **Original SVG Illustration**: Created specifically for the S-cool project under repository license.
 - **Product Screenshots**: S-cool user interface captured under local testing environment with sanitized demo seed content.
-- **Logos / Trademarks**: Referenced under nominative fair use to describe open learning resources and educational topics.
+- **Logos / Trademarks**: Third-party marks used as educational references. Specific permission/license review is pending; this document does not establish fair use or an endorsement.

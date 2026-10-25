@@ -151,6 +151,12 @@ class SearchController extends Controller
                     ->values();
             };
 
+            // Authorize/filter first; prioritize strong matches before the candidate cap.
+            foreach ([$postsQuery, $coursesQuery, $lessonsQuery, $eventsQuery] as $candidateQuery) {
+                SearchNormalizationService::prioritizeCandidates($candidateQuery, 'title', $search);
+            }
+            SearchNormalizationService::prioritizeCandidates($membersQuery, 'name', $search);
+
             // Candidates bounded to 50
             $postsCandidates = (clone $postsQuery)->with(['author:id,name', 'category'])->limit(50)->get();
             $scoredPosts = $scoreItems($postsCandidates, fn ($p) => [$p->title, $p->body]);

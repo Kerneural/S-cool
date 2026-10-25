@@ -73,6 +73,7 @@ class CommunityController extends Controller
             });
 
             // Bounded candidate retrieval (max 50 to prevent memory exhaustion)
+            SearchNormalizationService::prioritizeCandidates($query, 'name', $search);
             $candidates = $query->distinct()->take(50)->get();
 
             $scored = $candidates->map(function ($community) use ($search) {
