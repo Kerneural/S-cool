@@ -3,7 +3,7 @@
 ])
 
 <div x-data="{
-    showJoinModal: false,
+    showJoinModal: @js($errors->has('email')),
     email: '{{ auth()->user()?->email ?? '' }}',
     answer: ''
 }" class="relative">
@@ -121,6 +121,7 @@
     @if (! $isCreator && ! $isMember)
         <div x-show="showJoinModal"
              x-cloak
+             @keydown.escape.window="showJoinModal = false"
              x-transition:enter="transition ease-out duration-200"
              x-transition:enter-start="opacity-0"
              x-transition:enter-end="opacity-100"
@@ -164,12 +165,13 @@
                     {{ $community->name }}
                 </h3>
                 <p class="text-sm text-slate-500 text-center mt-1">
-                    {{ __('Answer questions to join group') }}
+                    {{ __('An invitation from the creator is required to join this private community.') }}
                 </p>
 
                 <!-- Join Form -->
                 <form method="POST" action="{{ route('communities.join', $community) }}" class="mt-6 space-y-4">
                     @csrf
+                    <x-input-error :messages="$errors->get('email')" class="mt-2" />
 
                     <!-- Question 1: Email Address -->
                     <div class="space-y-1.5 text-left">

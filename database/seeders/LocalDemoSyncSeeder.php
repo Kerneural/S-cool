@@ -29,6 +29,7 @@ class LocalDemoSyncSeeder extends Seeder
         // Bootstrap's explicit repair mode stays unchanged; routine sync only fills gaps.
         $this->callWith(LearningCommunitySeeder::class, ['preserveExisting' => true]);
         $this->call(RealCommunitySampleSeeder::class);
+        $this->call(RealFreeCommunitySeeder::class);
         $this->call(SkoolMediaSyncSeeder::class);
     }
 }
