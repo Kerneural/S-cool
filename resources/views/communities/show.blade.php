@@ -32,7 +32,7 @@
                     </div>
 
                     <!-- Introduction Video (if present) -->
-                    @if ($community->intro_embed_url)
+                    @if ($community->intro_embed_url || $community->intro_video_url)
                         <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-6 sm:p-8 space-y-4">
                             <h2 class="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
                                 <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -42,7 +42,7 @@
                                 <span>{{ __('Introduction Video') }}</span>
                             </h2>
                             <div>
-                                <x-secure-video-player :url="$community->intro_video_url" :title="$community->name" />
+                                <x-secure-video-player :url="$community->intro_video_url" :title="$community->name" :community="$community" />
                             </div>
                         </div>
                     @endif

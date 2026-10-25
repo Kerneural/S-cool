@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Community;
+use App\Models\Lesson;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,14 +14,29 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class SecureVideoStreamController extends Controller
 {
     /**
+     * Number of header bytes obfuscated to scramble MP4 container signatures (ftyp/moov).
+     */
+    public const MASK_BYTE_LENGTH = 512;
+
+    /**
+     * Compute a deterministic demasking key for the given media path.
+     */
+    public static function getMaskKey(string $path): string
+    {
+        $appKey = config('app.key') ?: 'scool-video-protection-key';
+
+        return substr(hash_hmac('sha256', $path, $appKey), 0, 32);
+    }
+
+    /**
      * Generate a temporary signed playback URL for a media asset.
      */
-    public static function signedUrl(string $path, int $minutes = 60): string
+    public static function signedUrl(string $path, int $minutes = 15, ?Community $community = null, ?Lesson $lesson = null): string
     {
         return URL::temporarySignedRoute(
             'secure-stream.video',
             now()->addMinutes($minutes),
-            ['path' => $path]
+            ['path' => $path, 'viewer' => auth()->id(), 'community' => $community?->id, 'lesson' => $lesson?->id]
         );
     }
 
@@ -33,6 +51,17 @@ class SecureVideoStreamController extends Controller
             abort(Response::HTTP_FORBIDDEN, 'Invalid or expired media playback token.');
         }
 
+        $user = $request->user();
+        abort_unless($user && $user->hasVerifiedEmail() && (string) $request->query('viewer') === (string) $user->id, 403);
+        $community = Community::find($request->query('community'));
+        abort_unless($community && $community->isActive(), 404);
+        Gate::authorize('view', $community);
+        if ($request->filled('lesson')) {
+            $lesson = Lesson::find($request->query('lesson'));
+            abort_unless($lesson && (int) $lesson->section?->course?->community_id === (int) $community->id, 404);
+            Gate::authorize('view', $lesson);
+        }
+
         // 2. Strict Referer / Origin Verification to prevent external downloaders or hotlinking
         $referer = (string) $request->headers->get('referer', '');
         $origin = (string) $request->headers->get('origin', '');
@@ -40,7 +69,10 @@ class SecureVideoStreamController extends Controller
         $refererHost = (string) parse_url($referer, PHP_URL_HOST);
         $originHost = (string) parse_url($origin, PHP_URL_HOST);
 
-        $allowedHosts = array_filter([$appHost, '127.0.0.1', 'localhost']);
+        $allowedHosts = array_values(array_unique(array_filter([
+            $appHost,
+            $request->getHost(),
+        ])));
 
         $validHost = (! empty($refererHost) && in_array($refererHost, $allowedHosts, true))
             || (! empty($originHost) && in_array($originHost, $allowedHosts, true));
@@ -66,8 +98,15 @@ class SecureVideoStreamController extends Controller
             'youtube-dl',
             'videodownloadhelper',
             'cococut',
+            'fetchv',
             'fdown',
             'videodownloader',
+            'm3u8',
+            'streamlink',
+            'alohabrowser',
+            'vget',
+            'snaptube',
+            'vidmate',
         ];
         foreach ($blockedAgents as $blocked) {
             if (str_contains($userAgent, $blocked)) {
@@ -75,31 +114,111 @@ class SecureVideoStreamController extends Controller
             }
         }
 
+        // 4. Reject direct browser document navigation (address bar / <a> links)
+        if ($request->header('Sec-Fetch-Dest') === 'document') {
+            abort(Response::HTTP_FORBIDDEN, 'Direct browser document navigation to stream endpoint is prohibited.');
+        }
+
         $path = $request->query('path');
-        if (! $path || ! Storage::disk('public')->exists($path)) {
+        if (! is_string($path) || ! preg_match('~\A(?:[A-Za-z0-9_-]+/)*[A-Za-z0-9_.-]+[.]mp4\z~i', $path) || ! Storage::disk('public')->exists($path)) {
             abort(Response::HTTP_NOT_FOUND, 'Media source not found.');
         }
 
         $fileSize = Storage::disk('public')->size($path);
-        $fullPath = Storage::disk('public')->path($path);
-        $mimeType = file_exists($fullPath) ? (mime_content_type($fullPath) ?: 'video/mp4') : 'video/mp4';
+        $start = 0;
+        $end = $fileSize - 1;
+        $isRangeRequest = false;
 
-        $response = new StreamedResponse(function () use ($path): void {
-            $stream = Storage::disk('public')->readStream($path);
-            if ($stream) {
-                fpassthru($stream);
-                fclose($stream);
+        $rangeHeader = $request->header('Range');
+        if ($rangeHeader) {
+            if (! preg_match('/\Abytes=(\d*)-(\d*)\z/', $rangeHeader, $matches)
+                || ($matches[1] === '' && $matches[2] === '')) {
+                return response('', 416, ['Content-Range' => "bytes */{$fileSize}"]);
             }
-        }, Response::HTTP_OK, [
-            'Content-Type' => $mimeType,
-            'Content-Length' => (string) $fileSize,
-            'Content-Disposition' => 'inline',
+            $isRangeRequest = true;
+            if ($matches[1] === '') {
+                $start = max(0, $fileSize - (int) $matches[2]);
+            } else {
+                $start = (int) $matches[1];
+                if ($matches[2] !== '') {
+                    $end = min((int) $matches[2], $fileSize - 1);
+                }
+            }
+        }
+
+        if ($start > $end || $start >= $fileSize) {
+            return response('', Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE, [
+                'Content-Range' => "bytes */{$fileSize}",
+            ]);
+        }
+
+        $length = $end - $start + 1;
+        $status = $isRangeRequest ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK;
+
+        $maskKey = self::getMaskKey($path);
+        $maskKeyLen = strlen($maskKey);
+
+        $headers = [
+            'Content-Type' => 'application/octet-stream',
+            'Content-Length' => (string) $length,
+            'Accept-Ranges' => 'bytes',
+            'Content-Disposition' => 'inline; filename="stream.bin"',
             'X-Content-Type-Options' => 'nosniff',
+            'X-Stream-Mask-Length' => (string) self::MASK_BYTE_LENGTH,
             'Cache-Control' => 'must-revalidate, no-cache, no-store, private',
             'Pragma' => 'no-cache',
             'Expires' => '0',
             'X-Robots-Tag' => 'noindex, nofollow, noarchive',
-        ]);
+        ];
+
+        if ($isRangeRequest) {
+            $headers['Content-Range'] = "bytes {$start}-{$end}/{$fileSize}";
+        }
+
+        $response = new StreamedResponse(function () use ($path, $start, $length, $maskKey, $maskKeyLen): void {
+            $stream = Storage::disk('public')->readStream($path);
+            if (! $stream) {
+                return;
+            }
+
+            if ($start > 0) {
+                fseek($stream, $start);
+            }
+
+            $bytesRemaining = $length;
+            $currentPosition = $start;
+
+            // Obfuscate the initial header bytes if this slice includes byte 0
+            if ($currentPosition < self::MASK_BYTE_LENGTH && $bytesRemaining > 0) {
+                $maskChunkSize = min(self::MASK_BYTE_LENGTH - $currentPosition, $bytesRemaining);
+                $chunk = fread($stream, $maskChunkSize);
+                if ($chunk !== false && $chunk !== '') {
+                    $chunkLen = strlen($chunk);
+                    for ($i = 0; $i < $chunkLen; $i++) {
+                        $chunk[$i] = chr(ord($chunk[$i]) ^ ord($maskKey[($currentPosition + $i) % $maskKeyLen]));
+                    }
+                    echo $chunk;
+                    flush();
+                    $bytesRemaining -= $chunkLen;
+                    $currentPosition += $chunkLen;
+                }
+            }
+
+            // Stream remaining bytes cleanly in 64KB blocks
+            $bufferSize = 65536;
+            while ($bytesRemaining > 0 && ! feof($stream)) {
+                $readSize = min($bufferSize, $bytesRemaining);
+                $chunk = fread($stream, $readSize);
+                if ($chunk === false || $chunk === '') {
+                    break;
+                }
+                echo $chunk;
+                flush();
+                $bytesRemaining -= strlen($chunk);
+            }
+
+            fclose($stream);
+        }, $status, $headers);
 
         return $response;
     }
