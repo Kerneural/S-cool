@@ -9,6 +9,14 @@ use Illuminate\Auth\Access\Response;
 class CommunityPolicy
 {
     /**
+     * Covers are discovery metadata; this does not authorize community content.
+     */
+    public function viewCover(User $user, Community $community): Response
+    {
+        return $community->isActive() ? Response::allow() : Response::denyAsNotFound();
+    }
+
+    /**
      * Determine whether the user can view the community.
      */
     public function view(User $user, Community $community): Response

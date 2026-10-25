@@ -54,7 +54,7 @@ class CommunityCoverController extends Controller
 
     public function show(Community $community): StreamedResponse
     {
-        Gate::authorize('view', $community);
+        Gate::authorize('viewCover', $community);
         $path = $community->cover_path;
         abort_unless(is_string($path) && preg_match('/\A'.preg_quote((string) $community->id, '/').'\/[a-zA-Z0-9]{40}\.(?:jpg|jpeg|png|webp)\z/D', $path) === 1, 404);
         $disk = Storage::disk('community_media');

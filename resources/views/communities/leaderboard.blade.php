@@ -81,9 +81,9 @@
                                         </div>
                                         <div class="text-xs text-slate-500 leading-normal mt-0.5">
                                             @if (! empty($lvl['perk']))
-                                                {{ __('Unlocks') }} <span class="text-blue-600 font-medium">{{ $lvl['perk'] }}</span> {{ $lvl['members_pct'] }} {{ __('of members') }}
+                                                {{ __('Unlocks') }} <span class="text-blue-600 font-medium">{{ $lvl['perk'] }}</span> {{ __('Distribution not measured') }}
                                             @else
-                                                {{ $lvl['members_pct'] }} {{ __('of members') }}
+                                                {{ __('Distribution not measured') }}
                                             @endif
                                         </div>
                                     </div>
@@ -117,9 +117,9 @@
                                         </div>
                                         <div class="text-xs text-slate-500 leading-normal mt-0.5">
                                             @if (! empty($lvl['perk']))
-                                                {{ __('Unlocks') }} <span class="text-blue-600 font-medium">{{ $lvl['perk'] }}</span> {{ $lvl['members_pct'] }} {{ __('of members') }}
+                                                {{ __('Unlocks') }} <span class="text-blue-600 font-medium">{{ $lvl['perk'] }}</span> {{ __('Distribution not measured') }}
                                             @else
-                                                {{ $lvl['members_pct'] }} {{ __('of members') }}
+                                                {{ __('Distribution not measured') }}
                                             @endif
                                         </div>
                                     </div>
