@@ -96,7 +96,9 @@ jobs:
           cache-to: type=gha,scope=scool-php,mode=max
 
       - name: Verify PHP runtime image
-        run: docker run --rm scool-php:ci php --version
+        run: |
+          docker run --rm scool-php:ci php --version
+          docker run --rm scool-php:ci php /usr/local/bin/scool-verify-php-security.php
 
       - name: Scan PHP runtime image
         run: |
@@ -153,7 +155,7 @@ jobs:
         uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
         with:
           path: storage/framework/testing/composer-cache/files
-          key: ${{ runner.os }}-${{ runner.arch }}-composer-php82-${{ hashFiles('composer.lock', 'docker/php/Dockerfile', 'docker/php/security.ini') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-composer-php82-${{ hashFiles('composer.lock', 'docker/php/Dockerfile', 'docker/php/security.ini', 'docker/php/verify-security.php') }}
 
       - name: Install PHP dependencies
         run: |

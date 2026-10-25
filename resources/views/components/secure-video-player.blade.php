@@ -2,6 +2,8 @@
     'url' => null,
     'title' => 'Video Player',
     'class' => '',
+    'community' => null,
+    'lesson' => null,
 ])
 
 @php
@@ -25,7 +27,7 @@
 
             $maskKey = \App\Http\Controllers\SecureVideoStreamController::getMaskKey($rawPath);
             if (! str_contains($url, 'signature=')) {
-                $streamUrl = \App\Http\Controllers\SecureVideoStreamController::signedUrl($rawPath);
+                $streamUrl = \App\Http\Controllers\SecureVideoStreamController::signedUrl($rawPath, 15, $community, $lesson);
             }
         }
     }
@@ -66,6 +68,9 @@
             loadError: false,
             watermarkPos: 0,
             watermarkTimer: null,
+            idmObserver: null,
+            abortController: null,
+            destroyed: false,
             initSecurePlayer() {
                 // Eradicate IDM injected download elements from DOM continuously
                 const suppressIdmNodes = () => {
@@ -75,8 +80,8 @@
                 };
                 suppressIdmNodes();
                 try {
-                    const idmObserver = new MutationObserver(suppressIdmNodes);
-                    idmObserver.observe(document.documentElement, { childList: true, subtree: true });
+                    this.idmObserver = new MutationObserver(suppressIdmNodes);
+                    this.idmObserver.observe(document.documentElement, { childList: true, subtree: true });
                 } catch (e) {}
 
                 // Periodically drift the security watermark to prevent clean screen recording
@@ -91,7 +96,9 @@
                     const maskKey = @js($maskKey);
                     const maskLen = {{ \App\Http\Controllers\SecureVideoStreamController::MASK_BYTE_LENGTH }};
 
+                    this.abortController = new AbortController();
                     fetch(streamEndpoint, {
+                        signal: this.abortController.signal,
                         credentials: 'same-origin',
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',
@@ -102,6 +109,7 @@
                         return res.arrayBuffer();
                     })
                     .then(buffer => {
+                        if (this.destroyed) return;
                         const view = new Uint8Array(buffer);
                         if (maskKey && maskKey.length > 0) {
                             const bytesToDemask = Math.min(maskLen, view.length);
@@ -120,38 +128,14 @@
                 @endif
             },
             onVideoLoaded() {
-                // Anti-Scraping: Immediately revoke the Blob URL from the browser's registry
-                // Playback continues seamlessly because HTMLMediaElement already holds the stream handle
-                // Any attempt by DevTools console or extensions to fetch video.src will result in ERR_FILE_NOT_FOUND
-                const video = this.$refs.videoTag;
-                if (this.blobUrl) {
-                    const toRevoke = this.blobUrl;
-                    setTimeout(() => {
-                        try {
-                            URL.revokeObjectURL(toRevoke);
-                        } catch (e) {}
-                    }, 100);
-                }
-
-                if (video) {
-                    // Strip DOM src attribute so Element Inspector shows no media reference
-                    try {
-                        video.removeAttribute('src');
-                    } catch (e) {}
-
-                    // Define property traps so script / console inspections return empty string
-                    try {
-                        Object.defineProperty(video, 'src', {
-                            get: () => '',
-                            set: () => {},
-                            configurable: false
-                        });
-                        Object.defineProperty(video, 'currentSrc', {
-                            get: () => '',
-                            configurable: false
-                        });
-                    } catch (e) {}
-                }
+                // Keep the source alive for browser seeking, replay and accessibility.
+            },
+            destroy() {
+                this.destroyed = true;
+                this.abortController?.abort();
+                this.idmObserver?.disconnect();
+                clearInterval(this.watermarkTimer);
+                if (this.blobUrl) URL.revokeObjectURL(this.blobUrl);
             },
             handleVisibility() {
                 // Anti-Recording: Pause stream when tab is backgrounded or minimized

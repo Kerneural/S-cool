@@ -42,7 +42,7 @@
                                 <span>{{ __('Introduction Video') }}</span>
                             </h2>
                             <div>
-                                <x-secure-video-player :url="$community->intro_video_url" :title="$community->name" />
+                                <x-secure-video-player :url="$community->intro_video_url" :title="$community->name" :community="$community" />
                             </div>
                         </div>
                     @endif

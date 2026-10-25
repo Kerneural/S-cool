@@ -5393,3 +5393,96 @@ The owner requested publishing the latest submitted improvements and local corre
 - Publication authority update: the owner explicitly approved committing/pushing exactly these seven files and opening a PR to main for CI. The unrelated .gitignore change and private artifacts remain excluded. Merge and required reviewer approval are not waived.
 
 - Pre-publication navigation: GitNexus mapped six existing learning-seed flows, but its MCP context explicitly reported a cached index twenty commits behind and lower-bound callers. It is not acceptance evidence for this patch. Direct source review and the completed targeted Bootstrap/new-sync regressions cover the changed boundary; published CI remains required.
+
+
+## PHP runtime security correction — 2026-10-24
+
+- Scope: remediate CVE-2026-109618/CVE-2026-109619 on the supported PHP 8.2
+  runtime. Publication branch `php-critical-runtime-fix` starts from main
+  `1fe9d3e317f283de8f0a07486d6855d8d0ded10a`. Unrelated local design/product/
+  delivery documentation is excluded. No schema, dependency lockfile or port change.
+- Docker build and CI execute the standalone PHP security gate: 8.2.35 or newer
+  within minor 8.2, session upload progress Off, exception arguments hidden.
+  Sync/bootstrap use `build --pull`; Verify probes running app and queue.
+- The image scan additionally found inherited CVE-2026-111497 in brotli-libs;
+  the targeted APK upgrade installs 1.2.1-r0 while retaining libexpat 2.9.0-r0.
+  Final local image Trivy 0.75.0 HIGH/CRITICAL scan passed with zero findings.
+  Alpine/Composer scans alone do not establish the PHP interpreter patch level.
+- Primary-checkout evidence on 3b1d6c6 plus the security diff: 39 targeted MySQL
+  scool_test tests / 434 assertions / 148.87s, including uploads, isolation,
+  concurrent invitation acceptance and real worker/Mailpit delivery; original
+  8.2.34 rejection and two unsafe INI override rejection checks passed. Setup
+  helpers: 19 regressions. This is not a full suite on the publication revision.
+- Live local app/queue are PHP 8.2.35 with hardening and patched Brotli, healthy
+  at http://127.0.0.1:8080. Real daemon smoke handled its unique marker exactly
+  once. Existing development row counts, .env checksum, database volume identity
+  and all 313 storage/app files were preserved; no reset, reseed or inbox clearing.
+- Azure already ran PHP 8.2.35. Separately authorized, backed-up private Compose
+  mounts disable upload progress for app/queue; HTTPS health returned 200 and
+  pending/failed jobs were zero. Its existing image/source/secrets were retained.
+  Azure Brotli remains 1.2.0-r1: additional image replacement was explicitly
+  deferred by the owner. This PR does not deploy Azure or CloudPanel.
+- Publication-base `bash scripts/test-sync-local.sh`: 45 mocked cases passed;
+  shell syntax, workflow YAML, scoped diff and agent contract passed. Remote CI
+  and independent PR approval must be verified before merge. No full-suite, browser or cross-host sync claim
+  is inferred from the bounded local evidence above.
+
+## Authenticated community discovery / local verification (2026-10-25)
+
+- Authority/AC source: the current owner request supersedes the former no-directory
+  decision for authenticated community metadata. All must list ACTIVE communities
+  for a new account without ownership/membership; Owned and Joined keep their
+  existing filters. Discovery must not grant internal content or self-join access.
+  The follow-up request authorizes scoped commit/push/PR creation. Independent
+  review and CI still gate merge; no CloudPanel deployment or Linear mutation.
+- Baseline: primary checkout HEAD `3b1d6c6a19ec650cefe9d84a2228527b2a69816a`;
+  local branch `community-directory-local`. Existing runtime/security, sync-script,
+  README/design and shared-document edits were retained; only task-scoped hunks
+  were added. No dependencies or database schema changes.
+- Runtime verified: `scool_app` bind-mounts this checkout; `scool_nginx` publishes
+  exactly `127.0.0.1:8080`. A local-only, target-guarded QA account (ID 11) was
+  created without ownership or memberships; no QA communities were created.
+- Reproduction: the same account initially saw an empty All listing despite 11
+  ACTIVE communities in `scool`. Three new regression scenarios failed before
+  the fix (missing discovery, missing unrelated search result, denied cover read).
+- Implementation: the index selects discovery fields, queries ACTIVE communities
+  for All and preloads an effective-membership existence flag. The shared
+  `accessibleTo` scope and internal view policy are unchanged. A separate
+  `viewCover` policy permits authenticated reads of ACTIVE community covers;
+  path validation, no-store headers, direct storage protection and creator-only
+  uploads remain. Non-members see Not joined / Invitation required without links
+  into protected content. Existing card styling and layout were preserved.
+- Contract alignment: Product Scope, Architecture and README document the bounded
+  metadata exception. Legacy access/expiry tests now assert discovery separately
+  from Joined filtering and internal-content denial; they retain negative access,
+  mutation, suspended/archive and storage-isolation checks.
+- Browser evidence: Chrome at the canonical origin, same new QA session before
+  and after the patch. All shows 11 cards; all 9 actual covers load, 2 communities
+  use their existing fallback. Owned and Joined are empty; searching Maker finds
+  its unrelated community; directly opening that community returns 404. Desktop
+  before/after screenshots were captured; no horizontal overflow observed.
+  Post-check DB reads retain 11 ACTIVE communities and 9 courses; QA ownership
+  and membership counts remain zero. No production data was queried or changed.
+- Verification: targeted suite passed 68 tests / 596 assertions (81.49s). The full
+  suite on guarded `scool_test` completed with 597 passed and 2 legacy-expectation
+  failures / 5,861 assertions (511.61s). Those failures expected unrelated paid
+  demo metadata and ACTIVE community covers to be hidden. Both expectations were
+  updated to the approved discovery contract, retaining Joined-filter and protected
+  course/content denials. Re-running `DemoReadinessTest.php` and
+  `SkoolMediaSyncSafetyTest.php` passed 8 tests / 74 assertions (16.82s). Application
+  code was unchanged between the full run and this corrective test rerun; a second
+  all-green full-suite invocation is not claimed. The additional guest-login
+  regression passed in the full run. Focused Pint passed all 10 touched PHP files
+  in two scoped invocations; PHPStan reported no errors. Agent contract
+  `--require-tracked` passed 11 shared files and routing/privacy gates; whitespace
+  check passed. These results do not establish remote CI or production acceptance.
+- Navigation limitation: GitNexus registration points to historical worktrees /
+  stale local HEAD; the local status command stalled and was interrupted. No
+  graph-derived safety claim is made. Direct source/caller searches, guarded
+  regression tests and canonical runtime/browser evidence are used instead.
+- Publication preparation: a separate `community-directory-discovery` worktree is
+  based on current `origin/main` at `7d0f725`, retaining the merged demo-sync and PHP
+  runtime fixes. Only discovery code/tests and scoped documentation are included;
+  unrelated primary-checkout changes remain local. Browser validation is bounded
+  to this behavior, not a complete accessibility/device UAT. CI/review and host
+  deployment are separate pending gates.

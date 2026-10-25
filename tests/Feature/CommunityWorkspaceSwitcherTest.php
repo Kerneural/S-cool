@@ -141,12 +141,12 @@ class CommunityWorkspaceSwitcherTest extends TestCase
 
         $this->actingAs($user);
 
-        // Filter: All (shows owned and joined, excludes unrelated)
+        // Filter: All discovers active community metadata, including unrelated communities.
         $allResponse = $this->get(route('communities.index', ['filter' => 'all']));
         $allResponse->assertOk()
             ->assertSee('PHP Artisans Guild')
             ->assertSee('Vue Developers Club')
-            ->assertDontSee('Secret Python Den');
+            ->assertSee('Secret Python Den')->assertSee('Invitation required');
 
         // Filter: Owned (shows only owned)
         $ownedResponse = $this->get(route('communities.index', ['filter' => 'owned']));
@@ -174,7 +174,7 @@ class CommunityWorkspaceSwitcherTest extends TestCase
             ->assertSee('No communities found matching "NonExistentKeyword"');
     }
 
-    public function test_inactive_owned_community_shows_on_dashboard_but_excluded_from_member_switcher(): void
+    public function test_inactive_owned_community_shows_in_owned_filter_but_excluded_from_member_switcher(): void
     {
         $creator = User::factory()->create();
         $member = User::factory()->create();
@@ -205,9 +205,9 @@ class CommunityWorkspaceSwitcherTest extends TestCase
             'status' => 'ACTIVE',
         ]);
 
-        // Dashboard for creator shows the suspended community with badge
+        // Owned filter retains the creator's inactive community and status badge.
         $this->actingAs($creator);
-        $creatorDash = $this->get(route('communities.index'));
+        $creatorDash = $this->get(route('communities.index', ['filter' => 'owned']));
         $creatorDash->assertOk()
             ->assertSee('Suspended Space')
             ->assertSee('SUSPENDED');

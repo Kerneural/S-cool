@@ -43,7 +43,7 @@
                 @if ($lesson->embed_url || $lesson->video_url)
                     <div x-data="{ showVideo: true }" class="space-y-3">
                         <div x-show="showVideo">
-                            <x-secure-video-player :url="$lesson->video_url" :title="$lesson->title" />
+                            <x-secure-video-player :url="$lesson->video_url" :title="$lesson->title" :community="$community" :lesson="$lesson" />
                         </div>
                         <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-muted pt-1">
                             <div class="flex flex-wrap items-center gap-2">

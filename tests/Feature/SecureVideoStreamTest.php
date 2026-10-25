@@ -3,12 +3,27 @@
 namespace Tests\Feature;
 
 use App\Http\Controllers\SecureVideoStreamController;
+use App\Models\Community;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Tests\TestCase;
 
 class SecureVideoStreamTest extends TestCase
 {
+    use RefreshDatabase;
+
+    private Community $community;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $user = User::factory()->create();
+        $this->community = Community::factory()->create(['creator_id' => $user->id]);
+        $this->actingAs($user);
+    }
+
     public function test_unsigned_video_stream_request_is_rejected(): void
     {
         $response = $this->get('/secure-stream/video?path=videos/sample.mp4');
@@ -20,7 +35,7 @@ class SecureVideoStreamTest extends TestCase
         $signedUrl = URL::temporarySignedRoute(
             'secure-stream.video',
             now()->addMinutes(10),
-            ['path' => 'videos/sample.mp4']
+            ['viewer' => auth()->id(), 'community' => $this->community->id, 'path' => 'videos/sample.mp4']
         );
 
         // No referer header
@@ -39,7 +54,7 @@ class SecureVideoStreamTest extends TestCase
         $signedUrl = URL::temporarySignedRoute(
             'secure-stream.video',
             now()->addMinutes(10),
-            ['path' => 'videos/sample.mp4']
+            ['viewer' => auth()->id(), 'community' => $this->community->id, 'path' => 'videos/sample.mp4']
         );
 
         $blockedAgents = [
@@ -65,7 +80,7 @@ class SecureVideoStreamTest extends TestCase
         $signedUrl = URL::temporarySignedRoute(
             'secure-stream.video',
             now()->addMinutes(10),
-            ['path' => 'videos/sample.mp4']
+            ['viewer' => auth()->id(), 'community' => $this->community->id, 'path' => 'videos/sample.mp4']
         );
 
         $response = $this->withHeaders([
@@ -87,7 +102,7 @@ class SecureVideoStreamTest extends TestCase
         $signedUrl = URL::temporarySignedRoute(
             'secure-stream.video',
             now()->addMinutes(10),
-            ['path' => $path]
+            ['viewer' => auth()->id(), 'community' => $this->community->id, 'path' => $path]
         );
 
         $response = $this->withHeaders([
@@ -142,7 +157,7 @@ class SecureVideoStreamTest extends TestCase
         $signedUrl = URL::temporarySignedRoute(
             'secure-stream.video',
             now()->addMinutes(10),
-            ['path' => $path]
+            ['viewer' => auth()->id(), 'community' => $this->community->id, 'path' => $path]
         );
 
         // Request slice 100-599
@@ -166,7 +181,7 @@ class SecureVideoStreamTest extends TestCase
         $signedUrl = URL::temporarySignedRoute(
             'secure-stream.video',
             now()->addMinutes(10),
-            ['path' => 'videos/non-existent.mp4']
+            ['viewer' => auth()->id(), 'community' => $this->community->id, 'path' => 'videos/non-existent.mp4']
         );
 
         $response = $this->withHeaders([

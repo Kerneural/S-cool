@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Community;
+use App\Models\Lesson;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,12 +31,12 @@ class SecureVideoStreamController extends Controller
     /**
      * Generate a temporary signed playback URL for a media asset.
      */
-    public static function signedUrl(string $path, int $minutes = 15): string
+    public static function signedUrl(string $path, int $minutes = 15, ?Community $community = null, ?Lesson $lesson = null): string
     {
         return URL::temporarySignedRoute(
             'secure-stream.video',
             now()->addMinutes($minutes),
-            ['path' => $path]
+            ['path' => $path, 'viewer' => auth()->id(), 'community' => $community?->id, 'lesson' => $lesson?->id]
         );
     }
 
@@ -46,6 +49,17 @@ class SecureVideoStreamController extends Controller
         // 1. Verify Signed URL
         if (! $request->hasValidSignature()) {
             abort(Response::HTTP_FORBIDDEN, 'Invalid or expired media playback token.');
+        }
+
+        $user = $request->user();
+        abort_unless($user && $user->hasVerifiedEmail() && (string) $request->query('viewer') === (string) $user->id, 403);
+        $community = Community::find($request->query('community'));
+        abort_unless($community && $community->isActive(), 404);
+        Gate::authorize('view', $community);
+        if ($request->filled('lesson')) {
+            $lesson = Lesson::find($request->query('lesson'));
+            abort_unless($lesson && (int) $lesson->section?->course?->community_id === (int) $community->id, 404);
+            Gate::authorize('view', $lesson);
         }
 
         // 2. Strict Referer / Origin Verification to prevent external downloaders or hotlinking
@@ -106,7 +120,7 @@ class SecureVideoStreamController extends Controller
         }
 
         $path = $request->query('path');
-        if (! $path || ! Storage::disk('public')->exists($path)) {
+        if (! is_string($path) || ! preg_match('~\A(?:[A-Za-z0-9_-]+/)*[A-Za-z0-9_.-]+[.]mp4\z~i', $path) || ! Storage::disk('public')->exists($path)) {
             abort(Response::HTTP_NOT_FOUND, 'Media source not found.');
         }
 
@@ -116,11 +130,19 @@ class SecureVideoStreamController extends Controller
         $isRangeRequest = false;
 
         $rangeHeader = $request->header('Range');
-        if ($rangeHeader && preg_match('/bytes=\h*(\d+)-(\d*)[\D.*]?/i', $rangeHeader, $matches)) {
+        if ($rangeHeader) {
+            if (! preg_match('/\Abytes=(\d*)-(\d*)\z/', $rangeHeader, $matches)
+                || ($matches[1] === '' && $matches[2] === '')) {
+                return response('', 416, ['Content-Range' => "bytes */{$fileSize}"]);
+            }
             $isRangeRequest = true;
-            $start = (int) $matches[1];
-            if (! empty($matches[2])) {
-                $end = min((int) $matches[2], $fileSize - 1);
+            if ($matches[1] === '') {
+                $start = max(0, $fileSize - (int) $matches[2]);
+            } else {
+                $start = (int) $matches[1];
+                if ($matches[2] !== '') {
+                    $end = min((int) $matches[2], $fileSize - 1);
+                }
             }
         }
 
