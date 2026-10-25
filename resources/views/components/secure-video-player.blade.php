@@ -25,6 +25,13 @@
                 $rawPath = $queryParts['path'] ?? $url;
             }
 
+            if (! str_contains($url, 'path=')) {
+                $rawPath = ltrim((string) parse_url($url, PHP_URL_PATH), '/');
+                if (str_starts_with($rawPath, 'storage/')) {
+                    $rawPath = substr($rawPath, strlen('storage/'));
+                }
+            }
+
             $maskKey = \App\Http\Controllers\SecureVideoStreamController::getMaskKey($rawPath);
             if (! str_contains($url, 'signature=')) {
                 $streamUrl = \App\Http\Controllers\SecureVideoStreamController::signedUrl($rawPath, 15, $community, $lesson);
