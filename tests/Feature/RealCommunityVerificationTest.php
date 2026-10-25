@@ -8,6 +8,7 @@ use App\Models\CourseSection;
 use App\Models\Lesson;
 use App\Models\User;
 use Database\Seeders\RealCommunitySampleSeeder;
+use Database\Seeders\RealFreeCommunitySeeder;
 use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -20,6 +21,7 @@ class RealCommunityVerificationTest extends TestCase
     {
         $this->seed(UserSeeder::class);
         $this->seed(RealCommunitySampleSeeder::class);
+        $this->seed(RealFreeCommunitySeeder::class);
 
         $creator = User::where('email', 'creator@scool.local')->firstOrFail();
         $member = User::where('email', 'member@scool.local')->firstOrFail();
@@ -102,6 +104,7 @@ class RealCommunityVerificationTest extends TestCase
     {
         $this->seed(UserSeeder::class);
         $this->seed(RealCommunitySampleSeeder::class);
+        $this->seed(RealFreeCommunitySeeder::class);
 
         $member = User::where('email', 'member@scool.local')->firstOrFail();
         $community = Community::where('slug', 'ai-automation-society')->firstOrFail();

@@ -3,7 +3,7 @@
 ])
 
 <div x-data="{
-    showJoinModal: false,
+    showJoinModal: @js($errors->has('email')),
     email: '{{ auth()->user()?->email ?? '' }}',
     answer: ''
 }" class="relative">
@@ -12,7 +12,10 @@
         <!-- Cover Image (16:9 Aspect Ratio) -->
         <div class="aspect-[16/9] w-full overflow-hidden bg-slate-900 relative">
             @if ($community->cover_path)
-                <div class="w-full h-full bg-cover bg-center" :style="{ backgroundImage: 'url(\'' + @js(route('communities.cover.show', $community)) + '\')' }" role="img" aria-label="{{ $community->name }}"></div>
+                <div class="w-full h-full bg-cover bg-center bg-no-repeat"
+                     :style="{ backgroundImage: 'url(\'' + @js(route('communities.cover.show', $community)) + '\')', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }"
+                     role="img"
+                     aria-label="{{ $community->name }}"></div>
             @else
                 <div class="w-full h-full bg-gradient-to-br from-brand-700 via-teal-800 to-slate-900 flex items-center justify-center p-4">
                     <span class="text-white/90 text-sm font-bold uppercase tracking-wider line-clamp-1">{{ $community->name }}</span>
@@ -118,6 +121,7 @@
     @if (! $isCreator && ! $isMember)
         <div x-show="showJoinModal"
              x-cloak
+             @keydown.escape.window="showJoinModal = false"
              x-transition:enter="transition ease-out duration-200"
              x-transition:enter-start="opacity-0"
              x-transition:enter-end="opacity-100"
@@ -161,12 +165,13 @@
                     {{ $community->name }}
                 </h3>
                 <p class="text-sm text-slate-500 text-center mt-1">
-                    {{ __('Answer questions to join group') }}
+                    {{ __('An invitation from the creator is required to join this private community.') }}
                 </p>
 
                 <!-- Join Form -->
                 <form method="POST" action="{{ route('communities.join', $community) }}" class="mt-6 space-y-4">
                     @csrf
+                    <x-input-error :messages="$errors->get('email')" class="mt-2" />
 
                     <!-- Question 1: Email Address -->
                     <div class="space-y-1.5 text-left">

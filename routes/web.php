@@ -59,7 +59,7 @@ Route::post('/invitations/{invitation}/checkout', [PaymentController::class, 'in
     ->whereNumber('invitation')->middleware(['auth', 'verified', 'throttle:10,1'])->name('invitations.checkout');
 
 Route::post('/communities/{community:slug}/join', [CommunityJoinController::class, 'join'])
-    ->middleware('throttle:20,1')
+    ->middleware(['auth', 'verified', 'throttle:20,1'])
     ->name('communities.join');
 
 Route::middleware('auth')->group(function () {
@@ -96,7 +96,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/communities/{community:slug}/referrals/{referralRequest}/approve', [ReferralController::class, 'approveRequest'])->name('communities.referrals.approve');
         Route::post('/communities/{community:slug}/referrals/{referralRequest}/reject', [ReferralController::class, 'rejectRequest'])->name('communities.referrals.reject');
         Route::get('/communities/{community:slug}/reports', [ContentReportController::class, 'index'])->name('communities.reports.index');
-        Route::post('/communities/{community:slug}/reports', [ContentReportController::class, 'store'])->middleware('throttle:20,1')->name('communities.reports.store');
+        Route::post('/communities/{community:slug}/reports', [ContentReportController::class, 'store'])->middleware(['auth', 'verified', 'throttle:20,1'])->name('communities.reports.store');
         Route::post('/communities/{community:slug}/reports/{report}/remove', [ContentReportController::class, 'remove'])->name('communities.reports.remove');
         Route::post('/communities/{community:slug}/reports/{report}/dismiss', [ContentReportController::class, 'dismiss'])->name('communities.reports.dismiss');
         Route::get('/communities/{community:slug}/invitations', [CommunityInvitationController::class, 'index'])->name('communities.invitations.index');

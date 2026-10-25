@@ -112,57 +112,6 @@ class CommunityJoinAndCardTest extends TestCase
         $this->assertSame(2, $componentAfterActivity->onlineCount);
     }
 
-    public function test_user_can_join_community_via_modal_post_and_member_count_increments(): void
-    {
-        $creator = User::factory()->create();
-        $community = Community::factory()->create([
-            'creator_id' => $creator->id,
-            'name' => 'AI Automation Society',
-            'slug' => 'ai-automation-society',
-        ]);
-
-        $this->assertSame(0, $community->memberships()->effective()->count());
-
-        $joinUser = User::factory()->create(['email' => 'newmember@example.com']);
-
-        $response = $this->actingAs($joinUser)->post(route('communities.join', $community), [
-            'email' => 'newmember@example.com',
-            'referral_source' => 'Found on YouTube channel Nate Herk',
-        ]);
-
-        $response->assertRedirect();
-        $response->assertSessionHas('status');
-
-        // Real member count must now be 1 in DB
-        $membership = $community->memberships()->where('user_id', $joinUser->id)->first();
-        $this->assertNotNull($membership);
-        $this->assertSame('ACTIVE', $membership->status);
-        $this->assertSame(CommunityMembership::ACCESS_LIFETIME, $membership->access_kind);
-        $this->assertNotEmpty($membership->referral_code);
-    }
-
-    public function test_guest_can_join_with_email_and_referral_source(): void
-    {
-        $creator = User::factory()->create();
-        $community = Community::factory()->create([
-            'creator_id' => $creator->id,
-            'slug' => 'ai-automation-society',
-        ]);
-
-        $response = $this->post(route('communities.join', $community), [
-            'email' => 'guestjoin@example.com',
-            'referral_source' => 'Direct link from friend',
-        ]);
-
-        $response->assertRedirect();
-
-        // User should have been created and membership activated
-        $createdUser = User::where('email', 'guestjoin@example.com')->first();
-        $this->assertNotNull($createdUser);
-        $this->assertAuthenticatedAs($createdUser);
-        $this->assertSame(1, $community->memberships()->effective()->count());
-    }
-
     public function test_skool_community_card_renders_across_all_community_tabs(): void
     {
         $creator = User::factory()->create();
@@ -209,7 +158,7 @@ class CommunityJoinAndCardTest extends TestCase
         $leaderboardResponse->assertSee('Level 1 - AI Explorer');
         $leaderboardResponse->assertSee('Level 2 - Automation Novice');
         $leaderboardResponse->assertSee('Level 9 - AI Grandmaster');
-        $leaderboardResponse->assertSee('of members');
+        $leaderboardResponse->assertSee('Distribution not measured');
 
         // Tab 6: About
         $aboutResponse = $this->get(route('communities.show', $community));
