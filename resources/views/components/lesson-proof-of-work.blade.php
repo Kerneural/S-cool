@@ -201,6 +201,26 @@
             </form>
         @endif
 
+        {{-- Creator Guidance Box (When Creator Views Practical Lesson) --}}
+        @if ($isCreator && ! $isActiveMember && ! $currentProofOfWork)
+            <div class="p-5 rounded-xl bg-white border border-teal-200/90 shadow-2xs space-y-2.5">
+                <div class="flex items-center gap-2 font-bold text-teal-950 text-sm">
+                    <svg class="w-4 h-4 text-teal-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{{ __('Creator Review Mode') }}</span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    {{ __('You are viewing this practical lesson as the community creator. Enrolled members see the submission form here to upload their repository links, evidence screenshots, and reflections for your review.') }}
+                </p>
+                <div class="pt-1.5 flex items-center gap-3">
+                    <a href="{{ route('communities.manage.proof-of-work.index', $community) }}" class="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-semibold shadow-2xs transition active:scale-[0.99]">
+                        <span>{{ __('Open Review Queue') }}</span> &rarr;
+                    </a>
+                </div>
+            </div>
+        @endif
+
         {{-- Prior Revisions History --}}
         @if ($proofOfWorkHistory && $proofOfWorkHistory->count() > 1)
             <details class="rounded-xl border border-teal-100 bg-white/70 p-4 text-xs space-y-3">
