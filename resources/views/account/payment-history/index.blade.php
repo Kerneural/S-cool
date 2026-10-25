@@ -20,7 +20,7 @@
                             <div>
                                 <h3 class="text-lg font-bold text-slate-900 tracking-tight">Your Payment Attempts</h3>
                                 <p class="text-xs text-slate-500 mt-0.5">
-                                    History of community admission payment attempts and receipts on your account (SePay Sandbox - Test Mode).
+                                    Your community access, renewal and course payment attempts and receipts (SePay Sandbox - Test Mode).
                                 </p>
                             </div>
                         </div>
@@ -81,7 +81,7 @@
                                                 </span>
                                             @endif
                                         </td>
-                                        <td class="py-3.5 px-5 text-right font-black text-slate-900">
+                                        <td class="py-3.5 px-5 text-right font-bold text-slate-900">
                                             {{ $payment->formattedAmount() }}
                                         </td>
                                         <td class="py-3.5 px-5 text-right text-xs text-slate-500 font-mono">

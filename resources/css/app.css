@@ -534,3 +534,123 @@ a:focus-visible > .landing-arrow {
 .curriculum-section .outline-row { margin: 0; padding: 0.75rem 1.25rem; border-radius: 0; font-size: 0.9375rem; }
 .curriculum-section li + li .outline-row { border-top: 1px solid #F1F5F9; }
 .curriculum-section li:last-child .outline-row { border-radius: 0 0 0.75rem 0.75rem; }
+
+/* ---- Media loading frame (design 11.10) ---- */
+/* The final box is reserved up front; glass marks only a real pending request. */
+/* Layered so consumer utilities (size, radius, backing colour) can override. */
+@layer components {
+    .media-frame {
+        position: relative;
+        overflow: hidden;
+        isolation: isolate;
+        background: #F1F5F9;
+    }
+    .media-frame--cover { aspect-ratio: 16 / 9; }
+    .media-frame--avatar { border-radius: 9999px; }
+    .rail-card {
+        border: 1px solid var(--color-line);
+        border-radius: 1rem;
+        background: var(--color-surface);
+    }
+    .media-frame__fallback {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .media-frame__img {
+        position: relative;
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: opacity 180ms ease-out;
+    }
+    .media-frame--avatar .media-frame__img { border-radius: 9999px; }
+    .media-frame__glass {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        pointer-events: none;
+        border-radius: inherit;
+        /* Solid fallback where backdrop blur is unsupported. */
+        background: linear-gradient(135deg, #FFFFFF 0%, #E6F6F4 100%);
+        box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.85), inset 0 1px 0 rgb(255 255 255 / 0.95);
+        transition: opacity 180ms ease-out;
+    }
+    @supports ((backdrop-filter: blur(8px)) or (-webkit-backdrop-filter: blur(8px))) {
+        .media-frame__glass {
+            background: linear-gradient(135deg, rgb(255 255 255 / 0.72) 0%, rgb(204 240 236 / 0.55) 100%);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+        }
+    }
+    .media-frame[data-media-state="pending"] .media-frame__img { opacity: 0; }
+    .media-frame[data-media-state="pending"] .media-frame__glass { opacity: 1; }
+    .media-frame[data-media-state="error"] .media-frame__img,
+    .media-frame[data-media-state="missing"] .media-frame__img { visibility: hidden; }
+}
+/* ---- Community entry and Feed context (design 11.10) ---- */
+.feed-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+    max-width: 1084px;
+    margin-inline: auto;
+}
+@media (min-width: 64rem) {
+    .feed-layout {
+        grid-template-columns: minmax(0, 1fr) 300px;
+        grid-template-rows: auto 1fr;
+        column-gap: 1.5rem;
+        row-gap: 1.25rem;
+        align-items: start;
+    }
+    .feed-layout__main { grid-column: 1; grid-row: 1 / span 2; }
+    .feed-layout__learning { grid-column: 2; grid-row: 1; }
+    .feed-layout__context { grid-column: 2; grid-row: 2; }
+}
+
+.rail-disclosure > summary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0.625rem 1rem;
+    cursor: pointer;
+    list-style: none;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    transition: background-color 160ms ease-out;
+}
+.rail-disclosure > summary::-webkit-details-marker { display: none; }
+.rail-disclosure > summary:hover { background: #F8FAFC; }
+.rail-disclosure > summary:focus-visible { outline: 2px solid var(--color-brand); outline-offset: 2px; }
+.rail-disclosure__chevron { flex-shrink: 0; color: var(--color-muted); transition: transform 180ms ease-out; }
+.rail-disclosure[open] > summary .rail-disclosure__chevron { transform: rotate(90deg); }
+.rail-disclosure[open] > summary { border-bottom: 1px solid var(--color-line); border-radius: 1rem 1rem 0 0; }
+.rail-disclosure__body { padding: 0.875rem 1rem 1rem; }
+.rail-disclosure--nested > summary { min-height: 2.75rem; padding-inline: 0; border-radius: 0.5rem; font-size: 0.8125rem; color: var(--color-brand); }
+.rail-disclosure--nested[open] > summary { border-bottom: 0; }
+.rail-disclosure--nested .rail-disclosure__body { padding: 0.25rem 0 0; }
+
+/* Real async list updates: dim only the updating region, never hide delivered content. */
+[data-live-search-results][aria-busy="true"] {
+    opacity: 0.6;
+    transition: opacity 180ms ease-out;
+}
+
+/* Pending dialog/region surface: the same frosted vocabulary as media, solid where blur is unsupported. */
+.async-glass {
+    background: linear-gradient(135deg, #FFFFFF 0%, #E6F6F4 100%);
+}
+@supports ((backdrop-filter: blur(8px)) or (-webkit-backdrop-filter: blur(8px))) {
+    .async-glass {
+        background: linear-gradient(135deg, rgb(255 255 255 / 0.82) 0%, rgb(204 240 236 / 0.6) 100%);
+        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(8px);
+    }
+}

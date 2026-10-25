@@ -68,7 +68,7 @@ class CommunityAboutSettingsTest extends TestCase
             ->assertSee('https://www.youtube.com/embed/dQw4w9WgXcQ')
             ->assertSee('Prof Alice')
             ->assertDontSee('alice@secret.org') // Non-disclosure of email
-            ->assertSee('Active Members:')
+            ->assertSee('Active members')
             ->assertSee('1'); // Exactly 1 active member
 
         // Direct show route also serves About info
@@ -168,7 +168,7 @@ class CommunityAboutSettingsTest extends TestCase
             ->assertSee('No description provided yet.')
             ->assertSee('No community rules posted yet.')
             ->assertDontSee('iframe')
-            ->assertSee('Active Members:')
+            ->assertSee('Active members')
             ->assertSee('0'); // 0 active memberships
     }
 
@@ -198,7 +198,7 @@ class CommunityAboutSettingsTest extends TestCase
 
         $response = $this->get(route('communities.about', $community));
         $response->assertOk()
-            ->assertSee('Active Members:')
+            ->assertSee('Active members')
             ->assertSee('2'); // Strictly 2, excluding suspended and removed
     }
 }

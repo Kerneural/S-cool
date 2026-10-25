@@ -3,8 +3,6 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
             <x-community-workspace :community="$community" active-tab="feed" />
 
-            <h1 class="text-2xl font-bold tracking-tight text-ink">{{ __('Community Feed') }}</h1>
-
             @if (session('status'))
                 <div class="p-4 font-medium text-sm text-emerald-800 bg-emerald-50 rounded-xl border border-emerald-200 shadow-xs flex items-center justify-between" role="alert">
                     <div class="flex items-center gap-2">
@@ -16,10 +14,14 @@
                 </div>
             @endif
 
-            <!-- Main Feed 2-Column Grid (Main 680-760px, Context 280-300px) -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                <!-- Main Feed Column (8 cols on lg) -->
-                <div class="min-w-0 lg:col-span-8 space-y-5">
+            <!-- Feed reading grid (design 11.10): flexible main column + 300px context rail. -->
+            <div class="feed-layout">
+                <section class="feed-layout__learning min-w-0" aria-label="{{ __('Learning focus') }}">
+                    <x-contextual-learning-rail :community="$community" :learning-focus="$learningFocus" part="learning" />
+                </section>
+
+                <div class="feed-layout__main min-w-0 space-y-5">
+                    <h1 class="text-2xl font-bold tracking-tight text-ink">{{ __('Community Feed') }}</h1>
                     <!-- Category Filter & Sort Toolbar -->
                     <div class="bg-white p-3.5 sm:p-4 rounded-2xl shadow-xs border border-slate-200/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <!-- Horizontal Category Filter Pills -->
@@ -251,12 +253,9 @@
                                      class="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-5 sm:p-6 transition hover:border-slate-300 {{ $post->isPinned() ? 'ring-2 ring-amber-400/80 bg-amber-50/15' : '' }}">
                                 <div class="flex flex-wrap justify-between items-start gap-4 mb-3">
                                     <div class="min-w-0 max-w-full flex items-center space-x-3">
-                                        <div class="relative w-10 h-10 rounded-full bg-brand-50 text-brand-700 font-bold flex items-center justify-center text-sm shrink-0 border border-brand-200">
-                                            <span>{{ mb_strtoupper(mb_substr($post->author->name ?? 'U', 0, 1)) }}</span>
-                                            @if ($post->author?->avatar_path)
-                                                <img src="{{ route('communities.directory.avatar', [$community, $post->author]) }}" alt="" loading="lazy" class="absolute inset-0 h-full w-full rounded-full object-cover" onerror="this.hidden = true">
-                                            @endif
-                                        </div>
+                                        <x-media-frame :src="$post->author?->avatar_path ? route('communities.directory.avatar', [$community, $post->author]) : null" shape="avatar" loading="lazy" class="w-10 h-10 shrink-0 border border-brand-200 bg-brand-50">
+                                            <span class="text-sm font-bold text-brand-700">{{ mb_strtoupper(mb_substr($post->author->name ?? 'U', 0, 1)) }}</span>
+                                        </x-media-frame>
                                         <div class="min-w-0">
                                             <div class="flex flex-wrap items-center gap-1.5 font-semibold text-slate-900 text-sm">
                                                 <span class="break-words">{{ $post->author->name ?? __('Unknown') }}</span>
@@ -406,12 +405,9 @@
                     </div>
                 </div>
 
-                <!-- Context Sidebar Column (4 cols on lg, 280-300px target) -->
-                <aside class="min-w-0 lg:col-span-4 space-y-6">
-                    <x-skool-community-card :community="$community" />
-
-                    <!-- Consolidated Contextual Learning Rail (EUR-50 AC-13) -->
-                    <x-contextual-learning-rail :community="$community" :learning-focus="$learningFocus" :mini-ranking="$miniRanking" />
+                <!-- Secondary community context: compact summary and collapsed disclosures. -->
+                <aside class="feed-layout__context min-w-0" aria-label="{{ __('Community context') }}">
+                    <x-contextual-learning-rail :community="$community" :learning-focus="$learningFocus" :mini-ranking="$miniRanking" part="context" />
                 </aside>
             </div>
         </div>

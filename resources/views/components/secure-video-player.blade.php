@@ -166,9 +166,9 @@
         x-init="initSecurePlayer()"
         @keydown.window="handleKey($event)"
         @visibilitychange.window="handleVisibility()"
-        @contextmenu.prevent.stop="return false;"
-        @dragstart.prevent.stop="return false;"
-        @selectstart.prevent.stop="return false;"
+        @contextmenu.prevent.stop
+        @dragstart.prevent.stop
+        @selectstart.prevent.stop
         class="relative w-full aspect-video rounded-xl sm:rounded-2xl overflow-hidden bg-slate-950 shadow-md border border-slate-800 select-none group {{ $class }}"
         oncontextmenu="return false;"
     >

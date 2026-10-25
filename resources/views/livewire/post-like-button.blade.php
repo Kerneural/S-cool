@@ -54,7 +54,7 @@
                 class="inline-flex items-center text-xs transition motion-reduce:transition-none active:scale-[0.98] motion-reduce:transform-none disabled:opacity-60 disabled:cursor-wait"
                 :class="liked ? 'text-rose-600 hover:text-rose-700 font-semibold' : 'text-slate-500 hover:text-rose-600 font-medium'">
             <svg class="w-4 h-4 mr-1 transition-transform motion-reduce:transition-none"
-                 :class="[liked ? 'text-rose-600' : '', pending ? 'animate-pulse motion-reduce:animate-none' : '']"
+                 :class="[liked ? 'text-rose-600' : '', pending ? 'opacity-60' : '']"
                  :fill="liked ? 'currentColor' : 'none'"
                  stroke="currentColor"
                  viewBox="0 0 24 24"

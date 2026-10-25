@@ -1,10 +1,4 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h1 class="font-bold text-xl text-slate-900 leading-tight">
-            {{ $community->name }} &mdash; {{ __('Notifications') }}
-        </h1>
-    </x-slot>
-
     <div class="py-8 sm:py-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
             <x-community-workspace :community="$community" active-tab="notifications" />
@@ -35,7 +29,7 @@
                 <!-- Header Toolbar -->
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
                     <div>
-                        <h3 class="text-lg font-bold text-slate-900 tracking-tight">{{ __('Notification Center') }}</h3>
+                        <h1 class="text-xl font-bold text-slate-900 tracking-tight">{{ __('Notifications') }}</h1>
                         <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
                             {{ __('Updates on discussion replies, new courses, and community activities.') }}
                         </p>

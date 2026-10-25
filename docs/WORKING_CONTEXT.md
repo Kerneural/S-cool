@@ -62,7 +62,6 @@ A checkpoint is historical context, not current Linear/Git/runtime evidence. Ver
   application tests/build were run for this preparation. Next: implement learning
   batch first, complete remaining route batches, then review actual diff and
   canonical browser behavior using the handoff's AC/evidence matrix.
-
 - Batch A implementation checkpoint (2026-10-25): branch `landing-layout-motion`,
   HEAD `ea94e0efe408edc0e0b0e9de8a762e48371779ee` (landing-only commit created
   outside this implementation; landing file hashes re-verified unchanged). Lesson
@@ -150,6 +149,216 @@ A checkpoint is historical context, not current Linear/Git/runtime evidence. Ver
     Batch B-G remain unimplemented. The reported shared community-card design/test
     conflict is real, but is outside this Batch A correction. No commit/push/PR or
     Linear status change was performed by this audit.
+
+- Community entry/Feed/loading handoff amendment (2026-10-25): direct owner request
+  to diagnose the low Classroom action, long Feed sidebar and frosted-glass loading
+  treatment before remaining B-G implementation. Same runtime branch/base as the
+  Batch A audit; its 12 dirty paths and the primary checkout's 26 unrelated dirty
+  paths were preserved. Canonical `scool_app` source/storage/vendor mounts rechecked.
+  - Source and live Member evidence: community cards route to `communities.show`;
+    About renders description/video/rules before an up-to-8 authorized course list
+    and a bottom Classroom link. The AI Advantage has 8 rows, CTA around y1968;
+    Clief Notes has 6, CTA around y1972. These are observed document coordinates,
+    not universal layout constants or the owner's Creator screenshot state.
+  - Feed source appends both shared community card and contextual learning rail;
+    identity/description are duplicated, Learning Focus follows the large cover,
+    and full checklist/ranking/About blocks all expand in normal flow. At observed
+    1479x1017, rail width 389px/height about2030px, position static. Components:
+    `communities/posts/index`, `contextual-learning-rail`, `skool-community-card`,
+    onboarding partial and contribution rail. CSS background covers lack a shared
+    pending/load/error lifecycle. No missing-image or network-latency cause is claimed
+    from that source observation alone.
+  - Preparation only: design11.10 records the selected task-first entry, 3-row preview,
+    300px concise context rail, progressive disclosures and narrow glass loading
+    exception. Existing private root `contract_handoff.md` updated with current HEAD,
+    reviewed Batch A preservation, concrete source causes/sequence, remaining B-G
+    integration, loading lifecycle and AC13-20. WAI, Red Hat and MDN primary references
+    support the adapted patterns; no vendor component/dependency was installed.
+  - Local baselines: primary `.agent/community-feed-audit-2026-10-25/`. No application
+    source, generated assets, runtime configuration, DB/media, Linear or publication
+    change. No application tests/build needed for this documentation-only amendment.
+    New UI/media behavior and all corresponding acceptance remain pending implementation.
+    Next: implement private handoff6.1 as the first B/C work, then finish B-G and
+    submit the actual diff/canonical browser evidence for review.
+- 6.1 + B-G implementation checkpoint (2026-10-25): branch `landing-layout-motion`,
+  HEAD `8d1b954` (Batch A commit created outside this implementation on top of
+  `ea94e0e`); all work below is uncommitted. Landing hashes match the baseline and
+  8080 serves the rebuilt manifest assets with `data-landing-motion="autoplay"`.
+  - 6.1 delivered: About leads with a compact orientation, teal Open Classroom,
+    secondary Feed and creator-only Edit Settings, then "Courses you can access"
+    (first 3 of the existing capped authorized result, rest in a native
+    disclosure), description once, intro video, rules and one host/member context
+    panel. Removed Tenant Slug, Useful Destinations and stale undiscoverable copy.
+    Feed uses a 1084px `minmax(0,1fr) 300px` grid: Learning Focus (and real event)
+    first, compact onboarding summary with one next step and collapsed All steps,
+    collapsed Community details (compact card, description once, About link) and
+    Contributions. Shared card: no skool.com, Online count or yellow JOIN GROUP;
+    teal "Join community", Joined/host states, join form/route unchanged; session
+    online calculation removed (only caller was the card).
+  - Media: `x-media-frame` + `mediaFrame` Alpine data (load/error, complete plus
+    naturalWidth, decode rejection, generation guard on src change, listener
+    cleanup). Native img stays visible without JS; glass only while pending; solid
+    fallback without backdrop-filter. Adopted for community covers (index, card),
+    course covers (classroom index, course page), Feed author, directory, card and
+    About host avatars. Live search marks only its results region `aria-busy`.
+  - B-G: workspace tabs expose `aria-current` and keep the active tab visible on
+    narrow screens; search has one h1, readable empty type and links to sections
+    with matches; post detail uses the Feed reading column; Events, Members and
+    Leaderboard rails are 300px; directory names wrap; notifications has one h1;
+    dialog/dropdown/modal motion bounded to opacity plus 4px offset; recurring
+    pulses removed; indigo accents and font-black weights normalized to the teal/
+    slate system; low-contrast gray helper text uses the muted token.
+  - Coverage (route | change | role/viewport | evidence):
+    About `/communities/{slug}` | changed | Member 1280/375 | live+tests, pass.
+    Feed posts index | changed | Member 1280/375, expanded | live rail 625px collapsed,
+    1681px expanded, main 760px; tests pass. Post detail | changed | Member 1280 | live.
+    Communities index | media | Member 1280 | live pending/ready capture. Search |
+    changed | Member 1280 | tests pass, live before only. Saved, posts create/edit,
+    comment edit | retained (already bounded forms) | Member 1280 | live/source.
+    Events/Directory/Leaderboard | changed | Member 1280 | live before, tests pass.
+    Messages/notifications | retained / heading fix | Member 1280 | live + tests.
+    Profile, memberships, payment history, referrals, checkout/status, invitation
+    accept | token harmonization only | Member structure probe (one h1, labels) |
+    pending visual after-captures. Creator operations (manage, invitations,
+    members, orders, referrals, reports, classroom editing) | tokens only | Creator
+    live pending: no Creator session used, Member session preserved. Auth/guest |
+    retained (dark-panel contrast valid) | pending logged-out pass. Admin | tokens
+    only | Platform Admin live pending.
+  - Live media probe at 375px: new src pending -> ready, 404 -> error with fallback,
+    three rapid swaps keep the final image, cache hit goes straight to ready, box
+    height stable at 48px. Network throttling, no-JS, real 200% zoom and motion
+    recordings remain unavailable in this pane (it produced no animation frames).
+  - Self-review findings fixed: inline `@php()` broke the search view; sample-avatar
+    alt text exposed member names in rails (now one decorative group label);
+    `RealCommunityVerificationTest` still asserted raw lesson Markdown (Batch A
+    regression, now asserts rendered text); `secure-video-player` Alpine handlers
+    `="return false;"` threw SyntaxError on every video page (modifiers suffice).
+  - Results: in this container `phpunit` directory discovery lists only 74 of the
+    test methods, so `--filter` and the bare suite under-run. Explicit run of every
+    `tests/Unit` and `tests/Feature` file on guarded `scool_test`: 625 passed, 2 failed
+    (the two verification assertions above); after the fix the affected video/stream/
+    About/reader/verification suites pass 21/201. JS `node --test` 58/58, build
+    `app-CAanvEhJ.css` / `app-Cf4lwt6w.js` served by 8080, Pint and diff check pass.
+
+- Independent 6.1/B-G review and bounded correction (2026-10-25): direct owner
+  continuation of the implementation/review handoff, based on `8d1b954e4de1745ca240b1aa66c20b05bcdd700b`
+  plus 51 tracked and five new local paths. AC source remains the private handoff
+  and design 11.9/11.10; no new Linear issue or status is asserted. Verified the
+  canonical `scool_app` checkout/storage/vendor mounts and port 8080. Preserved
+  the submitted changes, Batch A and landing; no development data or deployment change.
+  - Fixed P2: a pending live search followed by invalid input aborted the request
+    and cleared `loading`, but left `aria-busy=true` because the stale request's
+    finally block correctly skipped cleanup. Results stayed dim indefinitely.
+    Clear the busy attribute in the validation/cancellation path. Regressions for
+    one and 101 characters failed before the correction and pass afterward;
+    stale completion still cannot overwrite existing results.
+  - Browser evidence (existing Member session): at 1280x800, Feed grid 760px/300px,
+    collapsed rail extent about 629px, with keyboard Space opening all three
+    secondary disclosures and natural expansion. About exposes Classroom near
+    y315 on desktop and y486 at 375px, before long content; three initial courses,
+    remaining preview accessible with Enter. Mobile has no page overflow and
+    places optional context after the Feed. Events/Directory/Leaderboard rails
+    remain 300px. Search suggestions, asynchronous Lessons results, invalid input
+    cancellation and successful retry work; final busy state clears. Lesson 848
+    retains semantic Markdown, one h1 and 300px outline. No app console errors
+    observed on these checks; temporary viewport override reset, tab returned to Feed.
+  - JS tests 60/60 PASS; build PASS (existing font-resolution warnings), final assets
+    `app-CAanvEhJ.css` / `app-Cekdsn8l.js` observed on 8080. Changed-PHP Pint (seven
+    files), configured PHPStan, diff whitespace and tracked agent contract PASS.
+    Full explicit PHP-file run (all 96 tracked Unit/Feature test files) PASS:
+    655 tests / 6,534 assertions, 12m30s, 105 MB. Invocation: collect paths using
+    `git ls-files 'tests/Unit/*Test.php' 'tests/Feature/*Test.php'` and pass each
+    path to `docker exec -e APP_ENV=testing -e DB_DATABASE=scool_test scool_app
+    vendor/bin/phpunit`. Tests used guarded MySQL `scool_test` only; no database
+    suites ran concurrently. This completed run supersedes the earlier 625/2
+    and partial rerun evidence for the current diff.
+  - GitNexus CLI PDG refresh completed (14,283 nodes/30,295 edges). Initial MCP
+    context/impact replies were stale; post-refresh mapping/taint requests did not
+    complete and were stopped after waiting. No complete graph/taint verdict is
+    claimed. Direct source, isolated red/green tests and browser observations are
+    the review evidence; Blade/Alpine callers still require direct inspection.
+  - Remaining acceptance: E-G are token harmonization/source checks, not a full
+    visual redesign or role-complete UAT. Creator/guest/Admin live checks, no-JS,
+    network throttling, real 200% zoom and motion recordings remain unverified.
+    Media lifecycle edge cases have isolated JS coverage; this review observed
+    ready media but does not upgrade the earlier probe to new browser evidence.
+    No remaining confirmed blocking defect in the bounded reviewed diff after
+    the search correction; this is not role-complete/all-pages visual acceptance.
+    Local screenshot: primary `.agent/community-feed-review-2026-10-25/feed-1280.png`.
+    No new staging, commit, push, PR, merge or Linear change in this review.
+
+- Creator/Admin/account/commerce follow-up (2026-10-26): owner authorized a bounded
+  audit and fixes for confirmed issues, continuing `landing-layout-motion` at
+  `8d1b954` plus the existing uncommitted B-G surface. Canonical `scool_app` binds
+  the `.agent/m13-acceptance` checkout and primary storage/vendor; origin remains
+  `http://127.0.0.1:8080`. No staging/publication, role grants, schema, infrastructure
+  or dependency changes. The primary checkout's unrelated edits remain untouched.
+  - Live Member checks: Profile, security form (no password/account changes),
+    notification preferences, lifetime membership detail, payment-history empty and
+    populated states, referrals and account navigation. Reply notifications were
+    disabled, confirmed saved after reload, then restored to enabled with server
+    confirmation. The original Member session was restored after role checks.
+  - Live Creator checks: Overview, Invitations, Members, Orders, Reports, practical
+    review queue, Referrals, Settings and Course management/disclosures. Mobile
+    management navigation opens with Enter. Members/Orders have no page-wide
+    overflow at 375px; the member table scrolls inside its own container. Existing
+    content was not edited, published, reordered, invited, suspended or removed.
+  - Live Platform Admin checks: listing, status filter/empty result, mobile local
+    table scrolling and suspend dialog. Focus enters the reason field, Tab reaches
+    Cancel, Escape closes and returns focus to Suspend; body scrolling is restored.
+    No suspension/reactivation was submitted. State transitions, audit retention
+    and denied-role cases are covered by the guarded feature tests below.
+  - Live Test Mode checkout: Buy Course required a manual comparison because the
+    automation attempts produced no POST; the owner's click opened checkout.
+    Pending/polling and Check Status rendered without console errors; at 375px
+    there was no overflow. The single local simulated attempt was cancelled and
+    appeared as CANCELLED in personal history/receipt. No successful payment or
+    entitlement was fabricated; the retained cancelled audit record was not deleted.
+  - Confirmed responsive defect corrected: receipt label/value flex rows crowded
+    Purpose against a long course title and split the amount from VND at 375px.
+    Semantic dl/dt/dd rows now stack on small screens and use separated columns
+    above sm; the amount stays together and may wrap as a whole row. History and
+    Orders descriptions now include course purchases and renewals as well as
+    community access. No payment/ownership/access behavior changed.
+  - Browser verification of the initial receipt correction: 320/375/768/1280px,
+    no page-wide overflow; mobile labels and values are separate and amount has
+    nowrap. Private screenshots: primary `.agent/creator-commerce-review-2026-10-26/`
+    (`receipt-mobile-before.png`, `receipt-mobile-after.png`,
+    `receipt-desktop-after.png`, `preferences-restored.png`). Final small refinement
+    changes desktop label columns from fixed 8rem to max-content to avoid wrapping
+    Payment Gateway; build/tests pass, but the final browser capture was blocked
+    when Browser use was disabled in Work settings. Temporary 1280x812 viewport
+    override could not be reset through the disabled tool; tab last observed on
+    the Member security section. No browser settings were changed to enable motion.
+  - Verification: explicit CreatorOverview/CreatorOrdersAndPaymentHistory/
+    PlatformAdministration/Profile/SePayPayment/PaymentEntitlementRegression/
+    FixedTermMembership/ContentReport/ReferralAuditRegression run PASS 99 tests,
+    803 assertions (1m03s). CourseEntitlementAndPurchase/CourseAccessAuditRegression/
+    CommunityMemberManagement/CommunityInvitationFlow/AccountNotificationPreferencesAndHelp/
+    NotificationPreferencesAsync/ProofOfWorkUiFollowup/ExperienceShellAuditRegression
+    run PASS 58 tests, 690 assertions (47s). After final receipt/copy edits,
+    CreatorOrdersAndPaymentHistory + ExperienceShellAuditRegression PASS 15 tests,
+    157 assertions (41s). All database runs used guarded MySQL `scool_test` only,
+    sequentially. Earlier full 655-test evidence predates these view-only edits;
+    it was not rerun or represented as a new full-suite result.
+  - Final Vite build PASS (existing font-resolution warnings); manifest CSS
+    `app-DG0x_yil.css`, unchanged JS `app-Cekdsn8l.js`. Diff whitespace and tracked
+    agent-contract/privacy checks PASS. GitNexus context again did not return and
+    was stopped; no new complete graph/taint coverage is asserted.
+  - Bounded verdict: no remaining confirmed blocker in the checked flows after
+    the receipt correction. Successful provider-driven payment, full Creator
+    CRUD/moderation live mutations, guest UAT, no-JS, throttled network and real
+    200% zoom remain separate evidence gaps, not claimed completed acceptance.
+
+- UI publication preparation (2026-10-26): owner explicitly authorized commit,
+  push and PR creation for the reviewed landing, reader and remaining UI work.
+  Existing landing/reader commits are retained; the reviewed B-G diff and receipt
+  correction are published together from `landing-layout-motion` against `main`.
+  Pre-publication checks: JS 60/60, diff whitespace and tracked agent-contract
+  checks PASS; canonical container mounts reverified. Implementation evidence and
+  its limitations remain as recorded above; no new full PHP run is claimed.
+  Merge, deployment, Linear status changes and provider payment acceptance are
+  outside this publication request.
 
 ## EUR-50/51 experience-completion planning amendment (2026-10-16)
 

@@ -13,7 +13,7 @@
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30">
                         Help Center
                     </span>
-                    <h1 class="text-3xl sm:text-4xl font-black tracking-tight leading-tight">
+                    <h1 class="text-3xl sm:text-4xl font-bold tracking-tight leading-tight">
                         Welcome to the S-cool Help Center
                     </h1>
                     <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
@@ -43,7 +43,7 @@
                         </svg>
                     </div>
                     <div class="space-y-2">
-                        <h3 class="text-sm font-black text-amber-950 uppercase tracking-wider">
+                        <h3 class="text-sm font-bold text-amber-950 uppercase tracking-wider">
                             Important Notice: SePay Test Mode Environment
                         </h3>
                         <p class="text-sm text-amber-900/90 leading-relaxed font-medium">
@@ -62,7 +62,7 @@
                 <!-- 1. Community Access & Private Invitations -->
                 <div class="bg-white p-7 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center font-black text-sm">
+                        <div class="w-9 h-9 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center font-bold text-sm">
                             1
                         </div>
                         <h3 class="text-base font-bold text-slate-900 tracking-tight">Community Access & Private Invitations</h3>
@@ -80,7 +80,7 @@
                 <!-- 2. Classroom & Course Publishing Rules -->
                 <div class="bg-white p-7 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-black text-sm">
+                        <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-sm">
                             2
                         </div>
                         <h3 class="text-base font-bold text-slate-900 tracking-tight">Classroom & Course Publishing Rules</h3>
@@ -98,7 +98,7 @@
                 <!-- 3. Events & Timezone Standardization -->
                 <div class="bg-white p-7 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center font-black text-sm">
+                        <div class="w-9 h-9 rounded-xl bg-brand-50 text-brand-700 flex items-center justify-center font-bold text-sm">
                             3
                         </div>
                         <h3 class="text-base font-bold text-slate-900 tracking-tight">Events & Timezone Standardization</h3>
@@ -116,7 +116,7 @@
                 <!-- 4. Content Reporting & Moderation Standards -->
                 <div class="bg-white p-7 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-rose-50 text-rose-700 flex items-center justify-center font-black text-sm">
+                        <div class="w-9 h-9 rounded-xl bg-rose-50 text-rose-700 flex items-center justify-center font-bold text-sm">
                             4
                         </div>
                         <h3 class="text-base font-bold text-slate-900 tracking-tight">Content Reporting & Moderation Standards</h3>

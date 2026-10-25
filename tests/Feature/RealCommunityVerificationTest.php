@@ -7,6 +7,7 @@ use App\Models\Course;
 use App\Models\CourseSection;
 use App\Models\Lesson;
 use App\Models\User;
+use App\Support\LessonMarkdown;
 use Database\Seeders\RealCommunitySampleSeeder;
 use Database\Seeders\RealFreeCommunitySeeder;
 use Database\Seeders\UserSeeder;
@@ -95,7 +96,12 @@ class RealCommunityVerificationTest extends TestCase
             if ($firstLesson->embed_url) {
                 $lessonResponse->assertSee('S-cool Protected Stream');
             } else {
-                $lessonResponse->assertSee(str_contains($firstLesson->content, "\n") ? explode("\n", $firstLesson->content)[0] : $firstLesson->content);
+                // Lesson Markdown is rendered (not echoed raw): compare the rendered text of its first line.
+                $firstLine = str_contains($firstLesson->content, "\n") ? explode("\n", $firstLesson->content)[0] : $firstLesson->content;
+                $this->assertStringContainsString(
+                    trim(html_entity_decode(strip_tags(LessonMarkdown::toHtml($firstLine)))),
+                    html_entity_decode(strip_tags($lessonResponse->getContent())),
+                );
             }
         }
     }
@@ -124,7 +130,8 @@ class RealCommunityVerificationTest extends TestCase
         $response->assertSee('S-cool Protected Stream');
         $response->assertSee('The agentic AI market is going from $7 billion to $93 billion in the next few years');
         $response->assertSee('The WAT Framework - the system behind every workflow Nate builds');
-        $response->assertSee("In this video, you'll see:");
+        // CommonMark leaves apostrophes unescaped, unlike Blade's e().
+        $response->assertSee("In this video, you'll see:", false);
         $response->assertSee('Day 1: First Workflow');
         $response->assertSee('Lesson: The WAT Framework');
         $response->assertSee('Build: Newsletter Automation');

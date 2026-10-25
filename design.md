@@ -140,7 +140,10 @@ do not truncate essential validation, title context or payment instructions.
 
 Avoid ornamental gradients, glass layers and animated backgrounds in routine
 learning/management screens. Meaningful content, navigation and states take space
-before decoration. Dark mode is a later scoped decision after light-mode acceptance.
+before decoration. Section 11.10 permits a narrow owner-requested frosted-glass
+loading treatment for genuinely pending media/async regions. It does not turn
+loaded reading or management surfaces into glass panels. Dark mode is a later
+scoped decision after light-mode acceptance.
 
 ## 6. Component and behavior contract
 
@@ -707,3 +710,74 @@ Acceptance remains separate: real populated lesson/resource/course screens, smal
 viewports, keyboard/no-JS behavior, progress failure/success and guarded tests must
 be observed on the final runtime. Coverage of remaining routes must be recorded;
 a shared CSS change alone does not establish screen-by-screen completion.
+
+### 11.10 Community entry, concise Feed context and loading glass (2026-10-25)
+
+Owner-requested amendment to the remaining application rollout; implementation
+and visual acceptance are pending. Preserve the reviewed learning reader and
+landing. Keep current routes, role/access checks and stored content.
+
+- Community entry/About: put a compact orientation and a prominent teal Open
+  Classroom action immediately below workspace navigation, before description,
+  video, rules or a long course list. Community Feed is the secondary action;
+  Creator management remains conditional. Retain the current community-card
+  destination rather than adding redirects. Render a course preview, not a second
+  catalog: three permitted published course rows initially, remaining entries from
+  the existing capped result behind a native disclosure. The complete catalog is
+  Classroom. Do not imply prerequisites, personalized recommendations or completion
+  without that data. Empty access states still offer the permitted catalog route.
+- About content: one community description; retain introduction and rules in the
+  reading column. Consolidate creator/member facts into one concise context panel.
+  Remove duplicated identity/description panels and navigation inventories that
+  merely repeat the visible tabs. Preserve applicable status, settings and all
+  genuine routes. Member-facing copy must reflect current discovery/access rules;
+  no raw Tenant/Slug terminology or stale claims of undiscoverability.
+- Feed: center an inner reading grid up to 1084px within the existing shell,
+  `minmax(0, 1fr) 300px`, 24px gap. The wide reading column is about 760px rather
+  than assigning a third of the screen to context. One-column layout below lg.
+  Preserve useful filters, sort, composer and discussion/like/save interactions.
+- Feed rail hierarchy: one truthful Learning Focus first (including its current
+  complete/empty/explore states), then a compact incomplete-checklist summary with
+  one next actionable step and a disclosure for all steps. Secondary community
+  facts and contribution ranking use initially collapsed, labelled disclosures.
+  Keep the ranking metric/window/meaning and full destination; do not discard
+  underlying data or actions. Include the existing upcoming event only when real.
+  A duplicate full About card must not appear below the learning rail.
+- Compact rail: no full-size cover above the learning action, no paragraph repeated
+  elsewhere, no tall stack of permanently open cards. Use a small identity image
+  when needed. At 1280x800 the default, collapsed Clief Notes rail should be at most
+  720px tall. Expansion may grow naturally. Do not achieve this by cropping content,
+  hiding essential actions, or adding a scrollbar to the whole sidebar. Only a
+  compact block that fits below the header may stick; otherwise use normal flow.
+  Mobile keeps filters/composer/feed easy to reach, with a compact learning entry
+  and a labelled optional community-context disclosure, not a card stack before posts.
+- Shared community card: use S-cool identity, remove the fabricated skool.com URL
+  and Online presentation, replace yellow/all-caps join styling with teal sentence
+  case. Keep membership/join contracts and appropriate member/creator labels.
+  Old assertions for removed visual copy must be replaced with semantic behavior
+  coverage, including all actual consumers, rather than treated as frozen design.
+- Loading treatment: reserve the final media box (16:9 cover, circular avatar),
+  with a subtle frosted white/teal placeholder and neutral backing. Use a translucent
+  surface, fine border/highlight and optional 8px backdrop blur; provide a solid
+  fallback when unsupported. Glass is a visual pending state, not a source image
+  and not an authorization boundary. Keep loaded text, navigation and controls clear.
+  Reveal ready media with about 180ms opacity; no artificial minimum loading delay,
+  perpetual shimmer/pulse or whole-page blur. Retain static glass and brief opacity
+  in reduced motion; never ask for OS preference changes.
+- Loading state must be real: pending -> ready or error. Handle load/error and cached
+  images (`complete` plus positive `naturalWidth`); decode rejection must settle to
+  the stable fallback, not an endless overlay. Replaced requests cannot overwrite
+  a newer image. Missing media goes straight to its existing neutral/initials
+  fallback. Enhancement failure/no-JS must leave readable content and native images.
+  Do not prefetch private media or show a previous tenant's image through blur.
+- Apply the same visual vocabulary to existing asynchronous list/search/dialog
+  states while each remaining batch is implemented. Preserve debounce, cancellation,
+  server errors/retry, stale-response and access-revocation handling. Mark only the
+  updating region busy; never cover already delivered server-rendered content with
+  fake skeletons, display invented percentages, or use a page-wide overlay.
+
+Verify populated and empty About/Feed, long descriptions, all three learning states,
+incomplete/completed onboarding, expanded keyboard disclosures and affected shared
+card consumers. Observe pending/ready/cached/missing/error media, rapid source changes,
+async failures and reduced motion; record unavailable network throttling/no-JS/real
+zoom honestly. Passing tests alone is not visual or loading-state acceptance.

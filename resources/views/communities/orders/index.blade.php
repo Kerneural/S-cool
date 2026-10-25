@@ -13,7 +13,7 @@
                     </div>
                     <div>
                         <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Total Attempts</span>
-                        <p class="text-2xl font-black text-slate-900 tracking-tight">{{ $summary['total'] }}</p>
+                        <p class="text-2xl font-bold text-slate-900 tracking-tight">{{ $summary['total'] }}</p>
                     </div>
                 </div>
 
@@ -25,7 +25,7 @@
                     </div>
                     <div>
                         <span class="text-xs text-emerald-600 uppercase tracking-wider font-semibold">Succeeded</span>
-                        <p class="text-2xl font-black text-emerald-700 tracking-tight">{{ $summary['succeeded'] }}</p>
+                        <p class="text-2xl font-bold text-emerald-700 tracking-tight">{{ $summary['succeeded'] }}</p>
                         <span class="text-xs text-slate-500 font-medium block mt-0.5">{{ number_format($summary['succeeded_sum'], 0, ',', '.') }} VND</span>
                     </div>
                 </div>
@@ -38,7 +38,7 @@
                     </div>
                     <div>
                         <span class="text-xs text-amber-600 uppercase tracking-wider font-semibold">Pending</span>
-                        <p class="text-2xl font-black text-amber-700 tracking-tight">{{ $summary['pending'] }}</p>
+                        <p class="text-2xl font-bold text-amber-700 tracking-tight">{{ $summary['pending'] }}</p>
                     </div>
                 </div>
 
@@ -50,7 +50,7 @@
                     </div>
                     <div>
                         <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Cancelled / Failed</span>
-                        <p class="text-2xl font-black text-slate-600 tracking-tight">{{ $summary['cancelled'] + $summary['failed'] }}</p>
+                        <p class="text-2xl font-bold text-slate-600 tracking-tight">{{ $summary['cancelled'] + $summary['failed'] }}</p>
                     </div>
                 </div>
             </div>
@@ -61,7 +61,7 @@
                     <div>
                         <h1 class="text-lg font-bold text-slate-900 tracking-tight">Orders & Payment Attempts</h1>
                         <p class="text-sm text-slate-500 mt-0.5">
-                            Track community admission payment attempts for <span class="font-semibold text-slate-700">{{ $community->name }}</span> (SePay Sandbox - Test Mode).
+                            Track community access, renewal and course payment attempts for <span class="font-semibold text-slate-700">{{ $community->name }}</span> (SePay Sandbox - Test Mode).
                         </p>
                     </div>
 
@@ -148,7 +148,7 @@
                                                 </span>
                                             @endif
                                         </td>
-                                        <td class="py-3.5 px-5 text-right font-black text-slate-900">
+                                        <td class="py-3.5 px-5 text-right font-bold text-slate-900">
                                             {{ $order->formattedAmount() }}
                                         </td>
                                         <td class="py-3.5 px-5 text-right text-xs text-slate-500 font-mono">

@@ -122,10 +122,7 @@
                                 <!-- Cover / Educational Graphic Fallback -->
                                 <div class="relative aspect-[16/9] w-full overflow-hidden bg-slate-900">
                                     @if ($community->isActive() && $community->cover_path)
-                                        <img src="{{ route('communities.cover.show', $community) }}"
-                                             alt="{{ $community->name }}"
-                                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                             loading="lazy">
+                                        <x-media-frame :src="route('communities.cover.show', $community)" :alt="$community->name" loading="lazy" class="h-full w-full" img-class="group-hover:scale-105 [transition:opacity_180ms_ease-out,transform_500ms_ease-out]" />
                                     @else
                                         <!-- Purposeful Educational Fallback with Branded Gradient and Monogram -->
                                         <div class="w-full h-full flex flex-col items-center justify-center p-6 bg-gradient-to-br from-slate-900 via-slate-800 to-brand-950 relative overflow-hidden group-hover:from-slate-850 group-hover:to-brand-900 transition-colors duration-500">

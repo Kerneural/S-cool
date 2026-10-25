@@ -75,3 +75,45 @@ test('access denial and a login redirect remove previously rendered private resu
         assert.equal(region.innerHTML, '');
     }
 });
+
+test('only the results region is busy while a request is in flight and it clears on success or failure', async (t) => {
+    const { component, region } = fixture(t);
+    const attributes = {};
+    region.setAttribute = (name, value) => { attributes[name] = value; };
+    region.removeAttribute = (name) => { delete attributes[name]; };
+    let resolveFetch;
+    globalThis.fetch = () => new Promise((resolve) => { resolveFetch = resolve; });
+    const request = component.load(new URL('http://127.0.0.1:8080/communities?q=docker'));
+    assert.equal(attributes['aria-busy'], 'true');
+    assert.equal(region.innerHTML, 'retained results', 'Delivered results stay visible while pending');
+    resolveFetch({ ok: true, text: async () => 'Docker result' });
+    await request;
+    assert.equal('aria-busy' in attributes, false);
+
+    globalThis.fetch = async () => { throw new TypeError('offline'); };
+    await component.load(new URL('http://127.0.0.1:8080/communities?q=docker'));
+    assert.equal('aria-busy' in attributes, false, 'A failed request never leaves a permanent busy state');
+});
+
+for (const invalidQuery of ['x', 'x'.repeat(101)]) {
+    test(`invalid ${invalidQuery.length}-character input clears busy after cancelling a pending search`, async (t) => {
+        const { component, region, input } = fixture(t);
+        const attributes = {};
+        region.setAttribute = (name, value) => { attributes[name] = value; };
+        region.removeAttribute = (name) => { delete attributes[name]; };
+        let resolveFetch;
+        globalThis.fetch = () => new Promise((resolve) => { resolveFetch = resolve; });
+        const request = component.load(new URL('http://127.0.0.1:8080/communities?q=docker'));
+        input.value = invalidQuery;
+        component.liveSearch();
+        clearTimeout(component.timer);
+        component.search();
+        assert.equal(component.loading, false);
+        assert.match(component.error, /2 to 100/);
+        assert.equal('aria-busy' in attributes, false, 'Validation has ended the pending state');
+        resolveFetch({ ok: true, text: async () => 'Stale result' });
+        await request;
+        assert.equal(region.innerHTML, 'retained results');
+        assert.equal('aria-busy' in attributes, false);
+    });
+}

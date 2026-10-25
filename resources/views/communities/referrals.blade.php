@@ -39,7 +39,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div class="p-6 bg-white rounded-2xl border border-slate-200/80 shadow-xs">
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Referral Commission Rate</span>
-                    <p class="mt-2 text-3xl font-black text-slate-900 tracking-tight">{{ (int) $community->referral_commission_rate }}%</p>
+                    <p class="mt-2 text-3xl font-bold text-slate-900 tracking-tight">{{ (int) $community->referral_commission_rate }}%</p>
                     <p class="mt-1 text-xs text-slate-500 font-medium">
                         {{ $community->referral_commission_rate > 0 ? 'Active on admission and course sales' : 'Disabled (0%)' }}
                     </p>
@@ -47,13 +47,13 @@
 
                 <div class="p-6 bg-white rounded-2xl border border-slate-200/80 shadow-xs">
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Attributed Referrals</span>
-                    <p class="mt-2 text-3xl font-black text-slate-900 tracking-tight">{{ $totalAttributedCount }}</p>
+                    <p class="mt-2 text-3xl font-bold text-slate-900 tracking-tight">{{ $totalAttributedCount }}</p>
                     <p class="mt-1 text-xs text-slate-500 font-medium">Total eligible transactions credited</p>
                 </div>
 
                 <div class="p-6 bg-white rounded-2xl border border-slate-200/80 shadow-xs">
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Simulated Commissions</span>
-                    <p class="mt-2 text-3xl font-black text-teal-600 tracking-tight">{{ number_format($totalSimulatedCommissions) }} VND</p>
+                    <p class="mt-2 text-3xl font-bold text-teal-600 tracking-tight">{{ number_format($totalSimulatedCommissions) }} VND</p>
                     <p class="mt-1 text-xs text-slate-500 font-medium">Simulated / Unpaid balance</p>
                 </div>
             </div>
@@ -164,7 +164,7 @@
                                         <td class="py-3.5 px-5 text-right text-xs text-slate-600 font-semibold">
                                             {{ $comm->commission_rate }}%
                                         </td>
-                                        <td class="py-3.5 px-5 text-right font-black text-teal-600">
+                                        <td class="py-3.5 px-5 text-right font-bold text-teal-600">
                                             {{ number_format($comm->commission_amount) }} {{ $comm->currency }}
                                         </td>
                                         <td class="py-3.5 px-5 text-center">

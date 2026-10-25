@@ -98,9 +98,7 @@
                 </div>
 
                 @if ($course->cover_path)
-                    <div class="aspect-video w-full shrink-0 overflow-hidden rounded-lg border border-line bg-slate-100 md:w-72">
-                        <img src="{{ route('communities.courses.cover', [$community, $course]) }}" alt="" width="640" height="360" class="h-full w-full object-cover">
-                    </div>
+                    <x-media-frame :src="route('communities.courses.cover', [$community, $course])" width="640" height="360" class="w-full shrink-0 rounded-lg border border-line md:w-72" />
                 @endif
             </div>
         </section>

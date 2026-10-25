@@ -7,6 +7,7 @@ import { accountSettings } from './account-settings';
 import { liveListSearch } from './live-list-search';
 import { landingReveal } from './landing-reveal';
 import { courseOutline } from './course-outline';
+import { mediaFrame } from './media-frame';
 
 document.addEventListener('alpine:init', () => {
     window.Alpine.data('invitationAcceptance', invitationAcceptance);
@@ -16,6 +17,7 @@ document.addEventListener('alpine:init', () => {
     window.Alpine.data('accountSettings', accountSettings);
     window.Alpine.data('liveListSearch', liveListSearch);
     window.Alpine.data('courseOutline', courseOutline);
+    window.Alpine.data('mediaFrame', mediaFrame);
 });
 
 if (document.querySelector('[data-reveal]')) {

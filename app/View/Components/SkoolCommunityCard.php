@@ -5,8 +5,6 @@ namespace App\View\Components;
 use App\Models\Community;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\View\Component;
 use Illuminate\View\View;
 
@@ -18,10 +16,6 @@ class SkoolCommunityCard extends Component
 
     public string $formattedMemberCount;
 
-    public int $onlineCount;
-
-    public string $formattedOnlineCount;
-
     public int $adminCount;
 
     public Collection $sampleMembers;
@@ -30,7 +24,7 @@ class SkoolCommunityCard extends Component
 
     public bool $isCreator;
 
-    public function __construct(Community $community)
+    public function __construct(Community $community, public string $variant = 'full')
     {
         $this->community = $community;
         $user = Auth::user();
@@ -39,14 +33,10 @@ class SkoolCommunityCard extends Component
         $this->memberCount = $community->memberships()->effective()->count();
         $this->formattedMemberCount = self::formatCount($this->memberCount);
 
-        // 2. Dynamic online count: active sessions within the last 15 minutes
-        $this->onlineCount = $this->calculateOnlineCount();
-        $this->formattedOnlineCount = self::formatCount($this->onlineCount);
-
-        // 3. Admin count: creator is the administrator (1)
+        // 2. Admin count: creator is the administrator (1)
         $this->adminCount = 1;
 
-        // 4. Sample member avatars (up to 8)
+        // 3. Sample member avatars (up to 8)
         $sample = $community->memberships()
             ->effective()
             ->with('user')
@@ -64,33 +54,9 @@ class SkoolCommunityCard extends Component
 
         $this->sampleMembers = $sample->values()->take(8);
 
-        // 5. Membership state for current viewer
+        // 4. Membership state for current viewer
         $this->isCreator = $community->isCreator($user);
         $this->isMember = $community->isActiveMember($user);
-    }
-
-    protected function calculateOnlineCount(): int
-    {
-        $memberUserIds = $this->community->memberships()
-            ->effective()
-            ->pluck('user_id')
-            ->push($this->community->creator_id)
-            ->unique();
-
-        $count = 0;
-        if (Schema::hasTable('sessions')) {
-            $count = DB::table('sessions')
-                ->whereIn('user_id', $memberUserIds)
-                ->where('last_activity', '>=', now()->subMinutes(15)->timestamp)
-                ->distinct('user_id')
-                ->count();
-        }
-
-        if (Auth::check() && $memberUserIds->contains(Auth::id())) {
-            $count = max(1, $count);
-        }
-
-        return $count;
     }
 
     public static function formatCount(int $count): string

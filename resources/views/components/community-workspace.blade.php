@@ -77,16 +77,19 @@
                         </span>
 
                         <a href="{{ route('communities.manage', $community) }}"
+                           @if ($activeTab === 'overview') aria-current="page" @endif
                            class="px-3 py-1.5 rounded-lg transition {{ $activeTab === 'overview' ? 'bg-brand text-white shadow-2xs' : 'text-muted hover:text-ink hover:bg-slate-100/80' }}">
                             {{ __('Overview') }}
                         </a>
 
                         <a href="{{ route('communities.orders.index', $community) }}"
+                           @if ($activeTab === 'orders') aria-current="page" @endif
                            class="px-3 py-1.5 rounded-lg transition {{ $activeTab === 'orders' ? 'bg-brand text-white shadow-2xs' : 'text-muted hover:text-ink hover:bg-slate-100/80' }}">
                             {{ __('Orders') }}
                         </a>
 
                         <a href="{{ route('communities.reports.index', $community) }}"
+                           @if ($activeTab === 'reports') aria-current="page" @endif
                            class="px-3 py-1.5 rounded-lg transition {{ $activeTab === 'reports' ? 'bg-brand text-white shadow-2xs' : 'text-muted hover:text-ink hover:bg-slate-100/80' }}">
                             {{ __('Reports') }}
                         </a>
@@ -98,21 +101,25 @@
                         </a>
 
                         <a href="{{ route('communities.invitations.index', $community) }}"
+                           @if ($activeTab === 'invitations') aria-current="page" @endif
                            class="px-3 py-1.5 rounded-lg transition {{ $activeTab === 'invitations' ? 'bg-brand text-white shadow-2xs' : 'text-muted hover:text-ink hover:bg-slate-100/80' }}">
                             {{ __('Invitations') }}
                         </a>
 
                         <a href="{{ route('communities.referrals.index', $community) }}"
+                           @if ($activeTab === 'referrals') aria-current="page" @endif
                            class="px-3 py-1.5 rounded-lg transition {{ $activeTab === 'referrals' ? 'bg-brand text-white shadow-2xs' : 'text-muted hover:text-ink hover:bg-slate-100/80' }}">
                             {{ __('Referrals') }}
                         </a>
 
                         <a href="{{ route('communities.members.index', $community) }}"
+                           @if ($activeTab === 'members') aria-current="page" @endif
                            class="px-3 py-1.5 rounded-lg transition {{ $activeTab === 'members' ? 'bg-brand text-white shadow-2xs' : 'text-muted hover:text-ink hover:bg-slate-100/80' }}">
                             {{ __('Manage Members') }}
                         </a>
 
                         <a href="{{ route('communities.edit', $community) }}"
+                           @if ($activeTab === 'settings') aria-current="page" @endif
                            class="px-3 py-1.5 rounded-lg transition {{ $activeTab === 'settings' ? 'bg-brand text-white shadow-2xs' : 'text-muted hover:text-ink hover:bg-slate-100/80' }}">
                             {{ __('Edit Settings') }}
                         </a>
@@ -120,33 +127,41 @@
                 </div>
             @else
                 <!-- Member Navigation Tabs -->
-                <nav class="flex min-w-0 items-center gap-1 sm:gap-2 overflow-x-auto whitespace-nowrap pb-1 -mb-px" aria-label="Member Tabs" tabindex="0">
+                {{-- Keep the current tab visible on narrow screens without scrolling the page. --}}
+                <nav class="relative flex min-w-0 items-center gap-1 sm:gap-2 overflow-x-auto whitespace-nowrap pb-1 -mb-px" aria-label="Member Tabs" tabindex="0"
+                     x-data x-init="$el.querySelector('[aria-current=page]') && $el.scrollWidth > $el.clientWidth && ($el.scrollLeft = $el.querySelector('[aria-current=page]').offsetLeft - 16)">
                     <a href="{{ route('communities.posts.index', $community) }}"
+                       @if ($activeTab === 'feed') aria-current="page" @endif
                        class="inline-flex min-h-11 shrink-0 items-center px-3.5 py-2 text-sm font-semibold border-b-2 transition {{ $activeTab === 'feed' ? 'border-brand text-brand' : 'border-transparent text-muted hover:text-ink hover:border-slate-300' }}">
                         {{ __('Community Feed') }}
                     </a>
 
                     <a href="{{ route('communities.classroom.index', $community) }}"
+                       @if ($activeTab === 'classroom') aria-current="page" @endif
                        class="inline-flex min-h-11 shrink-0 items-center px-3.5 py-2 text-sm font-semibold border-b-2 transition {{ $activeTab === 'classroom' ? 'border-brand text-brand' : 'border-transparent text-muted hover:text-ink hover:border-slate-300' }}">
                         {{ __('Classroom') }}
                     </a>
 
                     <a href="{{ route('communities.events.index', $community) }}"
+                       @if ($activeTab === 'events') aria-current="page" @endif
                        class="inline-flex min-h-11 shrink-0 items-center px-3.5 py-2 text-sm font-semibold border-b-2 transition {{ $activeTab === 'events' ? 'border-brand text-brand' : 'border-transparent text-muted hover:text-ink hover:border-slate-300' }}">
                         {{ __('Events') }}
                     </a>
 
                     <a href="{{ route('communities.directory.index', $community) }}"
+                       @if ($activeTab === 'directory') aria-current="page" @endif
                        class="inline-flex min-h-11 shrink-0 items-center px-3.5 py-2 text-sm font-semibold border-b-2 transition {{ $activeTab === 'directory' ? 'border-brand text-brand' : 'border-transparent text-muted hover:text-ink hover:border-slate-300' }}">
                         {{ __('Members') }}
                     </a>
 
                     <a href="{{ route('communities.leaderboard', $community) }}"
+                       @if ($activeTab === 'leaderboard') aria-current="page" @endif
                        class="inline-flex min-h-11 shrink-0 items-center px-3.5 py-2 text-sm font-semibold border-b-2 transition {{ $activeTab === 'leaderboard' ? 'border-brand text-brand' : 'border-transparent text-muted hover:text-ink hover:border-slate-300' }}">
                         {{ __('Leaderboard') }}
                     </a>
 
                     <a href="{{ route('communities.show', $community) }}"
+                       @if ($activeTab === 'about') aria-current="page" @endif
                        class="inline-flex min-h-11 shrink-0 items-center px-3.5 py-2 text-sm font-semibold border-b-2 transition {{ $activeTab === 'about' ? 'border-brand text-brand' : 'border-transparent text-muted hover:text-ink hover:border-slate-300' }}">
                         {{ __('About') }}
                     </a>

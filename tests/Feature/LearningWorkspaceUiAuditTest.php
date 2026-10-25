@@ -124,7 +124,9 @@ class LearningWorkspaceUiAuditTest extends TestCase
             return $rendered->count() === 4 && $rendered->every(fn ($post) => ! $post->relationLoaded('comments') && $post->latestVisibleComment?->relationLoaded('author'));
         });
         $this->assertLessThanOrEqual(3, count($commentQueries));
-        $this->assertSame(1, substr_count($response->getContent(), 'Browse Classroom Courses'));
+        // The rail keeps one learning entry and no duplicate About card of classroom links.
+        $this->assertSame(1, substr_count($response->getContent(), 'Learning Focus'));
+        $this->assertSame(0, substr_count($response->getContent(), 'Browse Classroom Courses'));
     }
 
     public function test_composer_has_a_real_form_fallback_and_retains_course_filter_in_toolbar(): void

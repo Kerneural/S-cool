@@ -40,7 +40,7 @@
                     </div>
                     <div>
                         <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Tổng thành viên</span>
-                        <p class="text-2xl font-black text-slate-900 tracking-tight">{{ $counts['total'] }}</p>
+                        <p class="text-2xl font-bold text-slate-900 tracking-tight">{{ $counts['total'] }}</p>
                     </div>
                 </div>
 
@@ -52,7 +52,7 @@
                     </div>
                     <div>
                         <span class="text-xs text-emerald-600 uppercase tracking-wider font-semibold">Đang hoạt động</span>
-                        <p class="text-2xl font-black text-emerald-700 tracking-tight">{{ $counts['active'] }}</p>
+                        <p class="text-2xl font-bold text-emerald-700 tracking-tight">{{ $counts['active'] }}</p>
                     </div>
                 </div>
 
@@ -64,7 +64,7 @@
                     </div>
                     <div>
                         <span class="text-xs text-amber-600 uppercase tracking-wider font-semibold">Đang tạm khóa</span>
-                        <p class="text-2xl font-black text-amber-700 tracking-tight">{{ $counts['suspended'] }}</p>
+                        <p class="text-2xl font-bold text-amber-700 tracking-tight">{{ $counts['suspended'] }}</p>
                     </div>
                 </div>
 
@@ -76,7 +76,7 @@
                     </div>
                     <div>
                         <span class="text-xs text-rose-600 uppercase tracking-wider font-semibold">Đã xóa</span>
-                        <p class="text-2xl font-black text-rose-700 tracking-tight">{{ $counts['removed'] }}</p>
+                        <p class="text-2xl font-bold text-rose-700 tracking-tight">{{ $counts['removed'] }}</p>
                     </div>
                 </div>
             </div>

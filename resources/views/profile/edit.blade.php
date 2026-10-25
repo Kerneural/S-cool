@@ -36,7 +36,7 @@
                                     {{ __('S-cool Member') }}
                                 </span>
                                 @if (auth()->user()->is_platform_admin)
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200/70">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-200/70">
                                         {{ __('Platform Admin') }}
                                     </span>
                                 @endif

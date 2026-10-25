@@ -91,8 +91,8 @@
             </div>
 
             <!-- Main Content Area -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                <div class="min-w-0 lg:col-span-8 space-y-6">
+            <div class="grid grid-cols-1 gap-6 items-start lg:grid-cols-[minmax(0,1fr)_300px]">
+                <div class="min-w-0 space-y-6">
                     @if ($view === 'month')
                         @if (! empty($hasMoreEvents))
                     <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200/80 text-amber-800 text-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -171,7 +171,7 @@
                                     <span class="text-[10px] font-bold uppercase tracking-wider {{ $event->isCancelled() ? 'text-rose-600' : 'text-brand-600' }}">
                                         {{ $event->startsAtInTimezone($displayTimezone)->format('M') }}
                                     </span>
-                                    <span class="text-xl font-black leading-none mt-0.5">
+                                    <span class="text-xl font-bold leading-none mt-0.5">
                                         {{ $event->startsAtInTimezone($displayTimezone)->format('d') }}
                                     </span>
                                     <span class="text-[9px] font-medium text-slate-500 mt-0.5">
@@ -265,8 +265,8 @@
             @endif
                 </div>
 
-                <!-- Context Sidebar Column with Skool Community Card -->
-                <aside class="min-w-0 lg:col-span-4 space-y-6">
+                <!-- Context Sidebar Column with community card -->
+                <aside class="min-w-0 space-y-6">
                     <x-skool-community-card :community="$community" />
                 </aside>
             </div>
