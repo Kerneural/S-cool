@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Community;
 use App\Models\Lesson;
 use App\Models\User;
+use App\Services\Search\SearchNormalizationService;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -70,25 +72,41 @@ class SearchController extends Controller
         $results = null;
 
         if ($search !== null && $search !== '') {
-            $escaped = addcslashes($search, '%_\\');
+            $escaped = SearchNormalizationService::escapeSqlWildcards($search);
+            $tokens = SearchNormalizationService::tokenize($search);
+
+            $applyFilter = function ($q, array $fields) use ($escaped, $tokens): void {
+                $q->where(function ($sub) use ($escaped, $tokens, $fields): void {
+                    foreach ($fields as $field) {
+                        $sub->orWhere($field, 'like', "%{$escaped}%");
+                    }
+                    foreach (array_slice($tokens, 0, 4) as $token) {
+                        if (mb_strlen($token) >= 3) {
+                            $escToken = SearchNormalizationService::escapeSqlWildcards($token);
+                            foreach ($fields as $field) {
+                                $sub->orWhere($field, 'like', "%{$escToken}%");
+                            }
+                        }
+                        if (mb_strlen($token) >= 4) {
+                            $prefix2 = SearchNormalizationService::escapeSqlWildcards(mb_substr($token, 0, 2));
+                            foreach ($fields as $field) {
+                                $sub->orWhere($field, 'like', "%{$prefix2}%");
+                            }
+                        }
+                    }
+                });
+            };
 
             // 1. Posts Query (Tenant-scoped, excluding soft-deleted)
-            $postsQuery = $community->posts()
-                ->where(function ($q) use ($escaped): void {
-                    $q->where('title', 'like', "%{$escaped}%")
-                        ->orWhere('body', 'like', "%{$escaped}%");
-                });
+            $postsQuery = $community->posts();
+            $applyFilter($postsQuery, ['title', 'body']);
 
             // 2. Courses Query (Tenant-scoped, published & entitled for non-creators)
-            $coursesQuery = $community->courses()
-                ->where(function ($q) use ($escaped): void {
-                    $q->where('title', 'like', "%{$escaped}%")
-                        ->orWhere('description', 'like', "%{$escaped}%");
-                });
-
+            $coursesQuery = $community->courses();
             if (! $isCreator) {
                 $coursesQuery->published()->entitledTo($user);
             }
+            $applyFilter($coursesQuery, ['title', 'description']);
 
             // 3. Lessons Query (Ancestry-checked within community, published only for non-creators, excluding locked paid courses)
             $lessonsQuery = Lesson::query()
@@ -98,15 +116,11 @@ class SearchController extends Controller
                         $q->where('status', 'PUBLISHED');
                         $q->entitledTo($user);
                     }
-                })
-                ->where(function ($q) use ($escaped): void {
-                    $q->where('title', 'like', "%{$escaped}%")
-                        ->orWhere('content', 'like', "%{$escaped}%");
                 });
-
             if (! $isCreator) {
                 $lessonsQuery->published();
             }
+            $applyFilter($lessonsQuery, ['title', 'content']);
 
             // 4. Members Query (Active community members & creator only)
             $membersQuery = User::query()
@@ -115,37 +129,70 @@ class SearchController extends Controller
                         ->orWhereHas('memberships', function ($q) use ($community): void {
                             $q->where('community_id', $community->id)->effective();
                         });
-                })
-                ->where(function ($q) use ($escaped): void {
-                    $q->where('name', 'like', "%{$escaped}%")
-                        ->orWhere('bio', 'like', "%{$escaped}%");
                 });
+            $applyFilter($membersQuery, ['name', 'bio']);
 
             // 5. Events Query (Tenant-scoped, non-cancelled/scheduled only)
             $eventsQuery = $community->events()
-                ->where('status', 'SCHEDULED')
-                ->where(function ($q) use ($escaped): void {
-                    $q->where('title', 'like', "%{$escaped}%")
-                        ->orWhere('description', 'like', "%{$escaped}%");
-                });
+                ->where('status', 'SCHEDULED');
+            $applyFilter($eventsQuery, ['title', 'description']);
 
-            // Counts using identical permission and ancestry filters
+            // For each type, retrieve bounded candidates (max 50) and score them
+            $scoreItems = function ($collection, callable $textExtractor) use ($search) {
+                return $collection->map(function ($item) use ($search, $textExtractor) {
+                    [$primary, $secondary] = $textExtractor($item);
+                    $score1 = SearchNormalizationService::calculateScore((string) $primary, $search);
+                    $score2 = $secondary ? (int) (SearchNormalizationService::calculateScore((string) $secondary, $search) * 0.7) : 0;
+                    $item->search_score = max($score1, $score2);
+
+                    return $item;
+                })->filter(fn ($item): bool => ($item->search_score ?? 0) > 0)
+                    ->sortByDesc('search_score')
+                    ->values();
+            };
+
+            // Candidates bounded to 50
+            $postsCandidates = (clone $postsQuery)->with(['author:id,name', 'category'])->limit(50)->get();
+            $scoredPosts = $scoreItems($postsCandidates, fn ($p) => [$p->title, $p->body]);
+
+            $coursesCandidates = (clone $coursesQuery)->limit(50)->get();
+            $scoredCourses = $scoreItems($coursesCandidates, fn ($c) => [$c->title, $c->description]);
+
+            $lessonsCandidates = (clone $lessonsQuery)->with(['courseSection.course'])->limit(50)->get();
+            $scoredLessons = $scoreItems($lessonsCandidates, fn ($l) => [$l->title, $l->content]);
+
+            $membersCandidates = (clone $membersQuery)->select(['id', 'name', 'bio', 'avatar_path'])->limit(50)->get();
+            $scoredMembers = $scoreItems($membersCandidates, fn ($m) => [$m->name, $m->bio]);
+
+            $eventsCandidates = (clone $eventsQuery)->limit(50)->get();
+            $scoredEvents = $scoreItems($eventsCandidates, fn ($e) => [$e->title, $e->description]);
+
             $counts = [
-                'posts' => (clone $postsQuery)->count(),
-                'courses' => (clone $coursesQuery)->count(),
-                'lessons' => (clone $lessonsQuery)->count(),
-                'members' => (clone $membersQuery)->count(),
-                'events' => (clone $eventsQuery)->count(),
+                'posts' => $scoredPosts->count(),
+                'courses' => $scoredCourses->count(),
+                'lessons' => $scoredLessons->count(),
+                'members' => $scoredMembers->count(),
+                'events' => $scoredEvents->count(),
             ];
 
-            // Only paginate the currently selected result type
-            $results = match ($type) {
-                'posts' => $postsQuery->with(['author:id,name', 'category'])->orderByDesc('id')->paginate(15)->withQueryString(),
-                'courses' => $coursesQuery->orderBy('order')->orderByDesc('id')->paginate(15)->withQueryString(),
-                'lessons' => $lessonsQuery->with(['courseSection.course'])->orderBy('id')->paginate(15)->withQueryString(),
-                'members' => $membersQuery->select(['id', 'name', 'bio', 'avatar_path'])->orderBy('name')->paginate(15)->withQueryString(),
-                'events' => $eventsQuery->orderBy('starts_at')->paginate(15)->withQueryString(),
+            $activeCollection = match ($type) {
+                'posts' => $scoredPosts,
+                'courses' => $scoredCourses,
+                'lessons' => $scoredLessons,
+                'members' => $scoredMembers,
+                'events' => $scoredEvents,
             };
+
+            $page = LengthAwarePaginator::resolveCurrentPage();
+            $perPage = 15;
+            $itemsForCurrentPage = $activeCollection->slice(($page - 1) * $perPage, $perPage)->values();
+            $results = new LengthAwarePaginator(
+                $itemsForCurrentPage,
+                $activeCollection->count(),
+                $perPage,
+                $page,
+                ['path' => LengthAwarePaginator::resolveCurrentPath(), 'query' => $request->query()]
+            );
         }
 
         return view('communities.search', [
