@@ -179,13 +179,15 @@
         <section x-data="{
                     activeSet: 0,
                     heroPaused: false,
+                    heroTimer: null,
+                    destroy() { clearInterval(this.heroTimer); },
                     sets: [
                         { id: 'community', name: 'Community', headline: 'Put insights to work', badge: 'Continuous Improvement', desc: 'Autonomous peer discussion, structured categories, and real-time moderation that elevates member experience.' },
                         { id: 'classroom', name: 'Classroom', headline: 'Smarter after every launch', badge: 'Compound Knowledge', desc: 'Turn progressive course curriculums and video modules into structured completion rubrics that scale effortlessly.' },
                         { id: 'verification', name: 'Verification', headline: 'We catch your drift', badge: 'Proof of Work', desc: 'Verifiable deliverable submissions, peer reviews, and transparent scoring that validate genuine student outcomes.' }
                     ]
                  }"
-                 x-init="setInterval(() => { if (!heroPaused && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) activeSet = (activeSet + 1) % sets.length }, 8000)"
+                 x-init="heroTimer = setInterval(() => { if (!heroPaused && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) activeSet = (activeSet + 1) % sets.length }, 8000)"
                  @mouseenter="heroPaused = true" @mouseleave="heroPaused = false"
                  @focusin="heroPaused = true" @focusout="heroPaused = $el.contains($event.relatedTarget)"
                  class="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-28 bg-canvas">
