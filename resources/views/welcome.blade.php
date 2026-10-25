@@ -321,13 +321,13 @@
                                         <div class="px-4 py-2 bg-slate-50/90 border-b border-line flex items-center justify-between text-xs">
                                             <div class="flex items-center gap-2">
                                                 <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                                                <span class="font-semibold text-ink">Genuine Product Visual: Proof of Work & Leaderboard</span>
+                                                <span class="font-semibold text-ink">Genuine Product Visual: Member Leaderboard</span>
                                             </div>
                                             <span class="text-muted text-[11px] font-mono">/communities/the-ai-advantage/leaderboard</span>
                                         </div>
                                         <div class="relative aspect-16/9 max-h-[240px] sm:max-h-[280px] overflow-hidden bg-slate-100">
                                             <img src="{{ asset('images/landing/product/product-proof-of-work.png') }}"
-                                                 alt="S-cool Proof of Work Screenshot"
+                                                 alt="S-cool Member Leaderboard Screenshot"
                                                  class="w-full h-full object-cover object-top"
                                                  onerror="this.style.display='none'" />
                                         </div>
