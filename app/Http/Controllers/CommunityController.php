@@ -21,7 +21,7 @@ use Throwable;
 class CommunityController extends Controller
 {
     /**
-     * Display a listing of the user's communities.
+     * Discover active communities, or filter the user's owned/joined communities.
      */
     public function index(Request $request): View
     {
@@ -29,7 +29,11 @@ class CommunityController extends Controller
         $rawFilter = $request->query('filter', 'all');
         $filter = is_string($rawFilter) && in_array($rawFilter, ['all', 'owned', 'joined'], true) ? $rawFilter : 'all';
 
-        $query = Community::query();
+        $query = Community::query()
+            ->select(['id', 'creator_id', 'name', 'slug', 'description', 'status', 'cover_path'])
+            ->withExists(['memberships as has_effective_membership' => function ($q) use ($user): void {
+                $q->where('user_id', $user->id)->effective();
+            }]);
 
         if ($filter === 'owned') {
             $query->where('creator_id', $user->id);
@@ -40,7 +44,7 @@ class CommunityController extends Controller
                     $q->where('user_id', $user->id)->effective();
                 });
         } else {
-            $query->accessibleTo($user);
+            $query->active();
         }
 
         $rawQ = $request->query('q');
