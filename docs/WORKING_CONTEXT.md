@@ -5486,3 +5486,10 @@ The owner requested publishing the latest submitted improvements and local corre
   unrelated primary-checkout changes remain local. Browser validation is bounded
   to this behavior, not a complete accessibility/device UAT. CI/review and host
   deployment are separate pending gates.
+
+
+## PR #59 / EUR-67 bounded audit — 2026-10-25
+
+- Original submitted head `7cbe8ed`; incorporated main `0e109e2` without removing authenticated ACTIVE-community metadata discovery. Retained the submitted search UI. Fixed SQL candidate retrieval for typo words inside titles and prevented locked course descriptions influencing Classroom search. Added focused privacy/typo regressions.
+- Direct PHPUnit file selection: SearchNormalizationServiceTest, ScopedLiveSearchFeatureTest, SearchPrivacyRegressionTest, CommunitySearchTest, LivewireCommunitySearchTest and CommunityDiscoveryTest: PASS 30 tests / 276 assertions / 18.335s, guarded MySQL scool_test. A first added fixture used the factory default PENDING_PAYMENT and correctly received 404; corrected the fixture to ACTIVE. An Artisan filter invocation selected only 8 tests; the direct 30-test run is the complete targeted evidence. Production build passed with font URL resolution warnings.
+- No browser or production acceptance is claimed by this quick review. Candidate caps can truncate broad matches; independent dataset/timing, delayed network and real zoom evidence remain issue acceptance concerns. No local development DB or canonical runtime mutation.

@@ -47,9 +47,14 @@ class ClassroomController extends Controller
             $escaped = SearchNormalizationService::escapeSqlWildcards($search);
             $tokens = SearchNormalizationService::tokenize($search);
 
-            $coursesQuery->where(function ($q) use ($escaped, $tokens): void {
+            $coursesQuery->where(function ($q) use ($escaped, $tokens, $isCreator, $user): void {
                 $q->where('title', 'like', "%{$escaped}%")
-                    ->orWhere('description', 'like', "%{$escaped}%");
+                    ->orWhere(function ($description) use ($escaped, $isCreator, $user): void {
+                        if (! $isCreator) {
+                            $description->entitledTo($user);
+                        }
+                        $description->where('description', 'like', "%{$escaped}%");
+                    });
 
                 foreach (array_slice($tokens, 0, 4) as $token) {
                     if (mb_strlen($token) >= 3) {
@@ -64,18 +69,18 @@ class ClassroomController extends Controller
             });
 
             // Bounded candidate retrieval (max 50 to prevent memory exhaustion)
-            $candidates = $coursesQuery->take(50)->get();
+            $candidates = $coursesQuery->withExists(['entitlements as search_entitled' => fn ($q) => $q->where('user_id', $user->id)])->take(50)->get();
 
-            $scored = $candidates->map(function ($course) use ($search) {
+            $scored = $candidates->map(function ($course) use ($search, $isCreator) {
                 $titleScore = SearchNormalizationService::calculateScore($course->title, $search);
-                $descScore = $course->description ? (int) (SearchNormalizationService::calculateScore($course->description, $search) * 0.8) : 0;
+                $descScore = ($isCreator || $course->isIncluded() || $course->search_entitled) && $course->description ? (int) (SearchNormalizationService::calculateScore($course->description, $search) * 0.8) : 0;
                 $course->search_score = max($titleScore, $descScore);
 
                 return $course;
             })->filter(fn ($c): bool => ($c->search_score ?? 0) > 0)
                 ->sort(function ($a, $b) {
                     if ($a->search_score === $b->search_score) {
-                        return $a->order <=> $b->order;
+                        return ($a->order <=> $b->order) ?: ($a->id <=> $b->id);
                     }
 
                     return $b->search_score <=> $a->search_score;

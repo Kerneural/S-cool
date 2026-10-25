@@ -131,7 +131,7 @@ class CommunitySearchTypeahead extends Component
                         }
                         if (mb_strlen($token) >= 4) {
                             $prefix2 = SearchNormalizationService::escapeSqlWildcards(mb_substr($token, 0, 2));
-                            $q->orWhere('title', 'like', "{$prefix2}%");
+                            $q->orWhere('title', 'like', "%{$prefix2}%");
                         }
                     }
                 })
@@ -174,7 +174,7 @@ class CommunitySearchTypeahead extends Component
                         }
                         if (mb_strlen($token) >= 4) {
                             $prefix2 = SearchNormalizationService::escapeSqlWildcards(mb_substr($token, 0, 2));
-                            $q->orWhere('title', 'like', "{$prefix2}%");
+                            $q->orWhere('title', 'like', "%{$prefix2}%");
                         }
                     }
                 });
@@ -229,7 +229,7 @@ class CommunitySearchTypeahead extends Component
                         }
                         if (mb_strlen($token) >= 4) {
                             $prefix2 = SearchNormalizationService::escapeSqlWildcards(mb_substr($token, 0, 2));
-                            $q->orWhere('title', 'like', "{$prefix2}%");
+                            $q->orWhere('title', 'like', "%{$prefix2}%");
                         }
                     }
                 });
@@ -286,7 +286,7 @@ class CommunitySearchTypeahead extends Component
                         }
                         if (mb_strlen($token) >= 4) {
                             $prefix2 = SearchNormalizationService::escapeSqlWildcards(mb_substr($token, 0, 2));
-                            $q->orWhere('name', 'like', "{$prefix2}%");
+                            $q->orWhere('name', 'like', "%{$prefix2}%");
                         }
                     }
                 })
@@ -331,7 +331,7 @@ class CommunitySearchTypeahead extends Component
                         }
                         if (mb_strlen($token) >= 4) {
                             $prefix2 = SearchNormalizationService::escapeSqlWildcards(mb_substr($token, 0, 2));
-                            $q->orWhere('title', 'like', "{$prefix2}%");
+                            $q->orWhere('title', 'like', "%{$prefix2}%");
                         }
                     }
                 })
