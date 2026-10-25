@@ -5488,11 +5488,28 @@ The owner requested publishing the latest submitted improvements and local corre
   deployment are separate pending gates.
 
 
+## PR #59 / EUR-67 bounded audit — 2026-10-25
+
+- Original submitted head `7cbe8ed`; incorporated main `0e109e2` without removing authenticated ACTIVE-community metadata discovery. Retained the submitted search UI. Fixed SQL candidate retrieval for typo words inside titles and prevented locked course descriptions influencing Classroom search. Added focused privacy/typo regressions.
+- Direct PHPUnit file selection: SearchNormalizationServiceTest, ScopedLiveSearchFeatureTest, SearchPrivacyRegressionTest, CommunitySearchTest, LivewireCommunitySearchTest and CommunityDiscoveryTest: PASS 30 tests / 276 assertions / 18.335s, guarded MySQL scool_test. A first added fixture used the factory default PENDING_PAYMENT and correctly received 404; corrected the fixture to ACTIVE. An Artisan filter invocation selected only 8 tests; the direct 30-test run is the complete targeted evidence. Production build passed with font URL resolution warnings.
+- No browser or production acceptance is claimed by this quick review. Candidate caps can truncate broad matches; independent dataset/timing, delayed network and real zoom evidence remain issue acceptance concerns. No local development DB or canonical runtime mutation.
+
+- First full CI run `40173974241` reached the image-fixture tests and exhausted the CLI default 128 MiB heap. Set the PHPUnit-only budget to 512 MiB, matching the expanded integration suite; production PHP memory settings are unchanged. Required CI is rerun on the new commit.
+
+
 ## PR #58 / EUR-69 bounded audit — 2026-10-25
 
 - Base: origin/main `0e109e2`; original submitted head `66aaab8`. Preserved the current private-community, discovery and PHP runtime contracts. Removed the forced content-overwrite path and corrected invalid Python comment syntax plus the unsafe keyword-based SQL validation example. Creator guidance layout retained.
 - Guarded MySQL scool_test: CommunitySampleSafetyTest, RealCommunityVerificationTest, LocalDemoSyncTest and LearningWorkspaceProofOfWorkTest passed: 26 tests / 219 assertions / 25.34s. Initial isolated run lacked a Vite manifest; built the worktree and reran successfully. Production build passed; font URL resolution warnings remain runtime checks.
 - Audit scope was code/data safety and targeted regression, not independent confirmation of all curriculum/peer/medical/media-rights claims. Existing artifact PASS labels are submitter evidence. AC-05 existing-content rollout and independent receiver evidence remain pending. No local application database, media or production deployment was changed.
+
+
+## PR #60 / bounded integration audit — 2026-10-25
+
+- Original head `0d50a4c`; main discovery/runtime patches and corrected PR #58 are retained. No standalone Linear contract was found for this additional PR; reviewed its submitted scope against existing access/data contracts. Removed email-based guest authentication and direct membership activation/restoration. Existing invitation/checkout workflows remain authoritative. Submitted card, creation upload and leaderboard layout retained; replaced fabricated distribution/unlock claims with an unmeasured state.
+- Split the free catalog into RealFreeCommunitySeeder, removed deletion of four existing group B communities, retained original catalog and all previous cover mappings. Routine LocalDemoSyncSeeder adds missing free catalog records without overwriting existing community/course/membership state. Fresh fixture: 14 communities, 67 courses and 81 private cover assets, not a current development DB claim.
+- Direct PHPUnit selection: JoinSecurityRegressionTest, CommunityJoinAndCardTest, CommunitySampleSafetyTest, RealCommunityVerificationTest, LocalDemoSyncTest, PrivateCommunityAccessTest and CommunityDiscoveryTest: PASS 32 tests / 387 assertions / 75.722s on guarded scool_test. Initial comparison used an unsaved factory attribute snapshot; refreshed the reference snapshot and reran. Build/scoped Pint passed. GitNexus indexed this worktree with --pdg; context/impact/PDG confirmed the Join gate, with known dynamic dispatch limitations.
+- Quick code/data audit only. No production or canonical local DB/media mutation, no complete visual/rights/real-provider acceptance. Nine display tiers do not redefine the existing points/access contract. Required final CI/review still apply.
 
 
 ## PR #61 / bounded playback audit — 2026-10-25
