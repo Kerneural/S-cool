@@ -63,6 +63,94 @@ A checkpoint is historical context, not current Linear/Git/runtime evidence. Ver
   batch first, complete remaining route batches, then review actual diff and
   canonical browser behavior using the handoff's AC/evidence matrix.
 
+- Batch A implementation checkpoint (2026-10-25): branch `landing-layout-motion`,
+  HEAD `ea94e0efe408edc0e0b0e9de8a762e48371779ee` (landing-only commit created
+  outside this implementation; landing file hashes re-verified unchanged). Lesson
+  work is uncommitted: `app/Support/LessonMarkdown.php`, `resources/js/course-outline.js`,
+  lessons/show and courses/show views, learning CSS and narrowed application
+  reduced-motion rule in `app.css`, `app.js` registration, architecture section 12
+  safe-Markdown exception, new `LessonMarkdownTest`, `LearningReaderTest`,
+  `course-outline.test.mjs` and one updated `LearningWorkspaceUiAuditTest` fallback check.
+  - Delivered: CommonMark/GFM renderer (HTML stripped, unsafe schemes dropped,
+    bounded nesting, images as links, headings from h2, soft breaks kept); 300px
+    sticky rail with bounded outline scroll, native details accordions (current
+    section open), title-only diacritic-insensitive search with Clear/Escape and
+    expansion restore, live section counts from the existing progress event; mobile
+    Course content disclosure before the body; one completion form and one prev/next
+    region (last lesson returns to course); course overview with identity, compact
+    progress and honest Start/Continue/Review entry before a generic section
+    accordion; creator tools grouped under Manage course. Application reduced motion
+    now keeps color/opacity transitions and removes transform/size transitions.
+  - Results: guarded `scool_test` Batch A suites (Classroom regression/publishing,
+    entitlement/purchase, lesson progress x2, UI audit, proof of work, reader, renderer)
+    83 tests / 830 assertions PASS; course access/cover, proof-of-work audit/follow-up,
+    landing and example 27 / 252 PASS. `node --test tests/js/*.test.mjs` 48/48 PASS.
+    `npm run build` PASS; Pint on changed PHP PASS; `git diff --check` PASS; agent
+    contract PASS. 8080 serves `app-omURaQvl.css` / `app-Bxr-Divg.js` (manifest match).
+  - Live member checks (demo `member@scool.local`, read-only): 848/798/course 68,
+    code lesson 681, video 60, practical 40; one h1, semantic headings, rail sticky
+    300px with current row in view; search 5 matches/Clear restores; no page overflow
+    at 320/375/768/1280/1536; reduced-motion computed transitions verified. Evidence
+    images under `.agent/learning-reader-2026-10-25/`.
+  - Coverage: A lesson/course changed and verified as above; classroom index, proof-of-work
+    component, creator review queue/detail retained unchanged (not re-audited). B-G not
+    started: the shared `x-skool-community-card` rail asserts `skool.com/<slug>`, an
+    Online session count and yellow JOIN GROUP in existing tests, conflicting with design
+    sections 6/11.7; owner decision requested before changing that shared contract.
+  - Pending/unverified: live progress success/failure toggle (no synthetic demo
+    community in this DB; covered by feature/JS tests only), creator/draft/unentitled live
+    roles, keyboard-only and no-JS browser passes, real 200% zoom, motion observation and
+    recordings (browser pane produced no animation frames). Source defects not repaired:
+    798 intro authored as `##`; 848 trailing irregular `**`/link markers; 40 unfenced code
+    line rendered as a heading.
+
+- Batch A independent audit and correction (2026-10-25): owner requested review
+  and necessary fixes of the submitted local diff; branch `landing-layout-motion`,
+  base HEAD `ea94e0efe408edc0e0b0e9de8a762e48371779ee`. Review included all 12
+  modified/untracked delivery paths, the private handoff, actual renderer/view/JS
+  consumers, guarded tests and canonical `scool_app` bind mounts. No publication,
+  deployment, development-data changes or Batch B-G implementation is claimed.
+  - Confirmed P2 defect: lesson view outline initialization measured a hidden
+    mobile panel. Opening Course content left scrollTop at 0; the current lesson
+    in the populated 70-lesson course was outside the list viewport. Clear also
+    returned to the top. Corrected `course-outline.js` and the list initialization:
+    one-shot post-render positioning on initial layout, panel open and search clear;
+    scroll only the list, skip hidden panels/current rows and active searches,
+    and preserve an already visible current row. The watcher belongs to the list's
+    Alpine scope; no page scrolling or focus stealing. Added two JS regressions,
+    observed failing before implementation, passing afterward.
+  - Runtime readback: 8080 serves manifest-matching CSS `app-omURaQvl.css` and JS
+    `app-5_X0hcTx.js`. Creator browser checks covered 848, course 68 and resource
+    798; 300px sticky rail, semantic Markdown/single h1, native curriculum keyboard
+    toggle, five search matches, no-result message, Clear/Escape and mobile open.
+    At 375px, opening and clearing now place the current row inside the list
+    (scrollTop 388 in this fixture); no page overflow at 320/375/1280 or the default
+    desktop viewport. Reduced-motion preference remained true; short color feedback
+    is retained. Temporary viewport override was reset; no browser errors observed.
+    Local screenshots: `.agent/learning-reader-review-2026-10-25/` in the primary root.
+  - Completed checks: focused learning/publishing/entitlement/progress/proof/renderer
+    PHP selection 83 tests / 830 assertions; course access/cover and retained landing
+    selection 11 / 120, all on guarded MySQL `scool_test`; JS selection 50/50;
+    production build PASS (existing font-resolution warnings); scoped Pint PASS;
+    full configured PHPStan PASS; whitespace and tracked agent contract PASS.
+    After the final list watcher adjustment, reader/UI audit feature tests were
+    rerun: 12 tests / 96 assertions PASS; whitespace/contract checks remained PASS.
+    An initial supplementary PHP invocation named a nonexistent combined access/cover
+    file and ran no tests; the corrected two-file selection above is authoritative.
+  - GitNexus was refreshed with PDG for the submitted diff. Context/impact, change
+    mapping and renderer taint/data-flow queries supplemented source review, with
+    no renderer taint findings reported. Blade/Alpine dynamic callers and untracked
+    change mapping are incomplete; zero graph findings are not security proof.
+    The final small outline correction is verified directly by source, tests and
+    browser rather than presented as a newly indexed graph result.
+  - Verdict: no remaining confirmed blocking defect in reviewed Batch A after the
+    correction. Live member progress success/failure, no-JS browser execution, real
+    200% zoom and a motion recording remain unverified; automated progress/access
+    tests are separate evidence. Authored Markdown defects listed above are retained.
+    Batch B-G remain unimplemented. The reported shared community-card design/test
+    conflict is real, but is outside this Batch A correction. No commit/push/PR or
+    Linear status change was performed by this audit.
+
 ## EUR-50/51 experience-completion planning amendment (2026-10-16)
 
 - Authority: user approved normalizing the Skool reference, placing suitable

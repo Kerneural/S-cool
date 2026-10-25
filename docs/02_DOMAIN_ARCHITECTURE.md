@@ -597,6 +597,12 @@ Invalid authentication/reference/amount/currency returns an error, changes no me
 - Form request validation và explicit allowlist field.
 - CSRF middleware cho web forms.
 - Blade escaped output mặc định; rich HTML không nằm trong MVP.
+- Narrow exception (2026-10-25): lesson `content` is rendered as Markdown only through
+  `App\Support\LessonMarkdown` (installed league/commonmark with GFM; `html_input=strip`,
+  `allow_unsafe_links=false`, bounded nesting/delimiters; images downgraded to plain links;
+  content headings start at h2). Only that renderer's output may be printed unescaped.
+  Stored source is not rewritten. Untrusted rich HTML, iframes/embeds and SVG remain
+  unsupported; video stays on the existing authorized player route.
 - Eloquent/query builder parameter binding; không ghép raw SQL từ input.
 - Rate limit login, password reset, invitation acceptance và SePay IPN endpoints.
 
