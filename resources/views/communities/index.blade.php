@@ -49,7 +49,15 @@
                     </nav>
 
                     <!-- Search Form -->
-                    <form method="GET" action="{{ route('communities.index') }}" class="flex items-center gap-2">
+                    <form method="GET" action="{{ route('communities.index') }}" class="flex items-center gap-2" x-data="{
+                        timeout: null,
+                        liveSearch() {
+                            clearTimeout(this.timeout);
+                            this.timeout = setTimeout(() => {
+                                this.$el.submit();
+                            }, 400);
+                        }
+                    }">
                         <input type="hidden" name="filter" value="{{ $currentFilter ?? 'all' }}">
                         <div class="relative flex-1 sm:w-72">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -58,6 +66,8 @@
                                 </svg>
                             </div>
                             <input type="text" name="q" value="{{ $searchQuery ?? '' }}" placeholder="{{ __('Search communities...') }}"
+                                   @input="liveSearch"
+                                   autocomplete="off"
                                    class="w-full text-sm rounded-xl border-slate-200 pl-9 pr-3 py-2 bg-slate-50/50 focus:bg-white focus:border-brand-500 focus:ring-brand-500 transition-colors">
                         </div>
                         <button type="submit" class="inline-flex items-center px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs rounded-xl transition shadow-sm">

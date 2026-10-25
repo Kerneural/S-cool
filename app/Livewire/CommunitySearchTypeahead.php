@@ -5,6 +5,8 @@ namespace App\Livewire;
 use App\Models\Community;
 use App\Models\Lesson;
 use App\Models\User;
+use App\Services\Search\SearchNormalizationService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Livewire\Attributes\Locked;
@@ -101,7 +103,7 @@ class CommunitySearchTypeahead extends Component
             return;
         }
 
-        $user = auth()->user();
+        $user = Auth::user();
         if (! $user) {
             $this->resetResults();
             $this->errorMessage = 'Please sign in to search.';
@@ -112,50 +114,99 @@ class CommunitySearchTypeahead extends Component
         }
 
         $isCreator = $community->isCreator($user);
-        $escaped = addcslashes($trimmed, '%_\\');
+        $escaped = SearchNormalizationService::escapeSqlWildcards($trimmed);
+        $tokens = SearchNormalizationService::tokenize($trimmed);
 
         try {
             // 1. Posts (Tenant-scoped, excluding soft-deleted, max 4)
-            $posts = $community->posts()
-                ->where(function ($q) use ($escaped): void {
+            $postsQuery = $community->posts()
+                ->where(function ($q) use ($escaped, $tokens): void {
                     $q->where('title', 'like', "%{$escaped}%")
                         ->orWhere('body', 'like', "%{$escaped}%");
+
+                    foreach (array_slice($tokens, 0, 4) as $token) {
+                        if (mb_strlen($token) >= 3) {
+                            $escToken = SearchNormalizationService::escapeSqlWildcards($token);
+                            $q->orWhere('title', 'like', "%{$escToken}%");
+                        }
+                        if (mb_strlen($token) >= 4) {
+                            $prefix2 = SearchNormalizationService::escapeSqlWildcards(mb_substr($token, 0, 2));
+                            $q->orWhere('title', 'like', "%{$prefix2}%");
+                        }
+                    }
                 })
                 ->with(['author:id,name', 'category:id,name'])
                 ->orderByDesc('id')
-                ->limit(4)
-                ->get()
-                ->map(fn ($post) => [
-                    'id' => 'post-'.$post->id,
-                    'title' => $post->title,
-                    'subtitle' => $post->category?->name ?? 'Discussion',
-                    'badge' => 'Post',
-                    'url' => route('communities.posts.show', [$community, $post]),
-                ])
+                ->limit(20)
+                ->get();
+
+            $posts = $postsQuery->map(function ($post) use ($trimmed, $community) {
+                $scoreTitle = SearchNormalizationService::calculateScore($post->title, $trimmed);
+                $scoreBody = (int) (SearchNormalizationService::calculateScore($post->body, $trimmed) * 0.7);
+                $score = max($scoreTitle, $scoreBody);
+
+                return [
+                    'score' => $score,
+                    'item' => [
+                        'id' => 'post-'.$post->id,
+                        'title' => $post->title,
+                        'subtitle' => $post->category?->name ?? 'Discussion',
+                        'badge' => 'Post',
+                        'url' => route('communities.posts.show', [$community, $post]),
+                    ],
+                ];
+            })->filter(fn ($item): bool => $item['score'] > 0)
+                ->sortByDesc('score')
+                ->take(4)
+                ->pluck('item')
                 ->all();
 
             // 2. Courses (Published & Entitled for non-creators, max 3)
             $coursesQuery = $community->courses()
-                ->where(function ($q) use ($escaped): void {
+                ->where(function ($q) use ($escaped, $tokens): void {
                     $q->where('title', 'like', "%{$escaped}%")
                         ->orWhere('description', 'like', "%{$escaped}%");
+
+                    foreach (array_slice($tokens, 0, 4) as $token) {
+                        if (mb_strlen($token) >= 3) {
+                            $escToken = SearchNormalizationService::escapeSqlWildcards($token);
+                            $q->orWhere('title', 'like', "%{$escToken}%");
+                        }
+                        if (mb_strlen($token) >= 4) {
+                            $prefix2 = SearchNormalizationService::escapeSqlWildcards(mb_substr($token, 0, 2));
+                            $q->orWhere('title', 'like', "%{$prefix2}%");
+                        }
+                    }
                 });
 
             if (! $isCreator) {
                 $coursesQuery->published()->entitledTo($user);
             }
 
-            $courses = $coursesQuery->orderBy('order')
+            $coursesCandidates = $coursesQuery->orderBy('order')
                 ->orderByDesc('id')
-                ->limit(3)
-                ->get()
-                ->map(fn ($c) => [
-                    'id' => 'course-'.$c->id,
-                    'title' => $c->title,
-                    'subtitle' => $c->isOneTime() ? ($c->isEntitledFor($user) ? 'Purchased' : $c->formattedPrice()) : 'Included',
-                    'badge' => 'Course',
-                    'url' => route('communities.courses.show', [$community, $c]),
-                ])
+                ->limit(20)
+                ->get();
+
+            $courses = $coursesCandidates->map(function ($c) use ($trimmed, $community, $user) {
+                $scoreTitle = SearchNormalizationService::calculateScore($c->title, $trimmed);
+                $scoreDesc = $c->description ? (int) (SearchNormalizationService::calculateScore($c->description, $trimmed) * 0.8) : 0;
+                $score = max($scoreTitle, $scoreDesc);
+
+                return [
+                    'score' => $score,
+                    'item' => [
+                        'id' => 'course-'.$c->id,
+                        'title' => $c->title,
+                        'subtitle' => $c->isOneTime() ? ($c->isEntitledFor($user) ? 'Purchased' : $c->formattedPrice()) : 'Included',
+                        'badge' => 'Course',
+                        'url' => route('communities.courses.show', [$community, $c]),
+                    ],
+                ];
+            })->filter(fn ($item): bool => $item['score'] > 0)
+                ->sortByDesc('score')
+                ->take(3)
+                ->pluck('item')
                 ->all();
 
             // 3. Lessons (Published for non-creators, ancestry-checked, max 3)
@@ -167,77 +218,146 @@ class CommunitySearchTypeahead extends Component
                         $q->entitledTo($user);
                     }
                 })
-                ->where(function ($q) use ($escaped): void {
+                ->where(function ($q) use ($escaped, $tokens): void {
                     $q->where('title', 'like', "%{$escaped}%")
                         ->orWhere('content', 'like', "%{$escaped}%");
+
+                    foreach (array_slice($tokens, 0, 4) as $token) {
+                        if (mb_strlen($token) >= 3) {
+                            $escToken = SearchNormalizationService::escapeSqlWildcards($token);
+                            $q->orWhere('title', 'like', "%{$escToken}%");
+                        }
+                        if (mb_strlen($token) >= 4) {
+                            $prefix2 = SearchNormalizationService::escapeSqlWildcards(mb_substr($token, 0, 2));
+                            $q->orWhere('title', 'like', "%{$prefix2}%");
+                        }
+                    }
                 });
 
             if (! $isCreator) {
                 $lessonsQuery->published();
             }
 
-            $lessons = $lessonsQuery->with(['courseSection.course'])
+            $lessonsCandidates = $lessonsQuery->with(['courseSection.course'])
                 ->orderBy('id')
-                ->limit(3)
-                ->get()
-                ->map(function ($l) use ($community) {
-                    $course = $l->courseSection?->course;
+                ->limit(20)
+                ->get();
 
-                    return [
+            $lessons = $lessonsCandidates->map(function ($l) use ($trimmed, $community) {
+                $scoreTitle = SearchNormalizationService::calculateScore($l->title, $trimmed);
+                $scoreContent = $l->content ? (int) (SearchNormalizationService::calculateScore($l->content, $trimmed) * 0.7) : 0;
+                $score = max($scoreTitle, $scoreContent);
+                $course = $l->courseSection?->course;
+
+                return [
+                    'score' => $score,
+                    'item' => [
                         'id' => 'lesson-'.$l->id,
                         'title' => $l->title,
                         'subtitle' => $course ? $course->title : 'Lesson',
                         'badge' => 'Lesson',
                         'url' => $course ? route('communities.lessons.show', [$community, $course, $l]) : '#',
-                    ];
-                })
+                    ],
+                ];
+            })->filter(fn ($item): bool => $item['score'] > 0)
+                ->sortByDesc('score')
+                ->take(3)
+                ->pluck('item')
                 ->all();
 
             $coursesLessons = array_merge($courses, $lessons);
 
             // 4. Members (Active community members & creator only, max 4)
-            $members = User::query()
+            $membersQuery = User::query()
                 ->where(function ($query) use ($community): void {
                     $query->where('id', $community->creator_id)
                         ->orWhereHas('memberships', function ($q) use ($community): void {
                             $q->where('community_id', $community->id)->effective();
                         });
                 })
-                ->where(function ($q) use ($escaped): void {
+                ->where(function ($q) use ($escaped, $tokens): void {
                     $q->where('name', 'like', "%{$escaped}%")
                         ->orWhere('bio', 'like', "%{$escaped}%");
+
+                    foreach (array_slice($tokens, 0, 4) as $token) {
+                        if (mb_strlen($token) >= 3) {
+                            $escToken = SearchNormalizationService::escapeSqlWildcards($token);
+                            $q->orWhere('name', 'like', "%{$escToken}%");
+                        }
+                        if (mb_strlen($token) >= 4) {
+                            $prefix2 = SearchNormalizationService::escapeSqlWildcards(mb_substr($token, 0, 2));
+                            $q->orWhere('name', 'like', "%{$prefix2}%");
+                        }
+                    }
                 })
                 ->select(['id', 'name', 'bio', 'avatar_path'])
                 ->orderBy('name')
-                ->limit(4)
-                ->get()
-                ->map(fn ($m) => [
-                    'id' => 'member-'.$m->id,
-                    'title' => $m->name,
-                    'subtitle' => $m->id === $community->creator_id ? 'Creator' : ($m->bio ? Str::limit($m->bio, 50) : 'Member'),
-                    'badge' => $m->id === $community->creator_id ? 'Creator' : 'Member',
-                    'avatar_url' => route('communities.directory.avatar', [$community, $m]),
-                    'url' => route('communities.directory.show', [$community, $m]),
-                ])
+                ->limit(20)
+                ->get();
+
+            $members = $membersQuery->map(function ($m) use ($trimmed, $community) {
+                $scoreName = SearchNormalizationService::calculateScore($m->name, $trimmed);
+                $scoreBio = $m->bio ? (int) (SearchNormalizationService::calculateScore($m->bio, $trimmed) * 0.7) : 0;
+                $score = max($scoreName, $scoreBio);
+
+                return [
+                    'score' => $score,
+                    'item' => [
+                        'id' => 'member-'.$m->id,
+                        'title' => $m->name,
+                        'subtitle' => $m->id === $community->creator_id ? 'Creator' : ($m->bio ? Str::limit($m->bio, 50) : 'Member'),
+                        'badge' => $m->id === $community->creator_id ? 'Creator' : 'Member',
+                        'avatar_url' => route('communities.directory.avatar', [$community, $m]),
+                        'url' => route('communities.directory.show', [$community, $m]),
+                    ],
+                ];
+            })->filter(fn ($item): bool => $item['score'] > 0)
+                ->sortByDesc('score')
+                ->take(4)
+                ->pluck('item')
                 ->all();
 
             // 5. Events (Tenant-scoped, scheduled only, max 4)
-            $events = $community->events()
+            $eventsQuery = $community->events()
                 ->where('status', 'SCHEDULED')
-                ->where(function ($q) use ($escaped): void {
+                ->where(function ($q) use ($escaped, $tokens): void {
                     $q->where('title', 'like', "%{$escaped}%")
                         ->orWhere('description', 'like', "%{$escaped}%");
+
+                    foreach (array_slice($tokens, 0, 4) as $token) {
+                        if (mb_strlen($token) >= 3) {
+                            $escToken = SearchNormalizationService::escapeSqlWildcards($token);
+                            $q->orWhere('title', 'like', "%{$escToken}%");
+                        }
+                        if (mb_strlen($token) >= 4) {
+                            $prefix2 = SearchNormalizationService::escapeSqlWildcards(mb_substr($token, 0, 2));
+                            $q->orWhere('title', 'like', "%{$prefix2}%");
+                        }
+                    }
                 })
                 ->orderBy('starts_at')
-                ->limit(4)
-                ->get()
-                ->map(fn ($e) => [
-                    'id' => 'event-'.$e->id,
-                    'title' => $e->title,
-                    'subtitle' => $e->starts_at->format('M d, Y H:i'),
-                    'badge' => 'Event',
-                    'url' => route('communities.events.show', [$community, $e]),
-                ])
+                ->limit(20)
+                ->get();
+
+            $events = $eventsQuery->map(function ($e) use ($trimmed, $community) {
+                $scoreTitle = SearchNormalizationService::calculateScore($e->title, $trimmed);
+                $scoreDesc = $e->description ? (int) (SearchNormalizationService::calculateScore($e->description, $trimmed) * 0.7) : 0;
+                $score = max($scoreTitle, $scoreDesc);
+
+                return [
+                    'score' => $score,
+                    'item' => [
+                        'id' => 'event-'.$e->id,
+                        'title' => $e->title,
+                        'subtitle' => $e->starts_at->format('M d, Y H:i'),
+                        'badge' => 'Event',
+                        'url' => route('communities.events.show', [$community, $e]),
+                    ],
+                ];
+            })->filter(fn ($item): bool => $item['score'] > 0)
+                ->sortByDesc('score')
+                ->take(4)
+                ->pluck('item')
                 ->all();
 
             // Final race condition check before mutating component state
@@ -385,7 +505,7 @@ class CommunitySearchTypeahead extends Component
             return null;
         }
 
-        $user = auth()->user();
+        $user = Auth::user();
         if (! $user) {
             return null;
         }
