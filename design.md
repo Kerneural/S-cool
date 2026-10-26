@@ -1,5 +1,30 @@
 # S-cool design system
 
+## Acquisition preview amendment (2026-10-26)
+
+Owner-approved scope: a signed-in non-member can open an ACTIVE community's About
+preview from its discovery card before deciding to join. This supersedes historical
+invitation-only acquisition copy below; protected workspace layouts remain unchanged.
+
+- Use the existing light/teal shell, a flexible marketing column and a compact
+  320px admission panel; stack them on mobile with no horizontal page overflow.
+- Marketing region: real cover, community name, Creator display name, current
+  effective member count, description, validated introduction and optional rules.
+  No fabricated reviews, ratings, trials, online metrics or revenue claims.
+- Show at most six published course title/description/price/lesson-count summaries,
+  with a truthful total. No lesson bodies, protected course images, playback links,
+  draft titles, posts, member identities or internal navigation before access.
+- Admission region: FREE or the actual VND price and one-time/30-day term wording;
+  distinguish community admission from separately paid courses. FREE uses a verified
+  actor-bound Join community form; PAID uses Continue to checkout and the existing
+  Test Mode gateway. Do not imply that clicking checkout has granted membership.
+- Restricted/expired membership has an explained access/renewal route, never a
+  generic join button that undoes moderation or converts an expired term.
+- Discovery cards and shared card CTAs lead prospective members to About. Remove
+  the obsolete email/referral join modal; the signed-in actor identifies the joiner.
+- Preserve the existing media loading glass, keyboard/native form behavior and
+  application motion policy. Guest browsing is outside this amendment.
+
 Status: approved design direction; implementation and visual acceptance are pending.
 This is the single shared visual/interaction reference. Feature scope and acceptance
 remain in Linear and `docs/01_PRODUCT_SCOPE.md` / `docs/03_DELIVERY_PLAN.md`.

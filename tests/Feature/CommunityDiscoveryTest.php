@@ -35,12 +35,14 @@ class CommunityDiscoveryTest extends TestCase
         $this->actingAs($user);
         foreach (['/communities', '/communities?filter=all', '/dashboard'] as $url) {
             $response = $this->get($url)->assertOk()->assertSee($community->name)
-                ->assertSee('Not joined')->assertSee('Invitation required')
+                ->assertSee('Not joined')->assertSee('View community')
                 ->assertDontSee('Role: Member')->assertDontSee('Open Community')
                 ->assertDontSee($inactive->name)->assertDontSee($post->title)->assertDontSee($course->title);
             $this->assertSame(1, $response->viewData('communities')->total());
         }
-        foreach (['communities.show', 'communities.about', 'communities.posts.index', 'communities.classroom.index', 'communities.events.index', 'communities.directory.index', 'communities.search'] as $route) {
+        $this->get(route('communities.about', $community))->assertOk()->assertViewIs('communities.preview')
+            ->assertSee($course->title)->assertDontSee($post->title);
+        foreach (['communities.show', 'communities.posts.index', 'communities.classroom.index', 'communities.events.index', 'communities.directory.index', 'communities.search'] as $route) {
             $this->get(route($route, $community))->assertNotFound();
         }
         $this->get(route('communities.posts.show', [$community, $post]))->assertNotFound();

@@ -56,7 +56,7 @@ class PrivateCommunityAccessTest extends TestCase
             $membership = CommunityMembership::factory()->create(['user_id' => $user->id, 'status' => $state]);
             $this->actingAs($user)->get('/communities/'.$membership->community->slug)->assertNotFound()->assertDontSee($membership->community->name);
             $this->get('/communities/'.$membership->community->slug.'/cover')->assertNotFound();
-            $this->get('/communities')->assertSee($membership->community->name)->assertSee('Invitation required');
+            $this->get('/communities')->assertSee($membership->community->name)->assertSee('View community');
             $this->get('/communities?filter=joined')->assertDontSee($membership->community->name);
         }
         $other = Community::factory()->create();
@@ -74,7 +74,7 @@ class PrivateCommunityAccessTest extends TestCase
         $member->transitionTo('SUSPENDED');
         $this->get('/communities/'.$member->community->slug)->assertNotFound();
         $this->get('/communities?filter=joined')->assertDontSee($member->community->name);
-        $this->get('/dashboard')->assertSee($member->community->name)->assertSee('Invitation required');
+        $this->get('/dashboard')->assertSee($member->community->name)->assertSee('View community');
     }
 
     public function test_inactive_community_blocks_members_and_media_even_with_active_membership(): void

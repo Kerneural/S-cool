@@ -178,9 +178,13 @@ rows survive a normal forward migration; no reset or reseed is required.
 The dashboard and **All** list every ACTIVE community's name, description and cover
 for signed-in users, including new accounts without memberships (open [Dashboard](http://127.0.0.1:8080/dashboard)).
 **Owned** lists your created communities; **Joined** lists your effective memberships.
-Discovery does not grant content access: non-members see **Invitation required**,
-while authorized users can open the community. The workspace switcher still lists
-only communities you can access. Create a private community,
+Non-members can choose **View community** to open a marketing About preview:
+introduction, admission price and published course summaries. **Join community**
+admits a verified signed-in user to a FREE community. PAID communities use
+**Continue to checkout** and remain locked until verified payment. Some courses
+require a separate purchase even after joining. Preview GETs never create access;
+internal workspace URLs remain membership-gated. The workspace switcher still lists
+only communities you can access. Existing invitation flows remain supported: create a private community,
 open **Invitations**, and invite an email. Check [Mailpit](http://127.0.0.1:8025), sign in at `http://127.0.0.1:8080/login` with that email,
 verify it if needed, then reopen the email link and click **Accept invitation**.
 Use the host configured in `APP_URL` (local default `http://127.0.0.1:8080`) for both login and invitation links so the browser sends the same session cookie. If upgrading from the earlier `localhost` default, change only `APP_URL` in your existing `.env`, then run `docker compose -p scool exec -T app php artisan config:clear` and `docker compose -p scool restart queue`. Do not replace `.env` or regenerate the key. Sign in again on `127.0.0.1`; previously delivered email links retain their old host, so revoke/reissue pending invitations if needed.
@@ -197,8 +201,8 @@ Reload config with `docker compose -p scool exec -T app php artisan optimize:cle
 Configure a temporary HTTPS tunnel to expose **only POST `/webhooks/sepay`**.
 Do not expose the full app, Mailpit or MySQL. No tunnel is started by setup scripts.
 
-Creator sets PAID and a price → sends an invitation → matching verified invitee
-starts Paid Checkout → simulate an **incoming** transaction in SePay Test Mode,
+Creator sets PAID and a price → verified visitor opens About and starts checkout
+(or a matching invited user starts Paid Checkout) → simulate an **incoming** transaction in SePay Test Mode,
 using the displayed reference and exact amount. Do not scan a real-bank QR or send real money.
 After login/email verification, reopen the original community invitation email link.
 The verification email and a typed `/invitations/{id}` URL do not carry the invitation
@@ -206,8 +210,11 @@ token. The token is removed from browser history and kept only in the current pa
 refresh/back navigation requires reopening the original link. Missing-token buttons
 remain disabled, including when JavaScript cannot start.
 Only an authenticated matching webhook activates membership; refreshing/status URLs cannot.
-Cancel stops the pending attempt without access; reopen the original valid invitation to retry
-with a new attempt. Old attempts keep their original price after a Creator changes pricing.
+Cancel stops the pending attempt without access; direct join retries from About,
+while invited checkout retries from its original valid invitation. Old pending
+attempts keep their original price after a Creator changes pricing. Direct joins
+use a distinct COMMUNITY_JOIN payment purpose bound to the pending membership;
+they do not weaken invitation validation on existing COMMUNITY_ACCESS attempts.
 Changing FREE/PAID does not retroactively grant/revoke existing memberships.
 The `SEPAY_SANDBOX` database provider label is retained for compatibility; the
 active integration is bank webhooks in Test Mode, **not** Payment Gateway `ORDER_PAID`.

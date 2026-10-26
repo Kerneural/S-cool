@@ -90,7 +90,7 @@ class DemoReadinessTest extends TestCase
             ->assertOk()
             ->assertSee($free->name)
             ->assertSee($paid->name)
-            ->assertSee('Invitation required');
+            ->assertSee('View community');
         $this->get(route('communities.index', ['filter' => 'joined']))
             ->assertOk()->assertSee($free->name)->assertDontSee($paid->name);
         $this->get(route('communities.show', $paid))->assertNotFound();

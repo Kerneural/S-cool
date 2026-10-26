@@ -26,6 +26,8 @@ class Payment extends Model
 
     public const PURPOSE_COMMUNITY_ACCESS = 'COMMUNITY_ACCESS';
 
+    public const PURPOSE_COMMUNITY_JOIN = 'COMMUNITY_JOIN';
+
     public const PURPOSE_COURSE_ACCESS = 'COURSE_ACCESS';
 
     public const PURPOSE_MEMBERSHIP_RENEWAL = 'MEMBERSHIP_RENEWAL';
@@ -161,7 +163,7 @@ class Payment extends Model
 
     public function isCommunityAccess(): bool
     {
-        return ($this->purpose ?? self::PURPOSE_COMMUNITY_ACCESS) === self::PURPOSE_COMMUNITY_ACCESS;
+        return in_array($this->purpose ?? self::PURPOSE_COMMUNITY_ACCESS, [self::PURPOSE_COMMUNITY_ACCESS, self::PURPOSE_COMMUNITY_JOIN], true);
     }
 
     public function formattedAmount(): string
@@ -234,6 +236,13 @@ class Payment extends Model
             }
 
             return true;
+        }
+
+        if ($this->purpose === self::PURPOSE_COMMUNITY_JOIN) {
+            return $user !== null && $user->hasVerifiedEmail() && (int) $this->user_id === (int) $user->id
+                && $this->community->access_mode === 'PAID' && $this->community_invitation_id === null
+                && $this->membership && (int) $this->membership->community_id === (int) $this->community_id
+                && (int) $this->membership->user_id === (int) $user->id && $this->membership->status === 'PENDING_PAYMENT';
         }
 
         if ($this->community_invitation_id) {

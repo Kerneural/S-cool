@@ -170,8 +170,8 @@
                                 <div class="p-5 flex flex-col flex-1">
                                     <div class="mb-2">
                                         <h3 class="text-base font-bold text-ink group-hover:text-brand transition-colors line-clamp-1">
-                                            @if ($canOpen)
-                                                <a href="{{ route('communities.show', $community) }}" class="focus:outline-none focus:underline">
+                                            @if ($community->isActive())
+                                                <a href="{{ route($canOpen ? 'communities.show' : 'communities.about', $community) }}" class="focus:outline-none focus:underline after:absolute after:inset-0 after:z-0">
                                                     {{ $community->name }}
                                                 </a>
                                             @else
@@ -189,10 +189,10 @@
                                         <span class="text-muted font-medium">
                                             {{ $isCreator ? __('Role: Creator') : ($isMember ? __('Role: Member') : __('Not joined')) }}
                                         </span>
-                                        @if ($canOpen)
-                                            <a href="{{ route('communities.show', $community) }}"
-                                               class="inline-flex items-center font-semibold text-brand hover:text-brand-hover group-hover:translate-x-0.5 transition-all focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-1 rounded-md px-1">
-                                                <span>{{ __('Open Community') }}</span>
+                                        @if ($community->isActive())
+                                            <a href="{{ route($canOpen ? 'communities.show' : 'communities.about', $community) }}"
+                                               class="relative z-10 inline-flex items-center font-semibold text-brand hover:text-brand-hover group-hover:translate-x-0.5 transition-all focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-1 rounded-md px-1">
+                                                <span>{{ $canOpen ? __('Open Community') : __('View community') }}</span>
                                                 <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                                 </svg>

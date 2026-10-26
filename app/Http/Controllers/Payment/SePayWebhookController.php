@@ -210,12 +210,18 @@ class SePayWebhookController extends Controller
                 return ['status' => 409, 'body' => ['error' => 'Unsupported payment purpose.']];
             }
 
-            // Community admission reconciliation (legacy & PURPOSE_COMMUNITY_ACCESS)
+            // Invitation admissions retain their original invite gate. Direct joins
+            // have an explicit purpose and bind the payment to one pending membership.
+            $directJoin = $payment->purpose === Payment::PURPOSE_COMMUNITY_JOIN;
+            $admissionEligible = $directJoin
+                ? $payment->community_invitation_id === null && $membership
+                    && (int) $payment->community_membership_id === (int) $membership->id
+                : $invite && $invite->isPending() && $invite->community_id === $community?->id
+                    && $invite->normalized_email === strtolower(trim($actor?->email ?? ''));
             // A late IPN must not undo moderation or a member's departure.
             if (! $community || ! $community->isActive() || $community->access_mode !== 'PAID'
                 || ! $actor || ! $actor->hasVerifiedEmail() || $community->isCreator($actor)
-                || ! $invite || ! $invite->isPending() || $invite->community_id !== $community->id
-                || $invite->normalized_email !== strtolower(trim($actor->email))) {
+                || ! $admissionEligible) {
                 return ['status' => 409, 'body' => ['error' => 'Invitation is no longer eligible for activation.']];
             }
 

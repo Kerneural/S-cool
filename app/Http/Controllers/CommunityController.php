@@ -221,7 +221,23 @@ class CommunityController extends Controller
      */
     public function about(Community $community): View
     {
-        return $this->show($community);
+        abort_unless($community->isActive(), 404);
+        if (Gate::allows('view', $community)) {
+            return $this->show($community);
+        }
+
+        // Marketing metadata only. The protected workspace view policy is unchanged.
+        return view('communities.preview', [
+            'community' => $community,
+            'creatorName' => $community->creator()->value('name'),
+            'activeMemberCount' => $community->memberships()->effective()->count(),
+            'publishedCourseCount' => $community->courses()->published()->count(),
+            'previewCourses' => $community->courses()->published()->ordered()
+                ->withCount(['lessons' => fn ($query) => $query->where('lessons.status', 'PUBLISHED')])
+                ->limit(6)->get(['courses.id', 'community_id', 'title', 'description', 'access_mode', 'price']),
+            'membership' => $community->memberships()->where('user_id', Auth::id())->first(),
+            'introEmbedUrl' => VideoEmbedService::getEmbedUrl($community->intro_video_url),
+        ]);
     }
 
     /**

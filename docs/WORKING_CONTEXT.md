@@ -2,6 +2,83 @@
 
 A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
+## Community acquisition preview and self-join (2026-10-26)
+
+- Authority/AC: direct owner request, including continuation, to let signed-in
+  non-members open an About preview before deciding to join or buy. FREE admission
+  is explicit self-join; PAID admission starts checkout and grants no access before
+  verified payment. Existing course-specific paid entitlements remain required.
+  No Linear issue/status is asserted for this owner-requested change.
+- Baseline: `community-preview-join` from `origin/main` at `ce6a1357a620b47edacba9906753833585684c76`,
+  clean canonical runtime checkout `.agent/m13-acceptance`. The primary checkout's
+  26 unrelated dirty paths, shared storage/vendor mounts and 127.0.0.1:8080 ports
+  remain preserved. The owner subsequently accepted the local result and authorized
+  commit/push for the CloudPanel update; no host deployment or account import is authorized.
+- Scope: separate metadata-only `/about` preview; actionable discovery cards;
+  verified-actor FREE join and purpose-bound PAID admission. Protected workspace
+  routes retain the existing CommunityPolicy `view` gate. Preview exposes active
+  community marketing fields, Creator display name, effective member count and a
+  bounded published-course summary (title/description/price/count, no lesson body,
+  private playback URL, member list, posts, drafts or private course media).
+- Verification plan: meaningful acquisition/negative authorization regressions on
+  guarded MySQL scool_test, existing invitation/payment/entitlement/moderation tests,
+  build, canonical browser proof with a genuinely unjoined QA account and responsive
+  preview inspection. No real transfer or successful live-provider claim.
+- Reference observed in the owner-provided Skool About tab: marketing preview plus
+  price/admission CTA; no copied reviews, ratings, online counts, trials or subscription
+  implementation. The request changes acquisition contracts, not production billing.
+- Implemented: metadata-only About view with a mobile admission anchor; discovery
+  and shared-card links open it before joining. Removed the obsolete join modal's
+  email/referral inputs. Existing internal `CommunityPolicy::view` checks remain
+  unchanged. The FREE action locks actor/tenant/membership, takes identity only from
+  the verified session and creates lifetime access only for an eligible explicit join.
+  Existing effective access is idempotent; suspension/removal, pending FREE access
+  and expired ACTIVE terms are never restored through this action. FREE joins use
+  the existing after-commit Creator activation notification with a dedupe key.
+- PAID self-join creates/reuses a pending COMMUNITY_JOIN attempt with server price,
+  term snapshot and membership FK. The webhook separately recognizes that purpose
+  and validates its matching pending membership. Legacy COMMUNITY_ACCESS still
+  requires the original valid email-bound invitation. No schema/dependency changes.
+  Existing course-specific entitlements and renewal flows remain separate.
+- Browser-discovered label defect: a locked ONE_TIME course with no configured price
+  previously displayed Included in Classroom. It now says Separate access required;
+  the course stays locked and its price/access data are not changed.
+- Verification: new acquisition tests were red on the original implementation
+  (preview/link/self-join failures and no pending payment). After correction, the
+  initial seven acquisition scenarios passed 82 assertions with the real SePay
+  gateway bound in tests. Integrated discovery/About/card/invitation/payment/course/
+  moderation/renewal/referral/account regressions passed 136 tests / 1,550 assertions
+  (2m23s). Post-polish acquisition/card/About/notification/shell checks passed 33 /
+  374 (38.6s); final acquisition plus Classroom checks, including mismatched payment
+  membership and missing-price labels, passed 21 / 328 (25.2s). All database tests
+  ran sequentially with the pre-RefreshDatabase scool_test guard. These runs overlap;
+  they are not a summed unique-test count or a new full-suite claim.
+- Fixture corrections during test development: compare refreshed persisted attributes,
+  and explicitly bind SePayGateway because the global testing default is a fake.
+  Pint passed the touched PHP allowlist; final production build passed with existing
+  font-resolution warnings. Assets: app-rPIFm3VN.css / app-Cekdsn8l.js. Diff whitespace
+  and structural agent-contract/privacy gates passed. No graph completeness claim.
+- Live canonical browser: the owner's unchanged Hoang DevOps session now opens
+  Clief Notes About while unjoined. A separate IAB QA session began with zero
+  memberships, joined Clief Notes through the form and opened an included lesson.
+  Classroom retained its paid course locks. Agentic AI preview showed the actual
+  2,400,000 VND / 30-day price and Continue to checkout created only pending access.
+  The one Test Mode attempt was cancelled; no successful provider payment was
+  fabricated. Database readback: 16 communities retained, one ACTIVE FREE QA
+  membership, one PENDING_PAYMENT PAID QA membership, one CANCELLED COMMUNITY_JOIN
+  payment, zero QA course entitlements/progress. No QA community was created.
+- Responsive proof: 375/768/1280px preview had no page-wide horizontal overflow;
+  the mobile admission anchor worked. The temporary IAB viewport was reset. Private
+  before/after and flow captures are in the primary .agent/community-acquisition-browser-2026-10-26/.
+  Existing cover content is retained. Guest access, real 200% zoom, no-JS UAT and
+  successful live-provider payment are not claimed. The synthetic verified QA account
+  is a local fixture, not proof of the mail verification/signup flow.
+- Delivery state: local result accepted by the owner; commit/push authorized on
+  2026-10-26. Publication preparation rechecked the 25-path scope, unchanged main
+  baseline, final regression logs, diff whitespace and structural privacy gate.
+  CI/review/merge and subsequent CloudPanel deployment remain separate gates.
+  No host/Azure mutation, membership import or Linear state change performed.
+
 ## EUR-71 (PQ-05) landing artwork and marquee checkpoint (2026-10-25)
 
 - Authority: Linear issue EUR-71 (PQ-05) approved by product owner.

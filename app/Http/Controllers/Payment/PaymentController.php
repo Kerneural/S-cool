@@ -72,7 +72,8 @@ class PaymentController extends Controller
                 ->with('status', 'Payment completed. Welcome to the community!');
         }
 
-        abort_if(($payment->isCourseAccess() || $payment->isMembershipRenewal()) && ! $payment->canResumeCheckout($request->user()), 404);
+        abort_if(($payment->isCourseAccess() || $payment->isMembershipRenewal() || $payment->purpose === Payment::PURPOSE_COMMUNITY_JOIN)
+            && ! $payment->canResumeCheckout($request->user()), 404);
 
         $checkoutData = $gateway->generateCheckoutData($payment);
 

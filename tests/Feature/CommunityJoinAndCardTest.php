@@ -78,18 +78,18 @@ class CommunityJoinAndCardTest extends TestCase
 
         // Feed: compact card inside the collapsed Community details disclosure.
         $feedResponse = $this->get(route('communities.posts.index', $community))->assertOk()
-            ->assertSeeInOrder(['Community details', 'AI Automation Society', 'Invitation-only community', 'Members', 'Admins', 'You host this community', 'About this community'])
+            ->assertSeeInOrder(['Community details', 'AI Automation Society', 'Private learning community', 'Members', 'Admins', 'You host this community', 'About this community'])
             ->assertDontSee('Join community');
         $removedPresentation($feedResponse);
 
         // Classroom intentionally has no community card.
         $this->get(route('communities.classroom.index', $community))->assertOk()
-            ->assertDontSee('Invitation-only community');
+            ->assertDontSee('Private learning community');
 
         foreach (['communities.events.index', 'communities.directory.index', 'communities.leaderboard'] as $tab) {
             $response = $this->get(route($tab, $community))->assertOk()
-                ->assertSee('Invitation-only community')->assertSee('Members')->assertSee('You host this community')
-                ->assertSee('href="'.route('communities.show', $community).'"', false);
+                ->assertSee('Private learning community')->assertSee('Members')->assertSee('You host this community')
+                ->assertSee('href="'.route('communities.about', $community).'"', false);
             $removedPresentation($response);
         }
         $this->get(route('communities.leaderboard', $community))->assertOk()
@@ -113,12 +113,12 @@ class CommunityJoinAndCardTest extends TestCase
         $this->actingAs($member)->get(route('communities.posts.index', $community))->assertOk()
             ->assertSee('Joined')->assertDontSee('Join community')->assertDontSee('You host this community');
 
-        // A prospective member gets the teal sentence-case join control and the existing join form.
+        // A prospective member sees the marketing preview before making an admission decision.
         $this->be(User::factory()->make(['id' => 9999]));
         $guestCardHtml = (string) $this->blade('<x-skool-community-card :community="$community" />', ['community' => $community]);
-        $this->assertStringContainsString('Join community', $guestCardHtml);
-        $this->assertStringContainsString('action="'.route('communities.join', $community).'"', $guestCardHtml);
-        $this->assertStringContainsString('name="email"', $guestCardHtml);
+        $this->assertStringContainsString('View community', $guestCardHtml);
+        $this->assertStringContainsString('href="'.route('communities.about', $community).'"', $guestCardHtml);
+        $this->assertStringNotContainsString('name="email"', $guestCardHtml);
         $this->assertStringContainsString('bg-brand', $guestCardHtml);
         foreach (['JOIN GROUP', 'skool.com', 'Online', 'uppercase'] as $removed) {
             $this->assertStringNotContainsString($removed, $guestCardHtml);
@@ -131,6 +131,6 @@ class CommunityJoinAndCardTest extends TestCase
         $this->be($community->creator);
         $html = (string) $this->withViewErrors([])->blade('<x-skool-community-card :community="$community" variant="compact" />', ['community' => $community]);
         $this->assertStringNotContainsString('Learn to get paid', $html);
-        $this->assertStringContainsString('Invitation-only community', $html);
+        $this->assertStringContainsString('Private learning community', $html);
     }
 }
