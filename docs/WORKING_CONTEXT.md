@@ -88,6 +88,14 @@ A checkpoint is historical context, not current Linear/Git/runtime evidence. Ver
   and acquisition code are unchanged. LivewireCommunitySearchTest plus
   CommunitySearchTest passed 14 tests / 136 assertions (20.0s). The full CI suite
   must rerun on the follow-up commit; this targeted result is not a full-suite PASS.
+- PR #69 scan infrastructure follow-up (2026-10-26): Trivy failed before scanning
+  because mirror.gcr.io returned HTTP 404 while downloading a vulnerability DB layer.
+  The workflow now explicitly uses the official ghcr.io/aquasecurity/trivy-db:2
+  repository. Trivy 0.75.0, HIGH/CRITICAL severity and exit-code 1 remain unchanged.
+  A fresh-cache local archive scan of scool-php:security-check downloaded that DB
+  successfully and returned zero selected vulnerabilities, exit 0. Workflow YAML,
+  scan Bash syntax and unchanged failure-gate checks passed. This does not claim
+  the CI-built image or complete PR pipeline passed; required CI must rerun.
 
 ## EUR-71 (PQ-05) landing artwork and marquee checkpoint (2026-10-25)
 
