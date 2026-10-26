@@ -80,7 +80,9 @@ class CommunityNotificationTest extends TestCase
         $response = $this->actingAs($author)->get(route('communities.notifications.index', $community));
         $response->assertOk();
         $response->assertSee('Replier User replied to your post.');
-        $response->assertSee('Notification Center');
+        // One page heading; the shell no longer repeats it above the workspace.
+        $this->assertSame(1, substr_count($response->getContent(), '<h1'));
+        $response->assertSeeInOrder(['<h1', 'Notifications</h1>'], false);
     }
 
     public function test_delivery_retry_and_duplicate_source_emits_one_notification_per_recipient_and_rollback_emits_none(): void

@@ -172,17 +172,17 @@
              x-ref="modalDialog"
              :aria-busy="opening.toString()"
              x-transition:enter="transition ease-out duration-200 motion-reduce:duration-0"
-             x-transition:enter-start="opacity-0 scale-95 sm:translate-y-0 translate-y-full"
-             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+             x-transition:enter-start="opacity-0 translate-y-1"
+             x-transition:enter-end="opacity-100 translate-y-0"
              x-transition:leave="transition ease-in duration-150 motion-reduce:duration-0"
-             x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-             x-transition:leave-end="opacity-0 scale-95 sm:translate-y-0 translate-y-full"
+             x-transition:leave-start="opacity-100 translate-y-0"
+             x-transition:leave-end="opacity-0 translate-y-1"
              class="relative w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-3xl bg-white sm:rounded-3xl shadow-2xl border border-slate-200/80 flex flex-col z-10 overflow-hidden">
 
             <div x-show="opening && !isOpen"
-                 class="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-white"
+                 class="async-glass absolute inset-0 z-20 flex flex-col items-center justify-center gap-3"
                  role="status">
-                <span class="h-8 w-8 animate-spin motion-reduce:animate-pulse rounded-full border-2 border-slate-200 border-t-brand-600" aria-hidden="true"></span>
+                <span class="h-8 w-8 animate-spin motion-reduce:animate-none rounded-full border-2 border-slate-200 border-t-brand-600" aria-hidden="true"></span>
                 <span class="text-sm font-semibold text-slate-600">{{ __('Loading discussion...') }}</span>
             </div>
 
@@ -425,7 +425,7 @@
                                 wire:loading.attr="disabled"
                                 class="px-4 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-xl shadow-xs transition active:scale-[0.98] self-stretch flex items-center justify-center disabled:opacity-60">
                             <span wire:loading.remove wire:target="addComment">{{ __('Reply') }}</span>
-                            <span wire:loading wire:target="addComment" class="animate-pulse">{{ __('Posting...') }}</span>
+                            <span wire:loading wire:target="addComment">{{ __('Posting...') }}</span>
                         </button>
                     </div>
                     @error('newCommentBody')

@@ -41,7 +41,7 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                         SePay Test Mode
                     </span>
-                    <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">{{ $community->name }}</h1>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">{{ $community->name }}</h1>
                     <p class="text-xs text-slate-500 mt-1.5">{{ __('Simulate transactions in SePay Test Mode only. Do not transfer real funds.') }}</p>
                 </div>
 
@@ -69,7 +69,7 @@
                         </div>
                         <div class="border-b border-slate-200/80 pb-3">
                             <span class="text-slate-600 block text-xs uppercase tracking-wider font-bold">{{ __('Account Number') }}</span>
-                            <span class="font-mono font-black text-slate-900 text-lg tracking-wider mt-0.5 block">{{ $checkoutData['account_number'] }}</span>
+                            <span class="font-mono font-bold text-slate-900 text-lg tracking-wider mt-0.5 block">{{ $checkoutData['account_number'] }}</span>
                         </div>
                         <div class="border-b border-slate-200/80 pb-3">
                             <span class="text-slate-600 block text-xs uppercase tracking-wider font-bold">{{ __('Account Holder') }}</span>
@@ -77,11 +77,11 @@
                         </div>
                         <div class="border-b border-slate-200/80 pb-3">
                             <span class="text-slate-600 block text-xs uppercase tracking-wider font-bold">{{ __('Amount') }}</span>
-                            <span class="font-black text-teal-600 text-2xl mt-0.5 block">{{ $payment->formattedAmount() }}</span>
+                            <span class="font-bold text-teal-600 text-2xl mt-0.5 block">{{ $payment->formattedAmount() }}</span>
                         </div>
                         <div>
                             <span class="text-slate-600 block text-xs uppercase tracking-wider font-bold">{{ __('Transfer Content (Required)') }}</span>
-                            <span class="inline-block mt-1.5 font-mono font-black bg-amber-50 text-amber-900 px-3.5 py-1.5 rounded-xl border border-amber-200 text-base">
+                            <span class="inline-block mt-1.5 font-mono font-bold bg-amber-50 text-amber-900 px-3.5 py-1.5 rounded-xl border border-amber-200 text-base">
                                 {{ $checkoutData['payment_code'] }}
                             </span>
                         </div>

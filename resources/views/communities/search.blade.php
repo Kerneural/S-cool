@@ -1,9 +1,4 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h1 class="font-bold text-xl text-slate-900 leading-tight">
-            {{ __('Search') }} &mdash; {{ $community->name }}
-        </h1>
-    </x-slot>
 
     <div class="py-8 sm:py-10">
         <div data-live-search-surface class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
@@ -12,6 +7,7 @@
 
             <!-- Search Input Card -->
             <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-5 sm:p-6">
+                <h1 class="mb-4 text-xl font-bold tracking-tight text-ink">{{ __('Search :community', ['community' => $community->name]) }}</h1>
                 <form method="GET" action="{{ route('communities.search', $community) }}" class="space-y-4" x-data="liveListSearch" @submit.prevent="search()">
                     <input type="hidden" name="type" value="{{ $type }}">
 
@@ -115,9 +111,24 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <p class="text-base font-semibold text-slate-900">{{ __('No results found') }}</p>
-                        <p class="text-sm text-slate-500 mt-1">
-                            {{ __('We couldn\'t find any :type matching ":query". Try searching for different keywords.', ['type' => $type, 'query' => $searchQuery]) }}
+                        <p class="text-sm text-muted mt-1">
+                            {{ __('We couldn\'t find any :type matching ":query".', ['type' => mb_strtolower($tabs[$type]), 'query' => $searchQuery]) }}
                         </p>
+                        @php
+                            $otherMatches = collect($tabs)->filter(fn ($label, $key) => $key !== $type && ($counts[$key] ?? 0) > 0);
+                        @endphp
+                        @if ($otherMatches->isNotEmpty())
+                            <p class="mt-4 text-sm text-ink">{{ __('Matches in other sections:') }}</p>
+                            <div class="mt-2 flex flex-wrap justify-center gap-2">
+                                @foreach ($otherMatches as $key => $label)
+                                    <a href="{{ route('communities.search', [$community, 'type' => $key, 'q' => $searchQuery]) }}" class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-surface px-4 py-2 text-sm font-semibold text-brand hover:bg-brand-soft">
+                                        {{ $label }} <span class="rounded-full bg-brand-soft px-2 py-0.5 text-xs tabular-nums">{{ $counts[$key] }}</span>
+                                    </a>
+                                @endforeach
+                            </div>
+                        @else
+                            <p class="mt-1 text-sm text-muted">{{ __('Try different keywords.') }}</p>
+                        @endif
                     </div>
                 @else
                     <!-- Results List -->

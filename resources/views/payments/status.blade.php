@@ -14,7 +14,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
                     </div>
-                    <h1 class="text-2xl font-black text-slate-900 tracking-tight">{{ __('Payment Recorded — Access Inactive') }}</h1>
+                    <h1 class="text-2xl font-bold text-slate-900 tracking-tight">{{ __('Payment Recorded — Access Inactive') }}</h1>
                     <p class="mt-3 text-slate-600 text-sm leading-relaxed">{{ __('This successful test payment is retained as a receipt. Current membership, community or course restrictions still apply.') }}</p>
                     <div class="mt-6">
                         <a class="inline-flex items-center px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition" href="{{ route('account.payment-history.show', $payment) }}">{{ __('View Receipt') }} &rarr;</a>
@@ -25,7 +25,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                         </svg>
                     </div>
-                    <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-2">{{ __('Payment Successful!') }}</h1>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-2">{{ __('Payment Successful!') }}</h1>
                     @if ($payment->isCourseAccess() && $payment->course)
                         <p class="text-slate-600 text-sm mb-6 leading-relaxed">{{ __('You have unlocked full access to :course.', ['course' => $payment->course->title]) }}</p>
                         <a href="{{ route('communities.courses.show', [$community, $payment->course]) }}" class="inline-flex items-center px-6 py-3 bg-brand hover:bg-brand-hover text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-sm shadow-teal-500/20 transition duration-150">
@@ -44,7 +44,7 @@
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                         </svg>
                     </div>
-                    <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-2">{{ __('Awaiting Bank Transfer') }}</h1>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-2">{{ __('Awaiting Bank Transfer') }}</h1>
                     <p class="text-slate-600 text-xs mb-6 leading-relaxed max-w-sm mx-auto">{{ __('SePay Test Mode: transaction is awaiting confirmation. Simulate this payment in SePay Test Mode. Do not make a real transfer.') }}</p>
                     <a href="{{ route('payments.checkout', $payment->external_reference) }}" class="inline-flex items-center px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-xs transition duration-150">
                         {{ __('Return to Test Checkout') }}
@@ -55,7 +55,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                     </div>
-                    <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-2">{{ __('Transaction Ended') }}</h1>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-2">{{ __('Transaction Ended') }}</h1>
                     <p class="text-slate-600 text-xs mb-6 leading-relaxed">{{ __('Payment was not completed or was cancelled.') }}</p>
                     <a href="{{ route('dashboard') }}" class="inline-flex items-center px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-xs transition duration-150">
                         {{ __('Return to Dashboard') }}

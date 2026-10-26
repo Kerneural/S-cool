@@ -9,8 +9,8 @@
                     {{ __('Platform-level oversight and access control. Actions are immutably logged for audit.') }}
                 </p>
             </div>
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                <span class="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-brand-50 text-brand-700 border border-brand-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-brand-600"></span>
                 {{ __('Platform Admin') }}
             </span>
         </div>
@@ -48,24 +48,24 @@
 
             <!-- Summary KPI metrics -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <a href="{{ route('admin.communities.index') }}" class="block p-5 rounded-2xl border {{ empty($statusFilter) ? 'bg-white border-indigo-500 ring-2 ring-indigo-200' : 'bg-white border-slate-200/80 hover:border-slate-300' }} shadow-xs transition duration-150">
+                <a href="{{ route('admin.communities.index') }}" class="block p-5 rounded-2xl border {{ empty($statusFilter) ? 'bg-white border-brand-500 ring-2 ring-brand-200' : 'bg-white border-slate-200/80 hover:border-slate-300' }} shadow-xs transition duration-150">
                     <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('Total Communities') }}</div>
-                    <div class="text-2xl font-black text-slate-900 mt-1 tracking-tight">{{ $stats['total'] }}</div>
+                    <div class="text-2xl font-bold text-slate-900 mt-1 tracking-tight">{{ $stats['total'] }}</div>
                 </a>
 
                 <a href="{{ route('admin.communities.index', ['status' => 'ACTIVE']) }}" class="block p-5 rounded-2xl border {{ $statusFilter === 'ACTIVE' ? 'bg-white border-emerald-500 ring-2 ring-emerald-200' : 'bg-white border-slate-200/80 hover:border-slate-300' }} shadow-xs transition duration-150">
                     <div class="text-xs font-bold text-emerald-700 uppercase tracking-wider">{{ __('Active') }}</div>
-                    <div class="text-2xl font-black text-emerald-700 mt-1 tracking-tight">{{ $stats['active'] }}</div>
+                    <div class="text-2xl font-bold text-emerald-700 mt-1 tracking-tight">{{ $stats['active'] }}</div>
                 </a>
 
                 <a href="{{ route('admin.communities.index', ['status' => 'SUSPENDED']) }}" class="block p-5 rounded-2xl border {{ $statusFilter === 'SUSPENDED' ? 'bg-white border-rose-500 ring-2 ring-rose-200' : 'bg-white border-slate-200/80 hover:border-slate-300' }} shadow-xs transition duration-150">
                     <div class="text-xs font-bold text-rose-700 uppercase tracking-wider">{{ __('Suspended') }}</div>
-                    <div class="text-2xl font-black text-rose-700 mt-1 tracking-tight">{{ $stats['suspended'] }}</div>
+                    <div class="text-2xl font-bold text-rose-700 mt-1 tracking-tight">{{ $stats['suspended'] }}</div>
                 </a>
 
                 <a href="{{ route('admin.communities.index', ['status' => 'ARCHIVED']) }}" class="block p-5 rounded-2xl border {{ $statusFilter === 'ARCHIVED' ? 'bg-white border-slate-500 ring-2 ring-slate-200' : 'bg-white border-slate-200/80 hover:border-slate-300' }} shadow-xs transition duration-150">
                     <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">{{ __('Archived') }}</div>
-                    <div class="text-2xl font-black text-slate-700 mt-1 tracking-tight">{{ $stats['archived'] }}</div>
+                    <div class="text-2xl font-bold text-slate-700 mt-1 tracking-tight">{{ $stats['archived'] }}</div>
                 </a>
             </div>
 

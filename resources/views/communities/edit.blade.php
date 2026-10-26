@@ -46,7 +46,7 @@
                             @csrf
                             <input id="cover" name="cover" type="file" accept="image/jpeg,image/png,image/webp" required
                                 class="block w-full text-xs text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 cursor-pointer">
-                            <p class="text-xs text-gray-500">JPEG, PNG or WebP. Maximum 2 MB and 4096 pixels per side. Visible only to authorized community users.</p>
+                            <p class="text-xs text-muted">JPEG, PNG or WebP. Maximum 2 MB and 4096 pixels per side. Visible only to authorized community users.</p>
                             <x-input-error :messages="$errors->get('cover')" class="mt-1" />
                             <div class="pt-1">
                                 <x-primary-button class="text-xs px-4 py-2 rounded-xl">
@@ -77,7 +77,7 @@
                                 </span>
                                 <input id="slug" type="text" class="block w-full border-0 bg-transparent text-slate-500 cursor-not-allowed text-xs font-mono py-2.5 px-3" value="{{ $community->slug }}" readonly disabled />
                             </div>
-                            <p class="mt-1 text-xs text-gray-400">
+                            <p class="mt-1 text-xs text-muted">
                                 {{ __('Community slug is immutable to maintain URL and tenant integrity.') }}
                             </p>
                         </div>
@@ -94,7 +94,7 @@
                             <x-input-label for="rules" :value="__('Community Rules (max 5,000 characters)')" />
                             <textarea id="rules" name="rules" rows="6" maxlength="5000" class="mt-1.5 block w-full border-slate-200 focus:border-teal-500 focus:ring-teal-500 rounded-xl shadow-2xs text-sm py-2.5">{{ old('rules', $community->rules) }}</textarea>
                             <x-input-error class="mt-1.5" :messages="$errors->get('rules')" />
-                            <p class="mt-1 text-xs text-gray-500">{{ __('Plain-text guidelines and rules visible to all community members.') }}</p>
+                            <p class="mt-1 text-xs text-muted">{{ __('Plain-text guidelines and rules visible to all community members.') }}</p>
                         </div>
 
                         <!-- Introduction Video URL -->
@@ -102,7 +102,7 @@
                             <x-input-label for="intro_video_url" :value="__('Introduction Video URL (YouTube, Vimeo or Loom)')" />
                             <x-text-input id="intro_video_url" name="intro_video_url" type="url" class="mt-1.5 block w-full rounded-xl border-slate-200 py-2.5" :value="old('intro_video_url', $community->intro_video_url)" placeholder="https://www.youtube.com/watch?v=..." />
                             <x-input-error class="mt-1.5" :messages="$errors->get('intro_video_url')" />
-                            <p class="mt-1 text-xs text-gray-500">{{ __('Optional video displayed on the community About page.') }}</p>
+                            <p class="mt-1 text-xs text-muted">{{ __('Optional video displayed on the community About page.') }}</p>
                         </div>
 
                         <!-- Onboarding Checklist Settings -->
@@ -120,7 +120,7 @@
                                 </div>
                                 <div class="text-sm">
                                     <label for="onboarding_enabled" class="font-bold text-slate-800">{{ __('Enable Welcome Checklist') }}</label>
-                                    <p class="text-xs text-gray-500">{{ __('Display a persistent welcome checklist to new members on the community feed.') }}</p>
+                                    <p class="text-xs text-muted">{{ __('Display a persistent welcome checklist to new members on the community feed.') }}</p>
                                 </div>
                             </div>
 
@@ -136,7 +136,7 @@
                                         @endforeach
                                     </select>
                                     <x-input-error class="mt-1.5" :messages="$errors->get('introduction_category_id')" />
-                                    <p class="mt-1 text-xs text-gray-500">{{ __('Members will be guided to post in this category to complete their introduction task.') }}</p>
+                                    <p class="mt-1 text-xs text-muted">{{ __('Members will be guided to post in this category to complete their introduction task.') }}</p>
                                 </div>
                             @endif
                         </div>

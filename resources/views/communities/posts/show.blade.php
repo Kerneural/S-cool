@@ -3,18 +3,16 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
             <x-community-workspace :community="$community" active-tab="feed" />
 
-            <!-- Back navigation & Breadcrumb -->
-            <div class="flex items-center justify-between">
-                <a href="{{ route('communities.posts.index', $community) }}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-700 hover:text-brand-800 transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {{-- Discussion reads in the same ~760px column as the Feed. --}}
+            <div class="mx-auto w-full max-w-[760px] space-y-6">
+            <nav aria-label="{{ __('Breadcrumb') }}">
+                <a href="{{ route('communities.posts.index', $community) }}" class="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-brand hover:underline">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
                     <span>{{ __('Back to Feed') }}</span>
                 </a>
-                <a href="{{ route('communities.show', $community) }}" class="inline-flex items-center px-3 py-1.5 bg-white border border-slate-200 rounded-xl font-semibold text-xs text-slate-700 hover:bg-slate-50 transition shadow-xs">
-                    {{ __('Community Info') }}
-                </a>
-            </div>
+            </nav>
 
             @if (session('status'))
                 <div class="p-4 font-medium text-sm text-emerald-800 bg-emerald-50 rounded-2xl border border-emerald-200 shadow-xs flex items-center justify-between" role="alert">
@@ -291,6 +289,7 @@
                     </div>
                 @endif
             </section>
+            </div>
         </div>
     </div>
 </x-app-layout>

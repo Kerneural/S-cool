@@ -33,7 +33,7 @@
                                 </span>
                                 <x-text-input id="slug" name="slug" type="text" class="block w-full border-0 focus:ring-0 text-xs font-mono py-2.5 px-3" :value="old('slug')" required placeholder="ai-master-hub" />
                             </div>
-                            <p class="mt-1 text-xs text-gray-500">
+                            <p class="mt-1 text-xs text-muted">
                                 {{ __('Unique address: ASCII letters, numbers, dashes or underscores. The word create is reserved. Letters are saved in lowercase.') }}
                             </p>
                             <x-input-error class="mt-1.5" :messages="$errors->get('slug')" />

@@ -3,8 +3,8 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
             <x-community-workspace :community="$community" active-tab="directory" />
 
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                <div class="min-w-0 lg:col-span-8 space-y-6">
+            <div class="grid grid-cols-1 gap-6 items-start lg:grid-cols-[minmax(0,1fr)_300px]">
+                <div class="min-w-0 space-y-6">
                     <!-- Directory Toolbar -->
                     <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-5 sm:p-6">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -21,10 +21,10 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                             </div>
-                            <input type="text" name="q" value="{{ $searchQuery ?? '' }}" placeholder="{{ __('Search members by name...') }}"
+                            <input type="text" name="q" aria-label="{{ __('Search members by name') }}" value="{{ $searchQuery ?? '' }}" placeholder="{{ __('Search members by name...') }}"
                                    class="text-xs sm:text-sm rounded-xl border-slate-300 shadow-xs focus:border-brand-500 focus:ring-brand-500 w-full py-2 pl-9 pr-3 bg-slate-50/50 focus:bg-white transition">
                         </div>
-                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold uppercase tracking-wider transition shadow-sm">
+                        <button type="submit" class="inline-flex min-h-10 items-center px-4 py-2 bg-brand hover:bg-brand-hover text-white rounded-xl text-sm font-semibold transition shadow-xs">
                             {{ __('Search') }}
                         </button>
                         @if (!empty($searchQuery))
@@ -55,19 +55,19 @@
                         @endif
                     </div>
                 @else
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
                         @foreach ($members as $member)
                             @php
                                 $isCreator = $member->id === $community->creator_id;
                             @endphp
                             <article class="border border-slate-200/80 rounded-2xl p-5 hover:border-brand-500/30 hover:shadow-lg transition-all bg-white flex flex-col justify-between group">
                                 <div class="flex items-start space-x-4">
-                                    <img src="{{ route('communities.directory.avatar', [$community, $member]) }}"
-                                         alt="{{ $member->name }}"
-                                         class="w-14 h-14 rounded-full object-cover border border-slate-200 shadow-xs shrink-0 bg-slate-100 group-hover:scale-105 transition-transform">
+                                    <x-media-frame :src="route('communities.directory.avatar', [$community, $member])" shape="avatar" :alt="$member->name" loading="lazy" class="w-14 h-14 shrink-0 border border-slate-200 shadow-xs">
+                                        <span class="text-base font-bold text-slate-700">{{ mb_strtoupper(mb_substr($member->name, 0, 1)) }}</span>
+                                    </x-media-frame>
                                     <div class="min-w-0 flex-1">
                                         <div class="flex items-center gap-2 flex-wrap">
-                                            <a href="{{ route('communities.directory.show', [$community, $member]) }}" class="font-bold text-slate-900 group-hover:text-brand-600 transition truncate text-base">
+                                            <a href="{{ route('communities.directory.show', [$community, $member]) }}" class="min-w-0 break-words font-bold text-slate-900 group-hover:text-brand-600 transition text-base">
                                                 {{ $member->name }}
                                             </a>
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold {{ $isCreator ? 'bg-brand-50 text-brand-700 border border-brand-200' : 'bg-slate-100 text-slate-600' }}">
@@ -80,8 +80,7 @@
                                     </div>
                                 </div>
 
-                                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                                    <span class="font-medium text-slate-400">{{ __('Community Member') }}</span>
+                                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-end text-xs">
                                     <a href="{{ route('communities.directory.show', [$community, $member]) }}" class="font-semibold text-brand-600 hover:text-brand-700 inline-flex items-center group-hover:translate-x-0.5 transition-transform">
                                         <span>{{ __('View Profile') }}</span>
                                         <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -100,8 +99,8 @@
                     </div>
                 </div>
 
-                <!-- Context Sidebar Column with Skool Community Card -->
-                <aside class="min-w-0 lg:col-span-4 space-y-6">
+                <!-- Context Sidebar Column with community card -->
+                <aside class="min-w-0 space-y-6">
                     <x-skool-community-card :community="$community" />
                 </aside>
             </div>

@@ -1,6 +1,6 @@
-@props(['community', 'entries'])
+@props(['community', 'entries', 'embedded' => false])
 
-<section aria-labelledby="contribution-ranking-heading" class="bg-white p-5 rounded-2xl border border-slate-200/80 space-y-3">
+<section aria-labelledby="contribution-ranking-heading" @class(['space-y-3', 'bg-white p-5 rounded-2xl border border-slate-200/80' => ! $embedded])>
     <h3 id="contribution-ranking-heading" class="font-bold text-sm text-slate-900">{{ __('Community contributions') }}</h3>
     <p class="text-xs text-slate-600">{{ __('Engagement points · Lifetime') }}</p>
     <p class="text-xs text-slate-500">{{ __('Valid likes received. Ties use member ID ascending; verified work and helpful answers are separate rankings.') }}</p>

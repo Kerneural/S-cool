@@ -4,7 +4,7 @@
             <x-community-workspace :community="$community" active-tab="leaderboard" />
             <h1 class="sr-only">{{ __('Community leaderboard') }}</h1>
 
-            <!-- User Level Progress Card (Figure Matching Skool Specs - Full Width) -->
+            <!-- User Level Progress Card (full width) -->
             <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-6 sm:p-8">
                 <div class="flex flex-col md:flex-row items-center md:items-start gap-8 lg:gap-14">
                     <!-- Left Column: Circular Avatar with Progress Arc & Level Badge -->
@@ -27,7 +27,7 @@
                                 @if (auth()->user()->avatar_path)
                                     <img src="{{ route('communities.directory.avatar', [$community, auth()->user()]) }}" alt="{{ auth()->user()->name }}" class="w-full h-full object-cover">
                                 @else
-                                    <div class="w-full h-full bg-gradient-to-tr from-slate-800 to-indigo-900 text-white flex items-center justify-center font-bold text-3xl">
+                                    <div class="w-full h-full bg-gradient-to-tr from-slate-800 to-brand-900 text-white flex items-center justify-center font-bold text-3xl">
                                         {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                                     </div>
                                 @endif
@@ -131,9 +131,9 @@
             </div>
 
             <!-- Main Leaderboard 2-Column Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <div class="grid grid-cols-1 gap-6 items-start lg:grid-cols-[minmax(0,1fr)_300px]">
                 <!-- Main Content Column (8 cols on lg) -->
-                <div class="min-w-0 lg:col-span-8 space-y-6">
+                <div class="min-w-0 space-y-6">
                     <!-- Leaderboard Table and Filter Tabs (AC-03) -->
                     <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
                 <!-- Metric Navigation Tabs -->
@@ -200,15 +200,15 @@
                                     <tr class="hover:bg-slate-50/60 transition {{ $entry->user && auth()->id() === $entry->user->id ? 'bg-brand-50/30' : '' }}">
                                         <td class="py-4 px-6 text-center font-bold">
                                             @if ($entry->rank === 1)
-                                                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-amber-100 text-amber-800 text-xs shadow-sm font-black">
+                                                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-amber-100 text-amber-800 text-xs shadow-sm font-bold">
                                                     🥇 1
                                                 </span>
                                             @elseif ($entry->rank === 2)
-                                                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-200 text-slate-800 text-xs shadow-sm font-black">
+                                                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-200 text-slate-800 text-xs shadow-sm font-bold">
                                                     🥈 2
                                                 </span>
                                             @elseif ($entry->rank === 3)
-                                                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-amber-50 text-amber-900 border border-amber-200 text-xs shadow-sm font-black">
+                                                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-amber-50 text-amber-900 border border-amber-200 text-xs shadow-sm font-bold">
                                                     🥉 3
                                                 </span>
                                             @else
@@ -246,15 +246,15 @@
                                                     {{ __('Level :l', ['l' => $entry->level]) }}
                                                 </span>
                                             </td>
-                                            <td class="py-4 px-6 text-right font-black text-slate-900 text-base tabular-nums">
+                                            <td class="py-4 px-6 text-right font-bold text-slate-900 text-base tabular-nums">
                                                 {{ $entry->points }} <span class="text-xs font-normal text-slate-600">pts</span>
                                             </td>
                                         @elseif ($metric === 'verified_skills')
-                                            <td class="py-4 px-6 text-right font-black text-slate-900 text-base tabular-nums">
+                                            <td class="py-4 px-6 text-right font-bold text-slate-900 text-base tabular-nums">
                                                 {{ $entry->points }} <span class="text-xs font-normal text-slate-600">verified</span>
                                             </td>
                                         @else
-                                            <td class="py-4 px-6 text-right font-black text-slate-900 text-base tabular-nums">
+                                            <td class="py-4 px-6 text-right font-bold text-slate-900 text-base tabular-nums">
                                                 {{ $entry->points }} <span class="text-xs font-normal text-slate-600">helpful</span>
                                             </td>
                                         @endif
@@ -273,8 +273,8 @@
                     </div>
                 </div>
 
-                <!-- Context Sidebar Column with Skool Community Card & Metric Guide -->
-                <aside class="min-w-0 lg:col-span-4 space-y-6">
+                <!-- Context Sidebar Column with community card & Metric Guide -->
+                <aside class="min-w-0 space-y-6">
                     <x-skool-community-card :community="$community" />
 
                     <!-- Metric Explanation Guide (4 cols on lg) -->

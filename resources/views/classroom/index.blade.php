@@ -86,7 +86,7 @@
                     <article class="min-w-0 flex flex-col justify-between rounded-xl border border-line bg-surface overflow-hidden shadow-2xs hover:border-brand/40 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 group">
                         <div class="aspect-video w-full overflow-hidden bg-slate-900 relative">
                             @if ($course->cover_path)
-                                <img src="{{ route('communities.courses.cover', [$community, $course]) }}" alt="{{ $course->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                <x-media-frame :src="route('communities.courses.cover', [$community, $course])" :alt="$course->title" loading="lazy" class="h-full w-full" img-class="group-hover:scale-105 [transition:opacity_180ms_ease-out,transform_500ms_ease-out]" />
                             @else
                                 <div class="w-full h-full bg-gradient-to-br from-brand-700 via-teal-800 to-slate-900 flex flex-col items-center justify-center p-4 text-center group-hover:scale-105 transition-transform duration-500">
                                     <div class="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-xs flex items-center justify-center text-white mb-2 shadow-xs border border-white/10">

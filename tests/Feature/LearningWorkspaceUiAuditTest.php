@@ -124,7 +124,9 @@ class LearningWorkspaceUiAuditTest extends TestCase
             return $rendered->count() === 4 && $rendered->every(fn ($post) => ! $post->relationLoaded('comments') && $post->latestVisibleComment?->relationLoaded('author'));
         });
         $this->assertLessThanOrEqual(3, count($commentQueries));
-        $this->assertSame(1, substr_count($response->getContent(), 'Browse Classroom Courses'));
+        // The rail keeps one learning entry and no duplicate About card of classroom links.
+        $this->assertSame(1, substr_count($response->getContent(), 'Learning Focus'));
+        $this->assertSame(0, substr_count($response->getContent(), 'Browse Classroom Courses'));
     }
 
     public function test_composer_has_a_real_form_fallback_and_retains_course_filter_in_toolbar(): void
@@ -143,7 +145,8 @@ class LearningWorkspaceUiAuditTest extends TestCase
         $lesson->update(['is_practical' => true, 'skill_label' => 'Safe configuration']);
         $url = route('communities.lessons.show', [$community, $course, $lesson]);
         $this->actingAs($member)->get($url)->assertOk()->assertSee('Incomplete')
-            ->assertSee('class="lg:block space-y-4"', false)
+            // Hidden only by Alpine on narrow screens; without JS the outline stays rendered.
+            ->assertSee('<div id="lesson-outline-panel" :class="{ \'max-lg:hidden\': !panelOpen }" class="lesson-rail__panel">', false)
             ->assertSee('value="0" :value="percentage"', false);
         $this->post(route('communities.lessons.progress.update', [$community, $course, $lesson]), ['completed' => 1])->assertRedirect($url);
         $this->get($url)->assertOk()->assertSee('1 / 1 · 100%')->assertSee('Mark Incomplete');

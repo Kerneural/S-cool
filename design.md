@@ -140,7 +140,10 @@ do not truncate essential validation, title context or payment instructions.
 
 Avoid ornamental gradients, glass layers and animated backgrounds in routine
 learning/management screens. Meaningful content, navigation and states take space
-before decoration. Dark mode is a later scoped decision after light-mode acceptance.
+before decoration. Section 11.10 permits a narrow owner-requested frosted-glass
+loading treatment for genuinely pending media/async regions. It does not turn
+loaded reading or management surfaces into glass panels. Dark mode is a later
+scoped decision after light-mode acceptance.
 
 ## 6. Component and behavior contract
 
@@ -617,3 +620,164 @@ access/history/referrals/help; Creator operations; checkout/status; guest/auth;
 Platform Admin. Record each route/role/state, viewport and evidence or blocker in
 the existing issue checkpoint/PR. Apply section 11.5 responsive/accessibility gates
 and section 11.6 motion review. No new standalone coverage/roadmap file is needed.
+
+### 11.8 Landing layout and motion (2026-10-25)
+
+Scope: `resources/views/welcome.blade.php` only. This is the separate landing-page
+motion scope referenced in section 11.6; it does not change application screens.
+
+- Composition: inset sticky navbar, centered hero with one h1 and two CTAs, original
+  mesh art as low-contrast edge framing, captioned product screenshots, resource
+  marquee, five-stage learning journey, three product pillars, labeled example
+  scenarios, closing CTA and a static decorative outlined wordmark.
+- Honesty: every visual matches its label. The leaderboard capture is never presented
+  as practical-work review; illustrative panels are labeled as illustrations. No
+  customer claims, invented metrics, API snippets or subscription success.
+- Motion: CSS transform/opacity, existing Alpine and one small IntersectionObserver
+  reveal module (`resources/js/landing-reveal.js`). Hero entrance 450ms/80ms stagger/
+  12px; reveals replay on viewport re-entry at 400ms; card lift at most 3px; stage/screenshot crossfades
+  200–280ms; marquee about 35s per loop defined once in `resources/css/app.css`.
+  Content stays visible if scripts or the observer fail. Timers pause while the page
+  is hidden and are cleared on teardown.
+- Owner-requested exception: the marquee has no visible Pause/Resume control. It
+  pauses only while the pointer is over, or keyboard focus is inside, the row in use.
+  This narrows the earlier EUR-71 explicit-control requirement; hover/focus pause
+  alone is not a claim of accessibility conformance for moving content.
+- Owner revision (2026-10-25): the landing explicitly uses `data-landing-motion="autoplay"`
+  and runs its marquee, screenshot/scenario rotation and entrance/reveal effects even
+  when Windows/browser reports reduced motion. No OS/browser preference change is
+  required. Hover/focus pause and hidden-page timer guards remain. Application screens
+  retain reduced-motion behavior; this is a landing-only exception, not a claim of
+  full accessibility conformance. Manual selectors, arrows and dots remain available.
+
+### 11.9 Learning reader and application polish follow-up (2026-10-25)
+
+Status: owner-requested implementation direction, not delivered/accepted UI. The
+landing in 11.8 is the retained baseline. Implement the following learning pattern
+first, then apply the existing system to remaining routed screens in functional
+batches. The private root handoff records the dated source observations and work
+sequence; this section owns the reusable visual direction.
+
+- Lesson desktop: compact breadcrumb/context, flexible reading region, 300px right
+  course rail, 24px gap. At wide sizes cap prose around 72ch; body 16-17px with
+  1.7 line height, distinct headings, lists, links, quotes, code and tables. Keep
+  the lesson body in normal document flow. Text-only lessons start with content;
+  video lessons use the existing safe player at its intended aspect ratio.
+- Render lesson Markdown through the installed server-side CommonMark stack, with
+  raw HTML stripped and unsafe link schemes disabled. Style a scoped lesson-prose
+  region instead of assuming an uninstalled typography plugin. Preserve stored
+  content, authored code and ordinary text; source errors are not corrected by
+  silently rewriting the development database. Raw iframe/script HTML is not an
+  alternative to the existing video/media authorization route.
+- Course rail: sticky below the actual header; compact labeled progress; searchable
+  permitted lesson titles; collapsible sections with true lesson/completion counts.
+  Open the current section initially, highlight the current lesson and keep it
+  reachable within the rail. Other sections start collapsed. Use readable titles,
+  neutral incomplete circles and completed checkmarks with accessible state text;
+  remove repeated visible Incomplete labels. Keep draft visibility creator-only.
+- Must Have Resources is an existing section of lessons, not an attachment model.
+  Use the same polished section header/lesson-row pattern for every section, without
+  hardcoded title/ID exceptions. Links open existing lessons; do not invent file
+  downloads, file sizes, durations, prerequisite gates or resource taxonomy.
+- Course overview: title/description and one clear Start/Continue action before a
+  long curriculum; compact progress and balanced cover treatment. Use reusable
+  section accordions and lesson rows. Preserve creator edit/reorder controls in
+  an explicitly labeled management region, including validation reopening.
+- Lesson footer: one completion form and one previous/next navigation region.
+  Completion retains the current server-confirmed progress contract; Next remains
+  navigation, with no silent mark-complete or auto-advance. Contextual questions
+  and practical evidence/review stay discoverable with their current semantics.
+- Mobile/tablet: reading uses available width; put a Course content disclosure
+  control near the lesson heading, not only after a long article. Its panel is
+  keyboard operable, closes without stranded focus and retains a no-JS route to
+  the curriculum. Code/tables may scroll locally; the page itself must reflow.
+- Remaining surfaces use the existing light/teal identity and shared components:
+  discovery/feed/discussion, directory/activity/events/about, inbox/notices,
+  account/access/commerce, creator operations, authentication/help and Admin.
+  Improve task hierarchy, density, primary actions and real error/empty states;
+  do not introduce decorative features or change business/access rules.
+- Interaction motion: 140-180ms control feedback, 180-220ms menus/dialogs,
+  180-240ms outline disclosure and up to 2px card lift. Animate persisted progress
+  only after success. Reading text/video/tables remain stable and immediately
+  readable. No repeated scroll reveals, marquee, autoplay panels or parallax here.
+- Owner motion preference for this follow-up: Windows animations remain disabled.
+  Essential short state feedback must remain perceptible without changing OS or
+  browser settings. Use brief opacity/color feedback in reduced mode while removing
+  translation, lift and height animation. Preserve the landing autoplay exception;
+  do not implement a global force-animation override or add a motion settings UI.
+
+Acceptance remains separate: real populated lesson/resource/course screens, small
+viewports, keyboard/no-JS behavior, progress failure/success and guarded tests must
+be observed on the final runtime. Coverage of remaining routes must be recorded;
+a shared CSS change alone does not establish screen-by-screen completion.
+
+### 11.10 Community entry, concise Feed context and loading glass (2026-10-25)
+
+Owner-requested amendment to the remaining application rollout; implementation
+and visual acceptance are pending. Preserve the reviewed learning reader and
+landing. Keep current routes, role/access checks and stored content.
+
+- Community entry/About: put a compact orientation and a prominent teal Open
+  Classroom action immediately below workspace navigation, before description,
+  video, rules or a long course list. Community Feed is the secondary action;
+  Creator management remains conditional. Retain the current community-card
+  destination rather than adding redirects. Render a course preview, not a second
+  catalog: three permitted published course rows initially, remaining entries from
+  the existing capped result behind a native disclosure. The complete catalog is
+  Classroom. Do not imply prerequisites, personalized recommendations or completion
+  without that data. Empty access states still offer the permitted catalog route.
+- About content: one community description; retain introduction and rules in the
+  reading column. Consolidate creator/member facts into one concise context panel.
+  Remove duplicated identity/description panels and navigation inventories that
+  merely repeat the visible tabs. Preserve applicable status, settings and all
+  genuine routes. Member-facing copy must reflect current discovery/access rules;
+  no raw Tenant/Slug terminology or stale claims of undiscoverability.
+- Feed: center an inner reading grid up to 1084px within the existing shell,
+  `minmax(0, 1fr) 300px`, 24px gap. The wide reading column is about 760px rather
+  than assigning a third of the screen to context. One-column layout below lg.
+  Preserve useful filters, sort, composer and discussion/like/save interactions.
+- Feed rail hierarchy: one truthful Learning Focus first (including its current
+  complete/empty/explore states), then a compact incomplete-checklist summary with
+  one next actionable step and a disclosure for all steps. Secondary community
+  facts and contribution ranking use initially collapsed, labelled disclosures.
+  Keep the ranking metric/window/meaning and full destination; do not discard
+  underlying data or actions. Include the existing upcoming event only when real.
+  A duplicate full About card must not appear below the learning rail.
+- Compact rail: no full-size cover above the learning action, no paragraph repeated
+  elsewhere, no tall stack of permanently open cards. Use a small identity image
+  when needed. At 1280x800 the default, collapsed Clief Notes rail should be at most
+  720px tall. Expansion may grow naturally. Do not achieve this by cropping content,
+  hiding essential actions, or adding a scrollbar to the whole sidebar. Only a
+  compact block that fits below the header may stick; otherwise use normal flow.
+  Mobile keeps filters/composer/feed easy to reach, with a compact learning entry
+  and a labelled optional community-context disclosure, not a card stack before posts.
+- Shared community card: use S-cool identity, remove the fabricated skool.com URL
+  and Online presentation, replace yellow/all-caps join styling with teal sentence
+  case. Keep membership/join contracts and appropriate member/creator labels.
+  Old assertions for removed visual copy must be replaced with semantic behavior
+  coverage, including all actual consumers, rather than treated as frozen design.
+- Loading treatment: reserve the final media box (16:9 cover, circular avatar),
+  with a subtle frosted white/teal placeholder and neutral backing. Use a translucent
+  surface, fine border/highlight and optional 8px backdrop blur; provide a solid
+  fallback when unsupported. Glass is a visual pending state, not a source image
+  and not an authorization boundary. Keep loaded text, navigation and controls clear.
+  Reveal ready media with about 180ms opacity; no artificial minimum loading delay,
+  perpetual shimmer/pulse or whole-page blur. Retain static glass and brief opacity
+  in reduced motion; never ask for OS preference changes.
+- Loading state must be real: pending -> ready or error. Handle load/error and cached
+  images (`complete` plus positive `naturalWidth`); decode rejection must settle to
+  the stable fallback, not an endless overlay. Replaced requests cannot overwrite
+  a newer image. Missing media goes straight to its existing neutral/initials
+  fallback. Enhancement failure/no-JS must leave readable content and native images.
+  Do not prefetch private media or show a previous tenant's image through blur.
+- Apply the same visual vocabulary to existing asynchronous list/search/dialog
+  states while each remaining batch is implemented. Preserve debounce, cancellation,
+  server errors/retry, stale-response and access-revocation handling. Mark only the
+  updating region busy; never cover already delivered server-rendered content with
+  fake skeletons, display invented percentages, or use a page-wide overlay.
+
+Verify populated and empty About/Feed, long descriptions, all three learning states,
+incomplete/completed onboarding, expanded keyboard disclosures and affected shared
+card consumers. Observe pending/ready/cached/missing/error media, rapid source changes,
+async failures and reduced motion; record unavailable network throttling/no-JS/real
+zoom honestly. Passing tests alone is not visual or loading-state acceptance.

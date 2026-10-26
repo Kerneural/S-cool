@@ -139,42 +139,518 @@
     }
 }
 
-/* Continuous infinite marquee for partner/community logos */
-@keyframes marquee {
-    0% { transform: translate3d(0, 0, 0); }
-    100% { transform: translate3d(-50%, 0, 0); }
+/* Landing page motion (welcome.blade.php only). One authoritative marquee definition. */
+@keyframes landing-marquee {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-50%, 0, 0); }
 }
 
-@keyframes marquee-reverse {
-    0% { transform: translate3d(-50%, 0, 0); }
-    100% { transform: translate3d(0, 0, 0); }
+@keyframes landing-marquee-reverse {
+    from { transform: translate3d(-50%, 0, 0); }
+    to { transform: translate3d(0, 0, 0); }
 }
 
-.animate-marquee {
-    display: flex !important;
-    width: max-content !important;
+@keyframes landing-rise {
+    from { opacity: 0; transform: translate3d(0, 12px, 0); }
+    to { opacity: 1; transform: none; }
+}
+
+.animate-marquee,
+.animate-marquee-reverse {
+    display: flex;
+    width: max-content;
     will-change: transform;
-    animation: marquee 30s linear infinite !important;
+    animation: landing-marquee 35s linear infinite;
 }
 
 .animate-marquee-reverse {
-    display: flex !important;
-    width: max-content !important;
-    will-change: transform;
-    animation: marquee-reverse 30s linear infinite !important;
+    animation-name: landing-marquee-reverse;
 }
 
+.landing-marquee-row {
+    -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+/* Hover or keyboard focus pauses only the row being used. */
 .animate-marquee:hover,
-.animate-marquee-reverse:hover {
-    animation-play-state: paused !important;
+.animate-marquee-reverse:hover,
+.animate-marquee:focus-within,
+.animate-marquee-reverse:focus-within {
+    animation-play-state: paused;
 }
 
-/* Reduced motion also applies to landing-page decoration. */
+/* Hero copy enters once: 450ms each, 80ms stagger, 12px travel. */
+.landing-rise {
+    animation: landing-rise 450ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(var(--rise-order, 0) * 80ms);
+}
+
+/* Replay on viewport entry; content stays visible unless the observer is running. */
+.landing-reveal-ready [data-reveal]:not(.is-revealed) {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+}
+
+.landing-reveal-ready [data-reveal] {
+    transition: opacity 400ms ease-out, transform 400ms ease-out;
+    transition-delay: var(--reveal-delay, 0ms);
+}
+
+/* Keyboard navigation must never focus visually hidden reveal content. */
+.landing-reveal-ready [data-reveal]:focus-within {
+    opacity: 1;
+    transform: none;
+}
+
+.landing-card {
+    transition: transform 200ms ease-out, box-shadow 200ms ease-out, border-color 200ms ease-out;
+}
+
+.landing-card:hover,
+.landing-card:focus-within {
+    transform: translate3d(0, -3px, 0);
+    border-color: color-mix(in srgb, var(--color-brand) 40%, transparent);
+    box-shadow: 0 10px 24px -12px rgb(15 23 42 / 0.18);
+}
+
+.landing-arrow {
+    display: inline-block;
+    transition: transform 160ms ease-out;
+}
+
+a:hover > .landing-arrow,
+a:focus-visible > .landing-arrow {
+    transform: translate3d(2px, 0, 0);
+}
+
+.landing-fade {
+    transition: opacity 280ms ease-out, visibility 280ms;
+}
+
+.landing-fade-fast {
+    transition: opacity 200ms ease-out, visibility 200ms;
+}
+
+.landing-wordmark {
+    -webkit-text-stroke: 1.5px #94A3B8;
+    color: transparent;
+}
+
 @media (prefers-reduced-motion: reduce) {
-    *, ::before, ::after {
+    html:not([data-landing-motion="autoplay"]) .animate-marquee,
+    html:not([data-landing-motion="autoplay"]) .animate-marquee-reverse {
+        animation: none;
+        transform: none;
+        width: 100%;
+    }
+
+    html:not([data-landing-motion="autoplay"]) .landing-marquee-row {
+        -webkit-mask-image: none;
+        mask-image: none;
+    }
+
+    html:not([data-landing-motion="autoplay"]) .landing-marquee-fade {
+        display: none;
+    }
+
+    html:not([data-landing-motion="autoplay"]) .animate-marquee > div:not([aria-hidden="true"]),
+    html:not([data-landing-motion="autoplay"]) .animate-marquee-reverse > div:not([aria-hidden="true"]) {
+        flex: 1 1 100%;
+        padding-inline: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+        row-gap: 0.75rem;
+    }
+
+    html:not([data-landing-motion="autoplay"]) .animate-marquee > [aria-hidden="true"],
+    html:not([data-landing-motion="autoplay"]) .animate-marquee-reverse > [aria-hidden="true"] {
+        display: none;
+    }
+
+    html:not([data-landing-motion="autoplay"]) .landing-rise {
+        animation: none;
+    }
+
+    html:not([data-landing-motion="autoplay"]) .landing-card:hover,
+    html:not([data-landing-motion="autoplay"]) .landing-card:focus-within,
+    html:not([data-landing-motion="autoplay"]) a:hover > .landing-arrow,
+    html:not([data-landing-motion="autoplay"]) a:focus-visible > .landing-arrow {
+        transform: none;
+    }
+}
+
+/*
+ * Application reduced motion (design 11.9): keep brief color/opacity feedback so
+ * state changes stay perceptible, but drop movement, lift and size animation.
+ * The owner-selected landing autoplays independently.
+ */
+@media (prefers-reduced-motion: reduce) {
+    html:not([data-landing-motion="autoplay"]),
+    html:not([data-landing-motion="autoplay"]) *,
+    html:not([data-landing-motion="autoplay"]) ::before,
+    html:not([data-landing-motion="autoplay"]) ::after {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
+        transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, opacity, box-shadow !important;
         scroll-behavior: auto !important;
+    }
+
+    html:not([data-landing-motion="autoplay"]) .app-lift:hover,
+    html:not([data-landing-motion="autoplay"]) .app-lift:focus-within {
+        transform: none;
+    }
+}
+
+/* ---- Learning reader (design 11.9) ---- */
+.lesson-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+@media (min-width: 64rem) {
+    .lesson-layout {
+        grid-template-columns: minmax(0, 1fr) 300px;
+        grid-template-rows: auto 1fr;
+        column-gap: 1.5rem;
+        row-gap: 1.75rem;
+        align-items: start;
+    }
+
+    .lesson-layout__head { grid-column: 1; grid-row: 1; }
+    .lesson-layout__main { grid-column: 1; grid-row: 2; }
+    .lesson-layout__rail {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+        position: sticky;
+        top: 5rem;
+        align-self: start;
+    }
+
+    .lesson-rail { max-height: calc(100vh - 6.5rem); }
+    .lesson-rail__panel { display: flex; flex-direction: column; min-height: 0; flex: 1 1 auto; }
+    .lesson-rail .lesson-rail__list { max-height: none; min-height: 0; flex: 1 1 auto; }
+}
+
+.lesson-rail {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-line);
+    border-radius: 0.75rem;
+    background: var(--color-surface);
+    overflow: hidden;
+}
+
+.lesson-rail__list { position: relative; padding: 0.25rem 0; max-height: 60vh; overflow-y: auto; overscroll-behavior: contain; }
+
+.lesson-rail__progress {
+    display: block;
+    width: 100%;
+    height: 0.375rem;
+    appearance: none;
+    border: 0;
+    border-radius: 999px;
+    background: #E2E8F0;
+    overflow: hidden;
+    accent-color: var(--color-brand);
+}
+.lesson-rail__progress::-webkit-progress-bar { background: #E2E8F0; border-radius: 999px; }
+.lesson-rail__progress::-webkit-progress-value { background: var(--color-brand); border-radius: 999px; transition: width 220ms ease-out; }
+.lesson-rail__progress::-moz-progress-bar { background: var(--color-brand); border-radius: 999px; }
+
+.outline-section + .outline-section { border-top: 1px solid var(--color-line); }
+
+.outline-section__summary {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--color-ink);
+    cursor: pointer;
+    list-style: none;
+    transition: background-color 160ms ease-out;
+}
+.outline-section__summary::-webkit-details-marker { display: none; }
+.outline-section__summary:hover { background: #F8FAFC; }
+.outline-section__chevron { margin-top: 0.125rem; }
+
+.lesson-chevron { transition: transform 200ms ease-out; }
+.outline-section[open] > .outline-section__summary .outline-section__chevron { transform: rotate(90deg); }
+
+.outline-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    margin: 0 0.5rem;
+    padding: 0.5rem 0.625rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    color: #334155;
+    transition: background-color 160ms ease-out, color 160ms ease-out;
+}
+.outline-row:hover { background: #F1F5F9; color: var(--color-ink); }
+.outline-row--current {
+    background: var(--color-brand-soft);
+    color: var(--color-brand-hover);
+    font-weight: 600;
+    box-shadow: inset 3px 0 0 var(--color-brand);
+}
+.outline-row--current:hover { background: #CCFBF1; }
+
+.outline-row__state {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.125rem;
+    height: 1.125rem;
+    margin-top: 0.0625rem;
+    border: 1.5px solid #94A3B8;
+    border-radius: 999px;
+    color: transparent;
+    transition: background-color 200ms ease-out, border-color 200ms ease-out, color 200ms ease-out;
+}
+.outline-row__state--done { background: var(--color-brand); border-color: var(--color-brand); color: #fff; }
+.outline-row__state--none { border-style: dashed; border-color: #CBD5E1; }
+
+.lesson-step {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--color-line);
+    border-radius: 0.75rem;
+    background: var(--color-surface);
+    transition: border-color 160ms ease-out, background-color 160ms ease-out;
+}
+.lesson-step:hover { border-color: rgb(15 118 110 / 0.4); background: #F8FAFC; }
+.lesson-step--next { border-color: rgb(15 118 110 / 0.3); background: rgb(240 253 250 / 0.6); }
+.lesson-step--next:hover { background: var(--color-brand-soft); border-color: rgb(15 118 110 / 0.5); }
+
+/* Scoped prose for safely rendered lesson Markdown; no typography plugin is installed. */
+.lesson-prose {
+    max-width: 72ch;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #1E293B;
+    overflow-wrap: anywhere;
+}
+@media (min-width: 40rem) { .lesson-prose { font-size: 1.0625rem; } }
+.lesson-prose > * + * { margin-top: 1.1em; }
+.lesson-prose h2, .lesson-prose h3, .lesson-prose h4, .lesson-prose h5, .lesson-prose h6 {
+    color: var(--color-ink);
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+}
+.lesson-prose h2 { margin-top: 2.2em; font-size: 1.375em; }
+.lesson-prose h3 { margin-top: 1.9em; font-size: 1.15em; }
+.lesson-prose h4, .lesson-prose h5, .lesson-prose h6 { margin-top: 1.6em; font-size: 1em; }
+.lesson-prose > :first-child { margin-top: 0; }
+.lesson-prose :where(h2, h3, h4) + :not(h2, h3, h4, h5, h6) { margin-top: 0.6em; }
+.lesson-prose strong { color: var(--color-ink); font-weight: 600; }
+.lesson-prose a {
+    color: var(--color-brand);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    transition: color 150ms ease-out;
+}
+.lesson-prose a:hover { color: var(--color-brand-hover); text-decoration-thickness: 2px; }
+.lesson-prose ul, .lesson-prose ol { padding-left: 1.5em; }
+.lesson-prose ul { list-style: disc; }
+.lesson-prose ol { list-style: decimal; }
+.lesson-prose li + li { margin-top: 0.4em; }
+.lesson-prose li > ul, .lesson-prose li > ol { margin-top: 0.4em; }
+.lesson-prose li::marker { color: #64748B; }
+.lesson-prose li:has(> input[type="checkbox"]) { list-style: none; margin-left: -1.5em; }
+.lesson-prose input[type="checkbox"] { margin-right: 0.5em; accent-color: var(--color-brand); vertical-align: -0.1em; }
+.lesson-prose blockquote {
+    padding: 0.25em 0 0.25em 1em;
+    border-left: 3px solid #99F6E4;
+    color: var(--color-muted);
+}
+.lesson-prose hr { border: 0; border-top: 1px solid var(--color-line); margin: 2em 0; }
+.lesson-prose code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.875em;
+}
+.lesson-prose :not(pre) > code {
+    padding: 0.1em 0.35em;
+    border-radius: 0.3rem;
+    background: #F1F5F9;
+    color: #0F172A;
+    overflow-wrap: anywhere;
+}
+.lesson-prose pre {
+    padding: 1em 1.1em;
+    border-radius: 0.75rem;
+    background: #0F172A;
+    color: #E2E8F0;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    overflow-x: auto;
+    overflow-wrap: normal;
+    white-space: pre;
+}
+.lesson-prose pre code { background: none; padding: 0; color: inherit; }
+.lesson-prose table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+    font-size: 0.9375em;
+    overflow-wrap: normal;
+}
+.lesson-prose th, .lesson-prose td { padding: 0.5em 0.75em; border: 1px solid var(--color-line); text-align: left; vertical-align: top; }
+.lesson-prose th { background: #F8FAFC; font-weight: 600; color: var(--color-ink); }
+
+/* Course overview curriculum: the outline vocabulary at a roomier size. */
+.curriculum-section {
+    border: 1px solid var(--color-line);
+    border-radius: 0.75rem;
+    background: var(--color-surface);
+}
+.curriculum-section > summary {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    list-style: none;
+    border-radius: 0.75rem;
+    transition: background-color 160ms ease-out;
+}
+.curriculum-section > summary::-webkit-details-marker { display: none; }
+.curriculum-section > summary:hover { background: #F8FAFC; }
+.curriculum-section[open] > summary { border-bottom: 1px solid var(--color-line); border-radius: 0.75rem 0.75rem 0 0; }
+.curriculum-section[open] > summary .outline-section__chevron { transform: rotate(90deg); }
+.curriculum-section .outline-row { margin: 0; padding: 0.75rem 1.25rem; border-radius: 0; font-size: 0.9375rem; }
+.curriculum-section li + li .outline-row { border-top: 1px solid #F1F5F9; }
+.curriculum-section li:last-child .outline-row { border-radius: 0 0 0.75rem 0.75rem; }
+
+/* ---- Media loading frame (design 11.10) ---- */
+/* The final box is reserved up front; glass marks only a real pending request. */
+/* Layered so consumer utilities (size, radius, backing colour) can override. */
+@layer components {
+    .media-frame {
+        position: relative;
+        overflow: hidden;
+        isolation: isolate;
+        background: #F1F5F9;
+    }
+    .media-frame--cover { aspect-ratio: 16 / 9; }
+    .media-frame--avatar { border-radius: 9999px; }
+    .rail-card {
+        border: 1px solid var(--color-line);
+        border-radius: 1rem;
+        background: var(--color-surface);
+    }
+    .media-frame__fallback {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .media-frame__img {
+        position: relative;
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: opacity 180ms ease-out;
+    }
+    .media-frame--avatar .media-frame__img { border-radius: 9999px; }
+    .media-frame__glass {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        pointer-events: none;
+        border-radius: inherit;
+        /* Solid fallback where backdrop blur is unsupported. */
+        background: linear-gradient(135deg, #FFFFFF 0%, #E6F6F4 100%);
+        box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.85), inset 0 1px 0 rgb(255 255 255 / 0.95);
+        transition: opacity 180ms ease-out;
+    }
+    @supports ((backdrop-filter: blur(8px)) or (-webkit-backdrop-filter: blur(8px))) {
+        .media-frame__glass {
+            background: linear-gradient(135deg, rgb(255 255 255 / 0.72) 0%, rgb(204 240 236 / 0.55) 100%);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+        }
+    }
+    .media-frame[data-media-state="pending"] .media-frame__img { opacity: 0; }
+    .media-frame[data-media-state="pending"] .media-frame__glass { opacity: 1; }
+    .media-frame[data-media-state="error"] .media-frame__img,
+    .media-frame[data-media-state="missing"] .media-frame__img { visibility: hidden; }
+}
+/* ---- Community entry and Feed context (design 11.10) ---- */
+.feed-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+    max-width: 1084px;
+    margin-inline: auto;
+}
+@media (min-width: 64rem) {
+    .feed-layout {
+        grid-template-columns: minmax(0, 1fr) 300px;
+        grid-template-rows: auto 1fr;
+        column-gap: 1.5rem;
+        row-gap: 1.25rem;
+        align-items: start;
+    }
+    .feed-layout__main { grid-column: 1; grid-row: 1 / span 2; }
+    .feed-layout__learning { grid-column: 2; grid-row: 1; }
+    .feed-layout__context { grid-column: 2; grid-row: 2; }
+}
+
+.rail-disclosure > summary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0.625rem 1rem;
+    cursor: pointer;
+    list-style: none;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    transition: background-color 160ms ease-out;
+}
+.rail-disclosure > summary::-webkit-details-marker { display: none; }
+.rail-disclosure > summary:hover { background: #F8FAFC; }
+.rail-disclosure > summary:focus-visible { outline: 2px solid var(--color-brand); outline-offset: 2px; }
+.rail-disclosure__chevron { flex-shrink: 0; color: var(--color-muted); transition: transform 180ms ease-out; }
+.rail-disclosure[open] > summary .rail-disclosure__chevron { transform: rotate(90deg); }
+.rail-disclosure[open] > summary { border-bottom: 1px solid var(--color-line); border-radius: 1rem 1rem 0 0; }
+.rail-disclosure__body { padding: 0.875rem 1rem 1rem; }
+.rail-disclosure--nested > summary { min-height: 2.75rem; padding-inline: 0; border-radius: 0.5rem; font-size: 0.8125rem; color: var(--color-brand); }
+.rail-disclosure--nested[open] > summary { border-bottom: 0; }
+.rail-disclosure--nested .rail-disclosure__body { padding: 0.25rem 0 0; }
+
+/* Real async list updates: dim only the updating region, never hide delivered content. */
+[data-live-search-results][aria-busy="true"] {
+    opacity: 0.6;
+    transition: opacity 180ms ease-out;
+}
+
+/* Pending dialog/region surface: the same frosted vocabulary as media, solid where blur is unsupported. */
+.async-glass {
+    background: linear-gradient(135deg, #FFFFFF 0%, #E6F6F4 100%);
+}
+@supports ((backdrop-filter: blur(8px)) or (-webkit-backdrop-filter: blur(8px))) {
+    .async-glass {
+        background: linear-gradient(135deg, rgb(255 255 255 / 0.82) 0%, rgb(204 240 236 / 0.6) 100%);
+        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(8px);
     }
 }

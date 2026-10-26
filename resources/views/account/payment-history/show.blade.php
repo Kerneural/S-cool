@@ -23,7 +23,7 @@
                 <div class="border-b border-slate-100 pb-6 flex flex-wrap items-start justify-between gap-3">
                     <div class="min-w-0">
                         <span class="text-xs uppercase tracking-wider font-bold text-slate-400">Digital Receipt</span>
-                        <h3 class="break-all text-2xl font-black text-slate-900 mt-1 font-mono tracking-tight">
+                        <h3 class="break-all text-2xl font-bold text-slate-900 mt-1 font-mono tracking-tight">
                             {{ $payment->external_reference }}
                         </h3>
                         <p class="text-xs text-slate-500 mt-1">
@@ -57,34 +57,34 @@
                 </div>
 
                 <!-- Receipt Line Items -->
-                <div class="py-6 border-b border-slate-100 space-y-4">
-                    <div class="flex justify-between items-center text-sm">
-                        <span class="text-slate-500">Community:</span>
-                        <span class="font-bold text-slate-900">{{ $payment->community->name ?? 'N/A' }}</span>
+                <dl class="py-6 border-b border-slate-100 space-y-4">
+                    <div class="grid grid-cols-1 gap-1 text-sm sm:grid-cols-[max-content_minmax(0,1fr)] sm:gap-4">
+                        <dt class="text-slate-500">Community:</dt>
+                        <dd class="min-w-0 font-bold text-slate-900 sm:text-right">{{ $payment->community->name ?? 'N/A' }}</dd>
                     </div>
 
-                    <div class="flex justify-between items-center text-sm">
-                        <span class="text-slate-500">Purpose:</span>
-                        <span class="font-semibold text-slate-800">{{ $payment->purposeLabel() }}</span>
+                    <div class="grid grid-cols-1 gap-1 text-sm sm:grid-cols-[max-content_minmax(0,1fr)] sm:gap-4">
+                        <dt class="text-slate-500">Purpose:</dt>
+                        <dd class="min-w-0 font-semibold text-slate-800 sm:text-right">{{ $payment->purposeLabel() }}</dd>
                     </div>
 
-                    <div class="flex justify-between items-center text-sm">
-                        <span class="text-slate-500">Payment Gateway:</span>
-                        <span class="font-semibold text-slate-800">SePay Sandbox (Test Mode)</span>
+                    <div class="grid grid-cols-1 gap-1 text-sm sm:grid-cols-[max-content_minmax(0,1fr)] sm:gap-4">
+                        <dt class="text-slate-500">Payment Gateway:</dt>
+                        <dd class="min-w-0 font-semibold text-slate-800 sm:text-right">SePay Sandbox (Test Mode)</dd>
                     </div>
 
                     @if ($payment->paid_at)
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-slate-500">Confirmed at (UTC):</span>
-                            <span class="font-mono text-slate-900 font-bold">{{ $payment->paid_at->toIso8601String() }}</span>
+                        <div class="grid grid-cols-1 gap-1 text-sm sm:grid-cols-[max-content_minmax(0,1fr)] sm:gap-4">
+                            <dt class="text-slate-500">Confirmed at (UTC):</dt>
+                            <dd class="min-w-0 font-mono text-slate-900 font-bold sm:text-right">{{ $payment->paid_at->toIso8601String() }}</dd>
                         </div>
                     @endif
 
-                    <div class="flex justify-between items-center text-base pt-4 border-t border-slate-100">
-                        <span class="text-slate-700 font-bold">Total Amount:</span>
-                        <span class="text-2xl text-teal-600 font-black">{{ $payment->formattedAmount() }}</span>
+                    <div class="flex flex-wrap items-baseline justify-between gap-2 text-base pt-4 border-t border-slate-100">
+                        <dt class="text-slate-700 font-bold">Total Amount:</dt>
+                        <dd class="whitespace-nowrap text-xl sm:text-2xl text-teal-600 font-bold">{{ $payment->formattedAmount() }}</dd>
                     </div>
-                </div>
+                </dl>
 
                 <!-- Entitlement / Access State -->
                 <div class="pt-6">

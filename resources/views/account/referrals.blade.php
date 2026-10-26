@@ -41,7 +41,7 @@
             <div class="p-6 bg-white rounded-2xl shadow-xs border border-slate-200/80 flex items-center justify-between">
                 <div>
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Simulated Referral Balance</span>
-                    <p class="mt-2 text-3xl font-black text-teal-600 tracking-tight">{{ number_format($totalSimulatedEarnings) }} VND</p>
+                    <p class="mt-2 text-3xl font-bold text-teal-600 tracking-tight">{{ number_format($totalSimulatedEarnings) }} VND</p>
                     <p class="mt-1 text-xs text-slate-400 font-medium">All historical commissions are retained permanently.</p>
                 </div>
                 <div class="w-14 h-14 bg-teal-50 rounded-2xl text-teal-600 flex items-center justify-center shrink-0 shadow-2xs">
@@ -181,7 +181,7 @@
                                         <td class="py-3.5 px-5 text-right text-xs text-slate-600 font-semibold">
                                             {{ $comm->commission_rate }}%
                                         </td>
-                                        <td class="py-3.5 px-5 text-right font-black text-teal-600">
+                                        <td class="py-3.5 px-5 text-right font-bold text-teal-600">
                                             {{ number_format($comm->commission_amount) }} {{ $comm->currency }}
                                         </td>
                                         <td class="py-3.5 px-5 text-center">

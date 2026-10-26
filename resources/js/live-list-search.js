@@ -41,6 +41,7 @@ export function liveListSearch() {
                 ++this.sequence;
                 this.controller?.abort();
                 this.loading = false;
+                this.scope?.querySelector('[data-live-search-results]')?.removeAttribute?.('aria-busy');
                 this.error = 'Enter 2 to 100 characters, or clear the search.';
                 return;
             }
@@ -58,6 +59,8 @@ export function liveListSearch() {
             const sequence = ++this.sequence;
             this.loading = true;
             this.error = '';
+            // Only the updating region is marked busy; delivered results stay readable.
+            this.scope?.querySelector('[data-live-search-results]')?.setAttribute?.('aria-busy', 'true');
             try {
                 const response = await fetch(url, { signal: controller.signal, credentials: 'same-origin', headers: { Accept: 'text/html' } });
                 if (sequence !== this.sequence) return;
@@ -96,7 +99,10 @@ export function liveListSearch() {
                 if (sequence !== this.sequence || error.name === 'AbortError') return;
                 this.error = 'Unable to complete search. Check your connection and retry.';
             } finally {
-                if (sequence === this.sequence) this.loading = false;
+                if (sequence === this.sequence) {
+                    this.loading = false;
+                    this.scope?.querySelector('[data-live-search-results]')?.removeAttribute?.('aria-busy');
+                }
             }
         },
         destroy() {

@@ -14,7 +14,7 @@ class CommunityJoinAndCardTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_skool_community_card_calculates_real_members_online_and_admin_count(): void
+    public function test_skool_community_card_calculates_real_member_and_admin_count(): void
     {
         $creator = User::factory()->create();
         $community = Community::factory()->create([
@@ -57,62 +57,7 @@ class CommunityJoinAndCardTest extends TestCase
         $this->assertSame('16', SkoolCommunityCard::formatCount(16));
     }
 
-    public function test_skool_community_card_calculates_dynamic_online_count_from_sessions(): void
-    {
-        $creator = User::factory()->create();
-        $community = Community::factory()->create(['creator_id' => $creator->id]);
-
-        $member1 = User::factory()->create();
-        $member2 = User::factory()->create();
-
-        CommunityMembership::factory()->create([
-            'community_id' => $community->id,
-            'user_id' => $member1->id,
-            'status' => 'ACTIVE',
-            'access_kind' => CommunityMembership::ACCESS_LIFETIME,
-        ]);
-        CommunityMembership::factory()->create([
-            'community_id' => $community->id,
-            'user_id' => $member2->id,
-            'status' => 'ACTIVE',
-            'access_kind' => CommunityMembership::ACCESS_LIFETIME,
-        ]);
-
-        // Insert active session for member1 (active 2 mins ago)
-        DB::table('sessions')->insert([
-            'id' => 'session_m1',
-            'user_id' => $member1->id,
-            'ip_address' => '127.0.0.1',
-            'user_agent' => 'PHPUnit',
-            'payload' => serialize(['dummy' => 'payload']),
-            'last_activity' => now()->subMinutes(2)->timestamp,
-        ]);
-
-        // Insert stale session for member2 (active 30 mins ago - outside 15 min window)
-        DB::table('sessions')->insert([
-            'id' => 'session_m2',
-            'user_id' => $member2->id,
-            'ip_address' => '127.0.0.1',
-            'user_agent' => 'PHPUnit',
-            'payload' => serialize(['dummy' => 'payload']),
-            'last_activity' => now()->subMinutes(30)->timestamp,
-        ]);
-
-        $component = new SkoolCommunityCard($community);
-        // Only member1 is currently online in the 15-minute window
-        $this->assertSame(1, $component->onlineCount);
-
-        // Now member2 becomes active (active now)
-        DB::table('sessions')->where('id', 'session_m2')->update([
-            'last_activity' => now()->timestamp,
-        ]);
-
-        $componentAfterActivity = new SkoolCommunityCard($community);
-        // Dynamic online count updates to 2!
-        $this->assertSame(2, $componentAfterActivity->onlineCount);
-    }
-
-    public function test_skool_community_card_renders_across_all_community_tabs(): void
+    public function test_skool_community_card_renders_s_cool_identity_across_all_community_tabs(): void
     {
         $creator = User::factory()->create();
         $community = Community::factory()->create([
@@ -121,52 +66,43 @@ class CommunityJoinAndCardTest extends TestCase
             'slug' => 'ai-automation-society',
             'description' => 'Learn to get paid for AI solutions.',
         ]);
+        // Live sessions are not presented as an "Online" count anywhere.
+        DB::table('sessions')->insert([
+            'id' => 'session_creator', 'user_id' => $creator->id, 'ip_address' => '127.0.0.1',
+            'user_agent' => 'PHPUnit', 'payload' => serialize([]), 'last_activity' => now()->timestamp,
+        ]);
+        $removedPresentation = fn ($response) => $response->assertDontSee('skool.com')->assertDontSee('>Online<', false)
+            ->assertDontSee('JOIN GROUP')->assertDontSee('#F5C347');
 
         $this->actingAs($creator);
 
-        // Tab 1: Community Feed (Creator view - no join button)
-        $feedResponse = $this->get(route('communities.posts.index', $community));
-        $feedResponse->assertOk();
-        $feedResponse->assertSee('skool.com/ai-automation-society');
-        $feedResponse->assertSee('Members');
-        $feedResponse->assertSee('Online');
-        $feedResponse->assertSee('Admins');
-        $feedResponse->assertDontSee('JOIN GROUP');
+        // Feed: compact card inside the collapsed Community details disclosure.
+        $feedResponse = $this->get(route('communities.posts.index', $community))->assertOk()
+            ->assertSeeInOrder(['Community details', 'AI Automation Society', 'Invitation-only community', 'Members', 'Admins', 'You host this community', 'About this community'])
+            ->assertDontSee('Join community');
+        $removedPresentation($feedResponse);
 
-        // Tab 2: Classroom (explicitly without the community card as requested)
-        $classroomResponse = $this->get(route('communities.classroom.index', $community));
-        $classroomResponse->assertOk();
-        $classroomResponse->assertDontSee('skool.com/ai-automation-society');
+        // Classroom intentionally has no community card.
+        $this->get(route('communities.classroom.index', $community))->assertOk()
+            ->assertDontSee('Invitation-only community');
 
-        // Tab 3: Events
-        $eventsResponse = $this->get(route('communities.events.index', $community));
-        $eventsResponse->assertOk();
-        $eventsResponse->assertSee('skool.com/ai-automation-society');
-        $eventsResponse->assertSee('Members');
+        foreach (['communities.events.index', 'communities.directory.index', 'communities.leaderboard'] as $tab) {
+            $response = $this->get(route($tab, $community))->assertOk()
+                ->assertSee('Invitation-only community')->assertSee('Members')->assertSee('You host this community')
+                ->assertSee('href="'.route('communities.show', $community).'"', false);
+            $removedPresentation($response);
+        }
+        $this->get(route('communities.leaderboard', $community))->assertOk()
+            ->assertSee('Level 1 - AI Explorer')->assertSee('Level 2 - Automation Novice')
+            ->assertSee('Level 9 - AI Grandmaster')->assertSee('Distribution not measured');
 
-        // Tab 4: Directory / Members
-        $directoryResponse = $this->get(route('communities.directory.index', $community));
-        $directoryResponse->assertOk();
-        $directoryResponse->assertSee('skool.com/ai-automation-society');
-        $directoryResponse->assertSee('Members');
+        // About consolidates identity into one context panel instead of repeating the card.
+        $about = $this->get(route('communities.show', $community))->assertOk()
+            ->assertSee('Active members')->assertSee('Creator host access');
+        $removedPresentation($about);
+        $this->assertSame(1, substr_count($about->getContent(), 'Learn to get paid for AI solutions.'));
 
-        // Tab 5: Leaderboard (includes card + 9-level Skool card)
-        $leaderboardResponse = $this->get(route('communities.leaderboard', $community));
-        $leaderboardResponse->assertOk();
-        $leaderboardResponse->assertSee('skool.com/ai-automation-society');
-        $leaderboardResponse->assertSee('Members');
-        $leaderboardResponse->assertSee('Level 1 - AI Explorer');
-        $leaderboardResponse->assertSee('Level 2 - Automation Novice');
-        $leaderboardResponse->assertSee('Level 9 - AI Grandmaster');
-        $leaderboardResponse->assertSee('Distribution not measured');
-
-        // Tab 6: About
-        $aboutResponse = $this->get(route('communities.show', $community));
-        $aboutResponse->assertOk();
-        $aboutResponse->assertSee('skool.com/ai-automation-society');
-        $aboutResponse->assertSee('Members');
-
-        // Member account viewing community sees JOINED badge, not JOIN GROUP
+        // Member sees the Joined state, never a join control.
         $member = User::factory()->create();
         CommunityMembership::factory()->create([
             'community_id' => $community->id,
@@ -174,17 +110,27 @@ class CommunityJoinAndCardTest extends TestCase
             'status' => 'ACTIVE',
             'access_kind' => CommunityMembership::ACCESS_LIFETIME,
         ]);
-        $memberFeedResponse = $this->actingAs($member)->get(route('communities.posts.index', $community));
-        $memberFeedResponse->assertOk();
-        $memberFeedResponse->assertSee('JOINED');
-        $memberFeedResponse->assertDontSee('JOIN GROUP');
+        $this->actingAs($member)->get(route('communities.posts.index', $community))->assertOk()
+            ->assertSee('Joined')->assertDontSee('Join community')->assertDontSee('You host this community');
 
-        // Prospective member / guest rendering component directly sees JOIN GROUP button
+        // A prospective member gets the teal sentence-case join control and the existing join form.
         $this->be(User::factory()->make(['id' => 9999]));
         $guestCardHtml = (string) $this->blade('<x-skool-community-card :community="$community" />', ['community' => $community]);
-        $this->assertStringContainsString('JOIN GROUP', $guestCardHtml);
-        $this->assertStringContainsString('Members', $guestCardHtml);
-        $this->assertStringContainsString('Online', $guestCardHtml);
-        $this->assertStringContainsString('Admins', $guestCardHtml);
+        $this->assertStringContainsString('Join community', $guestCardHtml);
+        $this->assertStringContainsString('action="'.route('communities.join', $community).'"', $guestCardHtml);
+        $this->assertStringContainsString('name="email"', $guestCardHtml);
+        $this->assertStringContainsString('bg-brand', $guestCardHtml);
+        foreach (['JOIN GROUP', 'skool.com', 'Online', 'uppercase'] as $removed) {
+            $this->assertStringNotContainsString($removed, $guestCardHtml);
+        }
+    }
+
+    public function test_card_never_invents_a_description(): void
+    {
+        $community = Community::factory()->create(['description' => null]);
+        $this->be($community->creator);
+        $html = (string) $this->withViewErrors([])->blade('<x-skool-community-card :community="$community" variant="compact" />', ['community' => $community]);
+        $this->assertStringNotContainsString('Learn to get paid', $html);
+        $this->assertStringContainsString('Invitation-only community', $html);
     }
 }
