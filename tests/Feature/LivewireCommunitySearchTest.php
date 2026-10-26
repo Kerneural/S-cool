@@ -339,9 +339,10 @@ class LivewireCommunitySearchTest extends TestCase
 
     public function test_typeahead_protects_against_stale_or_out_of_order_requests(): void
     {
-        $creator = User::factory()->create();
+        // Keep searchable fields fixed: random names can fuzzy-match Alpha/Beta.
+        $creator = User::factory()->create(['name' => 'Fixture Owner', 'bio' => null]);
         $community = Community::factory()->create(['creator_id' => $creator->id, 'status' => 'ACTIVE']);
-        $member = User::factory()->create();
+        $member = User::factory()->create(['name' => 'Fixture Learner', 'bio' => null]);
         CommunityMembership::factory()->create([
             'community_id' => $community->id,
             'user_id' => $member->id,
@@ -352,12 +353,14 @@ class LivewireCommunitySearchTest extends TestCase
             'community_id' => $community->id,
             'user_id' => $creator->id,
             'title' => 'First Query Post Alpha',
+            'body' => 'Content for the initial search request.',
         ]);
 
         Post::factory()->create([
             'community_id' => $community->id,
             'user_id' => $creator->id,
             'title' => 'Second Query Post Beta',
+            'body' => 'Content for the subsequent search request.',
         ]);
 
         $this->actingAs($member);

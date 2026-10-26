@@ -78,6 +78,16 @@ A checkpoint is historical context, not current Linear/Git/runtime evidence. Ver
   baseline, final regression logs, diff whitespace and structural privacy gate.
   CI/review/merge and subsequent CloudPanel deployment remain separate gates.
   No host/Azure mutation, membership import or Linear state change performed.
+- PR #69 CI follow-up (2026-10-26): application tests reported 663 passing and
+  one failing stale-request typeahead test (Beta total 2 instead of 1). The original
+  test passed in isolation, but a valid Faker-generated name, Bettye Bartell Jr.
+  (en_US seed 47), scores 40 for Beta under the existing typo-tolerant search.
+  Substituting that name reproduced the same assertion failure on guarded scool_test.
+  Fixed only this test's searchable fixture names/bios and post bodies; all original
+  count, result-title and stale-request assertions are retained. Application search
+  and acquisition code are unchanged. LivewireCommunitySearchTest plus
+  CommunitySearchTest passed 14 tests / 136 assertions (20.0s). The full CI suite
+  must rerun on the follow-up commit; this targeted result is not a full-suite PASS.
 
 ## EUR-71 (PQ-05) landing artwork and marquee checkpoint (2026-10-25)
 
