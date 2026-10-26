@@ -24,7 +24,7 @@ RUN docker-php-ext-install \
     gd \
     opcache
 
-RUN apk upgrade --no-cache libexpat brotli-libs
+RUN apk upgrade --no-cache libexpat brotli-libs curl libcurl
 
     # Cài đặt Composer chính thức từ Docker Hub
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
