@@ -101,6 +101,7 @@ jobs:
           docker run --rm scool-php:ci php /usr/local/bin/scool-verify-php-security.php
 
       - name: Scan PHP runtime image
+        # Download from upstream directly: the GCR mirror returned 404 for a DB layer.
         run: |
           docker image inspect scool-php:ci --format '{{.Id}}'
 
@@ -111,6 +112,7 @@ jobs:
               -v "$RUNNER_TEMP/scool-php-ci.tar:/scan/image.tar:ro" \
               aquasec/trivy:0.75.0 \
               image \
+                --db-repository ghcr.io/aquasecurity/trivy-db:2 \
                 --input /scan/image.tar \
                 --scanners vuln \
                 --severity HIGH,CRITICAL \

@@ -146,7 +146,7 @@
                         </div>
                     </dl>
                     <p class="border-t border-line pt-3 text-xs leading-relaxed text-muted">
-                        {{ __('Invitation-only community. Signed-in users can find its name, description and cover in the community list; posts, courses, events and members are visible only to members.') }}
+                        {{ __('Private learning community. Signed-in visitors can preview its introduction and course summaries before joining. Discussions, lessons and member information require the appropriate access.') }}
                     </p>
                 </aside>
             </div>

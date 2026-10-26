@@ -146,7 +146,7 @@ class CommunityWorkspaceSwitcherTest extends TestCase
         $allResponse->assertOk()
             ->assertSee('PHP Artisans Guild')
             ->assertSee('Vue Developers Club')
-            ->assertSee('Secret Python Den')->assertSee('Invitation required');
+            ->assertSee('Secret Python Den')->assertSee('View community');
 
         // Filter: Owned (shows only owned)
         $ownedResponse = $this->get(route('communities.index', ['filter' => 'owned']));

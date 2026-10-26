@@ -69,7 +69,8 @@ class FixedTermMembershipTest extends TestCase
         $this->actingAs($user)->get(route('communities.show', $community))->assertOk();
         $this->get(route('communities.cover.show', $community))->assertOk();
         $this->travelTo($membership->expires_at->copy());
-        foreach (['communities.show', 'communities.about', 'communities.posts.index', 'communities.classroom.index', 'communities.events.index', 'communities.directory.index', 'communities.leaderboard', 'communities.notifications.index', 'communities.saved.index'] as $route) {
+        $this->get(route('communities.about', $community))->assertOk()->assertViewIs('communities.preview')->assertSee('Review and renew access');
+        foreach (['communities.show', 'communities.posts.index', 'communities.classroom.index', 'communities.events.index', 'communities.directory.index', 'communities.leaderboard', 'communities.notifications.index', 'communities.saved.index'] as $route) {
             $this->get(route($route, $community))->assertNotFound();
         }
         $this->get(route('communities.search', ['community' => $community, 'q' => 'test']))->assertNotFound();
@@ -78,7 +79,7 @@ class FixedTermMembershipTest extends TestCase
         $this->post(route('communities.posts.store', $community), ['title' => 'Forbidden', 'body' => 'Expired writer'])->assertNotFound();
         $this->post(route('communities.onboarding.video', $community))->assertNotFound();
         $this->get(route('communities.cover.show', $community))->assertOk();
-        $this->get(route('communities.index'))->assertOk()->assertSee($community->name)->assertSee('Invitation required');
+        $this->get(route('communities.index'))->assertOk()->assertSee($community->name)->assertSee('View community');
         $this->get(route('communities.index', ['filter' => 'joined']))->assertOk()->assertDontSee($community->name);
         $this->get(route('account.memberships.show', $membership))->assertOk()->assertSee('Expired access')->assertSee('Start Test Renewal')->assertDontSee('Open Community');
         $this->get(route('account.payment-history.index'))->assertOk();

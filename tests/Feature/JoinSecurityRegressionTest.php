@@ -25,14 +25,16 @@ class JoinSecurityRegressionTest extends TestCase
         $this->assertDatabaseMissing('community_memberships', ['user_id' => $victim->id]);
     }
 
-    public function test_private_and_paid_communities_require_invitation_and_checkout(): void
+    public function test_free_join_grants_only_own_membership_and_paid_join_requires_checkout(): void
     {
         $member = User::factory()->create();
         foreach (['FREE', 'PAID'] as $mode) {
-            $community = Community::factory()->create(['access_mode' => $mode]);
+            $community = Community::factory()->create(['access_mode' => $mode, 'price_vnd' => $mode === 'PAID' ? 100000 : null]);
             $this->actingAs($member)->post(route('communities.join', $community), ['email' => $member->email])
-                ->assertSessionHasErrors('email');
-            $this->assertSame(0, $community->memberships()->count());
+                ->assertRedirect()->assertSessionHasNoErrors();
+            $membership = $community->memberships()->where('user_id', $member->id)->firstOrFail();
+            $this->assertSame($mode === 'FREE' ? 'ACTIVE' : 'PENDING_PAYMENT', $membership->status);
+            $this->assertSame($mode === 'FREE', $membership->hasEffectiveAccess());
         }
     }
 
@@ -48,7 +50,7 @@ class JoinSecurityRegressionTest extends TestCase
             ]);
             $before = $membership->fresh()->getAttributes();
             $this->actingAs($member)->post(route('communities.join', $community), ['email' => $member->email])
-                ->assertSessionHasErrors('email');
+                ->assertSessionHasErrors('join');
             $this->assertSame($before, $membership->fresh()->getAttributes());
         }
     }

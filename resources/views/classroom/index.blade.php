@@ -101,7 +101,7 @@
                             <div class="absolute top-3 left-3 flex flex-wrap gap-1.5">
                                 <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-semibold backdrop-blur-md shadow-xs {{ $course->isOneTime() ? 'bg-amber-500/95 text-white' : 'bg-emerald-600/95 text-white' }}">
                                     @if ($course->isOneTime())
-                                        <span>🔒</span> {{ $course->formattedPrice() }}
+                                        <span>🔒</span> {{ $course->price > 0 ? $course->formattedPrice() : __('Separate access required') }}
                                     @else
                                         <span>{{ __('Included') }}</span>
                                     @endif

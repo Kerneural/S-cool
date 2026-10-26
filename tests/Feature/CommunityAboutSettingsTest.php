@@ -100,14 +100,14 @@ class CommunityAboutSettingsTest extends TestCase
         $this->get(route('communities.about', $community))
             ->assertRedirect(route('login'));
 
-        // 2. Outsider -> 404
+        // 2. Outsider sees the marketing preview, never the protected workspace.
         $this->actingAs($outsider);
-        $this->get(route('communities.about', $community))->assertNotFound();
+        $this->get(route('communities.about', $community))->assertOk()->assertViewIs('communities.preview');
         $this->get(route('communities.show', $community))->assertNotFound();
 
-        // 3. Removed member -> 404
+        // 3. Removed member may read marketing metadata but cannot join or read content.
         $this->actingAs($removedMember);
-        $this->get(route('communities.about', $community))->assertNotFound();
+        $this->get(route('communities.about', $community))->assertOk()->assertViewIs('communities.preview')->assertDontSee('Join community');
         $this->get(route('communities.show', $community))->assertNotFound();
     }
 

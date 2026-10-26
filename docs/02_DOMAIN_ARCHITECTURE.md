@@ -12,10 +12,10 @@
 ### Functional drivers
 
 - Nền tảng multi-community; một user có thể sở hữu và tham gia nhiều community.
-- Community content is private and membership begins through invitations. The 2026-10-25 owner-approved discovery exception exposes only ACTIVE community names, slugs, descriptions and covers to authenticated users through the All listing. It supersedes earlier no-discovery constraints for these fields only; it does not authorize content, self-join, or guest access.
+- Community content remains private. The 2026-10-26 owner-approved acquisition contract supersedes earlier invitation-only statements: signed-in non-members can read ACTIVE community marketing previews via About, and verified actors may explicitly join FREE communities or begin PAID checkout. `CommunityPolicy::view` remains unchanged for internal workspace routes. Preview queries whitelist published course summaries/counts, never lesson bodies/playback, drafts, posts, private course media or member identities. Guest access is unchanged.
 - Creator tự vận hành community, không có Community Admin/Moderator trong MVP.
 - Feed, classroom, lesson progress và event cùng nằm trong ranh giới community.
-- Free membership và paid membership đều yêu cầu invitation; paid flow dùng SePay Sandbox one-time checkout/IPN.
+- Existing email-bound invitations remain supported alongside explicit self-join. Direct paid admission uses a distinct `COMMUNITY_JOIN` payment purpose, no fabricated invitation, and a server-bound pending membership. The verified webhook checks the actor, active PAID tenant, matching pending membership ID and stored term snapshot; invitation-based `COMMUNITY_ACCESS` retains its original valid-invitation requirement. Cancel/replay/moderation cannot create or restore access. Existing course entitlements and TERM renewal stay separate; checkout remains SePay Test Mode.
 - Platform Admin chỉ quản trị cấp nền tảng và suspend/reactivate community.
 
 ### Technical constraints
