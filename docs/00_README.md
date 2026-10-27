@@ -11,6 +11,7 @@
 - [AI workflow](AI_WORKFLOW.md): tool-neutral working rules.
 - [Design system](../design.md): shared visual/interaction direction, component rules, UI/UX reference integration and rendered acceptance; design adoption remains a scoped UI change.
 - [Working context](WORKING_CONTEXT.md): issue-specific technical plans and checkpoints, not authoritative progress.
+- [Mentor requirements & Skool analysis](MENTOR_REQUIREMENTS_SKOOL_ANALYSIS.md): detailed analysis of mentor requirements, skool.phung.vn reference, and alignment plan.
 
 Root `AGENTS.md` routes agents to the shared contract. Linear owns delivery status and assignments; Git/GitHub owns code/review/CI evidence. Personal IDE configuration, upstream caches and the local operations notebook are ignored, optional and never prerequisites for teammates.
 
