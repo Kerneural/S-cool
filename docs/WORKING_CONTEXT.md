@@ -2,6 +2,40 @@
 
 A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
+## EUR-79 — Course management workspace (tree + editor) (2026-10-27)
+
+- Authority: User instruction to execute task M14 of issue [EUR-79](https://linear.app/eurusdevsec/issue/EUR-79/m14-course-management-workspace-tree-editor).
+- Baseline: branch `eur-79-course-management-workspace` at `1ce19a23905c0f0b398b24f7e17b9ba3767ce11b`. Untracked files preserved: `docs/EUR_79_IMPLEMENTATION_PLAN.md`, `promp.md`, `prompt.md`.
+- Outcome: Creator course management workspace with two-column layout (section/lesson tree on left, selected item editor on right, stacked on mobile < 768px). Inline create/reorder for sections and lessons; course settings and cover management. Selection preserved via URL query param (`?lesson=`, `?section=`, `?tab=`) across redirects and validation failures.
+- AC:
+  - AC-01: Owner creates course, 2 chapters, 3 lessons appearing in tree in order without full-page hunt.
+  - AC-02: Validation error editing lesson returns page with that lesson selected and input preserved via `old()`.
+  - AC-03: Reordering section and lesson persists across refresh.
+  - AC-04: Learner or creator of foreign community receives 403/404 on workspace view and mutations.
+  - AC-05: Responsive at 375px without horizontal overflow; accessible by keyboard.
+  - AC-06: 100% Vietnamese labels registered in `lang/modules/classroom/vi.json`.
+- Scope boundaries: Uses existing mutation endpoints; no new POST/PUT/DELETE endpoints. Does NOT modify `classroom.courses.show` forms (preserving existing regression tests). Does NOT modify Markdown toolbar/preview (`EUR-80`).
+- Target files:
+  - `routes/web.php`
+  - `app/Http/Controllers/CourseController.php`
+  - `app/Providers/AppServiceProvider.php`
+  - `lang/modules/classroom/vi.json`
+  - `resources/views/classroom/courses/manage.blade.php`
+  - `resources/views/components/classroom-course-fields.blade.php`
+  - `resources/views/components/classroom-lesson-fields.blade.php`
+  - `resources/views/components/classroom-reorder.blade.php`
+  - `resources/views/classroom/courses/show.blade.php` (link to workspace for creators)
+  - `tests/Feature/CourseManagementWorkspaceTest.php`
+- Verification results (2026-10-27):
+  - `php artisan test tests/Feature/CourseManagementWorkspaceTest.php`: 7 passed (75 assertions), Duration 19.55s, Exit 0. AC-01 to AC-06 fully verified (including 100% Vietnamese on course settings and lesson authoring forms).
+  - `php artisan test tests/Feature/ClassroomRegressionTest.php`: 12 passed (236 assertions), Duration 22.85s, Exit 0.
+  - `php artisan test tests/Feature/ClassroomPublishingTest.php`: 8 passed (106 assertions), Duration 21.04s, Exit 0.
+  - `composer run pint:test`: 318 files passed with zero style violations.
+  - `vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M`: 129/129 files checked, [OK] No errors.
+  - `npm run build`: built in 2.14s, Exit 0.
+  - Chrome DevTools inspection: Checked on active browser instance. 375px mobile viewport confirmed zero horizontal overflow (`scrollWidth: 375, clientWidth: 375, hasHorizontalOverflow: false`). Desktop 1280px 2-column view confirmed interactive selection and tree reordering. Both course settings and lesson authoring forms verified 100% Vietnamese labels and options. Zero console errors.
+- Independent review and publication authorization: Pending user review and authorization.
+
 ## EUR-73 — M14 contract freeze (2026-10-27)
 
 - Authority: product owner requested execution of [EUR-73](https://linear.app/eurusdevsec/issue/EUR-73).
