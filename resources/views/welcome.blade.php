@@ -1488,30 +1488,32 @@
 
             <!-- Outlined brand lockup (LangChain aesthetic): decorative, excluded from the accessibility tree -->
             <div class="landing-wordmark-container pt-8 pb-4 text-center select-none flex justify-center" data-reveal aria-hidden="true">
-                <svg class="landing-footer-brand-svg" viewBox="0 0 560 140" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Geometric mark on the left (pure wireframe outline, unboxed) -->
-                    <g transform="translate(15, 15) scale(3.235) translate(-7, -7)">
-                        <!-- Piece 1: Top-left Leaf / Open Page -->
-                        <path d="M16 23 C16 14.716 22.716 8 31 8 C31 16.284 24.284 23 16 23 Z"
-                              stroke="currentColor" stroke-width="1.8" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
-                        <!-- Piece 2: Top-right Book Spine Arc -->
-                        <path d="M32.5 9.5 C36.642 9.5 40 12.858 40 17 C40 21.142 36.642 24.5 32.5 24.5 C32.5 16.284 32.5 9.5 32.5 9.5 Z"
-                              stroke="currentColor" stroke-width="1.8" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
-                        <!-- Piece 3: Bottom-left Community Base -->
-                        <path d="M15.5 24.5 C11.358 24.5 8 27.858 8 32 C8 36.142 11.358 39.5 15.5 39.5 C15.5 31.716 15.5 24.5 15.5 24.5 Z"
-                              stroke="currentColor" stroke-width="1.8" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
-                        <!-- Piece 4: Bottom-right Forward Leaf -->
-                        <path d="M32 25 C23.716 25 17 31.716 17 40 C25.284 40 32 33.284 32 25 Z"
-                              stroke="currentColor" stroke-width="1.8" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
-                    </g>
-                    <!-- Outlined wordmark on the right (same baseline, locked proportion) -->
-                    <text x="152" y="103"
-                          font-family="'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-                          font-size="108" font-weight="800" letter-spacing="-3"
-                          fill="none" stroke="currentColor" stroke-width="1.8" vector-effect="non-scaling-stroke">
-                        S<tspan font-weight="700">-</tspan>cool
-                    </text>
-                </svg>
+                <span class="landing-wordmark inline-flex items-center justify-center w-full">
+                    <svg class="landing-footer-brand-svg" viewBox="0 0 560 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Geometric mark on the left (pure wireframe outline, unboxed) -->
+                        <g transform="translate(15, 15) scale(3.235) translate(-7, -7)">
+                            <!-- Piece 1: Top-left Leaf / Open Page -->
+                            <path d="M16 23 C16 14.716 22.716 8 31 8 C31 16.284 24.284 23 16 23 Z"
+                                  stroke="currentColor" stroke-width="1.8" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+                            <!-- Piece 2: Top-right Book Spine Arc -->
+                            <path d="M32.5 9.5 C36.642 9.5 40 12.858 40 17 C40 21.142 36.642 24.5 32.5 24.5 C32.5 16.284 32.5 9.5 32.5 9.5 Z"
+                                  stroke="currentColor" stroke-width="1.8" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+                            <!-- Piece 3: Bottom-left Community Base -->
+                            <path d="M15.5 24.5 C11.358 24.5 8 27.858 8 32 C8 36.142 11.358 39.5 15.5 39.5 C15.5 31.716 15.5 24.5 15.5 24.5 Z"
+                                  stroke="currentColor" stroke-width="1.8" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+                            <!-- Piece 4: Bottom-right Forward Leaf -->
+                            <path d="M32 25 C23.716 25 17 31.716 17 40 C25.284 40 32 33.284 32 25 Z"
+                                  stroke="currentColor" stroke-width="1.8" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+                        </g>
+                        <!-- Outlined wordmark on the right (same baseline, locked proportion) -->
+                        <text x="152" y="103"
+                              font-family="'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+                              font-size="108" font-weight="800" letter-spacing="-3"
+                              fill="none" stroke="currentColor" stroke-width="1.8" vector-effect="non-scaling-stroke">
+                            S<tspan font-weight="700">-</tspan>cool
+                        </text>
+                    </svg>
+                </span>
             </div>
 
             <!-- Bottom Sub-Footer: Status & Legal -->
