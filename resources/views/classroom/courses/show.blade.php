@@ -94,6 +94,13 @@
                                 <span>{{ __('Discuss this course') }}</span>
                             </a>
                         @endif
+                        @if ($isCreator)
+                            <a href="{{ route('communities.manage.courses.show', [$community, $course]) }}"
+                               class="inline-flex min-h-11 items-center gap-2 rounded-lg bg-brand px-4 text-sm font-semibold text-white shadow-xs transition-colors duration-150 hover:bg-brand-hover">
+                                <span>{{ __('Quản lý khóa học') }}</span>
+                                <span aria-hidden="true">&rarr;</span>
+                            </a>
+                        @endif
                     </div>
                 </div>
 
@@ -135,6 +142,16 @@
                 <div class="flex flex-wrap items-baseline justify-between gap-2">
                     <h2 id="course-management-heading" class="text-sm font-semibold uppercase tracking-wide text-muted">{{ __('Manage course') }}</h2>
                     <p class="text-xs text-muted">{{ __('Unpublish to hide content; permanent deletion is not available.') }}</p>
+                </div>
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-xl border border-brand/30 bg-brand-soft">
+                    <div>
+                        <h3 class="text-sm font-bold text-ink">{{ __('Không gian quản lý khóa học') }}</h3>
+                        <p class="text-xs text-muted">{{ __('Chỉnh sửa chương, bài học và sắp xếp trực quan theo cấu trúc 2 cột.') }}</p>
+                    </div>
+                    <a href="{{ route('communities.manage.courses.show', [$community, $course]) }}" class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-brand-hover transition-colors shrink-0">
+                        <span>{{ __('Mở không gian quản lý') }}</span>
+                        <span aria-hidden="true">&rarr;</span>
+                    </a>
                 </div>
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                     <details class="rounded-xl bg-surface p-5 shadow-2xs border border-line" @if ($errors->has('cover')) open @endif>
