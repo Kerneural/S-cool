@@ -6,7 +6,7 @@
     <title>S-cool — The Private Learning & Community Platform</title>
     <meta name="description" content="S-cool enables every community to own their learning and knowledge sharing. Structured classrooms, private discussions, and proof of work reviews.">
 
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20261028">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
@@ -23,8 +23,8 @@
             <!-- Left: Brand Logo & Links -->
             <div class="flex items-center gap-8">
                 <a href="/" class="flex items-center gap-2.5 group focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 rounded-lg" aria-label="S-cool Home">
-                    <x-application-logo class="w-8 h-8 rounded-lg shadow-xs" />
-                    <span class="font-bold text-xl text-ink tracking-tight font-sans">S-cool</span>
+                    <x-application-logo class="w-8 h-8 group-hover:scale-105 transition-transform" />
+                    <span class="font-extrabold text-2xl text-ink tracking-tight font-sans">S-cool</span>
                 </a>
 
                 <!-- Desktop Navigation Menu -->
@@ -1389,8 +1389,8 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pb-12 border-b border-line">
                 <div class="lg:col-span-5 space-y-3">
                     <a href="/" class="flex items-center gap-2.5">
-                        <x-application-logo class="w-7 h-7 rounded-lg" />
-                        <span class="font-bold text-lg text-ink">S-cool</span>
+                        <x-application-logo class="w-7 h-7" />
+                        <span class="font-extrabold text-xl text-ink tracking-tight font-sans">S-cool</span>
                     </a>
                     <p class="text-xs text-muted max-w-sm leading-relaxed">
                         The open platform for private cohort communities, structured curriculums, and verifiable peer feedback. Built for creators, trusted by learners.
