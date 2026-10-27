@@ -2,6 +2,25 @@
 
 A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
+## EUR-77 — M14 Vietnamese default locale foundation (2026-10-27)
+
+- Authority: developer assigned [EUR-77](https://linear.app/eurusdevsec/issue/EUR-77); user explicitly instructed branch creation and implementation.
+- Starting branch: `hadangkhoasss/eur-77-m14-vietnamese-default-locale-foundation` from `main` at `1ce19a23905c0f0b398b24f7e17b9ba3767ce11b` (EUR-73 merge).
+- Scope & Contracts implemented:
+  - `config/app.php` sets `locale => env('APP_LOCALE', 'vi')` and `fallback_locale => env('APP_FALLBACK_LOCALE', 'en')`.
+  - `.env.example` defaults `APP_LOCALE=vi`, `APP_FALLBACK_LOCALE=en`.
+  - `phpunit.xml` explicitly sets `<env name="APP_LOCALE" value="en"/>` for backward-compatible English test suite execution.
+  - `app/Providers/AppServiceProvider.php` implements `registerModuleTranslations()`: scans `lang/modules/`, sorts module directories alphabetically (deterministic order, D14), and registers each via `loadJsonTranslationsFrom()`.
+  - Hand-written Laravel core language files in `lang/vi/`: `auth.php`, `pagination.php`, `passwords.php`, `validation.php` (including attribute names for real application form fields).
+  - Common translation catalog in `lang/vi.json` covering navigation, auth screens, status labels, actions, and D6 six-tab labels: **Cộng Đồng / Lớp Học / Lịch / Thành Viên / Bảng xếp hạng / Giới Thiệu**.
+  - Verified that all auth templates and layout components are properly wrapped with `__()`.
+- Verification:
+  - `tests/Feature/VietnameseLocaleTest.php`: 8 passed, 67 assertions covering AC-01 to AC-06, clean bootstrap default resolution check, explicit `en` compatibility check, validation attributes, D6 tabs, module catalog loader, key collision check, and diacritic UTF-8 integrity.
+  - Regression checks: `tests/Feature/Auth` passed (28 tests, 84 assertions); `tests/Feature/CommunityWorkspaceSwitcherTest.php` passed (6 tests, 63 assertions).
+  - Pint code style: 7 files passed cleanly (`./vendor/bin/pint --test`).
+  - Structural agent contract: `bash scripts/verify-agent-contract.sh` exited 0 (11 shared files PASS).
+  - Browser verification: live browser check on `http://127.0.0.1:8080/login` verified complete Vietnamese text and clean glyph rendering with Be Vietnam Pro.
+
 ## EUR-73 — M14 contract freeze (2026-10-27)
 
 - Authority: product owner requested execution of [EUR-73](https://linear.app/eurusdevsec/issue/EUR-73).
