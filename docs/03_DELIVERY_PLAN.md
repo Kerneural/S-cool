@@ -6,7 +6,7 @@
 > Trạng thái: Recovery baseline từ 03/10/2026 đến 08/10/2026; cập nhật hằng ngày theo tiến độ thật  
 > Cập nhật: 2026-10-03
 
-Current post-F19 experience-completion routing is in section 18. Earlier milestone
+Current M14 owner-ready routing is in section 20. Earlier milestone
 tables and checkpoints describe their dated releases, not current Linear status.
 
 ## 1. Delivery objective
@@ -1158,3 +1158,83 @@ course entitlement, effective membership, asynchronous participant-only messagin
 plain-text content, current notification semantics and SePay Test Mode accounting.
 Do not discard an approved package to preserve an old estimate or add a deferred
 feature merely because it appears on a Skool screen.
+
+## 20. M14 owner-ready website delivery (EUR-73, 2026-10-27)
+
+Milestone: **M14 — Owner-ready website: Vietnamese & LMS**, published in
+[S-cool MVP — Local](https://linear.app/eurusdevsec/project/s-cool-mvp-local-1d6991ed5de2).
+Product Scope section 23 freezes D1–D15; Architecture section 18 owns technical
+contracts; Design section 13 owns presentation. The original mentor request and
+published drafts in `MENTOR_ALIGNMENT_PLAN.md` are superseded planning input, not
+a parallel specification or progress tracker. Linear owns current AC/metadata/status.
+
+### 20.1 Published contract map and actual waits
+
+| Issue | Outcome | Required contract / acceptance dependency |
+|---|---|---|
+| [EUR-73](https://linear.app/eurusdevsec/issue/EUR-73) | Contract freeze and canonical documents | None; independent review/publication required |
+| [EUR-74](https://linear.app/eurusdevsec/issue/EUR-74) | Expert mode and configured owner identity | EUR-73 |
+| [EUR-75](https://linear.app/eurusdevsec/issue/EUR-75) | Access-scoped learner entry/discovery | EUR-74 |
+| [EUR-76](https://linear.app/eurusdevsec/issue/EUR-76) | Quản trị website hub | EUR-74 |
+| [EUR-77](https://linear.app/eurusdevsec/issue/EUR-77) | Vietnamese locale/catalog foundation | EUR-73 |
+| [EUR-78](https://linear.app/eurusdevsec/issue/EUR-78) | Account/commerce/admin/secondary translation | EUR-77 |
+| [EUR-79](https://linear.app/eurusdevsec/issue/EUR-79) | Course tree and selected editor | EUR-73 |
+| [EUR-80](https://linear.app/eurusdevsec/issue/EUR-80) | Markdown toolbar and safe preview | EUR-73; coordinate component embedding with EUR-79 |
+| [EUR-81](https://linear.app/eurusdevsec/issue/EUR-81) | Learner course/completion feedback | EUR-77; coordinate with EUR-79/80 |
+| [EUR-82](https://linear.app/eurusdevsec/issue/EUR-82) | Discussion/member/point clarity | EUR-77 |
+| [EUR-83](https://linear.app/eurusdevsec/issue/EUR-83) | Integrated acceptance | EUR-74–82 |
+| [EUR-84](https://linear.app/eurusdevsec/issue/EUR-84) | Provisioning runbook and host release | EUR-73 for runbook; EUR-83 plus explicit deployment authorization for host |
+| [EUR-85](https://linear.app/eurusdevsec/issue/EUR-85) | Video security / DRM research | Independent; implementation excluded |
+
+After the reviewed contract is available, run three parallel lanes: identity/entry
+(74→75), LMS (79→80→81→76) and locale/community (77→78→82, then 85). This order is
+work allocation, not an extra blocker between every consecutive issue. DRM research
+can start independently; a hub needs the owner predicate, not the entire LMS release.
+LMS can wrap strings and prepare its module catalog while locale registration is in
+flight. EUR-77 merges before dependent locale consumers integrate; rebase shared hunks.
+One implementation issue per person, independent review and the existing DoR/DoD remain.
+The prior scheduling envelope was about 9.5h plus review/host work, not a completion claim.
+
+### 20.2 Shared-file ownership and merge contract
+
+| Files / contract | Owning issue |
+|---|---|
+| `config/scool.php`, owner predicate, create/Admin policies, read-only owner check | EUR-74 |
+| Community index/search/entry, welcome/chooser, intended registration/verification return | EUR-75 |
+| Hub route/controller/view and its navigation-link hunk | EUR-76 |
+| `config/app.php`, `.env.example`, `phpunit.xml`, translator registration, common language files, layouts/auth/workspace tab labels | EUR-77; coordinate EUR-74 env keys and EUR-76 link hunks |
+| Course/section/lesson management and `lang/modules/classroom/` | EUR-79; EUR-80 owns lesson-fields/toolbar JS; EUR-81 owns progress/reader-copy hunks |
+| Account/commerce/admin/invitation/mail/notices/help/landing/About copy and their module catalogs | EUR-78; exclude views owned by other slices |
+| Posts/members/directory/leaderboard/events/Livewire and community catalog | EUR-82 |
+| `routes/web.php`, `resources/css/app.css`, `resources/js/app.js` | Small additive issue hunks; rebase after EUR-77, EUR-74 and LMS integration; no whole-file replacement |
+
+Module JSON key ownership follows Architecture 18.3. A shared label belongs in the
+common catalog; no parallel registration or ambiguous duplicate-key override.
+Branch each implementation from then-current reviewed main as `eur-<id>-<topic>`.
+Do not copy stale root controllers/views/config wholesale or publish `.agent/`.
+
+### 20.3 Acceptance and release boundaries
+
+- EUR-73 is documentation-only: inspect task delta, preserve root overlaps, confirm
+  contracts, read-only local ownership inventory, structural contract/diff checks,
+  independent review and authorized publication. It does not grant ownership or switch modes.
+- EUR-74–82 require AC-mapped focused positive/negative tests on guarded MySQL
+  `scool_test`, general/expert compatibility and rendered relevant flows. Avoid
+  concurrent DB suites. EUR-77 proves clean-bootstrap default locale separately from
+  explicit English compatibility tests; module issues provide Vietnamese coverage.
+- EUR-83 reconciles tracked test inventory with actual container mounts/discovery and
+  runs the complete required suite. A previous unverified 74-test report or explicit-file
+  test run is not full-suite evidence. Require build, independent review, current CI,
+  visual/keyboard/responsive acceptance and owner UAT at one integrated revision.
+- EUR-84 inventories the host's intended release communities and verifies actual owner
+  mapping before expert mode. Legacy Admin flags never substitute. No automatic transfer,
+  reset, full-DB overwrite or mass role update. Host provisioning uses independent site
+  configuration/DB/uploads/key, actual runtime-user file access, dependencies/assets,
+  forward migrations, healthy app/worker, real mail and persisted core user journeys.
+- Local candidate acceptance is EUR-73–83. Host handover additionally requires EUR-84's
+  approved deployment and exact live revision. Full mentor completion also requires
+  EUR-85 research; DRM implementation stays deferred. Open required AC, review/CI,
+  mail or host evidence keeps its relevant issue/milestone open. Paid flows stay Test Mode.
+
+Keep assignments, Points, dates, status and actual blockers in Linear. Do not infer
+acceptance from this mapping or silently carry historical evidence to the new release.

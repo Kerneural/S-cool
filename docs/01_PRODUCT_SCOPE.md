@@ -10,8 +10,9 @@
 
 - `DECISION`: S-cool là nền tảng **multi-community** theo yêu cầu của mentor.
 - `DECISION` (updated 2026-10-26, direct owner request): Community learning content remains private, with a signed-in acquisition preview at `/communities/{slug}/about`. ACTIVE community cards are actionable before joining. The preview includes marketing description/rules/validated introduction, Creator display name, effective member count and up to six published course summaries/prices/published-lesson counts. Drafts, lesson bodies/playback, posts, member identities, messages and protected workspace routes remain inaccessible to non-members. Verified users explicitly self-join FREE communities, or start PAID admission checkout; only a verified IPN grants paid access. Existing invitations remain valid. Suspended/removed/expired memberships cannot be restored through self-join; expired terms use the existing renewal flow. Course-specific purchases remain separate. Guest browsing and live production payments are not added. This supersedes earlier invitation-only/no-self-join statements for these specific acquisition flows; Owned/Joined and the switcher keep effective-membership filters.
+- `DECISION` (M14, EUR-73, 2026-10-27): One expert owns an independently deployed website containing multiple communities. Expert mode scopes member home, lists, search, counts, pagination and switcher to effective access; fresh learners see a welcome state. General mode retains authenticated ACTIVE-community discovery and open community creation. The signed-in About preview and explicit FREE join / PAID Test Mode admission approved on 2026-10-26 remain valid through deliberate links in both modes; neither preview nor checkout grants protected content. Section 23 freezes the complete mode/owner contract; implementation is assigned to EUR-74–84, not delivered by this document.
 - `DECISION`: Creator tạo community riêng cho từng nhóm cụ thể và mời đúng người vào nhóm đó. Đây là biện pháp giới hạn phạm vi truy cập, không phải tuyên bố đã giải quyết toàn bộ nghĩa vụ pháp lý.
-- `PROPOSED`: Invitation ràng buộc với email cụ thể, token một lần và có thời hạn. Hoàng cần xác nhận cơ chế này trước khi thiết kế migration.
+- `DECISION`: Existing invitations remain email-bound, expiring and single-use. They coexist with the approved signed-in About/admission flow; no public guest browsing is introduced.
 - `DECISION`: Dùng thuật ngữ **Creator** cho người tạo và sở hữu community.
 - `DECISION`: Creator tự vận hành community trong MVP; không có Community Admin hoặc Moderator riêng.
 - `DECISION`: Payment giai đoạn đầu dùng **SePay Sandbox**; không xử lý tiền thật. Automated test được phép dùng fake `PaymentGateway`, nhưng luồng demo tích hợp SePay Sandbox.
@@ -59,7 +60,7 @@ S-cool giải quyết bài toán kỹ thuật và trải nghiệm nêu trên tro
 
 ## 4. Mục tiêu của phiên bản đầu
 
-1. **Multi-community đúng và an toàn:** một user có thể tạo hoặc tham gia nhiều community, nhưng dữ liệu và quyền của các community phải được cách ly.
+1. **Multi-community with mode-specific creation:** general-mode users may create communities; expert-mode creation belongs exclusively to the configured deployment owner. Community data/access remain isolated in both modes.
 2. **Creator tự vận hành được community:** creator có thể cấu hình community, quản lý member, nội dung thảo luận, course, lesson và event mà không cần vai trò trợ lý.
 3. **Member hoàn thành được hành trình học tập cơ bản:** tham gia community, xem feed, học lesson, đánh dấu tiến độ và xem event.
 4. **Invite-only access có workflow rõ ràng:** free invitation kích hoạt membership sau khi người được mời xác thực; paid invitation chỉ kích hoạt membership sau IPN SePay Sandbox hợp lệ.
@@ -72,7 +73,7 @@ S-cool giải quyết bài toán kỹ thuật và trải nghiệm nêu trên tro
 - Xử lý payment thật, payout, KYC, thuế, chargeback hoặc merchant-of-record.
 - Hỗ trợ subscription định kỳ, nhiều pricing tier, coupon, trial, invoice hoặc refund.
 - Xây mạng xã hội công khai có recommendation, trending hoặc discovery phức tạp.
-- Cho phép tìm kiếm, duyệt danh sách, public landing hoặc tự do xin/join community.
+- Guest browsing or unrestricted internal-content access. Authenticated discovery is general-mode only; deliberate signed-in About/admission remains permitted in expert mode.
 - Xây mobile application.
 - Hỗ trợ team nhiều người cùng quản trị một community.
 - Chọn hosting, cloud architecture, Kubernetes hoặc microservices trước khi local readiness đạt.
@@ -82,7 +83,9 @@ S-cool giải quyết bài toán kỹ thuật và trải nghiệm nêu trên tro
 
 ### 6.1 Visitor
 
-Visitor là người chưa đăng nhập hoặc chưa tham gia community.
+Visitor here means an unauthenticated guest. A signed-in non-member may view the
+approved About marketing summary and explicitly request eligible admission; general
+mode also retains authenticated discovery. Neither state grants protected content.
 
 Được phép:
 
@@ -93,14 +96,14 @@ Visitor là người chưa đăng nhập hoặc chưa tham gia community.
 Không được phép:
 
 - Duyệt danh sách, tìm kiếm hoặc xem landing page của community.
-- Biết community tồn tại chỉ bằng cách đoán slug/ID.
+- Read protected metadata/content by guessing resource IDs; the approved signed-in About summary is an intentional known-link exception.
 - Xem feed, course, lesson, member list hoặc event nội bộ.
 - Đăng bài, bình luận hoặc ghi nhận tiến độ.
 - Truy cập trang quản lý của creator hay platform.
 
 ### 6.2 Member
 
-Member là user có membership `ACTIVE` trong một community.
+Member has effective access to an ACTIVE community: an eligible ACTIVE membership with an unexpired term where applicable. A newly registered expert-mode account is a learner without creation or administration rights.
 
 Được phép trong community đã tham gia:
 
@@ -122,7 +125,7 @@ Không được phép:
 
 ### 6.3 Creator
 
-Creator là user tạo và sở hữu community. Một user có thể vừa là creator ở community của mình, vừa là member ở community khác.
+Creator is the account identified by `communities.creator_id`. General mode retains multiple independent creators. In expert mode the configured deployment owner creates and owns every community intended for that release; legacy ownership must be inventoried before deployment, not silently reassigned.
 
 Được phép trong community mình sở hữu:
 
@@ -148,7 +151,7 @@ Không được phép:
 
 ### 6.4 Platform Admin
 
-Platform Admin vận hành toàn bộ nền tảng, không phải trợ lý của creator.
+In general mode Platform Admin retains the existing platform administration role, separate from Creator. In expert mode only the verified configured deployment owner can enter platform administration, through **Quản trị website** alongside its own Creator tools. An old `is_platform_admin` flag alone cannot authorize expert-mode administration. Ownership policies remain in force; there is no blanket content bypass.
 
 Quyền tối thiểu trong MVP:
 
@@ -179,19 +182,19 @@ SePay Sandbox không quyết định trực tiếp quyền truy cập; S-cool ch
 
 ## 7. Quy tắc multi-community
 
-1. Một user có thể sở hữu nhiều community và tham gia nhiều community khác.
+1. One website may contain multiple communities. General mode supports multiple creators; expert mode has one configured website owner and ordinary learners.
 2. Mỗi community có đúng một creator trong MVP.
 3. Creator tự động có toàn quyền trong community mình tạo; không cần community admin trung gian.
 4. Mỗi cặp `user + community` chỉ có tối đa một membership hiện hành.
 5. Membership, post, comment, course, lesson, progress, event và payment record phải thuộc đúng một community.
-6. User chỉ được xem nội dung nội bộ khi có membership `ACTIVE`, trừ creator của chính community và Platform Admin trong phạm vi xử lý sự cố được cho phép.
+6. Internal access requires an ACTIVE community and creator ownership or effective membership, including term expiry. Lesson access also requires publication/entitlement. Platform Admin has no blanket content bypass.
 7. Biết ID hoặc URL của resource không đồng nghĩa có quyền truy cập resource đó.
 8. Creator của community A không có quyền creator trong community B.
 9. Member bị `SUSPENDED`, `REMOVED` hoặc đã `LEFT` không còn quyền truy cập nội dung nội bộ.
 10. Platform Admin có quyền cấp platform nhưng không được xem như creator mặc định của mọi community.
 11. Community bị platform suspend không cho creator/member thực hiện hoạt động mới cho đến khi được reactivate.
 12. Slug community là duy nhất trên toàn platform trong MVP.
-13. Community không được liệt kê công khai; unauthorized request không được làm lộ tên, member hoặc nội dung của community.
+13. No guest directory. Expert-mode member enumeration is effective-access-scoped. Deliberate signed-in About URLs expose only the existing approved marketing summary; knowing that URL never grants private content. General mode keeps authenticated discovery.
 14. Invitation được ràng buộc với community và email cụ thể, có hạn dùng, token một lần và có thể bị creator thu hồi.
 
 ## 8. Mô hình truy cập community
@@ -201,7 +204,7 @@ SePay Sandbox không quyết định trực tiếp quyền truy cập; S-cool ch
 - Creator tạo invitation cho một email cụ thể.
 - Invitee đăng ký/đăng nhập bằng đúng email và chấp nhận invitation còn hiệu lực.
 - Hệ thống đánh dấu invitation `ACCEPTED` và tạo membership `ACTIVE` một cách idempotent.
-- Không có public join, shareable invitation không giới hạn hoặc approval queue trong MVP.
+- No guest join or unbounded shared invitation. The later approved About flow also lets a verified signed-in actor explicitly join an eligible FREE community; moderated/expired states retain their existing restrictions.
 
 ### 8.2 Private paid community qua SePay Sandbox
 
@@ -218,7 +221,7 @@ SePay Sandbox không quyết định trực tiếp quyền truy cập; S-cool ch
 
 ### 9.1 Creator tạo và chuẩn bị community
 
-1. Creator đăng ký/đăng nhập → hệ thống xác thực user.
+1. In expert mode the verified configured owner signs in and opens **Quản trị website**; registration alone does not create an owner. General mode retains the existing Creator entry.
 2. Creator chọn tạo community → nhập tên, slug nội bộ, mô tả, ảnh đại diện và access mode `FREE` hoặc `PAID`.
 3. Nếu chọn `PAID` → creator nhập một mức giá one-time bằng VND cho SePay Sandbox.
 4. Hệ thống kiểm tra dữ liệu và slug → tạo community thuộc creator.
@@ -391,7 +394,7 @@ Chỉ bắt đầu khi toàn bộ Must scope đạt local readiness gate.
 | Reaction và content reporting | Tăng tương tác và moderation | Feed core ổn định |
 | Gamification: point/level/leaderboard | Khuyến khích tương tác | Có quy tắc chống abuse và bằng chứng cần thiết |
 | In-app/email notifications | Nhắc hoạt động quan trọng | Queue và preference model rõ |
-| Community discovery/search | Giúp user tìm community | Chỉ xem xét nếu product/legal decision cho phép public visibility |
+| Guest discovery/search | Public browsing | Deferred; existing signed-in discovery/admission follows deployment-mode rules |
 | Shared invite link/approval queue | Mời nhóm lớn nhanh hơn | Có policy chống chia sẻ ngoài nhóm và audit phù hợp |
 | File/document upload | Nội dung phong phú hơn | Storage, authorization và malware/size policy rõ |
 | Course access rules | Drip, level lock, private course | Classroom core ổn định |
@@ -468,12 +471,12 @@ Một lần demo MVP thành công phải thể hiện được:
 |---|---|---|
 | Creator tự vận hành | Giảm role, UI và test | Chưa hỗ trợ community team lớn |
 | Một creator/community | Ownership đơn giản | Chưa chuyển giao hoặc đồng sở hữu |
-| Private invite-only | Giới hạn community theo đúng nhóm | Không có organic discovery/public acquisition |
+| Protected learning/community content | Access follows creator/effective membership and course entitlement | Signed-in About is a limited acquisition surface, not internal-content access |
 | Một giá SePay Sandbox | Billing flow rõ và nhỏ | Chưa có tier/subscription |
 | Payment một lần | Kiểm thử entitlement dễ hơn | Chưa mô phỏng recurring membership đầy đủ |
 | Video embed | Tránh hạ tầng media nặng | Phụ thuộc nền tảng video ngoài |
 | External meeting URL | Event đủ dùng | Không có live call native |
-| Không public landing/discovery | Giảm lộ thông tin và scope search/ranking | Creator phải chủ động mời đúng người |
+| Mode-scoped discovery and signed-in About | Expert learners enumerate only accessible communities; deliberate acquisition remains usable | About metadata is intentionally visible to signed-in recipients of a known link |
 | Local-first | Tập trung hoàn thiện nghiệp vụ | Phát hiện vấn đề hosting muộn hơn |
 | Modular monolith được đề xuất | Phù hợp team nhỏ | Chưa tách scale độc lập theo service |
 
@@ -482,11 +485,11 @@ Một lần demo MVP thành công phải thể hiện được:
 | Nội dung | Trạng thái | Tài liệu chịu trách nhiệm |
 |---|---|---|
 | Database chuẩn | `ACCEPTED`: MySQL; không support song song MariaDB | `02_DOMAIN_ARCHITECTURE.md` |
-| Community visibility | `ACCEPTED`: private, không public discovery/join. `PROPOSED`: email-bound invitation | `02_DOMAIN_ARCHITECTURE.md` |
+| Community visibility | `ACCEPTED`: protected content, mode-scoped discovery, existing signed-in About/admission and email-bound invitations; section 23 | `02_DOMAIN_ARCHITECTURE.md`, section 18 |
 | Payment integration | `ACCEPTED`: SePay Sandbox sau `PaymentGateway` contract; fake adapter chỉ dùng automated test | `02_DOMAIN_ARCHITECTURE.md`, `04_DEVOPS_OPERATIONS.md` |
 | Ngày bắt đầu và capacity | Thời lượng đã chốt 2 tuần; Hoàng xác nhận ngày bắt đầu với mentor và giờ cam kết của từng thành viên | `03_DELIVERY_PLAN.md` |
 | CI build frontend | `PROPOSED`: CI và local đều build; hosting không chạy Vite server | `04_DEVOPS_OPERATIONS.md` |
-| Hosting | `DEFERRED`: chỉ chọn sau local readiness gate | `04_DEVOPS_OPERATIONS.md` |
+| Hosting | M14 host handover is a separate approved release gate in EUR-84; local checks alone do not establish it | `03_DELIVERY_PLAN.md`, section 20 |
 
 Nếu mentor thay đổi một quyết định làm ảnh hưởng Must scope, nhóm cập nhật tài liệu này trước khi thay đổi backlog hoặc database design.
 
@@ -540,6 +543,10 @@ Nếu mentor thay đổi một quyết định làm ảnh hưởng Must scope, n
 
 ## 20. Feature completion direction (2026-10-13)
 
+Historical release decision. Its invitation-only/acquisition and separate management
+entry statements are superseded by sections 1 and 23 for M14; original acceptance
+evidence is not rewritten.
+
 - `ACCEPTED`: Plan a functional completion release against the mentor reference. The existing MVP is the starting point, not the intended final feature set.
 - `ACCEPTED`: Complete functionality before a separate visual redesign. Feature work includes usable controls, navigation, validation and empty/error states using existing Blade components.
 - `ACCEPTED`: Keep Laravel, MySQL, Blade, Alpine, Tailwind and Vite; local-first delivery and the current SePay transfer-webhook Test Mode remain the baseline.
@@ -582,3 +589,42 @@ explicit accepted contracts, not by a competitor screenshot.
 - Implementation routing is in Delivery Plan section 18; visual rules are in
   `design.md` section 11.7; new data/access boundaries are in Architecture section
   16. Live Linear AC and issue evidence determine acceptance, not this decision log.
+
+## 23. M14 owner-ready website contract (2026-10-27)
+
+Frozen by [EUR-73](https://linear.app/eurusdevsec/issue/EUR-73) under the approved
+mentor-alignment request. These are implementation contracts, not acceptance results.
+Earlier MVP/release descriptions are dated history; current entry, permissions and
+localization follow this section. Architecture section 18 and Design section 13
+define the technical and presentation contracts; Delivery section 20 maps the work.
+
+| Decision | Frozen contract |
+|---|---|
+| D1 | One expert operates the whole website through one account and **Quản trị website**. Routine community/course/member operations require no SSH. |
+| D2 | One website supports multiple communities, each with separate learning, discussions and access. Website ownership is distinct from community scope. |
+| D3 | Ordinary expert-mode registration creates a learner only: no owner, platform-admin or community-creation rights. |
+| D4 | Expert learner home/list/search/counts/pagination/switcher show only effective access. Preserve intended About/invitation links; otherwise zero communities means welcome, one means Feed, several means an accessible-community chooser. No automatic membership. |
+| D5 | Vietnamese is the default for every screen, validation/error message, notification and email. Never translate or migrate user-authored content automatically. |
+| D6 | Skool-like task layout with S-cool branding and six tabs: **Cộng Đồng / Lớp Học / Lịch / Thành Viên / Bảng xếp hạng / Giới Thiệu**. No copied branding/assets. |
+| D7 | Creator manages chapters/lessons in a tree beside the selected editor; learners have clear Start/Continue, outline, progress and completion feedback. Preserve the accepted reader. |
+| D8 | Points come from the existing contribution ledger and `PointContribution::levelForPoints()`. Explain actual earning rules; never fabricate counters or manually edit scores. |
+| D9 | Each expert receives a deployment from the same codebase with its own domain, environment, database/user, APP_KEY, uploads and owner. No shared login or customer directory. Shared CloudPanel hosts retain common host-failure risk. |
+| D10 | EUR-85 researches video protection/DRM. Existing 512-byte masking is not DRM. Implementation needs separate scope/approval. |
+| D11 | The internship report may explain SaaS architecture and independent deployment evolution, citing only evidenced behavior; reporting is outside the engineering issues. |
+| D12 | Explicit deployment mode preserves current general-mode open creation and authenticated discovery. Both modes remain tested. |
+| D13 — CONFIRMED | `SCOOL_DEPLOYMENT_MODE=general` by default, or explicitly `expert`; host-configured `SCOOL_OWNER_EMAIL`, read through `config/scool.php`. `User::isDeploymentOwner()` requires expert mode and the matching verified account. No role migration, DB flag or `Gate::before` bypass. Invalid modes fail closed. |
+| D14 — CONFIRMED | Module JSON catalogs at `lang/modules/<module>/vi.json`, registered deterministically through the existing translator's `addJsonPath()`. Shared navigation/auth strings stay in `lang/vi.json`; duplicate keys are resolved before merge. No translation dependency. |
+| D15 — CONFIRMED | Store Markdown; render through `LessonMarkdown` with raw HTML disabled. Add a formatting toolbar and authorized server preview, not WYSIWYG, uploaded attachments or an editor dependency. |
+
+**Owner journey:** sign in → Quản trị website → create/select community → create
+course/chapter/lesson → preview/publish → invite or admit learner → review members,
+learning progress, discussions and existing points.
+
+**Learner journey:** deliberate About/invitation → register/verify with intended
+destination preserved → explicit free admission or verified Test Mode paid admission
+→ eligible published course → lesson/progress/discussion. A separately paid course
+still requires its own entitlement; purchasing it never grants community membership.
+
+No new dark theme, quizzes/certificates, level-based unlock, subscriptions/trials,
+live payments/payouts, file manager, role designer, guest browsing, landing redesign
+or DRM implementation is added. Existing accepted functionality remains intact.

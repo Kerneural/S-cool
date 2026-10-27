@@ -35,7 +35,9 @@ redesign during a functional issue or change backend access rules.
 
 S-cool is a private multi-community learning and knowledge-sharing application.
 Members read, discuss, learn and attend events. Creators publish content and operate
-their communities. Platform Admin handles platform moderation with separate rights.
+their communities. General-mode Platform Admin retains separate moderation rights;
+the expert deployment owner reaches its own Creator and platform operations through
+one **Quản trị website** entry, with server-side policies still enforced.
 
 Design for these three experiences:
 
@@ -45,10 +47,9 @@ Design for these three experiences:
 
 Use a light canvas, white surfaces, dark text and restrained teal accents. Community
 covers/avatars provide local identity inside a consistent application shell. Primary
-UI copy currently uses English as the baseline with existing translation keys and
-helpers (`__()`). Vietnamese localization is deferred to a separate approved task
-and must migrate related copy together in a scoped localization change. Shared
-technical documentation remains English.
+UI copy defaults to Vietnamese under M14 (EUR-73/77/78), using existing translation
+helpers (`__()`) and the module-catalog contract in Architecture section 18. User
+content keeps its authored language. Shared technical documentation remains English.
 
 Required stack: Laravel Blade, Alpine.js, Tailwind CSS and Vite. Prefer existing
 components. Do not add a frontend framework, UI/icon/chart package or remote service
@@ -154,7 +155,9 @@ do not truncate essential validation, title context or payment instructions.
 - Lesson: flexible content area plus 280–300px course outline; collapsible outline
   on mobile. Preserve video aspect ratio and usable text width.
 - Creator management: optional approximately 240px sidebar, flexible data area;
-  mobile drawer/navigation. Creator and Platform Admin workspaces remain distinct.
+  mobile drawer/navigation. General mode keeps Creator/Admin entry separation;
+  expert mode groups permitted operations under **Quản trị website** with a selected
+  community context, without merging their backend authorization rules.
 - Use the existing Tailwind spacing scale: 8/12/16/24/32px for common gaps. Region
   spacing is normally 24–32px; panel padding 16–24px; label/input gap 4–8px.
 - Button/input radius: 8px. Panel/card radius: 12px. Avoid deeply nested cards.
@@ -387,10 +390,12 @@ Keep the existing 1280px maximum content width and approximately 64px header.
   context. Preserve access/status meaning. Avoid repeating a large banner and the
   same title at multiple levels on every route; show a compact identity on lessons
   and management screens.
-- Member navigation: Community Feed, Classroom, Events, Members, Leaderboard and
-  About. Search, notifications and messages remain discoverable labelled utilities;
+- Member navigation: **Cộng Đồng / Lớp Học / Lịch / Thành Viên / Bảng xếp hạng /
+  Giới Thiệu**. Search, notifications and messages remain discoverable labelled utilities;
   avoid duplicating every utility as both a header action and a full-width tab.
-- Creator entry: a clearly labelled Manage community link to the existing overview.
+- Creator entry: in expert mode use **Quản trị website** as the single management
+  entry, with community selection and links to existing authorized tools. General
+  mode retains its community-management entry. The existing overview remains reachable.
   Management navigation groups Overview, content/learning, Members/Invitations,
   Orders/Referrals, Reports and Settings using existing permitted routes. Group
   headings organize links; they do not introduce new resource endpoints.
@@ -806,3 +811,43 @@ incomplete/completed onboarding, expanded keyboard disclosures and affected shar
 card consumers. Observe pending/ready/cached/missing/error media, rapid source changes,
 async failures and reduced motion; record unavailable network throttling/no-JS/real
 zoom honestly. Passing tests alone is not visual or loading-state acceptance.
+
+## 13. M14 Vietnamese owner and learning workspace (EUR-73, 2026-10-27)
+
+This approved scope replaces the English-default/deferred-localization rule and
+expert-mode entry separation. It preserves accepted light/slate/white/teal tokens,
+Be Vietnam Pro, existing landing motion, media loading glass and the current reader.
+It authorizes the bounded M14 screens, not replacement of whole views or a new theme.
+Implementation and visual acceptance remain the corresponding Linear issues.
+
+- **Entry:** expert owner sees one **Quản trị website** entry; its hub selects a
+  community and exposes existing permitted content, learning, members/invitations,
+  orders/reports/settings and platform state operations. Show the current community
+  and a clear return to learner view. Do not invent site-wide analytics or privileges.
+- **Learner:** preserve deliberate About/invitation entry; otherwise show welcome,
+  the sole accessible community Feed, or an accessible-community chooser. No inaccessible
+  community cards/counts/search hints in expert mode. Known-link About remains a
+  marketing preview with an explicit admission CTA, never a locked empty workspace.
+- **Six tabs:** Cộng Đồng / Lớp Học / Lịch / Thành Viên / Bảng xếp hạng / Giới Thiệu.
+  Translate visible forms, validation, notices, mails and secondary screens too.
+  Preserve named routes, enum values, intended navigation and authored content.
+- **Course management:** chapter/lesson tree beside one selected editor on desktop;
+  a labeled collapsible tree on mobile. Selection, draft/published/current states,
+  create/reorder/save and validation recovery must be visible and keyboard usable.
+  Persist through existing endpoints; selection is not save or publish.
+- **Authoring:** Markdown toolbar for heading, bold/italic, lists, link and quote;
+  Vietnamese tooltips/help, editable text and **Xem trước** rendered by the same safe
+  server renderer as the reader. Labeled resource links belong in existing content.
+  Show save/preview errors without losing text. No WYSIWYG or uploaded-file promise.
+- **Learning:** retain content/outline separation, safe formatted Markdown, published
+  ancestry and entitlement rules. Show **Bắt đầu học / Tiếp tục học**, persisted progress,
+  completion feedback and permitted previous/next navigation. No editable creator
+  forms dominating the member reader, fake completion or recurring decorative motion.
+- **Community:** readable discussion with compact useful sidebar, bounded media loading
+  placeholders, clear invitation/member states and actual contribution-point rules.
+  Loading fallback must recover to content or an actionable failure, not a permanent glass.
+
+EUR-83 verifies changed screens/roles at 375/768/1280 px, real 200% zoom, keyboard,
+long Vietnamese labels, empty/error states, slow/failed media and persisted mutations.
+Compare sanitized captures at the integrated revision; tests/build alone do not prove
+visual parity. Dark mode, copied assets, unrelated landing redesign and DRM UI are out.

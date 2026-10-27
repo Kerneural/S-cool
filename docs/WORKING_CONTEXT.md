@@ -2,6 +2,91 @@
 
 A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
+## EUR-73 — M14 contract freeze (2026-10-27)
+
+- Authority: product owner requested execution of [EUR-73](https://linear.app/eurusdevsec/issue/EUR-73).
+  Live AC-01–04 read from Linear; status was In Progress. Documentation only; no
+  application implementation, mode switch, owner grants, transfers, deployment or
+  Git publication. Independent review and Done are not implied by contract preparation.
+- Starting root: `community-directory-local`, HEAD `3b1d6c6`. Pre-existing 25 tracked
+  dirty paths plus untracked work retained. The clean implementation reference is
+  `community-preview-join` at `6188d7b45af9e41817bd4dad3dc4de4834820a2c`;
+  its local `origin/main` has no content diff. No fetch/branch switch was performed.
+  Container `scool_app` mounts that implementation checkout and root storage/vendor;
+  canonical local origin remains `http://127.0.0.1:8080`, existing ports unchanged.
+- Contracts: Product Scope 23 freezes D1–D15; Architecture 18 defines exclusive
+  verified configured owner, fail-closed modes, ownership preflight, access-scoped
+  entry, deterministic catalogs and safe Markdown preview. Design 13 defines the
+  Vietnamese owner/LMS patterns while retaining accepted reader/landing behavior.
+  Delivery 20 maps EUR-73–85, parallel lanes, file ownership and acceptance layers.
+  Earlier active English-default, no-self-join/discovery and Admin-separation rules
+  were amended for the two modes; dated historical release evidence is retained.
+  `MENTOR_ALIGNMENT_PLAN.md` is superseded with canonical and published issue links;
+  `00_README.md` routes directly to the canonical contract.
+
+### Overlap disposition — AC-03
+
+| Existing root work | Disposition |
+|---|---|
+| Application/controllers/policies/views/tests, CI, Docker/PHP, scripts, README, `.gitignore`, untracked runtime/test artifacts | Preserve byte-for-byte; outside EUR-73, never stage with it |
+| Product/architecture/delivery/design earlier release amendments | Preserve pre-existing hunks; change only active conflicting statements plus bounded M14 sections; do not copy whole root files onto newer main |
+| WORKING_CONTEXT historical issue checkpoints | Preserve; add this EUR-73 section only |
+| MENTOR_ALIGNMENT_PLAN reviewed drafts | Retain mentor request/issue mapping as superseded input, not another live specification |
+| Clean current implementation checkout | Read-only source reference; preserve branch, code, data and runtime bindings |
+
+Before/after task snapshots and the isolated task delta stay in ignored local
+scratch. For later authorized publication, port only the reviewed EUR-73 hunks to
+then-current main on `eur-73-contract-freeze`; reconcile newer About/self-admission,
+reader and motion amendments instead of copying stale root files or staging its
+aggregate diff. The root is deliberately not cleaned or automatically stashed.
+
+### Ownership inventory and verification boundaries
+
+- Read-only transaction against canonical local MySQL `scool`: 16 communities,
+  all ACTIVE, one distinct creator, zero unresolved creator references. Detailed
+  IDs/status/verification mapping stays private in ignored scratch; no emails or
+  account identifiers copied here or into Linear. No row was changed.
+- This proves the local ownership shape only. The intended release owner is not
+  configured by EUR-73, and CloudPanel/Azure inventories were not queried. EUR-74/84
+  must resolve and verify the exact owner and intended-release mapping before mode
+  change/handover; local single-creator counts do not prove host readiness.
+- Actual source at `6188d7b`: community creation currently unrestricted by owner
+  mode; Admin middleware uses the legacy flag; `LessonMarkdown` strips raw HTML/
+  unsafe links and converts images to links. Installed Laravel translator exposes
+  `addJsonPath()` and merges JSON paths deterministically by registration order;
+  EUR-77 must add sorted registration and collision validation, not assume they exist.
+- Linear field-notes discovery returned `Tool get_agent_context not found`; live
+  issue AC, canonical files and actual source were used. No memory write occurred.
+- Verification: `bash scripts/verify-agent-contract.sh` exited 0, 11 shared-file
+  routing/privacy gates PASS; allowlisted `git diff --check` exited 0. Decision/link
+  checks found all 15 decisions, D13–D15 confirmation, supersession, 13 issue links
+  and valid local targets. Before/after hashes verified 574 tracked files outside the
+  allowlist unchanged; historical WORKING_CONTEXT sections unchanged. Task-only delta
+  retained privately for review. These are documentation/structural checks only.
+- Linear: posted Readback and plan; replaced only the obsolete recommended-contract
+  paragraph on EUR-73–85 and confirmed D13–D15 in EUR-73's decision table. No other
+  issue AC or metadata changed through these mutations. Readback of all 13 issues
+  verified exact substantive description deltas and unchanged status; Linear's native
+  issue-reference markup was normalized for comparison. No dependency was removed.
+- No application tests/build/browser run: no application/UI code changed.
+  Independent review, commit/PR/CI and host acceptance remain Pending.
+- Publication preparation (2026-10-27): the product owner accepted the document work
+  and explicitly authorized PR/status updates. Live Linear now has AC-01–04 checked.
+  Reused a clean attached checkout on branch `eur-73-contract-freeze` from freshly
+  fetched `origin/main` `28f250e93bc8c9f1d7cda0b51450900cf3e074e1`.
+  Ported only the seven EUR-73 document paths; preserved the newer About/admission,
+  payment-purpose, reader, media-glass and landing-motion contracts. No root
+  application/CI/runtime edits were copied. Historical branch and running local
+  checkout remain unchanged.
+- Publication checks: structural routing/privacy, document links/decisions and
+  staged allowlist/whitespace checks are required on the publication candidate.
+  Application code/tests/build are unchanged; GitHub still enforces its required CI
+  and independent review. PR/commit evidence belongs in Linear; no self-approval,
+  review bypass or Done before required publication gates pass.
+- Next: publish the focused PR, attach current evidence, and retain In Review while
+  required review/CI/merge remains pending. Downstream lanes consume the reviewed
+  published contract; a prepared local document is not a merged dependency.
+
 ## Community acquisition preview and self-join (2026-10-26)
 
 - Authority/AC: direct owner request, including continuation, to let signed-in
