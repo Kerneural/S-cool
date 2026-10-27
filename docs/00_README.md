@@ -6,6 +6,7 @@
 - [Product Scope](01_PRODUCT_SCOPE.md): problem, actors, golden flow, MVP and exclusions.
 - [Domain & Architecture](02_DOMAIN_ARCHITECTURE.md): domain model, tenancy, authorization, workflows and ADRs.
 - [Delivery Plan](03_DELIVERY_PLAN.md): milestones, slices, ownership and acceptance gates.
+- [M14 owner-ready contract](01_PRODUCT_SCOPE.md#23-m14-owner-ready-website-contract-2026-10-27): frozen D1–D15; technical contract in Architecture section 18, UI in Design section 13, issue/parallel-work map in Delivery section 20. Linear owns live status.
 - [Functional completion handoff](03_DELIVERY_PLAN.md#17-functional-completion-release--implementation-handoff): mentor-reference coverage, ordered issue drafts, contracts and verification; part of the canonical Delivery Plan, not a separate progress tracker.
 - [README](../README.md) and checked-in runtime scripts/configuration: reproducible setup and operations.
 - [AI workflow](AI_WORKFLOW.md): tool-neutral working rules.
@@ -18,9 +19,9 @@ After cloning, open the repository root and request `start EUR-XX - Read AGENTS.
 
 ## Current product decisions
 
-- Multi-community platform; a user may own or join multiple communities.
-- MVP communities are private and invite-only; no public discovery or self-join.
-- Email-bound invitations remain a proposed baseline to confirm before migration.
+- One expert may own a website containing multiple communities. Expert-mode ordinary registrants are learners; general mode retains existing creation/discovery.
+- Community content is protected. Expert lists/search/switcher are access-scoped; deliberate signed-in About/admission and existing email-bound invitations remain valid. No guest community browsing.
+- M14 defaults interface copy to Vietnamese and combines permitted owner operations under **Quản trị website**; implementation/release evidence remains separate from this contract.
 - Initial payment integration uses SePay Sandbox; real-money production payment is deferred.
 - Community/Classroom/Calendar follows Skool's broad product structure, not copied branding or pixel-perfect UI.
 - Stabilize local delivery before choosing hosting.

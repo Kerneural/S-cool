@@ -11,12 +11,13 @@
 
 ### Functional drivers
 
-- Nền tảng multi-community; một user có thể sở hữu và tham gia nhiều community.
+- Protected community content remains private. General mode retains authenticated discovery; expert member enumeration is effective-access-scoped. Existing signed-in About summaries and explicit FREE/PAID admission coexist with invitations; preview/checkout never authorizes protected content. No guest browsing.
+- Multi-community inside each deployment. General mode supports independent creators; expert mode gives the verified configured website owner the Creator and platform-operation entry points described in section 18.
 - Community content remains private. The 2026-10-26 owner-approved acquisition contract supersedes earlier invitation-only statements: signed-in non-members can read ACTIVE community marketing previews via About, and verified actors may explicitly join FREE communities or begin PAID checkout. `CommunityPolicy::view` remains unchanged for internal workspace routes. Preview queries whitelist published course summaries/counts, never lesson bodies/playback, drafts, posts, private course media or member identities. Guest access is unchanged.
 - Creator tự vận hành community, không có Community Admin/Moderator trong MVP.
 - Feed, classroom, lesson progress và event cùng nằm trong ranh giới community.
 - Existing email-bound invitations remain supported alongside explicit self-join. Direct paid admission uses a distinct `COMMUNITY_JOIN` payment purpose, no fabricated invitation, and a server-bound pending membership. The verified webhook checks the actor, active PAID tenant, matching pending membership ID and stored term snapshot; invitation-based `COMMUNITY_ACCESS` retains its original valid-invitation requirement. Cancel/replay/moderation cannot create or restore access. Existing course entitlements and TERM renewal stay separate; checkout remains SePay Test Mode.
-- Platform Admin chỉ quản trị cấp nền tảng và suspend/reactivate community.
+- General-mode Platform Admin retains its existing role. Expert-mode administration requires the configured deployment owner exclusively, without bypassing community ownership or participant-only policies.
 
 ### Technical constraints
 
@@ -274,7 +275,7 @@ ERD trên chỉ thể hiện quan hệ chính, không thay thế migration desig
 
 ### Tenant strategy
 
-- Shared database, shared schema.
+- Shared database/schema across communities within one deployment. Different expert websites use separate database/users, APP_KEY, configuration and uploads; they do not share application sessions or a customer directory.
 - Tenant key: `community_id`.
 - Tenant root được resolve từ route `/communities/{community:slug}/...`.
 - Resource nested phải được scope theo community trước khi policy chạy.
@@ -290,7 +291,7 @@ ERD trên chỉ thể hiện quan hệ chính, không thay thế migration desig
 - `events`
 - `payments`, `processed_webhook_events`
 
-`users` và platform-level security/admin records dùng chung toàn platform.
+`users` and platform-level security/admin records are shared only within a deployment.
 
 ### Defense in depth
 
@@ -304,7 +305,7 @@ ERD trên chỉ thể hiện quan hệ chính, không thay thế migration desig
 
 | Action | Visitor | Active Member | Creator | Platform Admin |
 |---|---:|---:|---:|---:|
-| Discover/view community metadata | Không | Community đã tham gia | Community sở hữu | Danh sách tối thiểu để xử lý sự cố |
+| Discover/view community metadata | No guest access | Expert lists: effective access; general: ACTIVE directory; deliberate signed-in About in either mode | Owned communities | General: existing administration; expert: configured owner only |
 | Accept invitation | Đúng email sau login | Nếu invitation còn hiệu lực | Không áp dụng | Không |
 | View internal content | Không | Community đã tham gia | Community sở hữu | Không mặc định |
 | Create post/comment | Không | Có | Có | Không |
@@ -316,7 +317,9 @@ ERD trên chỉ thể hiện quan hệ chính, không thay thế migration desig
 | View own SePay Sandbox payment | Không | Có | Có nếu thuộc community | Chỉ khi xử lý sự cố được audit |
 | Suspend/reactivate community | Không | Không | Không | Có |
 
-Platform Admin không có blanket bypass cho mọi policy. Quyền đọc dữ liệu nội bộ chỉ được thêm khi có use case xử lý sự cố và phải audit.
+This matrix describes per-community actions. Expert-mode website-owner privileges
+compose existing Creator ownership and platform operations through one hub; they do
+not introduce a blanket policy bypass. See the mode-specific matrix in section 18.
 
 ### Boundary tests bắt buộc
 
@@ -326,7 +329,7 @@ Platform Admin không có blanket bypass cho mọi policy. Quyền đọc dữ l
 - Suspended/removed/left membership không truy cập nội dung nội bộ.
 - Suspended/archived community không chấp nhận hoạt động mới.
 - URL/ID giả mạo không vượt qua scoped binding và policy.
-- User không có invitation/membership không xem được community metadata bằng slug/ID.
+- Unauthorized internal resources remain denied; deliberate signed-in About exposes only the approved marketing summary. Expert lists/search/counts/switcher cannot enumerate inaccessible communities; a direct About link is an intentional exception, not content authorization.
 - Invitation sai email, hết hạn, revoked hoặc token đã dùng không tạo membership.
 - Platform Admin không tự động có quyền sửa content/course/payment.
 
@@ -337,9 +340,10 @@ Platform Admin không có blanket bypass cho mọi policy. Quyền đọc dữ l
 ```text
 FREE:
 NONE --accept valid email-bound invitation--> ACTIVE
+NONE --verified explicit About admission, eligible state--> ACTIVE
 
 PAID VIA SEPAY SANDBOX:
-NONE --accept valid invitation/start checkout--> PENDING_PAYMENT
+NONE --accept valid invitation or explicit About checkout--> PENDING_PAYMENT
 PENDING_PAYMENT --verified SePay IPN success--> ACTIVE
 PENDING_PAYMENT --payment failed/cancelled--> PENDING_PAYMENT
 
@@ -642,7 +646,7 @@ Invalid authentication/reference/amount/currency returns an error, changes no me
 ### ADR-002 — Shared-schema multi-tenancy
 
 - Status: Accepted
-- Decision: Một MySQL database, tenant root là Community, tenant key là `community_id`.
+- Decision: One MySQL database per deployment, with Community as the internal tenant root and `community_id` as tenant key. M14 expert websites use independent databases/configuration/uploads; community tenancy is not cross-customer deployment isolation.
 - Consequence: Vận hành đơn giản; authorization và scoped query là rủi ro trọng yếu.
 - Revisit: Khi có yêu cầu isolation pháp lý hoặc tenant scale đặc biệt.
 
@@ -831,3 +835,98 @@ Keep existing lock order and access predicates; presentation is never a grant.
 - ADR-009–012 continue to govern entitlement, term expiry, simulated referral
   attribution and asynchronous messaging. Do not add payouts, presence, followers,
   per-group notification/chat settings or new background services through UI work.
+
+## 18. M14 expert-deployment contracts (EUR-73, 2026-10-27)
+
+Accepted design for implementation in EUR-74–84; not a claim of runtime delivery.
+Product Scope section 23 owns D1–D15. Existing resource ancestry, community state,
+effective membership, publication, entitlement, payment retention and participant-only
+message access remain mandatory in both modes.
+
+### 18.1 Deployment boundary and owner identity — D9/D12/D13
+
+- One maintained codebase, independent domain/environment/database user/database/
+  APP_KEY/uploads/owner per expert. Multiple communities share that deployment's
+  database and remain isolated by `community_id`. Sites on one CloudPanel machine
+  still share host failure and host-administrator risk; do not claim separate hosts.
+- `config/scool.php` reads `SCOOL_DEPLOYMENT_MODE` as `general` by default and
+  `SCOOL_OWNER_EMAIL` as an optional host value. Runtime consumers read `config()`,
+  never scattered `env()` calls. Valid modes are exactly `general` and `expert`;
+  a nonempty invalid mode fails closed for privileged entry/creation rather than
+  falling back to permissive general behavior.
+- `User::isDeploymentOwner()` is true only in expert mode, with a nonempty configured
+  owner email matching the account after trim/case normalization and with verified
+  email. No first-user promotion, request-supplied owner email, role migration or DB
+  flag. Losing verification/changing email loses this predicate on subsequent checks.
+- In `EnsureUserIsPlatformAdmin`, expert mode requires that predicate exclusively.
+  General mode keeps `isPlatformAdmin()`. Never use `oldAdmin || owner` in expert mode.
+  `CommunityPolicy::create()` follows the same mode boundary. No `Gate::before` bypass.
+- The owner obtains Creator tools through actual `creator_id` ownership, not a global
+  Admin flag. Intended release communities must belong to that account before expert
+  handover; a mismatch blocks release. Retain all other policies and audit/state checks.
+- `scool:owner:check` is read-only and nonzero for invalid mode, missing/unverified/
+  unresolved expert owner or intended-release ownership mismatch. It never sets roles,
+  transfers records, changes emails or deletes communities. Owner email stays private
+  host configuration. Existing-community disposition is an explicit release inventory;
+  no silent exclusion or bulk transfer. Exact transfer/exclusion needs separate approval,
+  backup, audited operator action and readback.
+
+| Action | General mode | Expert owner | Other expert-mode account |
+|---|---|---|---|
+| Create community | Existing verified/authenticated route policy | Allowed through normal policy | Denied server-side |
+| Enter platform administration | Existing Admin flag | Allowed through owner predicate | Denied even with legacy Admin flag |
+| Manage course/members/content | Creator of that community | Only where actual creator ownership permits | Denied unless an existing specific policy grants it; no new management role |
+| List/search/switch communities | Existing general discovery / existing scoped switcher | Owned accessible communities | Effective-access scope only |
+| View deliberate ACTIVE About / admit | Existing signed-in preview and verified admission rules | Same route/state protections | Same route/state protections; no implicit access |
+| Read lesson/private messages | Existing publication/access/entitlement/participant policies | Same applicable policies; no blanket message bypass | Same applicable policies |
+
+### 18.2 Learner entry and deliberate acquisition — D3/D4
+
+Preserve an authorized intended About/invitation destination across sign-in,
+registration and verification. Validate redirects using the existing application
+mechanism; no arbitrary external redirect. Without an intended destination, expert
+learner entry is welcome for zero effective communities, Feed for one, scoped chooser
+for several. The owner enters **Quản trị website**. Never auto-join from registration.
+
+Expert lists, direct `filter=all/owned/joined`, search/typeahead, totals, pagination and
+switcher enforce scope on the server before matching/counting/pagination. Revoked,
+expired or suspended access disappears consistently; client filters are not security.
+Deliberate signed-in About links retain the existing limited marketing/course summaries,
+FREE verified self-admission and PAID Test Mode admission. No internal posts/lesson
+bodies/drafts/member identities/playback before authorization. Moderation and expiry
+cannot be undone by generic join. Course purchase never creates community membership.
+General-mode acquisition/creation regressions remain required.
+
+### 18.3 Vietnamese locale and catalog ownership — D5/D14
+
+- Runtime default `APP_LOCALE=vi`, fallback `en`, in `config/app.php` and `.env.example`.
+  Translate interface strings, validation attributes, exceptions/notices and mail;
+  retain DB enum keys, timestamps/timezone semantics and user-authored content.
+- EUR-77 owns registration of sorted module paths through the translator's existing
+  `addJsonPath()` and the common `lang/vi.json` / `lang/vi/*.php` catalogs. Other slices
+  write only their module catalogs. Shared labels live in the common catalog and are
+  reused; reject duplicate JSON keys and conflicting cross-catalog keys before merge.
+  Sorting ensures reproducibility; loader precedence is not a conflict-resolution policy.
+- A clean separate bootstrap without APP_LOCALE in process, test XML/dotenv or config
+  cache must resolve `vi` and produce translated UI. Preserve scool_test/mail guards;
+  never load production secrets. Explicit English compatibility runs use `en`; Vietnamese
+  feature tests use `vi`. Calling `setLocale('vi')` after boot is not default-locale proof.
+- Verify rendered route/state inventory and Vietnamese glyph assets. A string grep,
+  English suite or one translated heading is insufficient acceptance evidence.
+
+### 18.4 Course editing and preview — D7/D15
+
+Keep existing course → section → lesson ancestry and reorder/publication endpoints.
+The tree selects a lesson beside the editor; reader and management remain distinct.
+The toolbar inserts Markdown into the existing body field. Preview is a CSRF-protected,
+authenticated and creator-authorized server operation scoped to the actual community/
+course; use existing body validation limits and `LessonMarkdown::toHtml()` without
+persisting or publishing the draft. Render only that sanitized result as HTML.
+
+`LessonMarkdown` strips raw HTML, rejects unsafe link schemes and renders Markdown
+images as links; preview and reader must use the same boundary. Labeled resource links
+stay inside the existing content field. No remote HTML fetch, arbitrary embeds, new
+attachment schema, editor package, WYSIWYG claim or content migration.
+
+Points retain the existing ledger and level calculation. Video masking remains an
+access-control/obfuscation measure, not DRM; research and report evidence stay distinct.
