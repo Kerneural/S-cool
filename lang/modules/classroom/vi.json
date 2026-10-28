@@ -66,5 +66,18 @@
     "Provide text or a supported video URL. No HTML iframe input.": "Cung cấp nội dung văn bản hoặc đường dẫn video hợp lệ. Không hỗ trợ thẻ iframe HTML.",
     "Practical Lesson (Requires Proof of Work)": "Bài học kỹ năng thực hành (Yêu cầu minh chứng)",
     "Demonstrated Skill Label": "Tên kỹ năng thực hành",
-    "Explicit nonempty skill label (max 80 chars) snapshotted upon verification.": "Tên kỹ năng cụ thể không để trống (tối đa 80 ký tự) được ghi nhận khi xác thực."
+    "Explicit nonempty skill label (max 80 chars) snapshotted upon verification.": "Tên kỹ năng cụ thể không để trống (tối đa 80 ký tự) được ghi nhận khi xác thực.",
+    "Heading 2": "Tiêu đề (H2)",
+    "Bold": "In đậm",
+    "Italic": "In nghiêng",
+    "Bullet List": "Danh sách chấm",
+    "Numbered List": "Danh sách số",
+    "Quote": "Trích dẫn",
+    "Link": "Liên kết",
+    "Write": "Soạn thảo",
+    "Preview": "Xem trước",
+    "No preview content": "Chưa có nội dung bài học để xem trước.",
+    "Resource link guidance": "Để đính kèm tài liệu tham khảo hoặc liên kết bài học khác, hãy chèn cú pháp: [Tên tài nguyên](URL).",
+    "Loading preview...": "Đang tải bản xem trước...",
+    "Unable to load preview.": "Không thể tải bản xem trước. Vui lòng thử lại."
 }

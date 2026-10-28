@@ -2,6 +2,38 @@
 
 A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
+## EUR-80 — Lesson authoring toolbar, preview and resource links (2026-10-28)
+
+- Authority: User instruction to execute task M14 of issue [EUR-80](https://linear.app/eurusdevsec/issue/EUR-80/m14-lesson-authoring-toolbar-preview-and-resource-links).
+- Baseline: branch `eur-80-lesson-authoring-toolbar-preview` at `9b67b0a825a00242b1d5938823c860ff30c11b54`. Untracked/ignored: `docs/EUR_80_IMPLEMENTATION_PLAN.md`, `prompt.md`, `promp.md`, `.agents/`.
+- Outcome: Owner formats lesson content (headings, bold, italic, lists, resource links, quote) with toolbar buttons and previews rendered output before publishing, without learning Markdown.
+- AC:
+  - AC-01: Toolbar buttons wrap selection or insert template, keeping focus in field.
+  - AC-02: Preview output matches published reader output (`LessonMarkdown` & `.lesson-prose`).
+  - AC-03: Script tags, `javascript:` links, iframe, raw HTML sanitized/stripped.
+  - AC-04: Legacy plain-text lessons render correctly with `<p>` and soft breaks `<br>`.
+  - AC-05: Preview endpoint denies non-creators and foreign courses (403/404).
+- Scope boundaries: Owns `classroom-lesson-fields.blade.php`, `resources/js/lesson-authoring.js`, and `LessonController::preview`. Does NOT add WYSIWYG, file upload schema, or modify `lesson-progress.blade.php`.
+- Target files:
+  - `routes/web.php`
+  - `app/Http/Controllers/LessonController.php`
+  - `lang/modules/classroom/vi.json`
+  - `resources/js/lesson-authoring.js`
+  - `resources/js/app.js`
+  - `resources/views/components/classroom-lesson-fields.blade.php`
+  - `tests/js/lesson-authoring.test.mjs`
+  - `tests/Feature/LessonAuthoringToolbarTest.php`
+- Verification results (2026-10-28):
+  - `node --test tests/js/*.test.mjs`: 69 passed, 0 failed, Duration 273ms, Exit 0.
+  - `npm run build`: built in 2.05s, Exit 0.
+  - `composer run pint:test`: 319 files passed with zero style violations.
+  - `vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M`: 130/130 files checked, [OK] No errors.
+  - `php artisan test tests/Feature/LessonAuthoringToolbarTest.php`: 7 passed (35 assertions), Exit 0.
+  - `php artisan test tests/Feature/ClassroomRegressionTest.php`: 12 passed (236 assertions), Exit 0.
+  - `php artisan test tests/Feature/CourseManagementWorkspaceTest.php`: 7 passed (75 assertions), Exit 0.
+  - `bash scripts/verify-agent-contract.sh`: [PASS] 11 shared files; routing/privacy gates valid.
+- Status: Ready for user review and acceptance. Awaiting authorization to commit/push/merge.
+
 ## EUR-79 — Course management workspace (tree + editor) (2026-10-27)
 
 - Authority: User instruction to execute task M14 of issue [EUR-79](https://linear.app/eurusdevsec/issue/EUR-79/m14-course-management-workspace-tree-editor).

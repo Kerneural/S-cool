@@ -196,7 +196,7 @@
                                 @method('PUT')
                                 <input type="hidden" name="_form" value="{{ $formKey }}">
 
-                                <x-classroom-lesson-fields :form-key="$formKey" :lesson="$selectedLesson" />
+                                <x-classroom-lesson-fields :form-key="$formKey" :lesson="$selectedLesson" :course="$course" :community="$community" />
 
                                 <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-line">
                                     <p class="text-xs text-muted">
@@ -228,7 +228,7 @@
                                 @csrf
                                 <input type="hidden" name="_form" value="{{ $formKey }}">
 
-                                <x-classroom-lesson-fields :form-key="$formKey" />
+                                <x-classroom-lesson-fields :form-key="$formKey" :course="$course" :community="$community" />
 
                                 <div class="flex justify-end pt-4 border-t border-line">
                                     <x-primary-button>

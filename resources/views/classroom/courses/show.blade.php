@@ -282,7 +282,7 @@
                                         <form method="POST" action="{{ route('communities.lessons.store', [$community, $course, $section]) }}" class="mt-3 space-y-3 pt-2 border-t border-line/60">
                                             @csrf
                                             <input type="hidden" name="_form" value="{{ $createKey }}">
-                                            <x-classroom-lesson-fields :form-key="$createKey" />
+                                            <x-classroom-lesson-fields :form-key="$createKey" :course="$course" :community="$community" />
                                             <div class="flex justify-end pt-1">
                                                 <x-primary-button>
                                                     {{ __('Create Lesson') }}

@@ -189,6 +189,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/communities/{community:slug}/courses/{course}/sections/{section}/lessons/{lesson}', [LessonController::class, 'update'])->name('communities.lessons.update');
         Route::delete('/communities/{community:slug}/courses/{course}/sections/{section}/lessons/{lesson}', [LessonController::class, 'destroy'])->name('communities.lessons.destroy');
         Route::post('/communities/{community:slug}/courses/{course}/sections/{section}/lessons/reorder', [LessonController::class, 'reorder'])->name('communities.lessons.reorder');
+        Route::post('/communities/{community:slug}/courses/{course}/lessons/preview', [LessonController::class, 'preview'])->middleware('throttle:60,1')->name('communities.courses.lessons.preview');
     });
 });
 

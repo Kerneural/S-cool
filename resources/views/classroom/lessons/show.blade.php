@@ -263,7 +263,7 @@
                 <form method="POST" action="{{ route('communities.lessons.update', [$community, $course, $lesson->section, $lesson]) }}" class="mt-5 space-y-4 pt-4 border-t border-line/60">
                     @csrf @method('PUT')
                     <input type="hidden" name="_form" value="edit-lesson">
-                    <x-classroom-lesson-fields form-key="edit-lesson" :lesson="$lesson" />
+                    <x-classroom-lesson-fields form-key="edit-lesson" :lesson="$lesson" :course="$course" :community="$community" />
                     <div class="flex justify-end pt-2">
                         <x-primary-button>
                             {{ __('Save Lesson') }}
