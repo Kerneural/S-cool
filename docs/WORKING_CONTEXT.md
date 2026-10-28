@@ -2,6 +2,27 @@
 
 A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
+## EUR-78 — M14 Vietnamese sweep: account, commerce, admin and secondary screens (2026-10-28)
+
+- Authority: developer assigned [EUR-78](https://linear.app/eurusdevsec/issue/EUR-78); user approved implementation plan based on EUR-77 branch.
+- Starting branch: `hadangkhoasss/eur-78-m14-vietnamese-sweep-account-commerce-admin-and-secondary` branched from `cdbfe03346a9c1bdd4cceaae3cbb5f48419d7200` (EUR-77).
+- Scope & Contracts implemented (D14):
+  - Created 4 isolated per-module translation catalogs under `lang/modules/`:
+    - `lang/modules/account/vi.json` (account navigation, profiles, notifications, memberships).
+    - `lang/modules/admin/vi.json` (platform admin supervision, status filters, suspension/reactivation modals & audit reasons).
+    - `lang/modules/commerce/vi.json` (orders, payment history, receipts, checkout, pricing settings, simulated referral balances & earnings notices).
+    - `lang/modules/secondary/vi.json` (invitations accept & management, community preview, help center guides, landing header dropdowns).
+  - Wrapped visible strings, labels, status badges, empty states, and errors with `__()`:
+    - Views: `account/payment-history/index.blade.php`, `account/payment-history/show.blade.php`, `account/memberships/show.blade.php`, `account/referrals.blade.php`, `communities/orders/index.blade.php`, `communities/partials/access-pricing.blade.php`, `communities/invitations.blade.php`, `invitations/accept.blade.php`, `payments/checkout.blade.php`, `help/index.blade.php`, `welcome.blade.php`.
+    - Mail & Models: `app/Mail/CommunityInvitationMail.php` (subject & body Vietnamese, `acceptUrl` preserved), `resources/views/mail/community-invitation.blade.php`, `app/Models/CommunityMembership.php` (`accessStateLabel()`), `app/Models/Payment.php` (`purposeLabel()`).
+    - Controllers: `PaymentController.php`, `CommunityInvitationController.php`, `ReferralController.php` (flash status messages).
+  - Preserved Vietnamese Test Mode labeling: "Chế độ thử nghiệm SePay", simulated transaction notices (AC-04).
+- Verification:
+  - `tests/Feature/VietnameseSweepTest.php`: 5 passed, 39 assertions covering AC-01 to AC-04.
+  - `tests/Feature/VietnameseLocaleTest.php`: 8 passed, 363 assertions; module catalogs collision-free and deterministically loaded.
+  - Code style: `./vendor/bin/pint --test` PASS (323 files).
+  - Structural contract: `bash scripts/verify-agent-contract.sh` exited 0 (11 shared files PASS).
+
 ## EUR-77 — M14 Vietnamese default locale foundation (2026-10-27)
 
 - Authority: developer assigned [EUR-77](https://linear.app/eurusdevsec/issue/EUR-77); user explicitly instructed branch creation and implementation.

@@ -16,7 +16,7 @@
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-5">
                     <div>
                         <h1 class="break-words text-2xl font-bold text-slate-900 tracking-tight">{{ $membership->community->name }}</h1>
-                        <p class="text-xs text-slate-500 mt-1">Community membership profile and entitlement details</p>
+                        <p class="text-xs text-slate-500 mt-1">{{ __('Community membership profile and entitlement details') }}</p>
                     </div>
                     <div>
                         <span role="status" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold
