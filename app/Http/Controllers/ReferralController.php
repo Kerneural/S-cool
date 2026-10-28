@@ -95,7 +95,7 @@ class ReferralController extends Controller
             'status' => ReferralInvitationRequest::STATUS_PENDING,
         ]);
 
-        return redirect()->back()->with('status', 'Referral invitation requested. Awaiting creator review and approval.');
+        return redirect()->back()->with('status', __('Referral invitation requested. Awaiting creator review and approval.'));
     }
 
     /**
@@ -117,7 +117,7 @@ class ReferralController extends Controller
             ]);
         }, 3);
 
-        return redirect()->back()->with('status', 'Referral approved and private invitation queued.');
+        return redirect()->back()->with('status', __('Referral approved and private invitation queued.'));
     }
 
     /**
@@ -134,7 +134,7 @@ class ReferralController extends Controller
             $currentRequest->update(['status' => ReferralInvitationRequest::STATUS_REJECTED]);
         }, 3);
 
-        return redirect()->back()->with('status', 'Referral request rejected.');
+        return redirect()->back()->with('status', __('Referral request rejected.'));
     }
 
     /**

@@ -78,10 +78,10 @@ class CommunityMembership extends Model
             return $this->status;
         }
         if (! $this->community?->isActive()) {
-            return 'Community inactive';
+            return __('Community inactive');
         }
 
-        return $this->hasEffectiveAccess() ? 'Active access' : 'Expired access';
+        return $this->hasEffectiveAccess() ? __('Active access') : __('Expired access');
     }
 
     public function community(): BelongsTo

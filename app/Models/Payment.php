@@ -185,11 +185,11 @@ class Payment extends Model
     public function purposeLabel(): string
     {
         if ($this->isCourseAccess()) {
-            return 'Course Access: '.($this->course?->title ?? 'Course #'.$this->course_id);
+            return __('Course Access: :course', ['course' => $this->course?->title ?? 'Course #'.$this->course_id]);
         }
 
-        return $this->isMembershipRenewal() ? 'Membership Renewal (30 UTC days)'
-            : ($this->membership_access_kind === CommunityMembership::ACCESS_TERM ? 'Community Admission (30 UTC days)' : 'Community Admission');
+        return $this->isMembershipRenewal() ? __('Membership Renewal (30 UTC days)')
+            : ($this->membership_access_kind === CommunityMembership::ACCESS_TERM ? __('Community Admission (30 UTC days)') : __('Community Admission'));
     }
 
     /**
