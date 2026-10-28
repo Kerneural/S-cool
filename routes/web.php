@@ -162,6 +162,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/communities/{community:slug}/courses', [CourseController::class, 'store'])->name('communities.courses.store');
         Route::post('/communities/{community:slug}/courses/reorder', [CourseController::class, 'reorder'])->name('communities.courses.reorder');
         Route::get('/communities/{community:slug}/courses/{course}', [CourseController::class, 'show'])->name('communities.courses.show');
+        Route::get('/communities/{community:slug}/manage/courses/{course}', [CourseController::class, 'manage'])->name('communities.manage.courses.show');
         Route::get('/communities/{community:slug}/courses/{course}/cover', [CourseCoverController::class, 'show'])->name('communities.courses.cover');
         Route::post('/communities/{community:slug}/courses/{course}/cover', [CourseCoverController::class, 'store'])->name('communities.courses.cover.store');
         Route::delete('/communities/{community:slug}/courses/{course}/cover', [CourseCoverController::class, 'destroy'])->name('communities.courses.cover.destroy');
@@ -188,6 +189,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/communities/{community:slug}/courses/{course}/sections/{section}/lessons/{lesson}', [LessonController::class, 'update'])->name('communities.lessons.update');
         Route::delete('/communities/{community:slug}/courses/{course}/sections/{section}/lessons/{lesson}', [LessonController::class, 'destroy'])->name('communities.lessons.destroy');
         Route::post('/communities/{community:slug}/courses/{course}/sections/{section}/lessons/reorder', [LessonController::class, 'reorder'])->name('communities.lessons.reorder');
+        Route::post('/communities/{community:slug}/courses/{course}/lessons/preview', [LessonController::class, 'preview'])->middleware('throttle:60,1')->name('communities.courses.lessons.preview');
     });
 });
 
