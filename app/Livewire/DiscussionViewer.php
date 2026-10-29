@@ -270,7 +270,7 @@ class DiscussionViewer extends Component
     {
         $user = auth()->user();
         if (! $user) {
-            $this->errorMessage = 'Please sign in to comment.';
+            $this->errorMessage = __('Please sign in to comment.');
 
             return;
         }
@@ -299,13 +299,13 @@ class DiscussionViewer extends Component
 
             $this->newCommentBody = '';
             $this->errorMessage = null;
-            $this->successMessage = 'Comment posted successfully.';
+            $this->successMessage = __('Comment posted successfully.');
 
             $post = $community->posts()->findOrFail($this->postId);
             $this->loadComments($post);
         } catch (\Throwable $e) {
             report($e);
-            $this->errorMessage = 'Unable to post comment. Please check your access and try again.';
+            $this->errorMessage = __('Unable to post comment. Please check your access and try again.');
         }
     }
 
@@ -348,13 +348,13 @@ class DiscussionViewer extends Component
             $this->editingCommentId = null;
             $this->editingCommentBody = '';
             $this->errorMessage = null;
-            $this->successMessage = 'Comment updated.';
+            $this->successMessage = __('Comment updated.');
 
             $post = $community->posts()->findOrFail($this->postId);
             $this->loadComments($post);
         } catch (\Throwable $e) {
             report($e);
-            $this->errorMessage = 'Unable to update comment. Please check your access and try again.';
+            $this->errorMessage = __('Unable to update comment. Please check your access and try again.');
         }
     }
 
@@ -374,13 +374,13 @@ class DiscussionViewer extends Component
             });
 
             $this->errorMessage = null;
-            $this->successMessage = 'Comment deleted.';
+            $this->successMessage = __('Comment deleted.');
 
             $post = $community->posts()->findOrFail($this->postId);
             $this->loadComments($post);
         } catch (\Throwable $e) {
             report($e);
-            $this->errorMessage = 'Unable to delete comment. Please check your access and try again.';
+            $this->errorMessage = __('Unable to delete comment. Please check your access and try again.');
         }
     }
 
@@ -390,7 +390,7 @@ class DiscussionViewer extends Component
         $this->successMessage = null;
         $user = auth()->user();
         if (! $user) {
-            $this->errorMessage = 'Please sign in to accept answers.';
+            $this->errorMessage = __('Please sign in to accept answers.');
 
             return;
         }
@@ -398,7 +398,7 @@ class DiscussionViewer extends Component
         try {
             [$community, $post, $isCreator] = $this->visiblePost();
             if (! $isCreator) {
-                $this->errorMessage = 'Only the community creator can accept helpful answers.';
+                $this->errorMessage = __('Only the community creator can accept helpful answers.');
 
                 return;
             }
@@ -411,7 +411,7 @@ class DiscussionViewer extends Component
             $this->acceptedCommentId = $post->accepted_comment_id;
             $this->loadComments($post);
         } catch (\Throwable $e) {
-            $this->errorMessage = 'Unable to accept this answer. Refresh, check access and try again.';
+            $this->errorMessage = __('Unable to accept this answer. Refresh, check access and try again.');
         }
     }
 
@@ -421,7 +421,7 @@ class DiscussionViewer extends Component
         $this->successMessage = null;
         $user = auth()->user();
         if (! $user) {
-            $this->errorMessage = 'Please sign in to revoke answers.';
+            $this->errorMessage = __('Please sign in to revoke answers.');
 
             return;
         }
@@ -429,7 +429,7 @@ class DiscussionViewer extends Component
         try {
             [$community, $post, $isCreator] = $this->visiblePost();
             if (! $isCreator) {
-                $this->errorMessage = 'Only the community creator can revoke helpful answers.';
+                $this->errorMessage = __('Only the community creator can revoke helpful answers.');
 
                 return;
             }
@@ -442,7 +442,7 @@ class DiscussionViewer extends Component
             $this->acceptedCommentId = $post->accepted_comment_id;
             $this->loadComments($post);
         } catch (\Throwable $e) {
-            $this->errorMessage = 'Unable to revoke this answer. Refresh, check access and try again.';
+            $this->errorMessage = __('Unable to revoke this answer. Refresh, check access and try again.');
         }
     }
 

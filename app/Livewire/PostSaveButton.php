@@ -42,7 +42,7 @@ class PostSaveButton extends Component
     {
         $user = auth()->user();
         if (! $user) {
-            $this->errorMessage = 'Please sign in to save posts.';
+            $this->errorMessage = __('Please sign in to save posts.');
 
             return $this->state();
         }
