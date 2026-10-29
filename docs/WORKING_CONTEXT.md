@@ -2,6 +2,41 @@
 
 A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
+## EUR-76 — Quản trị website management hub (2026-10-29)
+
+- Authority: User instruction to execute task M14 of issue [EUR-76](https://linear.app/eurusdevsec/issue/EUR-76/m14-quan-tri-website-management-hub).
+- Baseline: branch `eur-76-website-management-hub` at `e4395d0`. Untracked/ignored: `prompt.md`, `promp.md`, `.agent/`.
+- Outcome: The owner opens **Quản trị website** from the main navigation and reaches every management task for every community without switching accounts or hunting through menus.
+- AC:
+  - AC-01: Given the owner with two communities, the hub lists both and each link opens the correct community's existing tool.
+  - AC-02: Given a learner, the hub link is absent and the hub URL returns 403.
+  - AC-03: Given 375px and desktop, the hub is usable without horizontal overflow and reachable by keyboard.
+  - AC-04: Every label on the hub is Vietnamese.
+- Scope boundaries: Owns `routes/web.php` (`/website-hub`), `app/Http/Controllers/WebsiteManagementHubController.php`, `resources/views/website-hub/index.blade.php`, and `resources/views/layouts/navigation.blade.php` hunk. Excludes new site-wide aggregate lists, new metrics, branding/settings editors.
+- Target files:
+  - `config/scool.php`
+  - `app/Models/User.php`
+  - `routes/web.php`
+  - `app/Http/Controllers/WebsiteManagementHubController.php`
+  - `resources/views/website-hub/index.blade.php`
+  - `resources/views/layouts/navigation.blade.php`
+  - `lang/modules/classroom/vi.json`
+  - `tests/Feature/WebsiteManagementHubTest.php`
+- Verification results (2026-10-29):
+  - `php artisan test tests/Feature/WebsiteManagementHubTest.php`: 7 passed (53 assertions), Duration 18.25s, Exit 0. AC-01 to AC-04 fully verified.
+  - `php artisan test tests/Feature/LearnerCourseFlowTest.php`: 6 passed (59 assertions), Duration 19.40s, Exit 0.
+  - `php artisan test tests/Feature/LearningReaderTest.php`: 5 passed (35 assertions), Duration 20.09s, Exit 0.
+  - `php artisan test tests/Feature/LessonAuthoringToolbarTest.php`: 8 passed (39 assertions), Duration 20.14s, Exit 0.
+  - `php artisan test tests/Feature/CourseManagementWorkspaceTest.php`: 7 passed (75 assertions), Duration 20.51s, Exit 0.
+  - `php artisan test tests/Feature/ClassroomRegressionTest.php`: 12 passed (236 assertions), Duration 24.52s, Exit 0.
+  - Full suite: 45 passed (497 assertions) in 33.36s.
+  - `composer run pint:test`: 323 files passed with zero style violations.
+  - `vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M`: 132/132 files checked, [OK] No errors.
+  - `npm run build`: built in 2.12s, Exit 0.
+  - `node --test tests/js/*.test.mjs`: 24 passed, 0 failed.
+  - `bash scripts/verify-agent-contract.sh`: [PASS] 11 shared files; routing/privacy gates valid.
+- Status: Ready for user review and acceptance. Awaiting authorization to commit/push/merge.
+
 ## EUR-81 — Learner course flow and completion feedback (2026-10-28)
 
 - Authority: User instruction to execute task M14 of issue [EUR-81](https://linear.app/eurusdevsec/issue/EUR-81/m14-learner-course-flow-and-completion-feedback).

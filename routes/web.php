@@ -37,6 +37,7 @@ use App\Http\Controllers\ProofOfWorkReviewController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SecureVideoStreamController;
+use App\Http\Controllers\WebsiteManagementHubController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -79,6 +80,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/payments/{reference}/status', [PaymentController::class, 'status'])->middleware('verified')->name('payments.status');
     Route::post('/payments/{reference}/cancel', [PaymentController::class, 'cancel'])->middleware(['verified', 'throttle:10,1'])->name('payments.cancel');
 
+    Route::get('/website-hub', [WebsiteManagementHubController::class, 'index'])->middleware('verified')->name('website-hub');
     Route::get('/communities', [CommunityController::class, 'index'])->name('communities.index');
     Route::get('/communities/create', [CommunityController::class, 'create'])->name('communities.create');
     Route::post('/communities', [CommunityController::class, 'store'])->name('communities.store');

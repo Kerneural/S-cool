@@ -95,6 +95,11 @@
                         <x-nav-link :href="route('help.index')" :active="request()->routeIs('help.*')">
                             {{ __('Help') }}
                         </x-nav-link>
+                        @if (Auth::user()?->isDeploymentOwner())
+                            <x-nav-link :href="route('website-hub')" :active="request()->routeIs('website-hub*')">
+                                {{ __('Website Management') }}
+                            </x-nav-link>
+                        @endif
                         @if (Auth::user()?->isPlatformAdmin())
                             <x-nav-link :href="route('admin.communities.index')" :active="request()->routeIs('admin.*')">
                                 {{ __('Platform Admin') }}
@@ -158,6 +163,12 @@
                         </x-slot>
 
                         <x-slot name="content">
+                            @if (Auth::user()?->isDeploymentOwner())
+                                <x-dropdown-link :href="route('website-hub')">
+                                    {{ __('Website Management') }}
+                                </x-dropdown-link>
+                            @endif
+
                             <x-dropdown-link :href="route('profile.edit')">
                                 {{ __('Profile & Settings') }}
                             </x-dropdown-link>
@@ -247,6 +258,11 @@
                 <x-responsive-nav-link :href="route('help.index')" :active="request()->routeIs('help.*')">
                     {{ __('Help') }}
                 </x-responsive-nav-link>
+                @if (Auth::user()?->isDeploymentOwner())
+                    <x-responsive-nav-link :href="route('website-hub')" :active="request()->routeIs('website-hub*')">
+                        {{ __('Website Management') }}
+                    </x-responsive-nav-link>
+                @endif
                 @if (Auth::user()?->isPlatformAdmin())
                     <x-responsive-nav-link :href="route('admin.communities.index')" :active="request()->routeIs('admin.*')">
                         {{ __('Platform Admin') }}
@@ -264,6 +280,11 @@
                 </div>
 
                 <div class="mt-3 space-y-1">
+                    @if (Auth::user()?->isDeploymentOwner())
+                        <x-responsive-nav-link :href="route('website-hub')" :active="request()->routeIs('website-hub*')">
+                            {{ __('Website Management') }}
+                        </x-responsive-nav-link>
+                    @endif
                     <x-responsive-nav-link :href="route('profile.edit')">
                         {{ __('Profile & Settings') }}
                     </x-responsive-nav-link>
