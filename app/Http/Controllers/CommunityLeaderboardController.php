@@ -85,66 +85,42 @@ class CommunityLeaderboardController extends Controller
     }
 
     /**
-     * Get 9 gamification levels matching Skool specification.
+     * Get 5 gamification levels matching PointContribution thresholds (AC-04).
      *
-     * @return array<int, array{level: int, title: string, perk: ?string, members_pct: string}>
+     * @return array<int, array{level: int, title: string, perk: ?string, points_required: int}>
      */
     protected function getCommunityLevels(Community $community): array
     {
         return [
             1 => [
                 'level' => 1,
-                'title' => 'AI Explorer 🛠',
+                'title' => __('New Member'),
                 'perk' => null,
-                'members_pct' => __('Not measured'),
+                'points_required' => PointContribution::THRESHOLDS[1],
             ],
             2 => [
                 'level' => 2,
-                'title' => 'Automation Novice 🛠',
+                'title' => __('Active Contributor'),
                 'perk' => null,
-                'members_pct' => __('Not measured'),
+                'points_required' => PointContribution::THRESHOLDS[2],
             ],
             3 => [
                 'level' => 3,
-                'title' => 'AI Operator 🛠',
+                'title' => __('Core Contributor'),
                 'perk' => null,
-                'members_pct' => __('Not measured'),
+                'points_required' => PointContribution::THRESHOLDS[3],
             ],
             4 => [
                 'level' => 4,
-                'title' => 'Agent Builder 🤖',
+                'title' => __('Community Leader'),
                 'perk' => null,
-                'members_pct' => __('Not measured'),
+                'points_required' => PointContribution::THRESHOLDS[4],
             ],
             5 => [
                 'level' => 5,
-                'title' => 'Agent Orchestrator 🤖',
+                'title' => __('Community Master'),
                 'perk' => null,
-                'members_pct' => __('Not measured'),
-            ],
-            6 => [
-                'level' => 6,
-                'title' => 'AI Engineer 🤖',
-                'perk' => null,
-                'members_pct' => __('Not measured'),
-            ],
-            7 => [
-                'level' => 7,
-                'title' => 'AI Visionary 💎',
-                'perk' => null,
-                'members_pct' => __('Not measured'),
-            ],
-            8 => [
-                'level' => 8,
-                'title' => 'AI Mastermind ✨',
-                'perk' => null,
-                'members_pct' => __('Not measured'),
-            ],
-            9 => [
-                'level' => 9,
-                'title' => 'AI Grandmaster 🚀',
-                'perk' => null,
-                'members_pct' => __('Not measured'),
+                'points_required' => PointContribution::THRESHOLDS[5],
             ],
         ];
     }

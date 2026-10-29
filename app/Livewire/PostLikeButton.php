@@ -49,7 +49,7 @@ class PostLikeButton extends Component
     {
         $user = auth()->user();
         if (! $user) {
-            $this->errorMessage = 'Please sign in to like posts.';
+            $this->errorMessage = __('Please sign in to like posts.');
 
             return $this->state();
         }
@@ -73,7 +73,7 @@ class PostLikeButton extends Component
                 }
 
                 if ((int) $post->user_id === (int) $user->id) {
-                    $this->errorMessage = 'You cannot like your own post.';
+                    $this->errorMessage = __('You cannot like your own post.');
 
                     return;
                 }
