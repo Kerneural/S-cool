@@ -2,6 +2,139 @@
 
 A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
+## EUR-76 — Quản trị website management hub (2026-10-29)
+
+- Authority: User instruction to execute task M14 of issue [EUR-76](https://linear.app/eurusdevsec/issue/EUR-76/m14-quan-tri-website-management-hub).
+- Baseline: branch `eur-76-website-management-hub` at `e4395d0`. Untracked/ignored: `prompt.md`, `promp.md`, `.agent/`.
+- Outcome: The owner opens **Quản trị website** from the main navigation and reaches every management task for every community without switching accounts or hunting through menus.
+- AC:
+  - AC-01: Given the owner with two communities, the hub lists both and each link opens the correct community's existing tool.
+  - AC-02: Given a learner, the hub link is absent and the hub URL returns 403.
+  - AC-03: Given 375px and desktop, the hub is usable without horizontal overflow and reachable by keyboard.
+  - AC-04: Every label on the hub is Vietnamese.
+- Scope boundaries: Owns `routes/web.php` (`/website-hub`), `app/Http/Controllers/WebsiteManagementHubController.php`, `resources/views/website-hub/index.blade.php`, and `resources/views/layouts/navigation.blade.php` hunk. Excludes new site-wide aggregate lists, new metrics, branding/settings editors.
+- Target files:
+  - `config/scool.php`
+  - `app/Models/User.php`
+  - `routes/web.php`
+  - `app/Http/Controllers/WebsiteManagementHubController.php`
+  - `resources/views/website-hub/index.blade.php`
+  - `resources/views/layouts/navigation.blade.php`
+  - `lang/modules/classroom/vi.json`
+  - `tests/Feature/WebsiteManagementHubTest.php`
+- Verification results (2026-10-29):
+  - `php artisan test tests/Feature/WebsiteManagementHubTest.php`: 7 passed (53 assertions), Duration 18.25s, Exit 0. AC-01 to AC-04 fully verified.
+  - `php artisan test tests/Feature/LearnerCourseFlowTest.php`: 6 passed (59 assertions), Duration 19.40s, Exit 0.
+  - `php artisan test tests/Feature/LearningReaderTest.php`: 5 passed (35 assertions), Duration 20.09s, Exit 0.
+  - `php artisan test tests/Feature/LessonAuthoringToolbarTest.php`: 8 passed (39 assertions), Duration 20.14s, Exit 0.
+  - `php artisan test tests/Feature/CourseManagementWorkspaceTest.php`: 7 passed (75 assertions), Duration 20.51s, Exit 0.
+  - `php artisan test tests/Feature/ClassroomRegressionTest.php`: 12 passed (236 assertions), Duration 24.52s, Exit 0.
+  - Full suite: 45 passed (497 assertions) in 33.36s.
+  - `composer run pint:test`: 323 files passed with zero style violations.
+  - `vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M`: 132/132 files checked, [OK] No errors.
+  - `npm run build`: built in 2.12s, Exit 0.
+  - `node --test tests/js/*.test.mjs`: 24 passed, 0 failed.
+  - `bash scripts/verify-agent-contract.sh`: [PASS] 11 shared files; routing/privacy gates valid.
+- Status: Ready for user review and acceptance. Awaiting authorization to commit/push/merge.
+
+## EUR-81 — Learner course flow and completion feedback (2026-10-28)
+
+- Authority: User instruction to execute task M14 of issue [EUR-81](https://linear.app/eurusdevsec/issue/EUR-81/m14-learner-course-flow-and-completion-feedback).
+- Baseline: branch `eur-81-learner-course-flow` at `16742fc`. Untracked/ignored: `docs/EUR_81_IMPLEMENTATION_PLAN.md`, `prompt.md`, `promp.md`.
+- Outcome: A learner opens a course, sees where to start or continue, studies with a clear outline, and marks lessons complete with feedback that reflects what the server saved.
+- AC:
+  - AC-01: Given a learner with lessons 1–2 complete, **Học tiếp** opens lesson 3.
+  - AC-02: Given a failed completion request, the previous state remains, a Vietnamese error appears and retry works.
+  - AC-03: Double-clicking completion creates one progress record and no duplicate contribution.
+  - AC-04: Drafts and empty unpublished sections stay hidden; suspended/removed users and mismatched course/lesson URLs cannot read content or change progress.
+  - AC-05: An unentitled learner on a paid course sees price/access explanation and cannot fetch lesson bodies or private media.
+- Scope boundaries: Owns `classroom/courses/show.blade.php` (Start/Continue entry & hidden empty sections), `classroom/lessons/show.blade.php` (outline reader, highlight & translations), `components/lesson-progress.blade.php` (loading, retry & Vietnamese error feedback), and `lang/modules/classroom/vi.json`. Does NOT add auto-complete, forced auto-next, or modify Markdown toolbar/preview (`EUR-80`).
+- Target files:
+  - `lang/modules/classroom/vi.json`
+  - `resources/views/components/lesson-progress.blade.php`
+  - `resources/views/classroom/courses/show.blade.php`
+  - `resources/views/classroom/lessons/show.blade.php`
+  - `tests/Feature/LearnerCourseFlowTest.php`
+- Verification results (2026-10-28):
+  - `php artisan test tests/Feature/LearnerCourseFlowTest.php`: 6 passed (59 assertions), Duration 19.40s, Exit 0. AC-01 to AC-06 fully verified.
+  - `php artisan test tests/Feature/LearningReaderTest.php`: 5 passed (35 assertions), Duration 20.09s, Exit 0.
+  - `php artisan test tests/Feature/LessonProgressTest.php`: 11 passed (55 assertions), Duration 20.97s, Exit 0.
+  - `php artisan test tests/Feature/ClassroomRegressionTest.php`: 12 passed (236 assertions), Duration 24.52s, Exit 0.
+  - `php artisan test tests/Feature/CourseManagementWorkspaceTest.php`: 7 passed (75 assertions), Duration 20.51s, Exit 0.
+  - `php artisan test tests/Feature/LessonAuthoringToolbarTest.php`: 8 passed (39 assertions), Duration 20.14s, Exit 0.
+  - `node --test tests/js/*.test.mjs`: 69 passed, 0 failed, Duration 291ms, Exit 0.
+  - `composer run pint:test`: 320 files passed with zero style violations.
+  - `vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M`: 130/130 files checked, [OK] No errors.
+  - `npm run build`: built in 4.58s, Exit 0.
+  - `bash scripts/verify-agent-contract.sh`: [PASS] 11 shared files; routing/privacy gates valid.
+- Status: Ready for user review and acceptance. Awaiting authorization to commit/push/merge.
+
+## EUR-80 — Lesson authoring toolbar, preview and resource links (2026-10-28)
+
+- Authority: User instruction to execute task M14 of issue [EUR-80](https://linear.app/eurusdevsec/issue/EUR-80/m14-lesson-authoring-toolbar-preview-and-resource-links).
+- Baseline: branch `eur-80-lesson-authoring-toolbar-preview` at `9b67b0a825a00242b1d5938823c860ff30c11b54`. Untracked/ignored: `docs/EUR_80_IMPLEMENTATION_PLAN.md`, `prompt.md`, `promp.md`, `.agents/`.
+- Outcome: Owner formats lesson content (headings, bold, italic, lists, resource links, quote) with toolbar buttons and previews rendered output before publishing, without learning Markdown.
+- AC:
+  - AC-01: Toolbar buttons wrap selection or insert template, keeping focus in field.
+  - AC-02: Preview output matches published reader output (`LessonMarkdown` & `.lesson-prose`).
+  - AC-03: Script tags, `javascript:` links, iframe, raw HTML sanitized/stripped.
+  - AC-04: Legacy plain-text lessons render correctly with `<p>` and soft breaks `<br>`.
+  - AC-05: Preview endpoint denies non-creators and foreign courses (403/404).
+- Scope boundaries: Owns `classroom-lesson-fields.blade.php`, `resources/js/lesson-authoring.js`, and `LessonController::preview`. Does NOT add WYSIWYG, file upload schema, or modify `lesson-progress.blade.php`.
+- Target files:
+  - `routes/web.php`
+  - `app/Http/Controllers/LessonController.php`
+  - `lang/modules/classroom/vi.json`
+  - `resources/js/lesson-authoring.js`
+  - `resources/js/app.js`
+  - `resources/views/components/classroom-lesson-fields.blade.php`
+  - `tests/js/lesson-authoring.test.mjs`
+  - `tests/Feature/LessonAuthoringToolbarTest.php`
+- Verification results (2026-10-28):
+  - `node --test tests/js/*.test.mjs`: 69 passed, 0 failed, Duration 273ms, Exit 0.
+  - `npm run build`: built in 2.05s, Exit 0.
+  - `composer run pint:test`: 319 files passed with zero style violations.
+  - `vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M`: 130/130 files checked, [OK] No errors.
+  - `php artisan test tests/Feature/LessonAuthoringToolbarTest.php`: 7 passed (35 assertions), Exit 0.
+  - `php artisan test tests/Feature/ClassroomRegressionTest.php`: 12 passed (236 assertions), Exit 0.
+  - `php artisan test tests/Feature/CourseManagementWorkspaceTest.php`: 7 passed (75 assertions), Exit 0.
+  - `bash scripts/verify-agent-contract.sh`: [PASS] 11 shared files; routing/privacy gates valid.
+- Status: Ready for user review and acceptance. Awaiting authorization to commit/push/merge.
+
+## EUR-79 — Course management workspace (tree + editor) (2026-10-27)
+
+- Authority: User instruction to execute task M14 of issue [EUR-79](https://linear.app/eurusdevsec/issue/EUR-79/m14-course-management-workspace-tree-editor).
+- Baseline: branch `eur-79-course-management-workspace` at `1ce19a23905c0f0b398b24f7e17b9ba3767ce11b`. Untracked files preserved: `docs/EUR_79_IMPLEMENTATION_PLAN.md`, `promp.md`, `prompt.md`.
+- Outcome: Creator course management workspace with two-column layout (section/lesson tree on left, selected item editor on right, stacked on mobile < 768px). Inline create/reorder for sections and lessons; course settings and cover management. Selection preserved via URL query param (`?lesson=`, `?section=`, `?tab=`) across redirects and validation failures.
+- AC:
+  - AC-01: Owner creates course, 2 chapters, 3 lessons appearing in tree in order without full-page hunt.
+  - AC-02: Validation error editing lesson returns page with that lesson selected and input preserved via `old()`.
+  - AC-03: Reordering section and lesson persists across refresh.
+  - AC-04: Learner or creator of foreign community receives 403/404 on workspace view and mutations.
+  - AC-05: Responsive at 375px without horizontal overflow; accessible by keyboard.
+  - AC-06: 100% Vietnamese labels registered in `lang/modules/classroom/vi.json`.
+- Scope boundaries: Uses existing mutation endpoints; no new POST/PUT/DELETE endpoints. Does NOT modify `classroom.courses.show` forms (preserving existing regression tests). Does NOT modify Markdown toolbar/preview (`EUR-80`).
+- Target files:
+  - `routes/web.php`
+  - `app/Http/Controllers/CourseController.php`
+  - `app/Providers/AppServiceProvider.php`
+  - `lang/modules/classroom/vi.json`
+  - `resources/views/classroom/courses/manage.blade.php`
+  - `resources/views/components/classroom-course-fields.blade.php`
+  - `resources/views/components/classroom-lesson-fields.blade.php`
+  - `resources/views/components/classroom-reorder.blade.php`
+  - `resources/views/classroom/courses/show.blade.php` (link to workspace for creators)
+  - `tests/Feature/CourseManagementWorkspaceTest.php`
+- Verification results (2026-10-27):
+  - `php artisan test tests/Feature/CourseManagementWorkspaceTest.php`: 7 passed (75 assertions), Duration 19.55s, Exit 0. AC-01 to AC-06 fully verified (including 100% Vietnamese on course settings and lesson authoring forms).
+  - `php artisan test tests/Feature/ClassroomRegressionTest.php`: 12 passed (236 assertions), Duration 22.85s, Exit 0.
+  - `php artisan test tests/Feature/ClassroomPublishingTest.php`: 8 passed (106 assertions), Duration 21.04s, Exit 0.
+  - `composer run pint:test`: 318 files passed with zero style violations.
+  - `vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M`: 129/129 files checked, [OK] No errors.
+  - `npm run build`: built in 2.14s, Exit 0.
+  - Chrome DevTools inspection: Checked on active browser instance. 375px mobile viewport confirmed zero horizontal overflow (`scrollWidth: 375, clientWidth: 375, hasHorizontalOverflow: false`). Desktop 1280px 2-column view confirmed interactive selection and tree reordering. Both course settings and lesson authoring forms verified 100% Vietnamese labels and options. Zero console errors.
+- Independent review and publication authorization: Pending user review and authorization.
+
 ## EUR-73 — M14 contract freeze (2026-10-27)
 
 - Authority: product owner requested execution of [EUR-73](https://linear.app/eurusdevsec/issue/EUR-73).
