@@ -2,6 +2,38 @@
 
 A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
+## EUR-81 — Learner course flow and completion feedback (2026-10-28)
+
+- Authority: User instruction to execute task M14 of issue [EUR-81](https://linear.app/eurusdevsec/issue/EUR-81/m14-learner-course-flow-and-completion-feedback).
+- Baseline: branch `eur-81-learner-course-flow` at `16742fc`. Untracked/ignored: `docs/EUR_81_IMPLEMENTATION_PLAN.md`, `prompt.md`, `promp.md`.
+- Outcome: A learner opens a course, sees where to start or continue, studies with a clear outline, and marks lessons complete with feedback that reflects what the server saved.
+- AC:
+  - AC-01: Given a learner with lessons 1–2 complete, **Học tiếp** opens lesson 3.
+  - AC-02: Given a failed completion request, the previous state remains, a Vietnamese error appears and retry works.
+  - AC-03: Double-clicking completion creates one progress record and no duplicate contribution.
+  - AC-04: Drafts and empty unpublished sections stay hidden; suspended/removed users and mismatched course/lesson URLs cannot read content or change progress.
+  - AC-05: An unentitled learner on a paid course sees price/access explanation and cannot fetch lesson bodies or private media.
+- Scope boundaries: Owns `classroom/courses/show.blade.php` (Start/Continue entry & hidden empty sections), `classroom/lessons/show.blade.php` (outline reader, highlight & translations), `components/lesson-progress.blade.php` (loading, retry & Vietnamese error feedback), and `lang/modules/classroom/vi.json`. Does NOT add auto-complete, forced auto-next, or modify Markdown toolbar/preview (`EUR-80`).
+- Target files:
+  - `lang/modules/classroom/vi.json`
+  - `resources/views/components/lesson-progress.blade.php`
+  - `resources/views/classroom/courses/show.blade.php`
+  - `resources/views/classroom/lessons/show.blade.php`
+  - `tests/Feature/LearnerCourseFlowTest.php`
+- Verification results (2026-10-28):
+  - `php artisan test tests/Feature/LearnerCourseFlowTest.php`: 6 passed (59 assertions), Duration 19.40s, Exit 0. AC-01 to AC-06 fully verified.
+  - `php artisan test tests/Feature/LearningReaderTest.php`: 5 passed (35 assertions), Duration 20.09s, Exit 0.
+  - `php artisan test tests/Feature/LessonProgressTest.php`: 11 passed (55 assertions), Duration 20.97s, Exit 0.
+  - `php artisan test tests/Feature/ClassroomRegressionTest.php`: 12 passed (236 assertions), Duration 24.52s, Exit 0.
+  - `php artisan test tests/Feature/CourseManagementWorkspaceTest.php`: 7 passed (75 assertions), Duration 20.51s, Exit 0.
+  - `php artisan test tests/Feature/LessonAuthoringToolbarTest.php`: 8 passed (39 assertions), Duration 20.14s, Exit 0.
+  - `node --test tests/js/*.test.mjs`: 69 passed, 0 failed, Duration 291ms, Exit 0.
+  - `composer run pint:test`: 320 files passed with zero style violations.
+  - `vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M`: 130/130 files checked, [OK] No errors.
+  - `npm run build`: built in 4.58s, Exit 0.
+  - `bash scripts/verify-agent-contract.sh`: [PASS] 11 shared files; routing/privacy gates valid.
+- Status: Ready for user review and acceptance. Awaiting authorization to commit/push/merge.
+
 ## EUR-80 — Lesson authoring toolbar, preview and resource links (2026-10-28)
 
 - Authority: User instruction to execute task M14 of issue [EUR-80](https://linear.app/eurusdevsec/issue/EUR-80/m14-lesson-authoring-toolbar-preview-and-resource-links).
