@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\ValidationException;
@@ -25,28 +26,82 @@ class CommunityController extends Controller
     /**
      * Discover active communities, or filter the user's owned/joined communities.
      */
-    public function index(Request $request): View
+    public function index(Request $request): View|RedirectResponse
     {
         $user = $request->user();
-        $rawFilter = $request->query('filter', 'all');
-        $filter = is_string($rawFilter) && in_array($rawFilter, ['all', 'owned', 'joined'], true) ? $rawFilter : 'all';
+        $isExpert = config('scool.deployment_mode') === 'expert';
 
-        $query = Community::query()
-            ->select(['id', 'creator_id', 'name', 'slug', 'description', 'status', 'cover_path'])
-            ->withExists(['memberships as has_effective_membership' => function ($q) use ($user): void {
-                $q->where('user_id', $user->id)->effective();
-            }]);
+        if ($isExpert) {
+            if ($user && $user->isDeploymentOwner()) {
+                $query = Community::query()
+                    ->where('creator_id', $user->id)
+                    ->select(['id', 'creator_id', 'name', 'slug', 'description', 'status', 'cover_path'])
+                    ->withExists(['memberships as has_effective_membership' => function ($q) use ($user): void {
+                        $q->where('user_id', $user->id)->effective();
+                    }]);
+                $filter = 'owned';
+            } else {
+                $query = Community::query()
+                    ->accessibleTo($user)
+                    ->active()
+                    ->select(['id', 'creator_id', 'name', 'slug', 'description', 'status', 'cover_path'])
+                    ->withExists(['memberships as has_effective_membership' => function ($q) use ($user): void {
+                        $q->where('user_id', $user->id)->effective();
+                    }]);
 
-        if ($filter === 'owned') {
-            $query->where('creator_id', $user->id);
-        } elseif ($filter === 'joined') {
-            $query->where('status', 'ACTIVE')
-                ->where('creator_id', '!=', $user->id)
-                ->whereHas('memberships', function ($q) use ($user): void {
-                    $q->where('user_id', $user->id)->effective();
-                });
+                if ($request->routeIs('dashboard')) {
+                    if ($intended = session()->pull('url.intended')) {
+                        $appUrl = config('app.url');
+                        $isLocalRelative = is_string($intended) && Str::startsWith($intended, '/') && ! Str::startsWith($intended, ['//', '/\\']);
+                        $isLocalAbsolute = is_string($intended) && is_string($appUrl) && Str::startsWith($intended, $appUrl);
+
+                        if (($isLocalRelative || $isLocalAbsolute) && ! Str::contains($intended, ['/dashboard', '/login', '/register', '/verify-email'])) {
+                            return redirect()->to($intended);
+                        }
+                    }
+
+                    $accessibleCount = (clone $query)->count();
+
+                    if ($accessibleCount === 0) {
+                        return view('communities.welcome');
+                    }
+
+                    if ($accessibleCount === 1) {
+                        $single = (clone $query)->first();
+
+                        return redirect()->route('communities.posts.index', $single);
+                    }
+                } elseif ($request->routeIs('communities.index')) {
+                    $accessibleCount = (clone $query)->count();
+
+                    if ($accessibleCount === 0) {
+                        return view('communities.welcome');
+                    }
+                }
+
+                $filter = 'joined';
+            }
         } else {
-            $query->active();
+            $rawFilter = $request->query('filter', 'all');
+            $filter = is_string($rawFilter) && in_array($rawFilter, ['all', 'owned', 'joined'], true) ? $rawFilter : 'all';
+
+            $query = Community::query()
+                ->select(['id', 'creator_id', 'name', 'slug', 'description', 'status', 'cover_path'])
+                ->withExists(['memberships as has_effective_membership' => function ($q) use ($user): void {
+                    $q->where('user_id', $user->id)->effective();
+                }]);
+
+            if ($filter === 'owned') {
+                $query->where('creator_id', $user->id);
+            } elseif ($filter === 'joined') {
+                $query->where('status', 'ACTIVE')
+                    ->where('creator_id', '!=', $user->id)
+                    ->whereHas('memberships', function ($q) use ($user): void {
+                        $q->where('user_id', $user->id)->effective();
+                    });
+            } else {
+                $query->active();
+            }
         }
 
         $rawQ = $request->query('q');

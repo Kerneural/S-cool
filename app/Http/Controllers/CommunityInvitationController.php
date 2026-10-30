@@ -47,6 +47,10 @@ class CommunityInvitationController extends Controller
 
     public function show(string $invitation): View
     {
+        if (! auth()->check()) {
+            session()->put('url.intended', url()->current());
+        }
+
         // Always generic, including guessed/missing IDs. No tenant lookup here.
         return view('invitations.accept', ['invitationId' => $invitation]);
     }

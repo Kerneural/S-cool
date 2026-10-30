@@ -2,6 +2,31 @@
 
 A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
+## EUR-75 — Access-scoped learner entry and discovery (2026-10-30)
+
+- Authority: User instruction to execute task M14 of issue [EUR-75](https://linear.app/eurusdevsec/issue/EUR-75/m14-access-scoped-learner-entry-and-discovery).
+- Baseline: branch `eur-75-access-scoped-learner-entry` at `a843b66`. Untracked/ignored: `docs/EUR_75_IMPLEMENTATION_PLAN.md`, `prompt.md`, `promp.md`, `.agent/`.
+- Outcome: In an expert deployment, a learner lands where they can actually learn: their only community's Feed, a chooser of their communities, or a welcome state — never a directory of communities they have not joined.
+- AC:
+  - AC-01: Given expert mode and a fresh verified learner with zero memberships, `/dashboard` shows the welcome state and no pre-existing community name.
+  - AC-02: Given one effective membership, `/dashboard` redirects to that community's Feed.
+  - AC-03: Given two memberships and one unjoined community, the chooser shows exactly the two; `?filter=all`, `?q=<unjoined name>`, `?page=2` and counts never reveal the third.
+  - AC-04: Given a membership suspended or expired after login, the next request neither lists nor redirects into that community.
+  - AC-05: Given a guest opening an invitation, registering and verifying email, the user returns to the invitation page.
+  - AC-06: Given a permitted About link, a learner sees the approved preview and join/checkout action without gaining membership.
+  - AC-07: Given general mode, the existing discovery behavior and `CommunityDiscoveryTest` remain green.
+- Scope boundaries: Owns `app/Http/Controllers/CommunityController.php` (expert mode scoped routing), `app/Policies/CommunityPolicy.php` (expert mode create gate), `resources/views/communities/welcome.blade.php` (welcome state view), `app/Http/Controllers/CommunityInvitationController.php` (intended URL persistence), `app/Http/Controllers/Auth/RegisteredUserController.php` (intended redirect), and `resources/views/communities/index.blade.php` create button gate. Excludes general-mode discovery changes, public/private listing field, auto-membership, deleting communities.
+- Verification plan: `tests/Feature/ExpertLearnerEntryTest.php` covering AC-01 to AC-07; regression runs on `CommunityDiscoveryTest`, `CommunityWorkspaceSwitcherTest`, `PrivateCommunityAccessTest`, `CommunityAcquisitionTest`, `WebsiteManagementHubTest`.
+- Verification results (2026-10-31):
+  - `php artisan test tests/Feature/ExpertLearnerEntryTest.php`: 8 passed (47 assertions), Exit 0. AC-01 through AC-07 + policy gates fully verified.
+  - Regression suite (`CommunityDiscoveryTest`, `CommunityWorkspaceSwitcherTest`, `PrivateCommunityAccessTest`, `CommunityAcquisitionTest`, `WebsiteManagementHubTest`, `ExpertLearnerEntryTest`): 46 passed (444 assertions), Exit 0.
+  - PHPStan: `vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M --no-progress` -> [OK] No errors, Exit 0.
+  - Pint: `composer run pint:test` -> PASS across all 324 files, Exit 0.
+  - Frontend build: `npm run build` -> built in 4.36s, Exit 0.
+  - JS unit tests: `node --test tests/js/*.test.mjs` -> 69 pass, 0 fail, Exit 0.
+  - Agent contract: `scripts/verify-agent-contract.sh --require-tracked` -> PASS, 11 shared files valid, Exit 0.
+- Status: Ready for Review (acceptance-ready).
+
 ## EUR-76 — Quản trị website management hub (2026-10-29)
 
 - Authority: User instruction to execute task M14 of issue [EUR-76](https://linear.app/eurusdevsec/issue/EUR-76/m14-quan-tri-website-management-hub).
