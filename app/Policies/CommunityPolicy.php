@@ -32,6 +32,10 @@ class CommunityPolicy
      */
     public function create(User $user): bool
     {
+        if (config('scool.deployment_mode') === 'expert') {
+            return $user->isDeploymentOwner();
+        }
+
         return true;
     }
 

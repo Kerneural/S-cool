@@ -28,6 +28,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        $classroomLang = base_path('lang/modules/classroom');
+        if (is_dir($classroomLang)) {
+            $this->loadJsonTranslationsFrom($classroomLang);
+        }
     }
 }
