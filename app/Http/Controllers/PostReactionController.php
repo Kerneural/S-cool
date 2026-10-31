@@ -49,7 +49,7 @@ class PostReactionController extends Controller
 
         if ((int) $post->user_id === (int) $user->id) {
             throw ValidationException::withMessages([
-                'like' => 'You cannot like your own post.',
+                'like' => __('You cannot like your own post.'),
             ]);
         }
 

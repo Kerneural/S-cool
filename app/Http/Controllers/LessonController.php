@@ -8,6 +8,8 @@ use App\Models\CourseSection;
 use App\Models\Lesson;
 use App\Services\ClassroomMutation;
 use App\Services\VideoEmbedService;
+use App\Support\LessonMarkdown;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -183,5 +185,22 @@ class LessonController extends Controller
         ClassroomMutation::run($community, $course, $section, null, fn ($community, $course, $section) => ClassroomMutation::reorder($section->lessons(), $validated['order']));
 
         return back()->with('status', 'Lessons reordered successfully.');
+    }
+
+    public function preview(Request $request, Community $community, Course $course): JsonResponse
+    {
+        if ($course->community_id !== $community->id) {
+            abort(404);
+        }
+
+        Gate::authorize('update', $course);
+
+        $validated = $request->validate([
+            'content' => ['nullable', 'string', 'max:50000'],
+        ]);
+
+        $html = LessonMarkdown::toHtml($validated['content'] ?? '');
+
+        return response()->json(['html' => $html]);
     }
 }
