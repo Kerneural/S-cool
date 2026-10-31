@@ -100,9 +100,11 @@
                         @elseif (($currentFilter ?? 'all') === 'owned')
                             <h3 class="text-base font-semibold text-slate-900 mb-1">{{ __('No created communities yet') }}</h3>
                             <p class="text-sm text-slate-500 mb-6 max-w-md mx-auto">{{ __('You have not created any communities yet. Build your first learning hub in seconds.') }}</p>
+                        @can('create', App\Models\Community::class)
                             <a href="{{ route('communities.create') }}" class="inline-flex items-center px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-medium text-xs rounded-xl transition shadow-sm shadow-brand-500/20">
                                 {{ __('Create a Community') }}
                             </a>
+                        @endcan
                         @elseif (($currentFilter ?? 'all') === 'joined')
                             <h3 class="text-base font-semibold text-slate-900 mb-1">{{ __('No memberships found') }}</h3>
                             <p class="text-sm text-slate-500 mb-6 max-w-md mx-auto">{{ __('You have not joined any communities as a member yet.') }}</p>
