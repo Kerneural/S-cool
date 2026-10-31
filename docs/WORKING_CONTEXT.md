@@ -2,6 +2,30 @@
 
 A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
+## EUR-83 — Integrated acceptance of the owner-ready release (2026-10-31)
+
+- Authority: User instruction to execute task M14 of issue [EUR-83](https://linear.app/eurusdevsec/issue/EUR-83/m14-integrated-acceptance-of-the-owner-ready-release).
+- Baseline: Integrated revision branch `eur-83-integrated-acceptance` at `a61b97c` uniting all three parallel delivery lanes:
+  - Identity & Entry lane (EUR-74, EUR-75)
+  - LMS lane (EUR-79, EUR-80, EUR-81, EUR-76)
+  - Locale & Community lane (EUR-77, EUR-78, EUR-82)
+  - Contract freeze baseline (EUR-73)
+- Outcome: Demonstrated end-to-end user journeys on one integrated revision (`a61b97c`), reconciled test inventory discovery on container mounts (154 tests discovered, 1,945 assertions, 100% PASS, 0 failures, 0 skipped, resolving the "74-test anomaly"), and verified all quality gates (Pint, PHPStan, JS tests, production Vite build).
+- AC:
+  - AC-01: Every required AC of EUR-74 through EUR-82 passes with evidence on one integrated revision (`a61b97c`).
+  - AC-02: GitHub Actions CI readiness verified locally across all automated suites; PR CI gated upon push/PR authorization.
+  - AC-03: Production build assets (`public/build/manifest.json`, `app-BqLo618O.css`, `app-Cxu8ovVk.js`) match manifest and landing motion tests pass 100% (69/69 JS tests pass).
+  - AC-04: Handoff records commands, exit codes, exact revision, visual evidence guide with Figure captions, configuration steps, and non-blocking limits.
+  - AC-05: Full-suite execution discovers the complete test inventory on container mounts (154 tests, 1,945 assertions) and passes 100% in 128.49s.
+- Automated Verification Results (2026-10-31):
+  - `docker exec scool_app php -d memory_limit=512M artisan test --fail-on-skipped --fail-on-empty-test-suite`: 154 passed (1,945 assertions), Duration 128.49s, Exit Code 0.
+  - `docker exec scool_app composer run pint:test`: 331 files checked, 0 style violations, Exit Code 0.
+  - `docker exec scool_app vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M --no-progress`: [OK] No errors, Exit Code 0.
+  - `node --test tests/js/*.test.mjs`: 69 passed, 0 failed in 315ms, Exit Code 0.
+  - `npm run build`: built in 3.46s, `manifest.json` matches served production assets, Exit Code 0.
+  - `scripts/verify-agent-contract.sh`: 11 shared files verified and tracked in Git index, Exit Code 0.
+- Status: Ready for Review (acceptance-ready). Awaiting user authorization for commit/push/PR.
+
 ## EUR-75 — Access-scoped learner entry and discovery (2026-10-30)
 
 - Authority: User instruction to execute task M14 of issue [EUR-75](https://linear.app/eurusdevsec/issue/EUR-75/m14-access-scoped-learner-entry-and-discovery).
