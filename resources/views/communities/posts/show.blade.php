@@ -20,7 +20,7 @@
                         <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                         </svg>
-                        <span>{{ session('status') }}</span>
+                        <span>{{ __(session('status')) }}</span>
                     </div>
                 </div>
             @endif
@@ -110,7 +110,7 @@
                         @endcan
 
                         @can('delete', $post)
-                            <form method="POST" action="{{ route('communities.posts.destroy', [$community, $post]) }}" onsubmit="return confirm('Are you sure you want to delete this post?');">
+                            <form method="POST" action="{{ route('communities.posts.destroy', [$community, $post]) }}" onsubmit="return confirm('{{ __('Are you sure you want to delete this post?') }}');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="px-2.5 py-1 text-xs text-rose-700 bg-rose-50 hover:bg-rose-100 font-semibold rounded-lg border border-rose-200 transition">
@@ -225,7 +225,7 @@
                                         @endcan
 
                                         @can('delete', $comment)
-                                            <form method="POST" action="{{ route('communities.posts.comments.destroy', [$community, $post, $comment]) }}" onsubmit="return confirm('Delete comment?');">
+                                            <form method="POST" action="{{ route('communities.posts.comments.destroy', [$community, $post, $comment]) }}" onsubmit="return confirm('{{ __('Delete comment?') }}');">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="text-xs text-rose-600 hover:text-rose-800 font-semibold transition">

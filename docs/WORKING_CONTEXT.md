@@ -179,6 +179,23 @@ A checkpoint is historical context, not current Linear/Git/runtime evidence. Ver
   - `tests/Feature/VietnameseLocaleTest.php`: 8 passed, 363 assertions; module catalogs collision-free and deterministically loaded.
   - Code style: `./vendor/bin/pint --test` PASS (323 files).
   - Structural contract: `bash scripts/verify-agent-contract.sh` exited 0 (11 shared files PASS).
+## EUR-82 — M14 Community discussion, members and points clarity (2026-10-29)
+
+- Authority: assigned [EUR-82](https://linear.app/eurusdevsec/issue/EUR-82); user agreed and selected Phương án A (real 5-level thresholds matching `PointContribution::THRESHOLDS` and clear Vietnamese point calculation card).
+- Starting branch: `hadangkhoasss/eur-82-m14-community-discussion-members-and-points-clarity` branched from `cdbfe03` (`hadangkhoasss/eur-77-m14-vietnamese-default-locale-foundation`).
+- Scope & Contracts implemented:
+  - Created dedicated module translation catalog `lang/modules/community/vi.json` covering feed, discussions, composer, comments, members directory, events, leaderboard, and Livewire reactions/viewer. No key collisions with `lang/vi.json`.
+  - Refactored `CommunityLeaderboardController::getCommunityLevels()` and `resources/views/communities/leaderboard.blade.php`:
+    - Swapped 9 hardcoded mock levels and "Distribution not measured" placeholders for the real 5 threshold levels (Level 1: 0, Level 2: 5, Level 3: 15, Level 4: 30, Level 5: 60) calculated by `PointContribution::THRESHOLDS`.
+    - Added explicit "Quy tắc tính điểm & Cấp độ" and "Bảng xếp hạng & Cách tính điểm" cards explaining +1 point per post/comment like, no self-likes, and automatic deduction on unlike.
+  - Localized controller redirect status flash messages (`post-created`, `comment-created`, `event-created`, `member-suspended`, etc.) and Livewire notices (`PostLikeButton`, `PostSaveButton`, `DiscussionViewer`) to natural Vietnamese text.
+- Verification:
+  - `tests/Feature/CommunityDiscussionPointsTest.php`: 5 passed, 69 assertions covering AC-01 to AC-05.
+  - `tests/Feature/CommunityLeaderboardTest.php`: 8 passed, 75 assertions.
+  - `tests/Feature/LeaderboardMultiMetricTest.php`: 3 passed, 10 assertions.
+  - `tests/Feature/VietnameseLocaleTest.php`: 8 passed, 336 assertions.
+  - Code style: `./vendor/bin/pint --test` passed across all 323 files.
+  - Structural agent contract: `scripts/verify-agent-contract.sh --require-tracked` exited 0 (11 shared files PASS).
 
 ## EUR-77 — M14 Vietnamese default locale foundation (2026-10-27)
 
