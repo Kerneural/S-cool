@@ -5,14 +5,14 @@ A checkpoint is historical context, not current Linear/Git/runtime evidence. Ver
 ## EUR-83 — Integrated acceptance of the owner-ready release (2026-10-31)
 
 - Authority: User instruction to execute task M14 of issue [EUR-83](https://linear.app/eurusdevsec/issue/EUR-83/m14-integrated-acceptance-of-the-owner-ready-release).
-- Baseline: Integrated revision branch `eur-83-integrated-acceptance` at `a61b97c` uniting all three parallel delivery lanes:
+- Baseline: Integrated revision branch `eur-83-integrated-acceptance` at `be4f290` uniting all three parallel delivery lanes:
   - Identity & Entry lane (EUR-74, EUR-75)
   - LMS lane (EUR-79, EUR-80, EUR-81, EUR-76)
   - Locale & Community lane (EUR-77, EUR-78, EUR-82)
   - Contract freeze baseline (EUR-73)
-- Outcome: Demonstrated end-to-end user journeys on one integrated revision (`a61b97c`), reconciled test inventory discovery on container mounts (154 tests discovered, 1,945 assertions, 100% PASS, 0 failures, 0 skipped, resolving the "74-test anomaly"), and verified all quality gates (Pint, PHPStan, JS tests, production Vite build).
+- Outcome: Demonstrated end-to-end user journeys on one integrated revision (`be4f290`), reconciled test inventory discovery on container mounts (154 tests discovered, 1,945 assertions, 100% PASS, 0 failures, 0 skipped, resolving the "74-test anomaly"), patched CI npm audit security vulnerabilities (follow-redirects & vite), and verified all quality gates (Pint, PHPStan, JS tests, production Vite build).
 - AC:
-  - AC-01: Every required AC of EUR-74 through EUR-82 passes with evidence on one integrated revision (`a61b97c`).
+  - AC-01: Every required AC of EUR-74 through EUR-82 passes with evidence on one integrated revision (`be4f290`).
   - AC-02: GitHub Actions CI readiness verified locally across all automated suites; PR CI gated upon push/PR authorization.
   - AC-03: Production build assets (`public/build/manifest.json`, `app-BqLo618O.css`, `app-Cxu8ovVk.js`) match manifest and landing motion tests pass 100% (69/69 JS tests pass).
   - AC-04: Handoff records commands, exit codes, exact revision, visual evidence guide with Figure captions, configuration steps, and non-blocking limits.
