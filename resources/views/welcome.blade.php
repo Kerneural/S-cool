@@ -6,7 +6,7 @@
     <title>S-cool — The Private Learning & Community Platform</title>
     <meta name="description" content="S-cool enables every community to own their learning and knowledge sharing. Structured classrooms, private discussions, and proof of work reviews.">
 
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20261028">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
@@ -23,8 +23,8 @@
             <!-- Left: Brand Logo & Links -->
             <div class="flex items-center gap-8">
                 <a href="/" class="flex items-center gap-2.5 group focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 rounded-lg" aria-label="S-cool Home">
-                    <x-application-logo class="w-8 h-8 rounded-lg shadow-xs" />
-                    <span class="font-bold text-xl text-ink tracking-tight font-sans">S-cool</span>
+                    <x-application-logo class="w-8 h-8 group-hover:scale-105 transition-transform" />
+                    <span class="font-extrabold text-2xl text-ink tracking-tight font-sans">S-cool</span>
                 </a>
 
                 <!-- Desktop Navigation Menu -->
@@ -35,7 +35,7 @@
                                 x-ref="productsTrigger" :aria-expanded="productsOpen" aria-controls="landing-products"
                                 @click="productsOpen = !productsOpen; learnOpen = false"
                                 class="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-muted hover:text-ink hover:bg-slate-100/60 rounded-lg transition-colors duration-150">
-                            <span>Products</span>
+                            <span>{{ __('Products') }}</span>
                             <svg class="w-3.5 h-3.5 text-muted transition-transform duration-200" :class="productsOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                             </svg>
@@ -54,8 +54,8 @@
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                                 </div>
                                 <div>
-                                    <div class="text-xs font-semibold text-ink">Community</div>
-                                    <div class="text-[11px] text-muted">Private feeds, member roles & moderation</div>
+                                    <div class="text-xs font-semibold text-ink">{{ __('Community') }}</div>
+                                    <div class="text-[11px] text-muted">{{ __('Private feeds, member roles & moderation') }}</div>
                                 </div>
                             </a>
                             <a href="{{ route('communities.index') }}" class="flex items-start gap-3 p-2.5 rounded-lg hover:bg-slate-50 transition-colors">
@@ -63,8 +63,8 @@
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                                 </div>
                                 <div>
-                                    <div class="text-xs font-semibold text-ink">Classroom</div>
-                                    <div class="text-[11px] text-muted">Courses, lessons & completion progress</div>
+                                    <div class="text-xs font-semibold text-ink">{{ __('Classroom') }}</div>
+                                    <div class="text-[11px] text-muted">{{ __('Courses, lessons & completion progress') }}</div>
                                 </div>
                             </a>
                             <a href="{{ route('communities.index') }}" class="flex items-start gap-3 p-2.5 rounded-lg hover:bg-slate-50 transition-colors">
@@ -72,8 +72,8 @@
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
                                 </div>
                                 <div>
-                                    <div class="text-xs font-semibold text-ink">Practical review</div>
-                                    <div class="text-[11px] text-muted">Submitted work with creator feedback</div>
+                                    <div class="text-xs font-semibold text-ink">{{ __('Practical review') }}</div>
+                                    <div class="text-[11px] text-muted">{{ __('Submitted work with creator feedback') }}</div>
                                 </div>
                             </a>
                         </div>
@@ -85,7 +85,7 @@
                                 x-ref="learnTrigger" :aria-expanded="learnOpen" aria-controls="landing-learn"
                                 @click="learnOpen = !learnOpen; productsOpen = false"
                                 class="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-muted hover:text-ink hover:bg-slate-100/60 rounded-lg transition-colors duration-150">
-                            <span>Learn</span>
+                            <span>{{ __('Learn') }}</span>
                             <svg class="w-3.5 h-3.5 text-muted transition-transform duration-200" :class="learnOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                             </svg>
@@ -100,24 +100,24 @@
                              x-transition:leave-end="opacity-0 translate-y-1"
                              class="absolute left-0 mt-1.5 w-64 bg-surface rounded-xl border border-line shadow-lg p-2 z-50">
                             <a href="{{ route('help.index') }}" class="block p-2.5 rounded-lg hover:bg-slate-50 transition-colors">
-                                <div class="text-xs font-semibold text-ink">Platform Documentation</div>
-                                <div class="text-[11px] text-muted">Technical setup and community guides</div>
+                                <div class="text-xs font-semibold text-ink">{{ __('Platform Documentation') }}</div>
+                                <div class="text-[11px] text-muted">{{ __('Technical setup and community guides') }}</div>
                             </a>
                             <a href="{{ route('help.index') }}" class="block p-2.5 rounded-lg hover:bg-slate-50 transition-colors">
-                                <div class="text-xs font-semibold text-ink">Cohort Playbooks</div>
-                                <div class="text-[11px] text-muted">Best practices for engaged student groups</div>
+                                <div class="text-xs font-semibold text-ink">{{ __('Cohort Playbooks') }}</div>
+                                <div class="text-[11px] text-muted">{{ __('Best practices for engaged student groups') }}</div>
                             </a>
                         </div>
                     </div>
 
                     <a href="{{ route('help.index') }}" class="px-3 py-2 text-sm font-medium text-muted hover:text-ink hover:bg-slate-100/60 rounded-lg transition-colors duration-150">
-                        Docs
+                        {{ __('Docs') }}
                     </a>
                     <a href="{{ route('communities.index') }}" class="px-3 py-2 text-sm font-medium text-muted hover:text-ink hover:bg-slate-100/60 rounded-lg transition-colors duration-150">
-                        Communities
+                        {{ __('Communities') }}
                     </a>
                     <a href="#features" class="px-3 py-2 text-sm font-medium text-muted hover:text-ink hover:bg-slate-100/60 rounded-lg transition-colors duration-150">
-                        Features
+                        {{ __('Features') }}
                     </a>
                 </nav>
             </div>
@@ -127,17 +127,17 @@
                 @auth
                     <a href="{{ route('communities.index') }}"
                        class="inline-flex items-center gap-1.5 px-4 py-2 bg-brand hover:bg-brand-hover text-white rounded-lg text-xs font-semibold shadow-xs transition-colors duration-150">
-                        <span>Dashboard</span>
+                        <span>{{ __('Dashboard') }}</span>
                         <svg class="landing-arrow w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                     </a>
                 @else
                     <a href="{{ route('login') }}" class="hidden sm:inline-flex px-3 py-2 text-xs font-medium text-muted hover:text-ink rounded-lg transition-colors duration-150">
-                        Log In
+                        {{ __('Log In') }}
                     </a>
                     @if (Route::has('register'))
                         <a href="{{ route('register') }}"
                            class="inline-flex items-center gap-1.5 px-4 py-2 bg-brand hover:bg-brand-hover text-white rounded-lg text-xs font-semibold shadow-xs transition-colors duration-150">
-                            <span>Get Started</span>
+                            <span>{{ __('Get Started') }}</span>
                             <svg class="landing-arrow w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                                 <path d="M11.9852 4L12 10.7704H10.9314V6.60741L10.9462 5.80741L4.74211 12L4 11.2444L10.2041 5.03704L9.47681 5.05185L5.21707 5.05185V4L11.9852 4Z" fill="currentColor"/>
                             </svg>
@@ -161,13 +161,13 @@
 
         <!-- Mobile Menu Drawer -->
         <div id="landing-mobile-navigation" x-show="mobileMenuOpen" x-cloak class="md:hidden border-t border-line px-4 py-3 space-y-2">
-            <a href="{{ route('communities.index') }}" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-slate-50">Communities</a>
-            <a href="{{ route('help.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-slate-50">Docs & Help Center</a>
-            <a href="#features" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-slate-50">Features</a>
+            <a href="{{ route('communities.index') }}" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-slate-50">{{ __('Communities') }}</a>
+            <a href="{{ route('help.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-slate-50">{{ __('Docs & Help Center') }}</a>
+            <a href="#features" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-slate-50">{{ __('Features') }}</a>
             @guest
                 <div class="pt-2 border-t border-line flex flex-col gap-2">
-                    <a href="{{ route('login') }}" class="w-full text-center py-2 text-sm font-medium text-muted hover:text-ink">Log In</a>
-                    <a href="{{ route('register') }}" class="w-full text-center py-2 bg-brand text-white rounded-lg text-sm font-semibold">Get Started Free</a>
+                    <a href="{{ route('login') }}" class="w-full text-center py-2 text-sm font-medium text-muted hover:text-ink">{{ __('Log In') }}</a>
+                    <a href="{{ route('register') }}" class="w-full text-center py-2 bg-brand text-white rounded-lg text-sm font-semibold">{{ __('Get Started Free') }}</a>
                 </div>
             @endguest
         </div>
@@ -1389,8 +1389,8 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pb-12 border-b border-line">
                 <div class="lg:col-span-5 space-y-3">
                     <a href="/" class="flex items-center gap-2.5">
-                        <x-application-logo class="w-7 h-7 rounded-lg" />
-                        <span class="font-bold text-lg text-ink">S-cool</span>
+                        <x-application-logo class="w-7 h-7" />
+                        <span class="font-extrabold text-xl text-ink tracking-tight font-sans">S-cool</span>
                     </a>
                     <p class="text-xs text-muted max-w-sm leading-relaxed">
                         The open platform for private cohort communities, structured curriculums, and verifiable peer feedback. Built for creators, trusted by learners.
@@ -1486,9 +1486,34 @@
                 </div>
             </div>
 
-            <!-- Static outlined wordmark: decorative, excluded from the accessibility tree -->
-            <div class="pt-6 overflow-hidden text-center select-none" aria-hidden="true">
-                <span class="landing-wordmark block text-[22vw] sm:text-9xl lg:text-[11rem] leading-none font-black font-sans tracking-tight">S-cool</span>
+            <!-- Outlined brand lockup (LangChain aesthetic): decorative, excluded from the accessibility tree -->
+            <div class="landing-wordmark-container pt-8 pb-4 text-center select-none flex justify-center" data-reveal aria-hidden="true">
+                <span class="landing-wordmark inline-flex items-center justify-center w-full">
+                    <svg class="landing-footer-brand-svg" viewBox="0 0 560 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Geometric mark on the left (pure wireframe outline, unboxed) -->
+                        <g transform="translate(15, 15) scale(3.235) translate(-7, -7)">
+                            <!-- Piece 1: Top-left Leaf / Open Page -->
+                            <path d="M16 23 C16 14.716 22.716 8 31 8 C31 16.284 24.284 23 16 23 Z"
+                                  stroke="currentColor" stroke-width="1.8" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+                            <!-- Piece 2: Top-right Book Spine Arc -->
+                            <path d="M32.5 9.5 C36.642 9.5 40 12.858 40 17 C40 21.142 36.642 24.5 32.5 24.5 C32.5 16.284 32.5 9.5 32.5 9.5 Z"
+                                  stroke="currentColor" stroke-width="1.8" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+                            <!-- Piece 3: Bottom-left Community Base -->
+                            <path d="M15.5 24.5 C11.358 24.5 8 27.858 8 32 C8 36.142 11.358 39.5 15.5 39.5 C15.5 31.716 15.5 24.5 15.5 24.5 Z"
+                                  stroke="currentColor" stroke-width="1.8" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+                            <!-- Piece 4: Bottom-right Forward Leaf -->
+                            <path d="M32 25 C23.716 25 17 31.716 17 40 C25.284 40 32 33.284 32 25 Z"
+                                  stroke="currentColor" stroke-width="1.8" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+                        </g>
+                        <!-- Outlined wordmark on the right (same baseline, locked proportion) -->
+                        <text x="152" y="103"
+                              font-family="'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+                              font-size="108" font-weight="800" letter-spacing="-3"
+                              fill="none" stroke="currentColor" stroke-width="1.8" vector-effect="non-scaling-stroke">
+                            S<tspan font-weight="700">-</tspan>cool
+                        </text>
+                    </svg>
+                </span>
             </div>
 
             <!-- Bottom Sub-Footer: Status & Legal -->

@@ -32,7 +32,17 @@ class CommunityPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        $mode = config('scool.deployment_mode', 'general');
+
+        if ($mode === 'expert') {
+            return $user->isDeploymentOwner();
+        }
+
+        if ($mode === 'general') {
+            return true;
+        }
+
+        return false;
     }
 
     /**

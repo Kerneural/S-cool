@@ -57,6 +57,102 @@ class CourseController extends Controller
         return view('classroom.courses.show', compact('community', 'course', 'isCreator', 'isActiveMember', 'progressSummary', 'isEntitled'));
     }
 
+    public function manage(Request $request, Community $community, Course $course): View
+    {
+        if (! $community->isActive() || $course->community_id !== $community->id) {
+            abort(404);
+        }
+
+        Gate::authorize('update', $course);
+
+        $course->load([
+            'sections' => fn ($query) => $query->ordered(),
+            'sections.lessons' => fn ($query) => $query->ordered(),
+        ]);
+
+        $oldForm = old('_form');
+        $selectedLesson = null;
+        $selectedSection = null;
+        $selectedMode = null;
+
+        if (is_string($oldForm) && $oldForm !== '') {
+            if (str_starts_with($oldForm, 'edit-lesson-')) {
+                $lessonId = (int) substr($oldForm, strlen('edit-lesson-'));
+                $selectedLesson = $course->sections->flatMap->lessons->firstWhere('id', $lessonId);
+                if ($selectedLesson) {
+                    $selectedMode = 'lesson';
+                    $selectedSection = $selectedLesson->section;
+                }
+            } elseif (str_starts_with($oldForm, 'create-lesson-')) {
+                $sectionId = (int) substr($oldForm, strlen('create-lesson-'));
+                $selectedSection = $course->sections->firstWhere('id', $sectionId);
+                if ($selectedSection) {
+                    $selectedMode = 'create-lesson';
+                }
+            } elseif (str_starts_with($oldForm, 'edit-section-')) {
+                $sectionId = (int) substr($oldForm, strlen('edit-section-'));
+                $selectedSection = $course->sections->firstWhere('id', $sectionId);
+                if ($selectedSection) {
+                    $selectedMode = 'section';
+                }
+            } elseif ($oldForm === 'create-section') {
+                $selectedMode = 'create-section';
+            } elseif ($oldForm === 'edit-course' || $oldForm === 'course-cover') {
+                $selectedMode = 'settings';
+            }
+        }
+
+        if (! $selectedMode) {
+            if ($request->filled('lesson')) {
+                $lessonId = (int) $request->query('lesson');
+                $selectedLesson = $course->sections->flatMap->lessons->firstWhere('id', $lessonId);
+                if ($selectedLesson) {
+                    $selectedMode = 'lesson';
+                    $selectedSection = $selectedLesson->section;
+                }
+            } elseif ($request->filled('create_lesson')) {
+                $sectionId = (int) $request->query('create_lesson');
+                $selectedSection = $course->sections->firstWhere('id', $sectionId);
+                if ($selectedSection) {
+                    $selectedMode = 'create-lesson';
+                }
+            } elseif ($request->filled('section')) {
+                $sectionId = (int) $request->query('section');
+                $selectedSection = $course->sections->firstWhere('id', $sectionId);
+                if ($selectedSection) {
+                    $selectedMode = 'section';
+                }
+            } elseif ($request->query('action') === 'create-section') {
+                $selectedMode = 'create-section';
+            } elseif ($request->query('tab') === 'settings') {
+                $selectedMode = 'settings';
+            }
+        }
+
+        if (! $selectedMode) {
+            $firstSection = $course->sections->first();
+            $firstLesson = $firstSection?->lessons->first();
+            if ($firstLesson) {
+                $selectedLesson = $firstLesson;
+                $selectedSection = $firstSection;
+                $selectedMode = 'lesson';
+            } elseif ($firstSection) {
+                $selectedSection = $firstSection;
+                $selectedMode = 'section';
+            } else {
+                $selectedMode = 'settings';
+            }
+        }
+
+        return view('classroom.courses.manage', compact(
+            'community',
+            'course',
+            'selectedMode',
+            'selectedSection',
+            'selectedLesson'
+        ));
+    }
+
     public function store(Request $request, Community $community): RedirectResponse
     {
         Gate::authorize('create', [Course::class, $community]);

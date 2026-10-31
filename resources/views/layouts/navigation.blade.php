@@ -29,8 +29,9 @@
             <div class="order-1 flex min-w-0 flex-1 items-center gap-2 md:flex-none md:gap-3">
                 <!-- S-cool Home / Brand Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" aria-label="{{ __('S-cool home') }}" class="group rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2">
-                        <x-application-logo class="block h-8 w-auto fill-current text-slate-800 group-hover:scale-105 transition-transform" />
+                    <a href="{{ route('dashboard') }}" aria-label="{{ __('S-cool home') }}" class="group rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 flex items-center gap-2.5">
+                        <x-application-logo class="block h-8 w-auto group-hover:scale-105 transition-transform" />
+                        <span class="font-extrabold text-2xl text-ink tracking-tight font-sans hidden sm:inline-block">S-cool</span>
                     </a>
                 </div>
 
@@ -94,6 +95,11 @@
                         <x-nav-link :href="route('help.index')" :active="request()->routeIs('help.*')">
                             {{ __('Help') }}
                         </x-nav-link>
+                        @if (Auth::user()?->isDeploymentOwner())
+                            <x-nav-link :href="route('website-hub')" :active="request()->routeIs('website-hub*')">
+                                {{ __('Website Management') }}
+                            </x-nav-link>
+                        @endif
                         @if (Auth::user()?->isPlatformAdmin())
                             <x-nav-link :href="route('admin.communities.index')" :active="request()->routeIs('admin.*')">
                                 {{ __('Platform Admin') }}
@@ -157,6 +163,12 @@
                         </x-slot>
 
                         <x-slot name="content">
+                            @if (Auth::user()?->isDeploymentOwner())
+                                <x-dropdown-link :href="route('website-hub')">
+                                    {{ __('Website Management') }}
+                                </x-dropdown-link>
+                            @endif
+
                             <x-dropdown-link :href="route('profile.edit')">
                                 {{ __('Profile & Settings') }}
                             </x-dropdown-link>
@@ -246,6 +258,11 @@
                 <x-responsive-nav-link :href="route('help.index')" :active="request()->routeIs('help.*')">
                     {{ __('Help') }}
                 </x-responsive-nav-link>
+                @if (Auth::user()?->isDeploymentOwner())
+                    <x-responsive-nav-link :href="route('website-hub')" :active="request()->routeIs('website-hub*')">
+                        {{ __('Website Management') }}
+                    </x-responsive-nav-link>
+                @endif
                 @if (Auth::user()?->isPlatformAdmin())
                     <x-responsive-nav-link :href="route('admin.communities.index')" :active="request()->routeIs('admin.*')">
                         {{ __('Platform Admin') }}
@@ -263,6 +280,11 @@
                 </div>
 
                 <div class="mt-3 space-y-1">
+                    @if (Auth::user()?->isDeploymentOwner())
+                        <x-responsive-nav-link :href="route('website-hub')" :active="request()->routeIs('website-hub*')">
+                            {{ __('Website Management') }}
+                        </x-responsive-nav-link>
+                    @endif
                     <x-responsive-nav-link :href="route('profile.edit')">
                         {{ __('Profile & Settings') }}
                     </x-responsive-nav-link>

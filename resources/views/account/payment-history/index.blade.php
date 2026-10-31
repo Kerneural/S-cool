@@ -18,9 +18,9 @@
                     <div class="bg-white shadow-xs rounded-2xl overflow-hidden border border-slate-200/80">
                         <div class="p-6 border-b border-slate-100 flex items-center justify-between">
                             <div>
-                                <h3 class="text-lg font-bold text-slate-900 tracking-tight">Your Payment Attempts</h3>
+                                <h3 class="text-lg font-bold text-slate-900 tracking-tight">{{ __('Your Payment Attempts') }}</h3>
                                 <p class="text-xs text-slate-500 mt-0.5">
-                                    Your community access, renewal and course payment attempts and receipts (SePay Sandbox - Test Mode).
+                                    {{ __('Your community access, renewal and course payment attempts and receipts (SePay Sandbox - Test Mode).') }}
                                 </p>
                             </div>
                         </div>
@@ -30,20 +30,20 @@
                         <svg class="w-10 h-10 mx-auto text-slate-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                         </svg>
-                        <p class="font-medium text-slate-500">No payment attempts recorded for your account.</p>
+                        <p class="font-medium text-slate-500">{{ __('No payment attempts recorded for your account.') }}</p>
                     </div>
                 @else
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse text-sm">
                             <thead>
                                 <tr class="bg-slate-50/75 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                                    <th class="py-3.5 px-5">Reference</th>
-                                    <th class="py-3.5 px-5">Community</th>
-                                    <th class="py-3.5 px-5">Purpose</th>
-                                    <th class="py-3.5 px-5">Status</th>
-                                    <th class="py-3.5 px-5 text-right">Amount</th>
-                                    <th class="py-3.5 px-5 text-right">Time (UTC)</th>
-                                    <th class="py-3.5 px-5 text-center">Action</th>
+                                    <th class="py-3.5 px-5">{{ __('Reference') }}</th>
+                                    <th class="py-3.5 px-5">{{ __('Community') }}</th>
+                                    <th class="py-3.5 px-5">{{ __('Purpose') }}</th>
+                                    <th class="py-3.5 px-5">{{ __('Status') }}</th>
+                                    <th class="py-3.5 px-5 text-right">{{ __('Amount') }}</th>
+                                    <th class="py-3.5 px-5 text-right">{{ __('Time (UTC)') }}</th>
+                                    <th class="py-3.5 px-5 text-center">{{ __('Action') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100">
@@ -62,22 +62,22 @@
                                             @if ($payment->isSucceeded())
                                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                                                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                                    SUCCEEDED
+                                                    {{ __('SUCCEEDED') }}
                                                 </span>
                                             @elseif ($payment->isPending())
                                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
                                                     <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                                                    PENDING
+                                                    {{ __('PENDING') }}
                                                 </span>
                                             @elseif ($payment->isCancelled())
                                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
                                                     <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-                                                    CANCELLED
+                                                    {{ __('CANCELLED') }}
                                                 </span>
                                             @else
                                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
                                                     <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                                                    FAILED
+                                                    {{ __('FAILED') }}
                                                 </span>
                                             @endif
                                         </td>
@@ -91,13 +91,13 @@
                                             <div class="inline-flex items-center gap-2">
                                                 <a href="{{ route('account.payment-history.show', $payment) }}"
                                                    class="text-xs font-bold text-teal-600 hover:text-teal-800">
-                                                    View Receipt
+                                                    {{ __('View Receipt') }}
                                                 </a>
                                                 @if ($payment->canResumeCheckout(auth()->user()))
                                                     <span class="text-slate-300">|</span>
                                                     <a href="{{ route('payments.checkout', $payment->external_reference) }}"
                                                        class="text-xs font-bold text-amber-600 hover:text-amber-800">
-                                                        Resume Checkout
+                                                        {{ __('Resume Checkout') }}
                                                     </a>
                                                 @endif
                                             </div>

@@ -2,6 +2,244 @@
 
 A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
+## EUR-83 — Integrated acceptance of the owner-ready release (2026-10-31)
+
+- Authority: User instruction to execute task M14 of issue [EUR-83](https://linear.app/eurusdevsec/issue/EUR-83/m14-integrated-acceptance-of-the-owner-ready-release).
+- Baseline: Integrated revision branch `eur-83-integrated-acceptance` at `be4f290` uniting all three parallel delivery lanes:
+  - Identity & Entry lane (EUR-74, EUR-75)
+  - LMS lane (EUR-79, EUR-80, EUR-81, EUR-76)
+  - Locale & Community lane (EUR-77, EUR-78, EUR-82)
+  - Contract freeze baseline (EUR-73)
+- Outcome: Demonstrated end-to-end user journeys on one integrated revision (`be4f290`), reconciled test inventory discovery on container mounts (154 tests discovered, 1,945 assertions, 100% PASS, 0 failures, 0 skipped, resolving the "74-test anomaly"), patched CI npm audit security vulnerabilities (follow-redirects & vite), and verified all quality gates (Pint, PHPStan, JS tests, production Vite build).
+- AC:
+  - AC-01: Every required AC of EUR-74 through EUR-82 passes with evidence on one integrated revision (`be4f290`).
+  - AC-02: GitHub Actions CI readiness verified locally across all automated suites; PR CI gated upon push/PR authorization.
+  - AC-03: Production build assets (`public/build/manifest.json`, `app-BqLo618O.css`, `app-Cxu8ovVk.js`) match manifest and landing motion tests pass 100% (69/69 JS tests pass).
+  - AC-04: Handoff records commands, exit codes, exact revision, visual evidence guide with Figure captions, configuration steps, and non-blocking limits.
+  - AC-05: Full-suite execution discovers the complete test inventory on container mounts (154 tests, 1,945 assertions) and passes 100% in 128.49s.
+- Automated Verification Results (2026-10-31):
+  - `docker exec scool_app php -d memory_limit=512M artisan test --fail-on-skipped --fail-on-empty-test-suite`: 154 passed (1,945 assertions), Duration 128.49s, Exit Code 0.
+  - `docker exec scool_app composer run pint:test`: 331 files checked, 0 style violations, Exit Code 0.
+  - `docker exec scool_app vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M --no-progress`: [OK] No errors, Exit Code 0.
+  - `node --test tests/js/*.test.mjs`: 69 passed, 0 failed in 315ms, Exit Code 0.
+  - `npm run build`: built in 3.46s, `manifest.json` matches served production assets, Exit Code 0.
+  - `scripts/verify-agent-contract.sh`: 11 shared files verified and tracked in Git index, Exit Code 0.
+- Status: Ready for Review (acceptance-ready). Awaiting user authorization for commit/push/PR.
+
+## EUR-75 — Access-scoped learner entry and discovery (2026-10-30)
+
+- Authority: User instruction to execute task M14 of issue [EUR-75](https://linear.app/eurusdevsec/issue/EUR-75/m14-access-scoped-learner-entry-and-discovery).
+- Baseline: branch `eur-75-access-scoped-learner-entry` at `a843b66`. Untracked/ignored: `docs/EUR_75_IMPLEMENTATION_PLAN.md`, `prompt.md`, `promp.md`, `.agent/`.
+- Outcome: In an expert deployment, a learner lands where they can actually learn: their only community's Feed, a chooser of their communities, or a welcome state — never a directory of communities they have not joined.
+- AC:
+  - AC-01: Given expert mode and a fresh verified learner with zero memberships, `/dashboard` shows the welcome state and no pre-existing community name.
+  - AC-02: Given one effective membership, `/dashboard` redirects to that community's Feed.
+  - AC-03: Given two memberships and one unjoined community, the chooser shows exactly the two; `?filter=all`, `?q=<unjoined name>`, `?page=2` and counts never reveal the third.
+  - AC-04: Given a membership suspended or expired after login, the next request neither lists nor redirects into that community.
+  - AC-05: Given a guest opening an invitation, registering and verifying email, the user returns to the invitation page.
+  - AC-06: Given a permitted About link, a learner sees the approved preview and join/checkout action without gaining membership.
+  - AC-07: Given general mode, the existing discovery behavior and `CommunityDiscoveryTest` remain green.
+- Scope boundaries: Owns `app/Http/Controllers/CommunityController.php` (expert mode scoped routing), `app/Policies/CommunityPolicy.php` (expert mode create gate), `resources/views/communities/welcome.blade.php` (welcome state view), `app/Http/Controllers/CommunityInvitationController.php` (intended URL persistence), `app/Http/Controllers/Auth/RegisteredUserController.php` (intended redirect), and `resources/views/communities/index.blade.php` create button gate. Excludes general-mode discovery changes, public/private listing field, auto-membership, deleting communities.
+- Verification plan: `tests/Feature/ExpertLearnerEntryTest.php` covering AC-01 to AC-07; regression runs on `CommunityDiscoveryTest`, `CommunityWorkspaceSwitcherTest`, `PrivateCommunityAccessTest`, `CommunityAcquisitionTest`, `WebsiteManagementHubTest`.
+- Verification results (2026-10-31):
+  - `php artisan test tests/Feature/ExpertLearnerEntryTest.php`: 8 passed (47 assertions), Exit 0. AC-01 through AC-07 + policy gates fully verified.
+  - Regression suite (`CommunityDiscoveryTest`, `CommunityWorkspaceSwitcherTest`, `PrivateCommunityAccessTest`, `CommunityAcquisitionTest`, `WebsiteManagementHubTest`, `ExpertLearnerEntryTest`): 46 passed (444 assertions), Exit 0.
+  - PHPStan: `vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M --no-progress` -> [OK] No errors, Exit 0.
+  - Pint: `composer run pint:test` -> PASS across all 324 files, Exit 0.
+  - Frontend build: `npm run build` -> built in 4.36s, Exit 0.
+  - JS unit tests: `node --test tests/js/*.test.mjs` -> 69 pass, 0 fail, Exit 0.
+  - Agent contract: `scripts/verify-agent-contract.sh --require-tracked` -> PASS, 11 shared files valid, Exit 0.
+- Status: Ready for Review (acceptance-ready).
+
+## EUR-76 — Quản trị website management hub (2026-10-29)
+
+- Authority: User instruction to execute task M14 of issue [EUR-76](https://linear.app/eurusdevsec/issue/EUR-76/m14-quan-tri-website-management-hub).
+- Baseline: branch `eur-76-website-management-hub` at `e4395d0`. Untracked/ignored: `prompt.md`, `promp.md`, `.agent/`.
+- Outcome: The owner opens **Quản trị website** from the main navigation and reaches every management task for every community without switching accounts or hunting through menus.
+- AC:
+  - AC-01: Given the owner with two communities, the hub lists both and each link opens the correct community's existing tool.
+  - AC-02: Given a learner, the hub link is absent and the hub URL returns 403.
+  - AC-03: Given 375px and desktop, the hub is usable without horizontal overflow and reachable by keyboard.
+  - AC-04: Every label on the hub is Vietnamese.
+- Scope boundaries: Owns `routes/web.php` (`/website-hub`), `app/Http/Controllers/WebsiteManagementHubController.php`, `resources/views/website-hub/index.blade.php`, and `resources/views/layouts/navigation.blade.php` hunk. Excludes new site-wide aggregate lists, new metrics, branding/settings editors.
+- Target files:
+  - `config/scool.php`
+  - `app/Models/User.php`
+  - `routes/web.php`
+  - `app/Http/Controllers/WebsiteManagementHubController.php`
+  - `resources/views/website-hub/index.blade.php`
+  - `resources/views/layouts/navigation.blade.php`
+  - `lang/modules/classroom/vi.json`
+  - `tests/Feature/WebsiteManagementHubTest.php`
+- Verification results (2026-10-29):
+  - `php artisan test tests/Feature/WebsiteManagementHubTest.php`: 7 passed (53 assertions), Duration 18.25s, Exit 0. AC-01 to AC-04 fully verified.
+  - `php artisan test tests/Feature/LearnerCourseFlowTest.php`: 6 passed (59 assertions), Duration 19.40s, Exit 0.
+  - `php artisan test tests/Feature/LearningReaderTest.php`: 5 passed (35 assertions), Duration 20.09s, Exit 0.
+  - `php artisan test tests/Feature/LessonAuthoringToolbarTest.php`: 8 passed (39 assertions), Duration 20.14s, Exit 0.
+  - `php artisan test tests/Feature/CourseManagementWorkspaceTest.php`: 7 passed (75 assertions), Duration 20.51s, Exit 0.
+  - `php artisan test tests/Feature/ClassroomRegressionTest.php`: 12 passed (236 assertions), Duration 24.52s, Exit 0.
+  - Full suite: 45 passed (497 assertions) in 33.36s.
+  - `composer run pint:test`: 323 files passed with zero style violations.
+  - `vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M`: 132/132 files checked, [OK] No errors.
+  - `npm run build`: built in 2.12s, Exit 0.
+  - `node --test tests/js/*.test.mjs`: 24 passed, 0 failed.
+  - `bash scripts/verify-agent-contract.sh`: [PASS] 11 shared files; routing/privacy gates valid.
+- Status: Ready for user review and acceptance. Awaiting authorization to commit/push/merge.
+
+## EUR-81 — Learner course flow and completion feedback (2026-10-28)
+
+- Authority: User instruction to execute task M14 of issue [EUR-81](https://linear.app/eurusdevsec/issue/EUR-81/m14-learner-course-flow-and-completion-feedback).
+- Baseline: branch `eur-81-learner-course-flow` at `16742fc`. Untracked/ignored: `docs/EUR_81_IMPLEMENTATION_PLAN.md`, `prompt.md`, `promp.md`.
+- Outcome: A learner opens a course, sees where to start or continue, studies with a clear outline, and marks lessons complete with feedback that reflects what the server saved.
+- AC:
+  - AC-01: Given a learner with lessons 1–2 complete, **Học tiếp** opens lesson 3.
+  - AC-02: Given a failed completion request, the previous state remains, a Vietnamese error appears and retry works.
+  - AC-03: Double-clicking completion creates one progress record and no duplicate contribution.
+  - AC-04: Drafts and empty unpublished sections stay hidden; suspended/removed users and mismatched course/lesson URLs cannot read content or change progress.
+  - AC-05: An unentitled learner on a paid course sees price/access explanation and cannot fetch lesson bodies or private media.
+- Scope boundaries: Owns `classroom/courses/show.blade.php` (Start/Continue entry & hidden empty sections), `classroom/lessons/show.blade.php` (outline reader, highlight & translations), `components/lesson-progress.blade.php` (loading, retry & Vietnamese error feedback), and `lang/modules/classroom/vi.json`. Does NOT add auto-complete, forced auto-next, or modify Markdown toolbar/preview (`EUR-80`).
+- Target files:
+  - `lang/modules/classroom/vi.json`
+  - `resources/views/components/lesson-progress.blade.php`
+  - `resources/views/classroom/courses/show.blade.php`
+  - `resources/views/classroom/lessons/show.blade.php`
+  - `tests/Feature/LearnerCourseFlowTest.php`
+- Verification results (2026-10-28):
+  - `php artisan test tests/Feature/LearnerCourseFlowTest.php`: 6 passed (59 assertions), Duration 19.40s, Exit 0. AC-01 to AC-06 fully verified.
+  - `php artisan test tests/Feature/LearningReaderTest.php`: 5 passed (35 assertions), Duration 20.09s, Exit 0.
+  - `php artisan test tests/Feature/LessonProgressTest.php`: 11 passed (55 assertions), Duration 20.97s, Exit 0.
+  - `php artisan test tests/Feature/ClassroomRegressionTest.php`: 12 passed (236 assertions), Duration 24.52s, Exit 0.
+  - `php artisan test tests/Feature/CourseManagementWorkspaceTest.php`: 7 passed (75 assertions), Duration 20.51s, Exit 0.
+  - `php artisan test tests/Feature/LessonAuthoringToolbarTest.php`: 8 passed (39 assertions), Duration 20.14s, Exit 0.
+  - `node --test tests/js/*.test.mjs`: 69 passed, 0 failed, Duration 291ms, Exit 0.
+  - `composer run pint:test`: 320 files passed with zero style violations.
+  - `vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M`: 130/130 files checked, [OK] No errors.
+  - `npm run build`: built in 4.58s, Exit 0.
+  - `bash scripts/verify-agent-contract.sh`: [PASS] 11 shared files; routing/privacy gates valid.
+- Status: Ready for user review and acceptance. Awaiting authorization to commit/push/merge.
+
+## EUR-80 — Lesson authoring toolbar, preview and resource links (2026-10-28)
+
+- Authority: User instruction to execute task M14 of issue [EUR-80](https://linear.app/eurusdevsec/issue/EUR-80/m14-lesson-authoring-toolbar-preview-and-resource-links).
+- Baseline: branch `eur-80-lesson-authoring-toolbar-preview` at `9b67b0a825a00242b1d5938823c860ff30c11b54`. Untracked/ignored: `docs/EUR_80_IMPLEMENTATION_PLAN.md`, `prompt.md`, `promp.md`, `.agents/`.
+- Outcome: Owner formats lesson content (headings, bold, italic, lists, resource links, quote) with toolbar buttons and previews rendered output before publishing, without learning Markdown.
+- AC:
+  - AC-01: Toolbar buttons wrap selection or insert template, keeping focus in field.
+  - AC-02: Preview output matches published reader output (`LessonMarkdown` & `.lesson-prose`).
+  - AC-03: Script tags, `javascript:` links, iframe, raw HTML sanitized/stripped.
+  - AC-04: Legacy plain-text lessons render correctly with `<p>` and soft breaks `<br>`.
+  - AC-05: Preview endpoint denies non-creators and foreign courses (403/404).
+- Scope boundaries: Owns `classroom-lesson-fields.blade.php`, `resources/js/lesson-authoring.js`, and `LessonController::preview`. Does NOT add WYSIWYG, file upload schema, or modify `lesson-progress.blade.php`.
+- Target files:
+  - `routes/web.php`
+  - `app/Http/Controllers/LessonController.php`
+  - `lang/modules/classroom/vi.json`
+  - `resources/js/lesson-authoring.js`
+  - `resources/js/app.js`
+  - `resources/views/components/classroom-lesson-fields.blade.php`
+  - `tests/js/lesson-authoring.test.mjs`
+  - `tests/Feature/LessonAuthoringToolbarTest.php`
+- Verification results (2026-10-28):
+  - `node --test tests/js/*.test.mjs`: 69 passed, 0 failed, Duration 273ms, Exit 0.
+  - `npm run build`: built in 2.05s, Exit 0.
+  - `composer run pint:test`: 319 files passed with zero style violations.
+  - `vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M`: 130/130 files checked, [OK] No errors.
+  - `php artisan test tests/Feature/LessonAuthoringToolbarTest.php`: 7 passed (35 assertions), Exit 0.
+  - `php artisan test tests/Feature/ClassroomRegressionTest.php`: 12 passed (236 assertions), Exit 0.
+  - `php artisan test tests/Feature/CourseManagementWorkspaceTest.php`: 7 passed (75 assertions), Exit 0.
+  - `bash scripts/verify-agent-contract.sh`: [PASS] 11 shared files; routing/privacy gates valid.
+- Status: Ready for user review and acceptance. Awaiting authorization to commit/push/merge.
+
+## EUR-79 — Course management workspace (tree + editor) (2026-10-27)
+
+- Authority: User instruction to execute task M14 of issue [EUR-79](https://linear.app/eurusdevsec/issue/EUR-79/m14-course-management-workspace-tree-editor).
+- Baseline: branch `eur-79-course-management-workspace` at `1ce19a23905c0f0b398b24f7e17b9ba3767ce11b`. Untracked files preserved: `docs/EUR_79_IMPLEMENTATION_PLAN.md`, `promp.md`, `prompt.md`.
+- Outcome: Creator course management workspace with two-column layout (section/lesson tree on left, selected item editor on right, stacked on mobile < 768px). Inline create/reorder for sections and lessons; course settings and cover management. Selection preserved via URL query param (`?lesson=`, `?section=`, `?tab=`) across redirects and validation failures.
+- AC:
+  - AC-01: Owner creates course, 2 chapters, 3 lessons appearing in tree in order without full-page hunt.
+  - AC-02: Validation error editing lesson returns page with that lesson selected and input preserved via `old()`.
+  - AC-03: Reordering section and lesson persists across refresh.
+  - AC-04: Learner or creator of foreign community receives 403/404 on workspace view and mutations.
+  - AC-05: Responsive at 375px without horizontal overflow; accessible by keyboard.
+  - AC-06: 100% Vietnamese labels registered in `lang/modules/classroom/vi.json`.
+- Scope boundaries: Uses existing mutation endpoints; no new POST/PUT/DELETE endpoints. Does NOT modify `classroom.courses.show` forms (preserving existing regression tests). Does NOT modify Markdown toolbar/preview (`EUR-80`).
+- Target files:
+  - `routes/web.php`
+  - `app/Http/Controllers/CourseController.php`
+  - `app/Providers/AppServiceProvider.php`
+  - `lang/modules/classroom/vi.json`
+  - `resources/views/classroom/courses/manage.blade.php`
+  - `resources/views/components/classroom-course-fields.blade.php`
+  - `resources/views/components/classroom-lesson-fields.blade.php`
+  - `resources/views/components/classroom-reorder.blade.php`
+  - `resources/views/classroom/courses/show.blade.php` (link to workspace for creators)
+  - `tests/Feature/CourseManagementWorkspaceTest.php`
+- Verification results (2026-10-27):
+  - `php artisan test tests/Feature/CourseManagementWorkspaceTest.php`: 7 passed (75 assertions), Duration 19.55s, Exit 0. AC-01 to AC-06 fully verified (including 100% Vietnamese on course settings and lesson authoring forms).
+  - `php artisan test tests/Feature/ClassroomRegressionTest.php`: 12 passed (236 assertions), Duration 22.85s, Exit 0.
+  - `php artisan test tests/Feature/ClassroomPublishingTest.php`: 8 passed (106 assertions), Duration 21.04s, Exit 0.
+  - `composer run pint:test`: 318 files passed with zero style violations.
+  - `vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M`: 129/129 files checked, [OK] No errors.
+  - `npm run build`: built in 2.14s, Exit 0.
+  - Chrome DevTools inspection: Checked on active browser instance. 375px mobile viewport confirmed zero horizontal overflow (`scrollWidth: 375, clientWidth: 375, hasHorizontalOverflow: false`). Desktop 1280px 2-column view confirmed interactive selection and tree reordering. Both course settings and lesson authoring forms verified 100% Vietnamese labels and options. Zero console errors.
+- Independent review and publication authorization: Pending user review and authorization.
+## EUR-78 — M14 Vietnamese sweep: account, commerce, admin and secondary screens (2026-10-28)
+
+- Authority: developer assigned [EUR-78](https://linear.app/eurusdevsec/issue/EUR-78); user approved implementation plan based on EUR-77 branch.
+- Starting branch: `hadangkhoasss/eur-78-m14-vietnamese-sweep-account-commerce-admin-and-secondary` branched from `cdbfe03346a9c1bdd4cceaae3cbb5f48419d7200` (EUR-77).
+- Scope & Contracts implemented (D14):
+  - Created 4 isolated per-module translation catalogs under `lang/modules/`:
+    - `lang/modules/account/vi.json` (account navigation, profiles, notifications, memberships).
+    - `lang/modules/admin/vi.json` (platform admin supervision, status filters, suspension/reactivation modals & audit reasons).
+    - `lang/modules/commerce/vi.json` (orders, payment history, receipts, checkout, pricing settings, simulated referral balances & earnings notices).
+    - `lang/modules/secondary/vi.json` (invitations accept & management, community preview, help center guides, landing header dropdowns).
+  - Wrapped visible strings, labels, status badges, empty states, and errors with `__()`:
+    - Views: `account/payment-history/index.blade.php`, `account/payment-history/show.blade.php`, `account/memberships/show.blade.php`, `account/referrals.blade.php`, `communities/orders/index.blade.php`, `communities/partials/access-pricing.blade.php`, `communities/invitations.blade.php`, `invitations/accept.blade.php`, `payments/checkout.blade.php`, `help/index.blade.php`, `welcome.blade.php`.
+    - Mail & Models: `app/Mail/CommunityInvitationMail.php` (subject & body Vietnamese, `acceptUrl` preserved), `resources/views/mail/community-invitation.blade.php`, `app/Models/CommunityMembership.php` (`accessStateLabel()`), `app/Models/Payment.php` (`purposeLabel()`).
+    - Controllers: `PaymentController.php`, `CommunityInvitationController.php`, `ReferralController.php` (flash status messages).
+  - Preserved Vietnamese Test Mode labeling: "Chế độ thử nghiệm SePay", simulated transaction notices (AC-04).
+- Verification:
+  - `tests/Feature/VietnameseSweepTest.php`: 5 passed, 39 assertions covering AC-01 to AC-04.
+  - `tests/Feature/VietnameseLocaleTest.php`: 8 passed, 363 assertions; module catalogs collision-free and deterministically loaded.
+  - Code style: `./vendor/bin/pint --test` PASS (323 files).
+  - Structural contract: `bash scripts/verify-agent-contract.sh` exited 0 (11 shared files PASS).
+## EUR-82 — M14 Community discussion, members and points clarity (2026-10-29)
+
+- Authority: assigned [EUR-82](https://linear.app/eurusdevsec/issue/EUR-82); user agreed and selected Phương án A (real 5-level thresholds matching `PointContribution::THRESHOLDS` and clear Vietnamese point calculation card).
+- Starting branch: `hadangkhoasss/eur-82-m14-community-discussion-members-and-points-clarity` branched from `cdbfe03` (`hadangkhoasss/eur-77-m14-vietnamese-default-locale-foundation`).
+- Scope & Contracts implemented:
+  - Created dedicated module translation catalog `lang/modules/community/vi.json` covering feed, discussions, composer, comments, members directory, events, leaderboard, and Livewire reactions/viewer. No key collisions with `lang/vi.json`.
+  - Refactored `CommunityLeaderboardController::getCommunityLevels()` and `resources/views/communities/leaderboard.blade.php`:
+    - Swapped 9 hardcoded mock levels and "Distribution not measured" placeholders for the real 5 threshold levels (Level 1: 0, Level 2: 5, Level 3: 15, Level 4: 30, Level 5: 60) calculated by `PointContribution::THRESHOLDS`.
+    - Added explicit "Quy tắc tính điểm & Cấp độ" and "Bảng xếp hạng & Cách tính điểm" cards explaining +1 point per post/comment like, no self-likes, and automatic deduction on unlike.
+  - Localized controller redirect status flash messages (`post-created`, `comment-created`, `event-created`, `member-suspended`, etc.) and Livewire notices (`PostLikeButton`, `PostSaveButton`, `DiscussionViewer`) to natural Vietnamese text.
+- Verification:
+  - `tests/Feature/CommunityDiscussionPointsTest.php`: 5 passed, 69 assertions covering AC-01 to AC-05.
+  - `tests/Feature/CommunityLeaderboardTest.php`: 8 passed, 75 assertions.
+  - `tests/Feature/LeaderboardMultiMetricTest.php`: 3 passed, 10 assertions.
+  - `tests/Feature/VietnameseLocaleTest.php`: 8 passed, 336 assertions.
+  - Code style: `./vendor/bin/pint --test` passed across all 323 files.
+  - Structural agent contract: `scripts/verify-agent-contract.sh --require-tracked` exited 0 (11 shared files PASS).
+
+## EUR-77 — M14 Vietnamese default locale foundation (2026-10-27)
+
+- Authority: developer assigned [EUR-77](https://linear.app/eurusdevsec/issue/EUR-77); user explicitly instructed branch creation and implementation.
+- Starting branch: `hadangkhoasss/eur-77-m14-vietnamese-default-locale-foundation` from `main` at `1ce19a23905c0f0b398b24f7e17b9ba3767ce11b` (EUR-73 merge).
+- Scope & Contracts implemented:
+  - `config/app.php` sets `locale => env('APP_LOCALE', 'vi')` and `fallback_locale => env('APP_FALLBACK_LOCALE', 'en')`.
+  - `.env.example` defaults `APP_LOCALE=vi`, `APP_FALLBACK_LOCALE=en`.
+  - `phpunit.xml` explicitly sets `<env name="APP_LOCALE" value="en"/>` for backward-compatible English test suite execution.
+  - `app/Providers/AppServiceProvider.php` implements `registerModuleTranslations()`: scans `lang/modules/`, sorts module directories alphabetically (deterministic order, D14), and registers each via `loadJsonTranslationsFrom()`.
+  - Hand-written Laravel core language files in `lang/vi/`: `auth.php`, `pagination.php`, `passwords.php`, `validation.php` (including attribute names for real application form fields).
+  - Common translation catalog in `lang/vi.json` covering navigation, auth screens, status labels, actions, and D6 six-tab labels: **Cộng Đồng / Lớp Học / Lịch / Thành Viên / Bảng xếp hạng / Giới Thiệu**.
+  - Verified that all auth templates and layout components are properly wrapped with `__()`.
+- Verification:
+  - `tests/Feature/VietnameseLocaleTest.php`: 8 passed, 67 assertions covering AC-01 to AC-06, clean bootstrap default resolution check, explicit `en` compatibility check, validation attributes, D6 tabs, module catalog loader, key collision check, and diacritic UTF-8 integrity.
+  - Regression checks: `tests/Feature/Auth` passed (28 tests, 84 assertions); `tests/Feature/CommunityWorkspaceSwitcherTest.php` passed (6 tests, 63 assertions).
+  - Pint code style: 7 files passed cleanly (`./vendor/bin/pint --test`).
+  - Structural agent contract: `bash scripts/verify-agent-contract.sh` exited 0 (11 shared files PASS).
+  - Browser verification: live browser check on `http://127.0.0.1:8080/login` verified complete Vietnamese text and clean glyph rendering with Be Vietnam Pro.
+
 ## EUR-73 — M14 contract freeze (2026-10-27)
 
 - Authority: product owner requested execution of [EUR-73](https://linear.app/eurusdevsec/issue/EUR-73).
