@@ -25,7 +25,6 @@
     "Invitation queued. Check Mailpit locally.": "Lời mời đã được đưa vào hàng đợi. Kiểm tra Mailpit tại máy local.",
     "Invitation revoked.": "Lời mời đã được thu hồi.",
     "Invitation accepted.": "Lời mời đã được chấp nhận.",
-
     "All communities": "Tất cả cộng đồng",
     "Community preview": "Xem trước cộng đồng",
     "By :creator": "Bởi :creator",
@@ -61,7 +60,6 @@
     "Your current membership cannot be reactivated here. Contact the community creator about access.": "Tư cách thành viên hiện tại của bạn không thể kích hoạt lại ở đây. Vui lòng liên hệ với người sáng lập cộng đồng về quyền truy cập.",
     "Review My Access": "Xem Quyền truy cập của tôi",
     "This is a preview. Private posts, lessons and member information remain protected until you have access.": "Đây là bản xem trước. Các bài viết riêng tư, bài học và thông tin thành viên vẫn được bảo vệ cho đến khi bạn có quyền truy cập.",
-
     "Help Center & Community Guidelines": "Trung tâm trợ giúp & Quy tắc cộng đồng",
     "Welcome to the S-cool Help Center": "Chào mừng đến với Trung tâm trợ giúp S-cool",
     "Comprehensive guide to community onboarding, classroom courses, event calendars, content safety, and simulated payments.": "Hướng dẫn toàn diện về gia nhập cộng đồng, các khóa học trong lớp học, lịch sự kiện, an toàn nội dung và thanh toán mô phỏng.",
@@ -78,7 +76,6 @@
     "Classroom & Course Publishing Rules": "Quy tắc xuất bản Lớp học & Khóa học",
     "The Classroom module organizes learning into structured courses, sections, and lessons with instructional videos and exercises.": "Phân hệ Lớp học sắp xếp việc học thành các khóa học, chương mục và bài học có cấu trúc kèm video hướng dẫn cùng bài tập.",
     "Only courses marked as :status by the creator are visible to members.": "Chỉ những khóa học được người sáng lập đánh dấu là :status mới hiển thị cho các thành viên.",
-    "PUBLISHED": "ĐÃ XUẤT BẢN",
     "Draft courses under development remain accessible only to the creator.": "Các khóa học bản nháp đang xây dựng chỉ người sáng lập mới có thể truy cập.",
     "Learning progress is tracked securely and calculated based on your completed lessons.": "Tiến độ học tập được ghi nhận an toàn và được tính toán dựa trên các bài học đã hoàn thành của bạn.",
     "Events & Timezone Standardization": "Sự kiện & Tiêu chuẩn hóa múi giờ",
@@ -92,7 +89,6 @@
     "Reports are delivered privately to the creator's moderation queue and are never visible to other members.": "Báo cáo được gửi riêng tư đến hàng đợi kiểm duyệt của người sáng lập và không bao giờ hiển thị cho thành viên khác.",
     "Creators can remove violating content or dismiss reports without merit.": "Người sáng lập có thể gỡ bỏ nội dung vi phạm hoặc bác bỏ các báo cáo không xác đáng.",
     "S-cool Learning & Community Platform • Test Mode Environment": "Nền tảng Học tập & Cộng đồng S-cool • Môi trường Chế độ thử nghiệm",
-
     "Products": "Sản phẩm",
     "Learn": "Học hỏi",
     "Docs": "Tài liệu",

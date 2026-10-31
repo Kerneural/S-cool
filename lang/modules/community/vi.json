@@ -1,6 +1,5 @@
 {
     "Filter:": "Lọc:",
-    "All": "Tất cả",
     "Uncategorized": "Chưa phân loại",
     "Saved Posts": "Bài viết đã lưu",
     "Sort:": "Sắp xếp:",
@@ -24,12 +23,10 @@
     "Attached Learning Context: Course #": "Nội dung học tập đính kèm: Khóa học #",
     "Lesson #": "Bài học #",
     "Remove": "Gỡ bỏ",
-    "Title": "Tiêu đề",
     "Write a clear, descriptive title...": "Nhập tiêu đề rõ ràng, súc tích...",
     "Category (Optional)": "Danh mục (Không bắt buộc)",
     "-- None / General --": "-- Không chọn / Thảo luận chung --",
     " (Creator Only)": " (Chỉ người sáng lập)",
-    "Content": "Nội dung",
     "Share your thoughts, insights, or questions with the community...": "Chia sẻ suy nghĩ, kiến thức hoặc câu hỏi của bạn với cộng đồng...",
     "Publish Post": "Đăng bài viết",
     "Pinned": "Đã ghim",
@@ -46,8 +43,6 @@
     "No posts in this category or matching the current filter.": "Không có bài viết nào trong danh mục này hoặc phù hợp bộ lọc hiện tại.",
     "Learning focus": "Nội dung học tập trọng tâm",
     "Community context": "Thông tin cộng đồng",
-
-    "Breadcrumb": "Đường dẫn điều hướng",
     "Back to Feed": "Quay lại Bảng tin",
     "Report": "Báo cáo",
     "Report Post": "Báo cáo bài viết",
@@ -67,7 +62,6 @@
     "Update Comment": "Cập nhật bình luận",
     "Back to Post": "Quay lại bài viết",
     "Save Changes": "Lưu thay đổi",
-
     "Community leaderboard": "Bảng xếp hạng cộng đồng",
     "Level :level": "Cấp độ :level",
     "Maximum Level Reached": "Đã đạt cấp độ tối đa",
@@ -84,7 +78,6 @@
     "Engagement Points": "Điểm tương tác",
     "Verified Skills": "Kỹ năng thực hành",
     "Helpful Answers": "Câu trả lời hữu ích",
-    "All Time": "Toàn thời gian",
     "This Month (UTC)": "Tháng này (UTC)",
     "No rankings recorded for this metric yet": "Chưa có dữ liệu xếp hạng cho tiêu chí này",
     "Member activity and contributions will appear here once recorded.": "Hoạt động và đóng góp của thành viên sẽ xuất hiện tại đây khi được ghi nhận.",
@@ -103,7 +96,6 @@
     "Authors receive +1 point per valid like from other members. Self-likes do not count. Unliking removes the point.": "Tác giả nhận +1 điểm cho mỗi lượt thích hợp lệ từ thành viên khác trên bài viết hoặc bình luận. Tự thích không được tính điểm. Bỏ thích sẽ tự động trừ lại điểm tương ứng.",
     "Distinct rankings for engagement, verified practice, and answers.": "Bảng xếp hạng riêng biệt cho tương tác, thực hành đã duyệt và câu trả lời hữu ích.",
     "Tie-breaking: highest score first, then member ID ascending.": "Quy tắc hòa điểm: điểm cao hơn xếp trước, nếu bằng điểm xếp theo ID thành viên tăng dần.",
-
     "post-created": "Bài viết đã được đăng thành công.",
     "post-updated": "Bài viết đã được cập nhật.",
     "post-deleted": "Bài viết đã được xóa.",
@@ -151,7 +143,6 @@
     "Content report submitted to community moderator.": "Báo cáo nội dung đã được gửi đến người kiểm duyệt cộng đồng.",
     "Content removed and report marked as resolved.": "Nội dung đã được xóa và báo cáo được đánh dấu đã giải quyết.",
     "Report has been dismissed.": "Báo cáo đã được bác bỏ.",
-
     "Previous month": "Tháng trước",
     "Next month": "Tháng sau",
     "Prev": "Trước",
@@ -171,8 +162,6 @@
     "Fri": "T6",
     "Sat": "T7",
     "Sun": "CN",
-    "Cancelled": "Đã hủy",
-    "CANCELLED": "ĐÃ HỦY",
     "SCHEDULED": "ĐÃ LÊN LỊCH",
     "Original: :tz": "Gốc: :tz",
     "Organized by:": "Tổ chức bởi:",
@@ -210,12 +199,10 @@
     "What is this event about? Any preparation needed?": "Sự kiện này về chủ đề gì? Cần chuẩn bị những gì?",
     "Back to Event": "Quay lại sự kiện",
     "External Meeting Link": "Liên kết họp ngoài",
-
     "Community Members": "Thành viên cộng đồng",
     "Discover fellow members and creators in this community.": "Khám phá các thành viên và người sáng lập trong cộng đồng này.",
     "Search members by name": "Tìm kiếm thành viên theo tên",
     "Search members by name...": "Tìm kiếm thành viên theo tên...",
-    "Clear": "Xóa",
     "Clear Search": "Xóa tìm kiếm",
     "No community members match \":query\".": "Không có thành viên nào khớp với \":query\".",
     "No active members found in this community.": "Không tìm thấy thành viên đang hoạt động nào trong cộng đồng này.",
@@ -241,7 +228,6 @@
     "More": "Nhiều hơn",
     "Daily activity counts (UTC)": "Số lượng hoạt động hàng ngày (UTC)",
     "Daily posts and comments for all 90 UTC dates": "Số bài viết và bình luận hàng ngày cho tất cả 90 ngày UTC",
-    "Date (UTC)": "Ngày (UTC)",
     "Posts": "Bài viết",
     "Total": "Tổng số",
     "No posts or comments authored in this community over the last 90 UTC days.": "Không có bài viết hoặc bình luận nào trong cộng đồng này trong 90 ngày UTC vừa qua.",
@@ -251,7 +237,6 @@
     "Viewing community profile in :community.": "Đang xem hồ sơ thành viên trong :community.",
     "post": "bài viết",
     "comment": "bình luận",
-
     "Loading discussion": "Đang tải thảo luận",
     "Loading discussion...": "Đang tải thảo luận...",
     "Close discussion (Esc)": "Đóng thảo luận (Esc)",
@@ -275,4 +260,3 @@
     "This discussion is no longer available.": "Cuộc thảo luận này không còn khả dụng.",
     "Unable to open this discussion. Refresh the page or check your access.": "Không thể mở cuộc thảo luận này. Hãy tải lại trang hoặc kiểm tra quyền truy cập của bạn."
 }
-

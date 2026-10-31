@@ -160,11 +160,11 @@ class WebsiteManagementHubTest extends TestCase
         $response->assertOk();
         $response->assertSee('Quản trị website');
         $response->assertSee('Tạo cộng đồng');
-        $response->assertSee('Quản trị hệ thống');
+        $response->assertSee('Quản trị nền tảng');
         $response->assertSee('Công cụ trực tiếp');
         $response->assertSee('Tổng quan');
         $response->assertSee('Khóa học');
-        $response->assertSee('Thành viên');
+        $response->assertSee('Thành Viên');
         $response->assertSee('Lời mời');
         $response->assertSee('Báo cáo');
         $response->assertSee('Đơn hàng');
