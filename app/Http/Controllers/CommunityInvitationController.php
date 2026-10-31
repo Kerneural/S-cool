@@ -35,14 +35,14 @@ class CommunityInvitationController extends Controller
         $referrer = ! empty($validated['referrer_id']) ? User::find($validated['referrer_id']) : null;
         $action->handle($community, $request->user(), $validated['email'], $referrer);
 
-        return redirect()->route('communities.invitations.index', $community)->with('status', 'Invitation queued. Check Mailpit locally.');
+        return redirect()->route('communities.invitations.index', $community)->with('status', __('Invitation queued. Check Mailpit locally.'));
     }
 
     public function revoke(Request $request, Community $community, CommunityInvitation $invitation, RevokeInvitation $action): RedirectResponse
     {
         $action->handle($community, $invitation, $request->user());
 
-        return redirect()->route('communities.invitations.index', $community)->with('status', 'Invitation revoked.');
+        return redirect()->route('communities.invitations.index', $community)->with('status', __('Invitation revoked.'));
     }
 
     public function show(string $invitation): View
@@ -61,6 +61,6 @@ class CommunityInvitationController extends Controller
         abort_unless(is_string($token), 404);
         $community = $action->handle((int) $invitation, $request->user(), $token);
 
-        return redirect()->route('communities.show', $community)->with('status', 'Invitation accepted.');
+        return redirect()->route('communities.show', $community)->with('status', __('Invitation accepted.'));
     }
 }

@@ -28,9 +28,26 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $classroomLang = base_path('lang/modules/classroom');
-        if (is_dir($classroomLang)) {
-            $this->loadJsonTranslationsFrom($classroomLang);
+    public function boot(): void
+    {
+        $this->registerModuleTranslations();
+    }
+
+    /**
+     * Register per-module JSON translation catalogs sorted deterministically (D14).
+     */
+    protected function registerModuleTranslations(): void
+    {
+        $modulesPath = lang_path('modules');
+        if (! is_dir($modulesPath)) {
+            return;
+        }
+
+        $moduleDirs = glob($modulesPath.'/*', GLOB_ONLYDIR) ?: [];
+        sort($moduleDirs, SORT_STRING);
+
+        foreach ($moduleDirs as $moduleDir) {
+            $this->loadJsonTranslationsFrom($moduleDir);
         }
     }
 }

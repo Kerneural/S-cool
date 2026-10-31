@@ -28,7 +28,7 @@
                     window.location.href = '{{ route('payments.status', $payment->external_reference) }}';
                 }
             })
-            .catch(() => { this.error = 'Unable to check payment status. Try again.'; })
+            .catch(() => { this.error = '{{ __('Unable to check payment status. Try again.') }}'; })
             .finally(() => {
                 this.checking = false;
             });
@@ -39,7 +39,7 @@
                 <div class="text-center mb-8">
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-800 text-xs font-bold rounded-full uppercase tracking-wider mb-3 border border-amber-200/70">
                         <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                        SePay Test Mode
+                        {{ __('SePay Test Mode') }}
                     </span>
                     <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">{{ $community->name }}</h1>
                     <p class="text-xs text-slate-500 mt-1.5">{{ __('Simulate transactions in SePay Test Mode only. Do not transfer real funds.') }}</p>
