@@ -8,6 +8,7 @@ import { liveListSearch } from './live-list-search';
 import { landingReveal } from './landing-reveal';
 import { courseOutline } from './course-outline';
 import { mediaFrame } from './media-frame';
+import { lessonAuthoring } from './lesson-authoring';
 
 document.addEventListener('alpine:init', () => {
     window.Alpine.data('invitationAcceptance', invitationAcceptance);
@@ -18,6 +19,7 @@ document.addEventListener('alpine:init', () => {
     window.Alpine.data('liveListSearch', liveListSearch);
     window.Alpine.data('courseOutline', courseOutline);
     window.Alpine.data('mediaFrame', mediaFrame);
+    window.Alpine.data('lessonAuthoring', lessonAuthoring);
 });
 
 if (document.querySelector('[data-reveal]')) {

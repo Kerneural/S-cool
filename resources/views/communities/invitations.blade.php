@@ -22,7 +22,7 @@
                     </div>
                     <div>
                         <h1 class="text-lg font-bold text-slate-900 tracking-tight">{{ __('Invite by email') }}</h1>
-                        <p class="text-xs text-slate-500">Send an exclusive onboarding invitation to join <span class="font-semibold text-slate-700">{{ $community->name }}</span>.</p>
+                        <p class="text-xs text-slate-500">{{ __('Send an exclusive onboarding invitation to join :community.', ['community' => $community->name]) }}</p>
                     </div>
                 </div>
 
@@ -51,7 +51,7 @@
                         <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span>Valid for seven days. Only the invited, verified email can accept.</span>
+                        <span>{{ __('Valid for seven days. Only the invited, verified email can accept.') }}</span>
                     </div>
                 </form>
             </div>
@@ -60,11 +60,11 @@
             <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
                 <div class="p-6 border-b border-slate-100 flex items-center justify-between">
                     <div>
-                        <h4 class="text-base font-bold text-slate-900 tracking-tight">Sent Invitations</h4>
-                        <p class="text-xs text-slate-500">Track delivery status and manage active invitations.</p>
+                        <h4 class="text-base font-bold text-slate-900 tracking-tight">{{ __('Sent Invitations') }}</h4>
+                        <p class="text-xs text-slate-500">{{ __('Track delivery status and manage active invitations.') }}</p>
                     </div>
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600">
-                        {{ $invitations->total() ?? $invitations->count() }} total
+                        {{ $invitations->total() ?? $invitations->count() }} {{ __('total') }}
                     </span>
                 </div>
 
@@ -82,12 +82,12 @@
                                 <div class="flex flex-wrap items-center gap-2 text-xs">
                                     <span class="inline-flex items-center gap-1 font-semibold
                                         {{ $displayStatus === 'PENDING' ? 'text-amber-700' : ($displayStatus === 'ACCEPTED' ? 'text-emerald-700' : 'text-slate-600') }}">
-                                        {{ $displayStatus }}
+                                        {{ __($displayStatus) }}
                                     </span>
                                     <span class="text-slate-300">&bull;</span>
                                     <span class="inline-flex items-center gap-1 text-slate-500">
                                         <span class="w-1.5 h-1.5 rounded-full {{ $invitation->sent_at ? 'bg-emerald-500' : 'bg-slate-400' }}"></span>
-                                        {{ $invitation->sent_at ? 'Email delivered' : 'Not delivered' }}
+                                        {{ $invitation->sent_at ? __('Email delivered') : __('Not delivered') }}
                                     </span>
                                     <span class="text-slate-300">&bull;</span>
                                     <span class="text-slate-400">
@@ -100,11 +100,11 @@
                         @if ($invitation->isPending())
                             <div class="sm:self-center">
                                 <form method="POST" action="{{ route('communities.invitations.revoke', [$community, $invitation]) }}"
-                                      onsubmit="return confirm('Are you sure you want to revoke this invitation?');">
+                                      onsubmit="return confirm('{{ __('Are you sure you want to revoke this invitation?') }}');">
                                     @csrf
                                     @method('DELETE')
                                     <x-secondary-button type="submit" class="text-xs px-3 py-1.5 font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200">
-                                        Revoke
+                                        {{ __('Revoke') }}
                                     </x-secondary-button>
                                 </form>
                             </div>
@@ -115,7 +115,7 @@
                         <svg class="w-10 h-10 mx-auto text-slate-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
-                        <p class="font-medium text-slate-500">No invitations yet.</p>
+                        <p class="font-medium text-slate-500">{{ __('No invitations yet.') }}</p>
                     </div>
                 @endforelse
 

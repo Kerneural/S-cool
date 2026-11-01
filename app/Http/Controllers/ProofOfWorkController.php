@@ -52,12 +52,12 @@ class ProofOfWorkController extends Controller
         $url = $validated['url'] ?? null;
         if (is_string($url) && trim($url) !== '') {
             if (preg_match('/[\x00-\x1F\x7F]/', $url) === 1) {
-                throw ValidationException::withMessages(['url' => 'The link cannot contain control characters.']);
+                throw ValidationException::withMessages(['url' => __('The link cannot contain control characters.')]);
             }
             $url = trim($url);
             if (! $this->isValidHttpsUrl($url)) {
                 throw ValidationException::withMessages([
-                    'url' => 'The link must be a valid HTTPS URL without credentials.',
+                    'url' => __('The link must be a valid HTTPS URL without credentials.'),
                 ]);
             }
         } else {
@@ -81,13 +81,13 @@ class ProofOfWorkController extends Controller
 
                 if ($current && $current->isTerminal()) {
                     throw ValidationException::withMessages([
-                        'summary' => 'This submission has reached a terminal state and cannot be modified.',
+                        'summary' => __('This submission has reached a terminal state and cannot be modified.'),
                     ]);
                 }
 
                 if ($current && $current->isWaiting()) {
                     throw ValidationException::withMessages([
-                        'summary' => 'A submission is already awaiting review. You cannot edit it now.',
+                        'summary' => __('A submission is already awaiting review. You cannot edit it now.'),
                     ]);
                 }
 
@@ -150,7 +150,7 @@ class ProofOfWorkController extends Controller
             $this->cleanupFile($oldPath, $community->id, $user->id);
         }
 
-        return back()->with('status', 'Draft saved successfully.');
+        return back()->with('status', __('Draft saved successfully.'));
     }
 
     private function handleSubmit(Request $request, Community $community, Course $course, Lesson $lesson): RedirectResponse
@@ -166,12 +166,12 @@ class ProofOfWorkController extends Controller
         ]);
 
         if (preg_match('/[\x00-\x1F\x7F]/', $validated['url']) === 1) {
-            throw ValidationException::withMessages(['url' => 'The link cannot contain control characters.']);
+            throw ValidationException::withMessages(['url' => __('The link cannot contain control characters.')]);
         }
         $url = trim($validated['url']);
         if (! $this->isValidHttpsUrl($url)) {
             throw ValidationException::withMessages([
-                'url' => 'The link must be an absolute HTTPS URL without credentials.',
+                'url' => __('The link must be an absolute HTTPS URL without credentials.'),
             ]);
         }
 
@@ -192,13 +192,13 @@ class ProofOfWorkController extends Controller
 
                 if ($current && $current->isTerminal()) {
                     throw ValidationException::withMessages([
-                        'summary' => 'This submission has reached a terminal state and cannot be modified.',
+                        'summary' => __('This submission has reached a terminal state and cannot be modified.'),
                     ]);
                 }
 
                 if ($current && $current->isWaiting()) {
                     throw ValidationException::withMessages([
-                        'summary' => 'A submission is already awaiting review.',
+                        'summary' => __('A submission is already awaiting review.'),
                     ]);
                 }
 
@@ -267,7 +267,7 @@ class ProofOfWorkController extends Controller
             $this->cleanupFile($oldPath, $community->id, $user->id);
         }
 
-        return back()->with('status', 'Proof of work submitted. Waiting for feedback.');
+        return back()->with('status', __('Proof of work submitted. Waiting for feedback.'));
     }
 
     public function image(Request $request, Community $community, LessonProofOfWork $proofOfWork): StreamedResponse

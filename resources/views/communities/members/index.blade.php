@@ -8,7 +8,7 @@
                     <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
-                    <span>{{ session('status') }}</span>
+                    <span>{{ __(session('status')) }}</span>
                 </div>
             @endif
 
@@ -156,7 +156,7 @@
                                                 </span>
                                             @else
                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200/80">
-                                                    {{ $membership->status }}
+                                                    {{ __($membership->status) }}
                                                 </span>
                                             @endif
                                         </td>

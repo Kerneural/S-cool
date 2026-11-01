@@ -16,7 +16,7 @@
                                 <circle cx="80" cy="80" r="68" class="text-[#3B82F6] transition-all duration-700 ease-out"
                                         stroke-width="5"
                                         stroke-dasharray="427.26"
-                                        stroke-dashoffset="{{ 427.26 * (1 - max(0.12, ($userProgress['progress_pct'] / 100))) }}"
+                                        stroke-dashoffset="{{ 427.26 * (1 - ($userProgress['progress_pct'] / 100)) }}"
                                         stroke-linecap="round"
                                         stroke="currentColor"
                                         fill="transparent" />
@@ -53,15 +53,14 @@
                         @endif
                     </div>
 
-                    <!-- Right Column: 2-Column Grid of 9 Levels -->
-                    <div class="flex-1 min-w-0 w-full grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 items-start pt-1">
-                        <!-- Column 1: Levels 1 to 5 -->
+                    <!-- Right Column: 2-Column Grid of 5 Real Threshold Levels (AC-04) -->
+                    <div class="flex-1 min-w-0 w-full grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4 items-start pt-1">
+                        <!-- Column 1: Levels 1 to 3 -->
                         <div class="space-y-4">
-                            @foreach (array_slice($communityLevels, 0, 5, true) as $lvlNum => $lvl)
+                            @foreach (array_slice($communityLevels, 0, 3, true) as $lvlNum => $lvl)
                                 @php($isUnlocked = $userLevel >= $lvlNum)
                                 <div class="flex items-start gap-3.5">
-                                    <!-- Icon Circle (lock or unlocked) -->
-                                    <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 {{ $isUnlocked ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-400' }}">
+                                    <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 {{ $isUnlocked ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-400' }}">
                                         @if ($isUnlocked)
                                             <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
                                                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
@@ -74,16 +73,15 @@
                                         @endif
                                     </div>
 
-                                    <!-- Level Title & Perks in English -->
                                     <div class="min-w-0 flex-1">
                                         <div class="text-sm font-semibold text-slate-900 leading-snug">
                                             {{ __('Level :num - :title', ['num' => $lvlNum, 'title' => $lvl['title']]) }}
                                         </div>
                                         <div class="text-xs text-slate-500 leading-normal mt-0.5">
-                                            @if (! empty($lvl['perk']))
-                                                {{ __('Unlocks') }} <span class="text-blue-600 font-medium">{{ $lvl['perk'] }}</span> {{ __('Distribution not measured') }}
+                                            @if ($isUnlocked)
+                                                <span class="text-emerald-700 font-medium">{{ __('Unlocked') }}</span> ({{ __(':pts points required', ['pts' => $lvl['points_required']]) }})
                                             @else
-                                                {{ __('Distribution not measured') }}
+                                                <span>{{ __(':pts points needed', ['pts' => max(0, $lvl['points_required'] - $lifetimePoints)]) }}</span>
                                             @endif
                                         </div>
                                     </div>
@@ -91,13 +89,12 @@
                             @endforeach
                         </div>
 
-                        <!-- Column 2: Levels 6 to 9 -->
+                        <!-- Column 2: Levels 4 and 5 + Scoring Rule Clarity -->
                         <div class="space-y-4">
-                            @foreach (array_slice($communityLevels, 5, 4, true) as $lvlNum => $lvl)
+                            @foreach (array_slice($communityLevels, 3, 2, true) as $lvlNum => $lvl)
                                 @php($isUnlocked = $userLevel >= $lvlNum)
                                 <div class="flex items-start gap-3.5">
-                                    <!-- Icon Circle -->
-                                    <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 {{ $isUnlocked ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-400' }}">
+                                    <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 {{ $isUnlocked ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-400' }}">
                                         @if ($isUnlocked)
                                             <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
                                                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
@@ -110,21 +107,26 @@
                                         @endif
                                     </div>
 
-                                    <!-- Level Title & Perks in English -->
                                     <div class="min-w-0 flex-1">
                                         <div class="text-sm font-semibold text-slate-900 leading-snug">
                                             {{ __('Level :num - :title', ['num' => $lvlNum, 'title' => $lvl['title']]) }}
                                         </div>
                                         <div class="text-xs text-slate-500 leading-normal mt-0.5">
-                                            @if (! empty($lvl['perk']))
-                                                {{ __('Unlocks') }} <span class="text-blue-600 font-medium">{{ $lvl['perk'] }}</span> {{ __('Distribution not measured') }}
+                                            @if ($isUnlocked)
+                                                <span class="text-emerald-700 font-medium">{{ __('Unlocked') }}</span> ({{ __(':pts points required', ['pts' => $lvl['points_required']]) }})
                                             @else
-                                                {{ __('Distribution not measured') }}
+                                                <span>{{ __(':pts points needed', ['pts' => max(0, $lvl['points_required'] - $lifetimePoints)]) }}</span>
                                             @endif
                                         </div>
                                     </div>
                                 </div>
                             @endforeach
+
+                            <div class="pt-2 border-t border-slate-100 text-[11px] text-slate-600 space-y-1">
+                                <div class="font-bold text-slate-800">{{ __('Point Calculation Rules') }}</div>
+                                <div>&bull; {{ __('Earn +1 point when another member likes your post.') }}</div>
+                                <div>&bull; {{ __('Self-likes are not counted. Unliking removes the point.') }}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -247,15 +249,15 @@
                                                 </span>
                                             </td>
                                             <td class="py-4 px-6 text-right font-bold text-slate-900 text-base tabular-nums">
-                                                {{ $entry->points }} <span class="text-xs font-normal text-slate-600">pts</span>
+                                                {{ $entry->points }} <span class="text-xs font-normal text-slate-600">{{ __('pts') }}</span>
                                             </td>
                                         @elseif ($metric === 'verified_skills')
                                             <td class="py-4 px-6 text-right font-bold text-slate-900 text-base tabular-nums">
-                                                {{ $entry->points }} <span class="text-xs font-normal text-slate-600">verified</span>
+                                                {{ $entry->points }} <span class="text-xs font-normal text-slate-600">{{ __('verified') }}</span>
                                             </td>
                                         @else
                                             <td class="py-4 px-6 text-right font-bold text-slate-900 text-base tabular-nums">
-                                                {{ $entry->points }} <span class="text-xs font-normal text-slate-600">helpful</span>
+                                                {{ $entry->points }} <span class="text-xs font-normal text-slate-600">{{ __('helpful') }}</span>
                                             </td>
                                         @endif
                                     </tr>

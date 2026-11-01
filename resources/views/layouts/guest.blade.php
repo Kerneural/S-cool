@@ -7,7 +7,7 @@
 
         <title>{{ config('app.name', 'S-cool') }}</title>
 
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20261028">
 
         <!-- Scripts & Styles -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -23,9 +23,9 @@
                 <!-- Top: Brand Header -->
                 <div class="relative z-10 flex items-center gap-3">
                     <a href="/" class="flex items-center gap-3 group">
-                        <x-application-logo class="w-10 h-10 shadow-sm" />
+                        <x-application-logo class="w-10 h-10 group-hover:scale-105 transition-transform" />
                         <div>
-                            <span class="text-xl font-bold tracking-tight text-white group-hover:text-teal-200 transition">S-cool</span>
+                            <span class="text-2xl font-extrabold tracking-tight text-white group-hover:text-teal-200 transition">S-cool</span>
                             <span class="block text-xs text-slate-400 font-medium">{{ __('Private Learning Communities') }}</span>
                         </div>
                     </a>
@@ -91,7 +91,7 @@
                 <div class="lg:hidden mb-8 text-center sm:text-left">
                     <a href="/" class="inline-flex items-center gap-2.5">
                         <x-application-logo class="w-9 h-9" />
-                        <span class="text-xl font-bold text-ink">S-cool</span>
+                        <span class="text-2xl font-extrabold text-ink tracking-tight font-sans">S-cool</span>
                     </a>
                 </div>
 

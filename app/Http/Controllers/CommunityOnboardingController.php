@@ -27,7 +27,7 @@ class CommunityOnboardingController extends Controller
         }
 
         if (empty($community->intro_video_url)) {
-            return back()->withErrors(['video' => 'No introduction video is configured for this community.']);
+            return back()->withErrors(['video' => __('No introduction video is configured for this community.')]);
         }
 
         OnboardingStepCompletion::markStep($community, $user, 'video');

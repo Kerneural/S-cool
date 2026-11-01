@@ -6,7 +6,7 @@
             <!-- Header & Filter Tabs -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">Content Moderation Queue</h1>
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">{{ __('Content Moderation Queue') }}</h1>
                     <p class="text-sm text-slate-500 mt-1">
                         Moderate reported posts and comments in <span class="font-semibold text-slate-700">{{ $community->name }}</span>.
                     </p>
@@ -58,7 +58,7 @@
                         <svg class="w-10 h-10 mx-auto text-slate-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <p class="font-medium text-slate-500">No content reports found for the selected status filter.</p>
+                        <p class="font-medium text-slate-500">{{ __('No content reports found for the selected status filter.') }}</p>
                     </div>
                 @else
                     <div class="divide-y divide-slate-100">
@@ -73,7 +73,7 @@
                                             {{ $report->target_type === 'POST' ? 'POST' : 'COMMENT' }} #{{ $report->target_id }}
                                         </span>
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold {{ $report->status === 'OPEN' ? 'bg-amber-50 text-amber-700 border border-amber-200' : ($report->status === 'RESOLVED' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-700 border border-slate-200') }}">
-                                            {{ $report->status }}
+                                            {{ __($report->status) }}
                                         </span>
                                         <span class="text-xs text-slate-400">
                                             Reported at: {{ $report->created_at->format('Y-m-d H:i') }} UTC
@@ -104,7 +104,7 @@
                                                     <a href="{{ route('communities.posts.show', [$community, $target]) }}"
                                                         class="inline-flex items-center gap-1 text-xs text-teal-600 hover:text-teal-700 font-bold"
                                                         target="_blank">
-                                                        <span>View post details &rarr;</span>
+                                                        <span>{{ __('View post details &rarr;') }}</span>
                                                     </a>
                                                 </div>
                                             </div>
@@ -115,7 +115,7 @@
                                                     <a href="{{ route('communities.posts.show', [$community, $target->post]) }}"
                                                         class="inline-flex items-center gap-1 text-xs text-teal-600 hover:text-teal-700 font-bold"
                                                         target="_blank">
-                                                        <span>View parent post &rarr;</span>
+                                                        <span>{{ __('View parent post &rarr;') }}</span>
                                                     </a>
                                                 </div>
                                             @endif
@@ -137,10 +137,10 @@
                                 @if (! $report->isOpen())
                                     <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 bg-slate-50/75 p-3.5 rounded-xl border border-slate-200/60">
                                         <div>
-                                            <span class="font-semibold text-slate-700">Action:</span>
+                                            <span class="font-semibold text-slate-700">{{ __('Action:') }}</span>
                                             <span class="font-mono text-slate-900 font-bold ml-1">{{ $report->resolution_action }}</span>
                                             <span class="mx-2 text-slate-300">&bull;</span>
-                                            <span class="font-semibold text-slate-700">Resolution note:</span>
+                                            <span class="font-semibold text-slate-700">{{ __('Resolution note:') }}</span>
                                             <span class="text-slate-800 ml-1">{{ $report->resolution_reason }}</span>
                                         </div>
                                         <div>
@@ -157,8 +157,8 @@
                                         <!-- Remove Target Form -->
                                         <form method="POST" action="{{ route('communities.reports.remove', [$community, $report]) }}" class="relative flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
                                             @csrf
-                                            <label for="remove-resolution-{{ $report->id }}" class="sr-only">Removal note</label>
-                                            <input id="remove-resolution-{{ $report->id }}" type="text" name="resolution_reason" placeholder="Removal note (optional)..."
+                                            <label for="remove-resolution-{{ $report->id }}" class="sr-only">{{ __('Removal note') }}</label>
+                                            <input id="remove-resolution-{{ $report->id }}" type="text" name="resolution_reason" placeholder="{{ __('Removal note (optional)...') }}"
                                                 class="w-full text-xs border-slate-200 rounded-xl px-3 py-2 focus:ring-rose-500 focus:border-rose-500 sm:w-56 shadow-2xs">
                                             <button type="submit" onclick="return confirm('Are you sure you want to remove this reported content?')"
                                                 class="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-xs transition duration-150 whitespace-nowrap">
@@ -169,8 +169,8 @@
                                         <!-- Dismiss Report Form -->
                                         <form method="POST" action="{{ route('communities.reports.dismiss', [$community, $report]) }}" class="relative flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
                                             @csrf
-                                            <label for="dismiss-resolution-{{ $report->id }}" class="sr-only">Dismissal note</label>
-                                            <input id="dismiss-resolution-{{ $report->id }}" type="text" name="resolution_reason" placeholder="Dismissal note (optional)..."
+                                            <label for="dismiss-resolution-{{ $report->id }}" class="sr-only">{{ __('Dismissal note') }}</label>
+                                            <input id="dismiss-resolution-{{ $report->id }}" type="text" name="resolution_reason" placeholder="{{ __('Dismissal note (optional)...') }}"
                                                 class="w-full text-xs border-slate-200 rounded-xl px-3 py-2 focus:ring-slate-500 focus:border-slate-500 sm:w-56 shadow-2xs">
                                             <button type="submit"
                                                 class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition duration-150 whitespace-nowrap">

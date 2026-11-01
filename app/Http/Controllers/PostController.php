@@ -38,7 +38,7 @@ class PostController extends Controller
 
         if ($currentSort !== null && ! in_array($currentSort, ['newest', 'most_commented'], true)) {
             throw ValidationException::withMessages([
-                'sort' => 'The selected sort is invalid.',
+                'sort' => __('The selected sort is invalid.'),
             ]);
         }
 
@@ -70,7 +70,7 @@ class PostController extends Controller
                 $category = $community->categories()->where('slug', $currentCategorySlug)->first();
                 if (! $category) {
                     throw ValidationException::withMessages([
-                        'category' => 'The selected category does not exist in this community.',
+                        'category' => __('The selected category does not exist in this community.'),
                     ]);
                 }
                 $query->where('category_id', $category->id);
@@ -154,7 +154,7 @@ class PostController extends Controller
             $category = $community->categories()->findOrFail($validated['category_id']);
             if ($category->isAnnouncements() && ! $community->isCreator($request->user())) {
                 throw ValidationException::withMessages([
-                    'category_id' => 'Only the community creator can post in Announcements.',
+                    'category_id' => __('Only the community creator can post in Announcements.'),
                 ]);
             }
         }
@@ -256,7 +256,7 @@ class PostController extends Controller
             $category = $community->categories()->findOrFail($validated['category_id']);
             if ($category->isAnnouncements() && ! $community->isCreator($request->user())) {
                 throw ValidationException::withMessages([
-                    'category_id' => 'Only the community creator can post in Announcements.',
+                    'category_id' => __('Only the community creator can post in Announcements.'),
                 ]);
             }
         }
@@ -286,7 +286,7 @@ class PostController extends Controller
     {
         if ($courseId === null && $lessonId !== null) {
             throw ValidationException::withMessages([
-                'lesson_id' => 'A course must be selected when specifying a lesson context.',
+                'lesson_id' => __('A course must be selected when specifying a lesson context.'),
             ]);
         }
 
@@ -295,7 +295,7 @@ class PostController extends Controller
             $course = $community->courses()->lockForUpdate()->find($courseId);
             if (! $course) {
                 throw ValidationException::withMessages([
-                    'course_id' => 'The selected course does not exist in this community.',
+                    'course_id' => __('The selected course does not exist in this community.'),
                 ]);
             }
 
@@ -305,7 +305,7 @@ class PostController extends Controller
             if (! $isCreator) {
                 if (! $course->isPublished() || ! $course->hasMemberAccess($user)) {
                     throw ValidationException::withMessages([
-                        'course_id' => 'You do not have access to this course context.',
+                        'course_id' => __('You do not have access to this course context.'),
                     ]);
                 }
             }
@@ -316,13 +316,13 @@ class PostController extends Controller
                     ->lockForUpdate()->find($lessonId);
                 if (! $lesson || ! $lesson->section || (int) $lesson->section->course_id !== (int) $course->id) {
                     throw ValidationException::withMessages([
-                        'lesson_id' => 'The selected lesson does not belong to this course.',
+                        'lesson_id' => __('The selected lesson does not belong to this course.'),
                     ]);
                 }
 
                 if (! $isCreator && ! $lesson->isPublished()) {
                     throw ValidationException::withMessages([
-                        'lesson_id' => 'You do not have access to this lesson context.',
+                        'lesson_id' => __('You do not have access to this lesson context.'),
                     ]);
                 }
             }

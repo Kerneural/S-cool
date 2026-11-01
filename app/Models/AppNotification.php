@@ -186,33 +186,33 @@ class AppNotification extends DatabaseNotification
             'post_reply' => $this->postReplySummary(),
             'member_activated' => $this->memberActivatedSummary(),
             'course_published' => $this->coursePublishedSummary(),
-            'content_reported' => 'A new content report requires moderation.',
-            default => 'You have a new notification.',
+            'content_reported' => __('A new content report requires moderation.'),
+            default => __('You have a new notification.'),
         };
     }
 
     protected function postReplySummary(): string
     {
         $commenter = User::find($this->data['commenter_id'] ?? null);
-        $name = $commenter?->name ?? 'A member';
+        $name = $commenter?->name ?? __('A member');
 
-        return "{$name} replied to your post.";
+        return __(':name replied to your post.', ['name' => $name]);
     }
 
     protected function memberActivatedSummary(): string
     {
         $member = User::find($this->data['member_id'] ?? null);
-        $name = $member?->name ?? 'A new member';
+        $name = $member?->name ?? __('A new member');
 
-        return "{$name} joined the community.";
+        return __(':name joined the community.', ['name' => $name]);
     }
 
     protected function coursePublishedSummary(): string
     {
         $course = Course::find($this->data['course_id'] ?? null);
-        $title = $course?->title ?? 'New course';
+        $title = $course?->title ?? __('New course');
 
-        return "A new course was published: {$title}.";
+        return __('A new course was published: :title.', ['title' => $title]);
     }
 
     /**

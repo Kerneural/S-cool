@@ -17,7 +17,7 @@
 
                 @can('cancel', $event)
                     @if (! $event->isCancelled())
-                        <form method="POST" action="{{ route('communities.events.cancel', [$community, $event]) }}" onsubmit="return confirm('Are you sure you want to cancel this event?');">
+                        <form method="POST" action="{{ route('communities.events.cancel', [$community, $event]) }}" onsubmit="return confirm('{{ __('Are you sure you want to cancel this event?') }}');">
                             @csrf
                             <button type="submit" class="inline-flex items-center px-3.5 py-1.5 bg-rose-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-wider hover:bg-rose-700 transition shadow-xs">
                                 {{ __('Cancel Event') }}
@@ -37,7 +37,7 @@
                         <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                         </svg>
-                        <span>{{ session('status') }}</span>
+                        <span>{{ __(session('status')) }}</span>
                     </div>
                 </div>
             @endif

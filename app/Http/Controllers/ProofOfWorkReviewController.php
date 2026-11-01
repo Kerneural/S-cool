@@ -91,7 +91,7 @@ class ProofOfWorkReviewController extends Controller
 
         if (in_array($newStatus, [LessonProofOfWork::STATUS_NEEDS_REVISION, LessonProofOfWork::STATUS_REJECTED], true) && $feedback === '') {
             throw ValidationException::withMessages([
-                'feedback' => 'Actionable feedback is required when requesting revision or rejecting work.',
+                'feedback' => __('Actionable feedback is required when requesting revision or rejecting work.'),
             ]);
         }
 
@@ -108,7 +108,7 @@ class ProofOfWorkReviewController extends Controller
 
             if (! $locked->isWaiting() || ! $locked->is_current) {
                 throw ValidationException::withMessages([
-                    'status' => 'This submission is not awaiting review. It may have already been reviewed.',
+                    'status' => __('This submission is not awaiting review. It may have already been reviewed.'),
                 ]);
             }
 
@@ -116,7 +116,7 @@ class ProofOfWorkReviewController extends Controller
             if ($newStatus === LessonProofOfWork::STATUS_VERIFIED) {
                 $skillSnapshot = trim((string) $lesson->skill_label);
                 if ($skillSnapshot === '' || mb_strlen($skillSnapshot) > 80) {
-                    throw ValidationException::withMessages(['status' => 'Configure a nonempty skill label before verifying this work.']);
+                    throw ValidationException::withMessages(['status' => __('Configure a nonempty skill label before verifying this work.')]);
                 }
             }
 
@@ -130,7 +130,7 @@ class ProofOfWorkReviewController extends Controller
         });
 
         return redirect()->route('communities.manage.proof-of-work.index', $community)
-            ->with('status', 'Review submitted successfully.');
+            ->with('status', __('Review submitted successfully.'));
     }
 
     private function authorizeCreator(Community $community, $user): void

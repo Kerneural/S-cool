@@ -102,6 +102,27 @@ class User extends Authenticatable implements MustVerifyEmail
         return (bool) $this->is_platform_admin;
     }
 
+    public function isDeploymentOwner(): bool
+    {
+        $mode = config('scool.deployment_mode', 'general');
+
+        if ($mode !== 'expert') {
+            return false;
+        }
+
+        $configuredEmail = config('scool.owner_email');
+
+        if (! is_string($configuredEmail) || trim($configuredEmail) === '') {
+            return false;
+        }
+
+        if (! $this->hasVerifiedEmail()) {
+            return false;
+        }
+
+        return strtolower(trim($this->email)) === strtolower(trim($configuredEmail));
+    }
+
     public function platformAdminActions(): HasMany
     {
         return $this->hasMany(PlatformAdminAction::class, 'admin_id');

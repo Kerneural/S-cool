@@ -20,7 +20,7 @@
                             </div>
                             <input type="text"
                                    name="q"
-                                   id="search-input" @input="liveSearch" aria-label="Search community content" maxlength="100"
+                                   id="search-input" @input="liveSearch" aria-label="{{ __('Search community content') }}" maxlength="100"
                                    value="{{ $searchQuery ?? '' }}"
                                    placeholder="{{ __('Search discussions, courses, lessons, and members...') }}"
                                    class="block w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition">
@@ -56,7 +56,7 @@
 
                 <!-- Type Selector Tabs -->
                 <div class="mt-6 border-b border-slate-100">
-                    <nav data-live-search-tabs class="-mb-px flex flex-wrap gap-4 sm:gap-8" aria-label="Search Type Tabs">
+                    <nav data-live-search-tabs class="-mb-px flex flex-wrap gap-4 sm:gap-8" aria-label="{{ __('Search Type Tabs') }}">
                         @php
                             $tabs = [
                                 'posts' => __('Discussions'),

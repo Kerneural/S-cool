@@ -67,7 +67,7 @@ class CommunityMessageController extends Controller
 
         if ((int) $recipient->id === (int) $actor->id) {
             throw ValidationException::withMessages([
-                'recipient_id' => 'You cannot message yourself.',
+                'recipient_id' => __('You cannot message yourself.'),
             ]);
         }
 
@@ -150,7 +150,7 @@ class CommunityMessageController extends Controller
         $body = trim($validated['body']);
         if ($body === '') {
             throw ValidationException::withMessages([
-                'body' => 'Message cannot be empty.',
+                'body' => __('Message cannot be empty.'),
             ]);
         }
 
