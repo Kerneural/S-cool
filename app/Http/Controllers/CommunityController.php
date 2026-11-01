@@ -14,11 +14,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Throwable;
 
 class CommunityController extends Controller
@@ -50,14 +50,8 @@ class CommunityController extends Controller
                     }]);
 
                 if ($request->routeIs('dashboard')) {
-                    if ($intended = session()->pull('url.intended')) {
-                        $appUrl = config('app.url');
-                        $isLocalRelative = is_string($intended) && Str::startsWith($intended, '/') && ! Str::startsWith($intended, ['//', '/\\']);
-                        $isLocalAbsolute = is_string($intended) && is_string($appUrl) && Str::startsWith($intended, $appUrl);
-
-                        if (($isLocalRelative || $isLocalAbsolute) && ! Str::contains($intended, ['/dashboard', '/login', '/register', '/verify-email'])) {
-                            return redirect()->to($intended);
-                        }
+                    if ($intended = $this->intendedDestination($request)) {
+                        return redirect()->to($intended);
                     }
 
                     $accessibleCount = (clone $query)->count();
@@ -239,7 +233,7 @@ class CommunityController extends Controller
                 $this->cleanupCover($coverPath, $community->id);
             }
             // The slug is the only client-controlled unique key on this insert.
-            throw ValidationException::withMessages(['slug' => 'The slug is not available.']);
+            throw ValidationException::withMessages(['slug' => __('The slug is not available.')]);
         } catch (Throwable $exception) {
             if (is_string($coverPath) && $community !== null) {
                 $this->cleanupCover($coverPath, $community->id);
@@ -333,14 +327,14 @@ class CommunityController extends Controller
 
         if (! empty($validated['intro_video_url']) && ! VideoEmbedService::isValid($validated['intro_video_url'])) {
             throw ValidationException::withMessages([
-                'intro_video_url' => 'Please provide a valid YouTube, Vimeo, or Loom URL.',
+                'intro_video_url' => __('Please provide a valid YouTube, Vimeo, or Loom URL.'),
             ]);
         }
 
         $mode = $validated['access_mode'] ?? $community->access_mode;
         $price = $mode === 'PAID' ? ($validated['price_vnd'] ?? $community->price_vnd) : null;
         if ($mode === 'PAID' && ! $price) {
-            throw ValidationException::withMessages(['price_vnd' => 'Set a positive whole-VND price for paid access.']);
+            throw ValidationException::withMessages(['price_vnd' => __('Set a positive whole-VND price for paid access.')]);
         }
 
         $fillFields = ['name', 'description', 'rules', 'intro_video_url'];
@@ -361,6 +355,43 @@ class CommunityController extends Controller
         ])->save();
 
         return redirect()->route('communities.show', $community)->with('status', 'community-updated');
+    }
+
+    private function intendedDestination(Request $request): ?string
+    {
+        $intended = $request->session()->pull('url.intended');
+        if (! is_string($intended) || str_contains(rawurldecode($intended), chr(92))
+            || preg_match('/[\x00-\x20\x7f]/', rawurldecode($intended))) {
+            return null;
+        }
+
+        $target = parse_url($intended);
+        $origin = parse_url((string) config('app.url'));
+        if ($target === false || $origin === false || isset($target['user']) || isset($target['pass'])) {
+            return null;
+        }
+
+        if (isset($target['host']) || isset($target['scheme'])) {
+            $port = static fn (array $url): int => (int) ($url['port'] ?? (($url['scheme'] ?? '') === 'https' ? 443 : 80));
+            if (strtolower($target['scheme'] ?? '') !== strtolower($origin['scheme'] ?? '')
+                || strtolower($target['host'] ?? '') !== strtolower($origin['host'] ?? '')
+                || $port($target) !== $port($origin)) {
+                return null;
+            }
+        } elseif (! str_starts_with($intended, '/') || str_starts_with($intended, '//')) {
+            return null;
+        }
+
+        try {
+            $route = app('router')->getRoutes()->match(Request::create($intended, 'GET'));
+        } catch (HttpExceptionInterface) {
+            return null;
+        }
+
+        // The destination's own middleware/policies re-authorize the redirected request.
+        return $route->named('dashboard', 'login', 'register', 'verification.*', 'password.*')
+            ? null
+            : $intended;
     }
 
     private function cleanupCover(string $path, int $communityId): void

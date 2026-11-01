@@ -80,7 +80,7 @@ class ProfileController extends Controller
         $unknown = array_diff(array_keys($request->except(['_token', '_method'])), $fields);
         if (($request->expectsJson() && $unknown !== []) || ! $request->hasAny($fields)) {
             throw ValidationException::withMessages([
-                'preferences' => 'Provide only the supported notification preferences.',
+                'preferences' => __('Provide only the supported notification preferences.'),
             ]);
         }
 
@@ -159,7 +159,7 @@ class ProfileController extends Controller
             if ($user->createdCommunities()->exists() || $user->memberships()->exists()
                 || $user->platformAdminActions()->exists()) {
                 throw ValidationException::withMessages([
-                    'password' => 'Accounts with community ownership, membership or platform audit records cannot be deleted. Retention must be resolved first.',
+                    'password' => __('Accounts with community ownership, membership or platform audit records cannot be deleted. Retention must be resolved first.'),
                 ])->errorBag('userDeletion');
             }
 

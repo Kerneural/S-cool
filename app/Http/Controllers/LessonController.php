@@ -95,7 +95,7 @@ class LessonController extends Controller
 
         if (($validated['video_url'] ?? null) !== null && ! VideoEmbedService::isValid($validated['video_url'])) {
             throw ValidationException::withMessages([
-                'video_url' => 'The video URL must be a valid HTTPS link from YouTube, Vimeo or Loom.',
+                'video_url' => __('The video URL must be a valid HTTPS link from YouTube, Vimeo or Loom.'),
             ]);
         }
 
@@ -103,7 +103,7 @@ class LessonController extends Controller
         $skillLabel = $isPractical ? trim((string) ($validated['skill_label'] ?? '')) : null;
         if ($isPractical && ($skillLabel === null || $skillLabel === '')) {
             throw ValidationException::withMessages([
-                'skill_label' => 'A nonempty skill label (maximum 80 characters) is required for practical lessons.',
+                'skill_label' => __('A nonempty skill label (maximum 80 characters) is required for practical lessons.'),
             ]);
         }
         $validated['is_practical'] = $isPractical;
@@ -113,7 +113,7 @@ class LessonController extends Controller
             $section->lessons()->create($validated + ['order' => (int) $section->lessons()->max('order') + 1]);
         });
 
-        return back()->with('status', 'Lesson created successfully.');
+        return back()->with('status', __('Lesson created successfully.'));
     }
 
     public function update(Request $request, Community $community, Course $course, CourseSection $section, Lesson $lesson): RedirectResponse
@@ -137,7 +137,7 @@ class LessonController extends Controller
 
         if (($validated['video_url'] ?? null) !== null && ! VideoEmbedService::isValid($validated['video_url'])) {
             throw ValidationException::withMessages([
-                'video_url' => 'The video URL must be a valid HTTPS link from YouTube, Vimeo or Loom.',
+                'video_url' => __('The video URL must be a valid HTTPS link from YouTube, Vimeo or Loom.'),
             ]);
         }
 
@@ -145,7 +145,7 @@ class LessonController extends Controller
         $skillLabel = $isPractical ? trim((string) ($validated['skill_label'] ?? '')) : null;
         if ($isPractical && ($skillLabel === null || $skillLabel === '')) {
             throw ValidationException::withMessages([
-                'skill_label' => 'A nonempty skill label (maximum 80 characters) is required for practical lessons.',
+                'skill_label' => __('A nonempty skill label (maximum 80 characters) is required for practical lessons.'),
             ]);
         }
         $validated['is_practical'] = $isPractical;
@@ -153,7 +153,7 @@ class LessonController extends Controller
 
         ClassroomMutation::run($community, $course, $section, $lesson, fn ($community, $course, $section, $lesson) => $lesson->update($validated));
 
-        return back()->with('status', 'Lesson updated successfully.');
+        return back()->with('status', __('Lesson updated successfully.'));
     }
 
     public function destroy(Community $community, Course $course, CourseSection $section, Lesson $lesson): RedirectResponse
@@ -184,7 +184,7 @@ class LessonController extends Controller
 
         ClassroomMutation::run($community, $course, $section, null, fn ($community, $course, $section) => ClassroomMutation::reorder($section->lessons(), $validated['order']));
 
-        return back()->with('status', 'Lessons reordered successfully.');
+        return back()->with('status', __('Lessons reordered successfully.'));
     }
 
     public function preview(Request $request, Community $community, Course $course): JsonResponse

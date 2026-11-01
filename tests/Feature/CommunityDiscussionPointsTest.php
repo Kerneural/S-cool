@@ -232,6 +232,9 @@ class CommunityDiscussionPointsTest extends TestCase
         $response = $this->get(route('communities.leaderboard', $community));
         $response->assertOk();
 
+        $response->assertViewHas('userLevel', PointContribution::levelForPoints(0));
+        $response->assertViewHas('userProgress', fn ($progress) => $progress['progress_pct'] === 0);
+
         // Must display 5 real levels with thresholds
         $response->assertSee('Cấp 1 - Thành viên mới');
         $response->assertSee('Cấp 2 - Thành viên tích cực');
@@ -241,7 +244,7 @@ class CommunityDiscussionPointsTest extends TestCase
 
         // Point calculation card clarity
         $response->assertSee('Quy tắc tính điểm & Cấp độ');
-        $response->assertSee('Nhận +1 điểm khi thành viên khác thích bài viết hoặc bình luận của bạn.');
+        $response->assertSee('Nhận +1 điểm khi thành viên khác thích bài viết của bạn.');
         $response->assertSee('Không tính điểm khi tự thích nội dung của chính mình. Bỏ thích sẽ trừ điểm.');
 
         // NO placeholder values or fake 9-level strings

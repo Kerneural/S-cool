@@ -6,12 +6,12 @@
         <div class="rounded-xl border border-line bg-surface p-5 sm:p-6 shadow-2xs">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div class="min-w-0 space-y-2">
-                    <nav aria-label="{{ __('Breadcrumb') }}" class="flex items-center gap-2 text-xs font-medium text-muted">
+                    <nav aria-label="{{ __('Breadcrumb') }}" class="flex flex-wrap items-center gap-2 text-xs font-medium text-muted">
                         <a href="{{ route('communities.classroom.index', $community) }}" class="hover:text-brand transition-colors">
                             {{ __('Lớp Học') }}
                         </a>
                         <span aria-hidden="true">&rsaquo;</span>
-                        <a href="{{ route('communities.courses.show', [$community, $course]) }}" class="hover:text-brand transition-colors">
+                        <a href="{{ route('communities.courses.show', [$community, $course]) }}" class="min-w-0 break-words hover:text-brand transition-colors">
                             {{ $course->title }}
                         </a>
                         <span aria-hidden="true">&rsaquo;</span>
@@ -67,8 +67,10 @@
         <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
 
             {{-- Left Column: Curriculum Tree (4 cols on desktop) --}}
-            <aside aria-label="{{ __('Chương trình học') }}" class="md:col-span-5 lg:col-span-4 space-y-4">
-                <div class="rounded-xl border border-line bg-surface p-4 sm:p-5 shadow-2xs">
+            <aside aria-label="{{ __('Chương trình học') }}" class="min-w-0 md:col-span-5 lg:col-span-4 space-y-4">
+                <details open x-data="{ expanded: window.innerWidth >= 768 }" :open="expanded" @toggle="expanded = $el.open" class="rounded-xl border border-line bg-surface p-4 sm:p-5 shadow-2xs">
+                    <summary class="min-h-10 cursor-pointer text-sm font-semibold text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">{{ __('Ẩn/hiện cây khóa học') }}</summary>
+                    <div class="pt-3">
                     <div class="flex items-center justify-between pb-3 mb-3 border-b border-line">
                         <h2 class="text-sm font-bold uppercase tracking-wider text-ink">
                             {{ __('Chương trình học') }}
@@ -167,11 +169,12 @@
                             @endforeach
                         </div>
                     @endif
-                </div>
+                    </div>
+                </details>
             </aside>
 
             {{-- Right Column: Active Editor Workspace (8 cols on desktop) --}}
-            <main aria-label="{{ __('Khung soạn thảo') }}" class="md:col-span-7 lg:col-span-8">
+            <section aria-label="{{ __('Khung soạn thảo') }}" class="min-w-0 break-words md:col-span-7 lg:col-span-8">
                 <div class="rounded-xl border border-line bg-surface p-5 sm:p-6 shadow-2xs">
 
                     {{-- Mode 1: Edit Lesson --}}
@@ -371,6 +374,7 @@
 
                                 <form method="POST" action="{{ route('communities.courses.cover.store', [$community, $course]) }}" enctype="multipart/form-data" class="space-y-3">
                                     @csrf
+                                    <input type="hidden" name="_form" value="course-cover">
                                     <div>
                                         <label for="workspace-course-cover-input" class="block text-xs font-bold text-ink uppercase tracking-wider mb-1.5">{{ __('Tải lên ảnh bìa mới') }}</label>
                                         <input id="workspace-course-cover-input" type="file" name="cover" accept=".jpg,.jpeg,.png,.webp" required class="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-brand-soft file:text-brand hover:file:bg-teal-100 cursor-pointer">
@@ -400,7 +404,7 @@
                     @endif
 
                 </div>
-            </main>
+            </section>
 
         </div>
     </div>

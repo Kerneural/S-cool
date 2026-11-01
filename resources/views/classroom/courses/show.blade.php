@@ -46,7 +46,7 @@
                             </span>
                         @endif
                         @if ($isCreator)
-                            <span class="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-ink">{{ $course->status }}</span>
+                            <span class="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-ink">{{ __($course->status) }}</span>
                         @endif
                         @if ($isEntitled)
                             <span class="text-xs text-muted">
@@ -325,7 +325,7 @@
                                     @if ($isCreator)
                                         <div class="flex shrink-0 items-center gap-2 px-5 pb-3 sm:pb-0 sm:pl-0">
                                             <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md {{ $lesson->isPublished() ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-800' }}">
-                                                {{ $lesson->status }}
+                                                {{ __($lesson->status) }}
                                             </span>
                                             <x-classroom-reorder :ids="$section->lessons->modelKeys()" :id="$lesson->id" :action="route('communities.lessons.reorder', [$community, $course, $section])" />
                                         </div>

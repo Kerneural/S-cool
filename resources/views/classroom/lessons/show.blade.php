@@ -37,7 +37,7 @@
                         <span class="rounded-md bg-teal-100 px-2 py-0.5 text-[11px] font-semibold text-teal-800">{{ __('Practical') }}</span>
                     @endif
                     @if ($isCreator)
-                        <span class="rounded-md px-2 py-0.5 text-[11px] font-semibold {{ $lesson->isPublished() ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-800 border border-amber-200' }}">{{ $lesson->status }}</span>
+                        <span class="rounded-md px-2 py-0.5 text-[11px] font-semibold {{ $lesson->isPublished() ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-800 border border-amber-200' }}">{{ __($lesson->status) }}</span>
                     @endif
                 </div>
                 <h1 class="break-words text-2xl font-bold leading-tight tracking-tight text-ink sm:text-3xl">{{ $lesson->title }}</h1>

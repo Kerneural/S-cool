@@ -314,6 +314,34 @@ class ExpertLearnerEntryTest extends TestCase
         $response->assertSee(route('communities.create'));
     }
 
+    public function test_intended_destination_rejects_external_origin_lookalikes_and_backslashes(): void
+    {
+        $learner = User::factory()->create();
+        $origin = rtrim(config('app.url'), '/');
+        foreach ([
+            $origin.'.evil.example/communities/example/about',
+            '//evil.example/communities/example/about',
+            '/\evil.example/communities/example/about',
+            'https://evil.example/communities/example/about',
+        ] as $intended) {
+            $this->actingAs($learner)->withSession(['url.intended' => $intended])
+                ->get(route('dashboard'))->assertOk()->assertViewIs('communities.welcome');
+        }
+    }
+
+    public function test_intended_about_query_is_not_mistaken_for_an_authentication_loop(): void
+    {
+        $learner = User::factory()->create();
+        $community = Community::factory()->create();
+        $intended = route('communities.about', $community).'?return=/dashboard';
+        $this->actingAs($learner)->withSession(['url.intended' => $intended])
+            ->get(route('dashboard'))->assertRedirect($intended);
+        $this->assertDatabaseMissing('community_memberships', [
+            'user_id' => $learner->id,
+            'community_id' => $community->id,
+        ]);
+    }
+
     public function test_non_owner_cannot_access_or_submit_community_creation_in_expert_mode(): void
     {
         $learner = User::factory()->create([

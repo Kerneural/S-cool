@@ -66,13 +66,13 @@ class ReferralController extends Controller
 
         if ($normalizedEmail === strtolower($actor->email)) {
             throw ValidationException::withMessages([
-                'email' => 'You cannot refer yourself.',
+                'email' => __('You cannot refer yourself.'),
             ]);
         }
 
         if ($normalizedEmail === strtolower($community->creator->email)) {
             throw ValidationException::withMessages([
-                'email' => 'The community creator already has access.',
+                'email' => __('The community creator already has access.'),
             ]);
         }
 
@@ -84,7 +84,7 @@ class ReferralController extends Controller
 
         if ($existingPending) {
             throw ValidationException::withMessages([
-                'email' => 'A referral request for this email is already awaiting creator approval.',
+                'email' => __('A referral request for this email is already awaiting creator approval.'),
             ]);
         }
 

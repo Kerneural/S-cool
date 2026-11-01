@@ -38,14 +38,14 @@ class CommunityLeaderboardController extends Controller
         $metric = $request->query('metric', 'engagement');
         if (! in_array($metric, ['engagement', 'verified_skills', 'helpful_answers'], true)) {
             throw ValidationException::withMessages([
-                'metric' => 'Invalid leaderboard metric selected.',
+                'metric' => __('Invalid leaderboard metric selected.'),
             ]);
         }
 
         $period = $request->query('period', 'lifetime');
         if (! in_array($period, ['lifetime', 'month'], true)) {
             throw ValidationException::withMessages([
-                'period' => 'Invalid leaderboard period selected.',
+                'period' => __('Invalid leaderboard period selected.'),
             ]);
         }
 
@@ -67,7 +67,7 @@ class CommunityLeaderboardController extends Controller
         }
 
         $communityLevels = $this->getCommunityLevels($community);
-        $userLevel = $lifetimePoints > 0 ? $userProgress['level'] : 0;
+        $userLevel = PointContribution::levelForPoints($lifetimePoints);
 
         return view('communities.leaderboard', [
             'community' => $community,

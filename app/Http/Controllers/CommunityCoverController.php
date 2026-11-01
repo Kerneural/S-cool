@@ -49,7 +49,7 @@ class CommunityCoverController extends Controller
             $this->cleanup($oldPath, $community->id);
         }
 
-        return redirect()->route('communities.edit', $community)->with('status', 'Cover updated.');
+        return redirect()->route('communities.edit', $community)->with('status', __('Cover updated.'));
     }
 
     public function show(Community $community): StreamedResponse

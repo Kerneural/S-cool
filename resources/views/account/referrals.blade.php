@@ -186,7 +186,7 @@
                                         </td>
                                         <td class="py-3.5 px-5 text-center">
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                                                {{ $comm->status === 'SIMULATED' ? __('Simulated') : $comm->status }}
+                                                {{ $comm->status === 'SIMULATED' ? __('Simulated') : __($comm->status) }}
                                             </span>
                                         </td>
                                         <td class="py-3.5 px-5 text-right text-xs text-slate-500 font-mono">

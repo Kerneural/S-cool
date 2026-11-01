@@ -9,6 +9,7 @@ use App\Models\CourseSection;
 use App\Models\Lesson;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 class CourseManagementWorkspaceTest extends TestCase
@@ -277,7 +278,9 @@ class CourseManagementWorkspaceTest extends TestCase
 
         // Accessible semantic roles
         $response->assertSee('<aside', false);
-        $response->assertSee('<main', false);
+        $response->assertSee('aria-label="Khung soạn thảo"', false);
+        $response->assertSee('<details open', false);
+        $response->assertSee('Ẩn/hiện cây khóa học');
 
         // Labels associated with form fields
         $document = new \DOMDocument;
@@ -337,5 +340,25 @@ class CourseManagementWorkspaceTest extends TestCase
         $settingsResponse->assertSee('Trạng thái');
         $settingsResponse->assertSee('Lưu khóa học');
         $settingsResponse->assertSee('Ảnh bìa khóa học');
+    }
+
+    public function test_invalid_cover_upload_keeps_settings_selected_even_without_query_parameter(): void
+    {
+        [$community, $creator] = $this->createCommunityWithCreator();
+        $course = Course::factory()->create(['community_id' => $community->id]);
+        $section = CourseSection::factory()->create(['course_id' => $course->id]);
+        Lesson::factory()->create(['course_section_id' => $section->id]);
+        $workspaceUrl = route('communities.manage.courses.show', [$community, $course]);
+
+        $this->actingAs($creator)->get($workspaceUrl.'?tab=settings')
+            ->assertOk()->assertSee('name="_form" value="course-cover"', false);
+
+        $this->from($workspaceUrl)->post(route('communities.courses.cover.store', [$community, $course]), [
+            '_form' => 'course-cover',
+            'cover' => UploadedFile::fake()->create('invalid.txt', 1, 'text/plain'),
+        ])->assertRedirect($workspaceUrl)->assertSessionHasErrors('cover');
+
+        $this->get($workspaceUrl)->assertOk()->assertViewHas('selectedMode', 'settings')
+            ->assertSee('workspace-course-cover-input', false);
     }
 }

@@ -50,7 +50,7 @@ class CommunityMemberController extends Controller
 
         return redirect()
             ->route('communities.members.index', $community)
-            ->with('status', 'Member has been suspended.');
+            ->with('status', __('Member has been suspended.'));
     }
 
     /**
@@ -66,7 +66,7 @@ class CommunityMemberController extends Controller
 
         return redirect()
             ->route('communities.members.index', $community)
-            ->with('status', 'Member has been reactivated.');
+            ->with('status', __('Member has been reactivated.'));
     }
 
     /**
@@ -82,7 +82,7 @@ class CommunityMemberController extends Controller
 
         return redirect()
             ->route('communities.members.index', $community)
-            ->with('status', 'Member has been removed from the community.');
+            ->with('status', __('Member has been removed from the community.'));
     }
 
     private function validatedReason(Request $request): string
@@ -101,7 +101,7 @@ class CommunityMemberController extends Controller
         ]);
 
         if (! is_string($validated['reason'])) {
-            throw ValidationException::withMessages(['reason' => 'A valid reason is required.']);
+            throw ValidationException::withMessages(['reason' => __('A valid reason is required.')]);
         }
 
         return trim($validated['reason']);

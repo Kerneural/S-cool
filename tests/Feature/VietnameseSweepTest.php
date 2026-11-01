@@ -3,10 +3,13 @@
 namespace Tests\Feature;
 
 use App\Mail\CommunityInvitationMail;
+use App\Models\AppNotification;
 use App\Models\Community;
 use App\Models\CommunityMembership;
 use App\Models\Payment;
 use App\Models\User;
+use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -126,7 +129,8 @@ class VietnameseSweepTest extends TestCase
             ->assertSee('lang="vi"', false)
             ->assertSee('Quản trị nền tảng — Cộng đồng')
             ->assertSee('Quản trị nền tảng')
-            ->assertSee('Tổng số cộng đồng');
+            ->assertSee('Tổng số cộng đồng')
+            ->assertSee('Đang hoạt động');
     }
 
     /**
@@ -155,5 +159,58 @@ class VietnameseSweepTest extends TestCase
             ->assertSee('lang="vi"', false)
             ->assertSee('Xem trước cộng đồng')
             ->assertSee('Tham gia cộng đồng này');
+    }
+
+    public function test_landing_static_interface_and_illustrations_render_in_vietnamese(): void
+    {
+        $this->get('/')->assertOk()
+            ->assertSee('Xây dựng cộng đồng nơi')
+            ->assertSee('học tập trở thành thực hành.')
+            ->assertSee('Hành trình học tập')
+            ->assertSee('Tình huống minh họa')
+            ->assertSee('Chính sách riêng tư')
+            ->assertDontSee('Build a community where')
+            ->assertDontSee('Live demo screenshot:');
+    }
+
+    public function test_verification_and_password_reset_mail_render_vietnamese_without_changing_links(): void
+    {
+        $user = User::factory()->unverified()->create();
+        $verification = (new VerifyEmail)->toMail($user);
+        $reset = (new ResetPassword('synthetic-reset-token'))->toMail($user);
+
+        $this->assertSame('Xác minh địa chỉ email', $verification->subject);
+        $this->assertSame('Xác minh địa chỉ email', $verification->actionText);
+        $this->assertStringContainsString('/verify-email/', $verification->actionUrl);
+        $this->assertStringContainsString('signature=', $verification->actionUrl);
+        $this->assertStringContainsString('Vui lòng nhấn nút', $verification->render());
+        $this->assertSame('Thông báo đặt lại mật khẩu', $reset->subject);
+        $this->assertSame('Đặt lại mật khẩu', $reset->actionText);
+        $this->assertStringContainsString('synthetic-reset-token', $reset->actionUrl);
+        $this->assertStringContainsString('Liên kết đặt lại mật khẩu này sẽ hết hạn', $reset->render());
+    }
+
+    public function test_notification_summary_translates_interface_and_preserves_authored_names(): void
+    {
+        $author = User::factory()->create(['name' => 'Original English Name']);
+        $notification = new AppNotification([
+            'type' => 'post_reply',
+            'data' => ['commenter_id' => $author->id],
+        ]);
+
+        $this->assertSame('Original English Name đã trả lời bài viết của bạn.', $notification->summary());
+        $notification->type = 'content_reported';
+        $this->assertSame('Có báo cáo nội dung mới cần kiểm duyệt.', $notification->summary());
+    }
+
+    public function test_legacy_admin_has_no_platform_navigation_in_expert_mode(): void
+    {
+        config(['scool.deployment_mode' => 'expert', 'scool.owner_email' => 'owner@example.test']);
+        $legacyAdmin = User::factory()->create(['is_platform_admin' => true]);
+
+        $this->actingAs($legacyAdmin)->get('/dashboard')->assertOk()
+            ->assertDontSee(route('admin.communities.index'), false)
+            ->assertDontSee(route('website-hub'), false);
+        $this->get(route('admin.communities.index'))->assertForbidden();
     }
 }

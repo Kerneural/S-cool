@@ -36,7 +36,7 @@
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                     @if (config('scool.deployment_mode') !== 'expert' || Auth::user()?->isDeploymentOwner())
                     <!-- Filter Tabs -->
-                    <nav data-live-search-tabs class="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 rounded-xl" aria-label="Filters">
+                    <nav data-live-search-tabs class="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 rounded-xl" aria-label="{{ __('Filters') }}">
                         <a href="{{ route('communities.index', array_filter(['filter' => 'all', 'q' => $searchQuery ?? ''])) }}"
                            class="px-3.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all {{ ($currentFilter ?? 'all') === 'all' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-white/50' }}">
                             {{ __('All') }}
@@ -61,7 +61,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                             </div>
-                            <input type="text" name="q" aria-label="Search communities" maxlength="100" value="{{ $searchQuery ?? '' }}" placeholder="{{ __('Search communities...') }}"
+                            <input type="text" name="q" aria-label="{{ __('Search communities') }}" maxlength="100" value="{{ $searchQuery ?? '' }}" placeholder="{{ __('Search communities...') }}"
                                    @input="liveSearch"
                                    autocomplete="off"
                                    class="w-full text-sm rounded-xl border-slate-200 pl-9 pr-3 py-2 bg-slate-50/50 focus:bg-white focus:border-brand-500 focus:ring-brand-500 transition-colors">
@@ -164,11 +164,11 @@
                                         @if ($community->isActive())
                                             <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-emerald-500/20 backdrop-blur-md text-emerald-300 border border-emerald-500/30 shadow-xs">
                                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5"></span>
-                                                {{ $community->status }}
+                                                {{ __($community->status) }}
                                             </span>
                                         @else
                                             <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-amber-500/20 backdrop-blur-md text-amber-300 border border-amber-500/40 shadow-xs">
-                                                {{ $community->status }}
+                                                {{ __($community->status) }}
                                             </span>
                                         @endif
                                     </div>

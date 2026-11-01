@@ -11,7 +11,7 @@
                 <div class="p-6 sm:p-8 text-slate-900">
                     <div class="border-b border-slate-100 pb-5 mb-6">
                         <h3 class="text-lg font-bold text-slate-900 tracking-tight">{{ __('Launch Your New Community') }}</h3>
-                        <p class="text-xs text-slate-500 mt-1">Set up your community identity, access rules, and pricing structure.</p>
+                        <p class="text-xs text-slate-500 mt-1">{{ __('Set up your community identity, access rules, and pricing structure.') }}</p>
                     </div>
 
                     <form method="POST" action="{{ route('communities.store') }}" enctype="multipart/form-data" class="space-y-6">
@@ -20,7 +20,7 @@
                         <!-- Community Name -->
                         <div>
                             <x-input-label for="name" :value="__('Community Name')" />
-                            <x-text-input id="name" name="name" type="text" class="mt-1.5 block w-full rounded-xl border-slate-200 py-2.5" :value="old('name')" required autofocus placeholder="e.g. AI Master Hub" />
+                            <x-text-input id="name" name="name" type="text" class="mt-1.5 block w-full rounded-xl border-slate-200 py-2.5" :value="old('name')" required autofocus placeholder="{{ __('e.g. AI Master Hub') }}" />
                             <x-input-error class="mt-1.5" :messages="$errors->get('name')" />
                         </div>
 

@@ -49,7 +49,7 @@ class NotificationController extends Controller
 
         $notification->markAsRead();
 
-        return back()->with('status', 'Notification marked as read.');
+        return back()->with('status', __('Notification marked as read.'));
     }
 
     /**
@@ -67,7 +67,7 @@ class NotificationController extends Controller
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
 
-        return back()->with('status', 'All notifications marked as read.');
+        return back()->with('status', __('All notifications marked as read.'));
     }
 
     /**

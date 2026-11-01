@@ -243,9 +243,9 @@
                         <span></span>
                     @endif
                     <div class="hidden sm:flex items-center gap-2 text-[10px] text-slate-400">
-                        <span><kbd class="px-1 py-0.5 bg-white border border-slate-200 rounded text-[9px]">↑</kbd> <kbd class="px-1 py-0.5 bg-white border border-slate-200 rounded text-[9px]">↓</kbd> navigate</span>
-                        <span><kbd class="px-1 py-0.5 bg-white border border-slate-200 rounded text-[9px]">Enter</kbd> open</span>
-                        <span><kbd class="px-1 py-0.5 bg-white border border-slate-200 rounded text-[9px]">Esc</kbd> close</span>
+                        <span><kbd class="px-1 py-0.5 bg-white border border-slate-200 rounded text-[9px]">↑</kbd> <kbd class="px-1 py-0.5 bg-white border border-slate-200 rounded text-[9px]">↓</kbd> {{ __('navigate') }}</span>
+                        <span><kbd class="px-1 py-0.5 bg-white border border-slate-200 rounded text-[9px]">Enter</kbd> {{ __('open') }}</span>
+                        <span><kbd class="px-1 py-0.5 bg-white border border-slate-200 rounded text-[9px]">Esc</kbd> {{ __('close') }}</span>
                     </div>
                 </div>
             @endif

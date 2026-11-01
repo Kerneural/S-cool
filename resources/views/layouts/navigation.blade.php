@@ -100,7 +100,7 @@
                                 {{ __('Website Management') }}
                             </x-nav-link>
                         @endif
-                        @if (Auth::user()?->isPlatformAdmin())
+                        @if (config('scool.deployment_mode', 'general') === 'general' && Auth::user()?->isPlatformAdmin())
                             <x-nav-link :href="route('admin.communities.index')" :active="request()->routeIs('admin.*')">
                                 {{ __('Platform Admin') }}
                             </x-nav-link>
@@ -263,7 +263,7 @@
                         {{ __('Website Management') }}
                     </x-responsive-nav-link>
                 @endif
-                @if (Auth::user()?->isPlatformAdmin())
+                @if (config('scool.deployment_mode', 'general') === 'general' && Auth::user()?->isPlatformAdmin())
                     <x-responsive-nav-link :href="route('admin.communities.index')" :active="request()->routeIs('admin.*')">
                         {{ __('Platform Admin') }}
                     </x-responsive-nav-link>

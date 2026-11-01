@@ -16,7 +16,7 @@
                                 <circle cx="80" cy="80" r="68" class="text-[#3B82F6] transition-all duration-700 ease-out"
                                         stroke-width="5"
                                         stroke-dasharray="427.26"
-                                        stroke-dashoffset="{{ 427.26 * (1 - max(0.12, ($userProgress['progress_pct'] / 100))) }}"
+                                        stroke-dashoffset="{{ 427.26 * (1 - ($userProgress['progress_pct'] / 100)) }}"
                                         stroke-linecap="round"
                                         stroke="currentColor"
                                         fill="transparent" />
@@ -124,7 +124,7 @@
 
                             <div class="pt-2 border-t border-slate-100 text-[11px] text-slate-600 space-y-1">
                                 <div class="font-bold text-slate-800">{{ __('Point Calculation Rules') }}</div>
-                                <div>&bull; {{ __('Earn +1 point when another member likes your post or comment.') }}</div>
+                                <div>&bull; {{ __('Earn +1 point when another member likes your post.') }}</div>
                                 <div>&bull; {{ __('Self-likes are not counted. Unliking removes the point.') }}</div>
                             </div>
                         </div>
@@ -249,15 +249,15 @@
                                                 </span>
                                             </td>
                                             <td class="py-4 px-6 text-right font-bold text-slate-900 text-base tabular-nums">
-                                                {{ $entry->points }} <span class="text-xs font-normal text-slate-600">pts</span>
+                                                {{ $entry->points }} <span class="text-xs font-normal text-slate-600">{{ __('pts') }}</span>
                                             </td>
                                         @elseif ($metric === 'verified_skills')
                                             <td class="py-4 px-6 text-right font-bold text-slate-900 text-base tabular-nums">
-                                                {{ $entry->points }} <span class="text-xs font-normal text-slate-600">verified</span>
+                                                {{ $entry->points }} <span class="text-xs font-normal text-slate-600">{{ __('verified') }}</span>
                                             </td>
                                         @else
                                             <td class="py-4 px-6 text-right font-bold text-slate-900 text-base tabular-nums">
-                                                {{ $entry->points }} <span class="text-xs font-normal text-slate-600">helpful</span>
+                                                {{ $entry->points }} <span class="text-xs font-normal text-slate-600">{{ __('helpful') }}</span>
                                             </td>
                                         @endif
                                     </tr>

@@ -6,6 +6,7 @@ export function lessonAuthoring(options = {}, browser = globalThis) {
         errorMessage: '',
         lastRenderedContent: null,
         abortController: null,
+        previewRequestId: 0,
         previewUrl: options.previewUrl || '',
         csrfToken: options.csrfToken || '',
         emptyPlaceholder: options.emptyPlaceholder || 'Chưa có nội dung bài học để xem trước.',
@@ -32,6 +33,14 @@ export function lessonAuthoring(options = {}, browser = globalThis) {
         async fetchPreview() {
             const textarea = this.getTextarea();
             const content = textarea ? textarea.value : '';
+            const requestId = ++this.previewRequestId;
+
+            // Invalidate every earlier response, including when the new content is
+            // empty or cached. Abort alone cannot guard a response already parsing.
+            this.abortController?.abort();
+            this.abortController = null;
+            this.loading = false;
+            this.errorMessage = '';
 
             if (!content || !content.trim()) {
                 this.previewHtml = `<div class="italic text-slate-400 dark:text-navy-300 py-6 text-center">${this.emptyPlaceholder}</div>`;
@@ -48,10 +57,6 @@ export function lessonAuthoring(options = {}, browser = globalThis) {
             if (!this.previewUrl) {
                 this.errorMessage = this.defaultErrorMessage;
                 return;
-            }
-
-            if (this.abortController) {
-                this.abortController.abort();
             }
 
             if (typeof browser.AbortController === 'function') {
@@ -83,6 +88,7 @@ export function lessonAuthoring(options = {}, browser = globalThis) {
                 }
 
                 const data = await response.json();
+                if (requestId !== this.previewRequestId) return;
                 if (typeof data.html !== 'string') {
                     throw new Error('Invalid preview response structure');
                 }
@@ -90,13 +96,20 @@ export function lessonAuthoring(options = {}, browser = globalThis) {
                 this.previewHtml = data.html;
                 this.lastRenderedContent = content;
             } catch (err) {
+                if (requestId !== this.previewRequestId) return;
                 if (err && err.name === 'AbortError') {
                     return;
                 }
                 this.errorMessage = this.defaultErrorMessage;
             } finally {
-                this.loading = false;
+                if (requestId === this.previewRequestId) this.loading = false;
             }
+        },
+
+        destroy() {
+            ++this.previewRequestId;
+            this.abortController?.abort();
+            this.abortController = null;
         },
 
         applyFormat(type) {

@@ -30,7 +30,7 @@
             <div class="relative mt-1.5">
                 <x-text-input id="price_vnd" name="price_vnd" type="number" min="1" max="4294967295" step="1"
                     class="block w-full pr-14 rounded-xl border-slate-200 text-sm focus:border-teal-500 focus:ring-teal-500 py-2.5"
-                    :value="old('price_vnd', $community->price_vnd ?? null)" placeholder="e.g. 500000" />
+                    :value="old('price_vnd', $community->price_vnd ?? null)" placeholder="{{ __('e.g. 500000') }}" />
                 <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-xs font-bold text-slate-400">
                     VND
                 </div>

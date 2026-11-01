@@ -7,7 +7,7 @@
                 <div class="p-6 sm:p-8 text-slate-900">
                     <div class="border-b border-slate-100 pb-5 mb-8">
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight">{{ __('Edit Community: ') }} {{ $community->name }}</h1>
-                        <p class="text-xs text-slate-500 mt-1">Manage core settings, visual branding, guidelines, and access pricing.</p>
+                        <p class="text-xs text-slate-500 mt-1">{{ __('Manage core settings, visual branding, guidelines, and access pricing.') }}</p>
                     </div>
 
                     @if (session('status'))
@@ -29,7 +29,7 @@
                             </div>
                             <div>
                                 <x-input-label for="cover" value="Private community cover" class="font-bold text-slate-900 text-sm" />
-                                <p class="text-xs text-slate-500">Visible on the community discovery catalog and header.</p>
+                                <p class="text-xs text-slate-500">{{ __('Visible on the community discovery catalog and header.') }}</p>
                             </div>
                         </div>
 
@@ -46,7 +46,7 @@
                             @csrf
                             <input id="cover" name="cover" type="file" accept="image/jpeg,image/png,image/webp" required
                                 class="block w-full text-xs text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 cursor-pointer">
-                            <p class="text-xs text-muted">JPEG, PNG or WebP. Maximum 2 MB and 4096 pixels per side. Visible only to authorized community users.</p>
+                            <p class="text-xs text-muted">{{ __('JPEG, PNG or WebP. Maximum 2 MB and 4096 pixels per side. Visible only to authorized community users.') }}</p>
                             <x-input-error :messages="$errors->get('cover')" class="mt-1" />
                             <div class="pt-1">
                                 <x-primary-button class="text-xs px-4 py-2 rounded-xl">
@@ -109,7 +109,7 @@
                         <div class="border-t border-slate-100 pt-6 space-y-4">
                             <div>
                                 <h3 class="text-sm font-bold text-slate-900 tracking-tight">{{ __('Member Onboarding Checklist') }}</h3>
-                                <p class="text-xs text-slate-500 mt-0.5">Guide new members through introduction tasks upon admission.</p>
+                                <p class="text-xs text-slate-500 mt-0.5">{{ __('Guide new members through introduction tasks upon admission.') }}</p>
                             </div>
 
                             <div class="flex items-start gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200/70">

@@ -168,7 +168,7 @@ class CourseController extends Controller
         $mode = $validated['access_mode'] ?? Course::ACCESS_MODE_INCLUDED;
         $price = $mode === Course::ACCESS_MODE_ONE_TIME ? (int) ($validated['price'] ?? 0) : null;
         if ($mode === Course::ACCESS_MODE_ONE_TIME && ($price === null || $price <= 0)) {
-            throw ValidationException::withMessages(['price' => 'Set a positive whole-VND price for individual course purchase.']);
+            throw ValidationException::withMessages(['price' => __('Set a positive whole-VND price for individual course purchase.')]);
         }
 
         ClassroomMutation::run($community, null, null, null, function ($community) use ($validated, $mode, $price) {
@@ -189,7 +189,7 @@ class CourseController extends Controller
         });
 
         return redirect()->route('communities.classroom.index', $community)
-            ->with('status', 'Course created successfully.');
+            ->with('status', __('Course created successfully.'));
     }
 
     public function update(Request $request, Community $community, Course $course): RedirectResponse
@@ -211,7 +211,7 @@ class CourseController extends Controller
         $mode = $validated['access_mode'] ?? $course->access_mode ?? Course::ACCESS_MODE_INCLUDED;
         $price = $mode === Course::ACCESS_MODE_ONE_TIME ? (int) ($validated['price'] ?? $course->price ?? 0) : null;
         if ($mode === Course::ACCESS_MODE_ONE_TIME && ($price === null || $price <= 0)) {
-            throw ValidationException::withMessages(['price' => 'Set a positive whole-VND price for individual course purchase.']);
+            throw ValidationException::withMessages(['price' => __('Set a positive whole-VND price for individual course purchase.')]);
         }
 
         ClassroomMutation::run($community, $course, null, null, function ($community, $course) use ($validated, $mode, $price) {
@@ -238,7 +238,7 @@ class CourseController extends Controller
             }
         });
 
-        return back()->with('status', 'Course updated successfully.');
+        return back()->with('status', __('Course updated successfully.'));
     }
 
     public function destroy(Community $community, Course $course): RedirectResponse
@@ -263,6 +263,6 @@ class CourseController extends Controller
 
         ClassroomMutation::run($community, null, null, null, fn ($community) => ClassroomMutation::reorder($community->courses(), $validated['order']));
 
-        return back()->with('status', 'Courses reordered successfully.');
+        return back()->with('status', __('Courses reordered successfully.'));
     }
 }

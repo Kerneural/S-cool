@@ -2,29 +2,51 @@
 
 A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
-## EUR-83 — Integrated acceptance of the owner-ready release (2026-10-31)
+## EUR-83 — Integrated M14 audit and acceptance (2026-11-01)
 
-- Authority: User instruction to execute task M14 of issue [EUR-83](https://linear.app/eurusdevsec/issue/EUR-83/m14-integrated-acceptance-of-the-owner-ready-release).
-- Baseline: Integrated revision branch `eur-83-integrated-acceptance` at `be4f290` uniting all three parallel delivery lanes:
-  - Identity & Entry lane (EUR-74, EUR-75)
-  - LMS lane (EUR-79, EUR-80, EUR-81, EUR-76)
-  - Locale & Community lane (EUR-77, EUR-78, EUR-82)
-  - Contract freeze baseline (EUR-73)
-- Outcome: Demonstrated end-to-end user journeys on one integrated revision (`be4f290`), reconciled test inventory discovery on container mounts (154 tests discovered, 1,945 assertions, 100% PASS, 0 failures, 0 skipped, resolving the "74-test anomaly"), patched CI npm audit security vulnerabilities (follow-redirects & vite), and verified all quality gates (Pint, PHPStan, JS tests, production Vite build).
-- AC:
-  - AC-01: Every required AC of EUR-74 through EUR-82 passes with evidence on one integrated revision (`be4f290`).
-  - AC-02: GitHub Actions CI readiness verified locally across all automated suites; PR CI gated upon push/PR authorization.
-  - AC-03: Production build assets (`public/build/manifest.json`, `app-BqLo618O.css`, `app-Cxu8ovVk.js`) match manifest and landing motion tests pass 100% (69/69 JS tests pass).
-  - AC-04: Handoff records commands, exit codes, exact revision, visual evidence guide with Figure captions, configuration steps, and non-blocking limits.
-  - AC-05: Full-suite execution discovers the complete test inventory on container mounts (154 tests, 1,945 assertions) and passes 100% in 128.49s.
-- Automated Verification Results (2026-10-31):
-  - `docker exec scool_app php -d memory_limit=512M artisan test --fail-on-skipped --fail-on-empty-test-suite`: 154 passed (1,945 assertions), Duration 128.49s, Exit Code 0.
-  - `docker exec scool_app composer run pint:test`: 331 files checked, 0 style violations, Exit Code 0.
-  - `docker exec scool_app vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M --no-progress`: [OK] No errors, Exit Code 0.
-  - `node --test tests/js/*.test.mjs`: 69 passed, 0 failed in 315ms, Exit Code 0.
-  - `npm run build`: built in 3.46s, `manifest.json` matches served production assets, Exit Code 0.
-  - `scripts/verify-agent-contract.sh`: 11 shared files verified and tracked in Git index, Exit Code 0.
-- Status: Ready for Review (acceptance-ready). Awaiting user authorization for commit/push/PR.
+- Authority: current user authorization to finish acceptance, comment, commit, push,
+  merge subject to required review/CI, and set accepted issues Done.
+- AC source: live Linear EUR-74 through EUR-83 and EUR-85; frozen mentor contract in
+  Product Scope 23, Architecture 18, Delivery 20 and Design 13. Host release is EUR-84.
+- Candidate: branch eur-83-m14-audit-fixes from PR #83 at
+  f3e87559f53c67e558b3470af18cee50820fde42. All nine feature lanes are already in that
+  ancestry; PR #75 research history is integrated with the reviewed corrected note.
+  Preserve the unrelated dirty root checkout and its existing local runtime.
+- Corrections: exact-origin/intended-route validation (including hostile lookalike
+  hosts), preview abort/stale-response guards, native collapsible mobile course tree,
+  validation selection, missing Vietnamese interface/validation/auth mail/notification/
+  onboarding/status copy, correct zero-point level/progress and post-like rules.
+  Translation-only fixes preserve content names and authorization/state contracts.
+- Research: EUR-85 now distinguishes signed access, masking and licensed DRM; removes
+  unsupported guarantees/prices, cites primary sources and defers implementation.
+- Full-suite evidence: 736 passed, 9,321 assertions, no failures/skips, 301.74s.
+  Command: php artisan test --fail-on-skipped --fail-on-empty-test-suite
+  --log-junit /tmp/m14-final-junit.xml --no-ansi.
+  Run sequentially on guarded MySQL scool_test in a Linux filesystem copy; APP_NAME
+  S-cool and canonical APP_URL match the checked-in setup. 106 PHP test class files.
+  All 378 app/catalog/resource/test files matched worktree SHA-256 before the run.
+- Inventory correction: the prior 154-test/1,945-assertion checkpoint did NOT establish
+  complete discovery on the Windows bind mount. That acceptance claim is superseded
+  by the complete Linux-copy run above. Interrupted runs are not acceptance evidence.
+- Frontend: 72/72 JS tests; production assets app-DL_tfS_H.css and app-BF5cHejR.js.
+  Preview race regressions fail before the fix and pass after it. Landing harness
+  resolves literal translation/JS wrappers and retains the original motion scenarios.
+- Static gates: Pint 333 files PASS; PHPStan no errors; diff check PASS; shared agent
+  contract 11 tracked files/routing/privacy PASS. Optional graph impact is a lower
+  bound for dynamic Laravel/Blade, not proof of acceptance or a vulnerability report.
+- Browser: canonical 127.0.0.1:8080, isolated scool_test fixtures, verified expert owner.
+  Owner hub/Admin, editor preview, invalid-video recovery/save, local invitation;
+  fresh welcome -> accept -> Feed -> lesson completion/reload -> post/reply;
+  denied learner management; scoped directory, deliberate About and paid-course gate.
+  375/768/1280 checks and native keyboard interactions passed; font/glyph check passed.
+- Evidence/inventory/captions: testing-docs/M14/acceptance.md and 8 synthetic captures.
+  The temporary QA proxy was removed and original local routing restored (HTTP 200).
+  No development/host DB reset, new dependency, real payment or DRM implementation.
+- Limits: no CloudPanel/Azure release or real external-mail acceptance. Native 200%
+  zoom/no-JS/throttled-network checks were not repeated; no accessibility compliance
+  claim. Required PR CI, independent approval and merge are publication gates.
+- Publication: the final commit/PR/check/review/merge receipts belong in GitHub and
+  Linear. Do not infer Done from this local checkpoint.
 
 ## EUR-75 — Access-scoped learner entry and discovery (2026-10-30)
 

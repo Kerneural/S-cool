@@ -28,7 +28,7 @@ class CourseSectionController extends Controller
             $course->sections()->create($validated + ['order' => (int) $course->sections()->max('order') + 1]);
         });
 
-        return back()->with('status', 'Section created successfully.');
+        return back()->with('status', __('Section created successfully.'));
     }
 
     public function update(Request $request, Community $community, Course $course, CourseSection $section): RedirectResponse
@@ -45,7 +45,7 @@ class CourseSectionController extends Controller
 
         ClassroomMutation::run($community, $course, $section, null, fn ($community, $course, $section) => $section->update($validated));
 
-        return back()->with('status', 'Section updated successfully.');
+        return back()->with('status', __('Section updated successfully.'));
     }
 
     public function destroy(Community $community, Course $course, CourseSection $section): RedirectResponse
@@ -76,6 +76,6 @@ class CourseSectionController extends Controller
 
         ClassroomMutation::run($community, $course, null, null, fn ($community, $course) => ClassroomMutation::reorder($course->sections(), $validated['order']));
 
-        return back()->with('status', 'Sections reordered successfully.');
+        return back()->with('status', __('Sections reordered successfully.'));
     }
 }

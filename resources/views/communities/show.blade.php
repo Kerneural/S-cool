@@ -138,7 +138,7 @@
                         </div>
                         <div class="flex items-center justify-between gap-3">
                             <dt class="text-muted">{{ __('Founded') }}</dt>
-                            <dd class="font-medium text-ink">{{ $community->created_at->format('M Y') }}</dd>
+                            <dd class="font-medium text-ink">{{ $community->created_at->translatedFormat('M Y') }}</dd>
                         </div>
                         <div class="flex items-center justify-between gap-3">
                             <dt class="text-muted">{{ __('Your access') }}</dt>

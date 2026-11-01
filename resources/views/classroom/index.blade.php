@@ -12,7 +12,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </div>
-                    <input type="text" name="q" aria-label="Search courses in classroom" maxlength="100" value="{{ $searchQuery ?? '' }}" placeholder="{{ __('Search courses in classroom...') }}"
+                    <input type="text" name="q" aria-label="{{ __('Search courses in classroom') }}" maxlength="100" value="{{ $searchQuery ?? '' }}" placeholder="{{ __('Search courses in classroom...') }}"
                            @input="liveSearch"
                            autocomplete="off"
                            class="w-full text-sm rounded-xl border-line pl-9 pr-3 py-2 bg-surface focus:bg-white focus:border-brand focus:ring-brand transition-colors text-ink shadow-2xs">

@@ -22,7 +22,7 @@
                         @if ($community->isActive())
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>
                         @endif
-                        {{ $community->status }}
+                        {{ __($community->status) }}
                     </span>
                     <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-brand-soft text-brand border border-brand/20">
                         {{ $community->isCreator($user) ? __('Creator') : __('Member') }}
@@ -68,7 +68,7 @@
                     <button x-ref="creatorNavTrigger" type="button" @click="creatorNavOpen = !creatorNavOpen" :aria-expanded="creatorNavOpen.toString()" aria-controls="creator-navigation" class="sm:hidden min-h-11 w-full rounded-lg border border-line px-3 py-2 text-left text-sm font-semibold text-brand">
                         {{ __('Manage community navigation') }} <span aria-hidden="true">⌄</span>
                     </button>
-                    <nav id="creator-navigation" :class="{ 'hidden': !creatorNavOpen }" class="hidden flex sm:flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-1.5 text-xs font-semibold" aria-label="Creator Operations">
+                    <nav id="creator-navigation" :class="{ 'hidden': !creatorNavOpen }" class="hidden flex sm:flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-1.5 text-xs font-semibold" aria-label="{{ __('Creator Operations') }}">
                         <span class="inline-flex items-center gap-1 px-2.5 py-1 text-muted font-semibold uppercase tracking-wider text-[11px] mr-1">
                             <svg class="w-3.5 h-3.5 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
@@ -128,7 +128,7 @@
             @else
                 <!-- Member Navigation Tabs -->
                 {{-- Keep the current tab visible on narrow screens without scrolling the page. --}}
-                <nav class="relative flex min-w-0 items-center gap-1 sm:gap-2 overflow-x-auto whitespace-nowrap pb-1 -mb-px" aria-label="Member Tabs" tabindex="0"
+                <nav class="relative flex min-w-0 items-center gap-1 sm:gap-2 overflow-x-auto whitespace-nowrap pb-1 -mb-px" aria-label="{{ __('Member Tabs') }}" tabindex="0"
                      x-data x-init="$el.querySelector('[aria-current=page]') && $el.scrollWidth > $el.clientWidth && ($el.scrollLeft = $el.querySelector('[aria-current=page]').offsetLeft - 16)">
                     <a href="{{ route('communities.posts.index', $community) }}"
                        @if ($activeTab === 'feed') aria-current="page" @endif

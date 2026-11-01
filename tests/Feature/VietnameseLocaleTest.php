@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\Models\Community;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\File;
+use Symfony\Component\Process\Process;
 use Tests\TestCase;
 
 class VietnameseLocaleTest extends TestCase
@@ -17,28 +17,78 @@ class VietnameseLocaleTest extends TestCase
      */
     public function test_clean_bootstrap_resolves_vietnamese_default_when_app_locale_env_is_absent(): void
     {
-        // 1. Inspect config/app.php source contract default fallback
-        $configContent = file_get_contents(config_path('app.php'));
-        $this->assertStringContainsString("env('APP_LOCALE', 'vi')", $configContent);
-        $this->assertStringContainsString("env('APP_FALLBACK_LOCALE', 'en')", $configContent);
+        $result = $this->bootSeparateApplication(null);
 
-        // 2. Verify that without APP_LOCALE in environment, default locale evaluates to 'vi'
-        $output = shell_exec('env -u APP_LOCALE php -r "require \'vendor/autoload.php\'; putenv(\'APP_LOCALE\'); unset(\$_ENV[\'APP_LOCALE\'], \$_SERVER[\'APP_LOCALE\']); \$appConfig = require \'config/app.php\'; echo \$appConfig[\'locale\'];"');
-        $this->assertEquals('vi', trim((string) $output));
+        $this->assertSame('vi', $result['locale']);
+        $this->assertSame(200, $result['status']);
+        $this->assertStringContainsString('Đăng nhập', $result['body']);
+        $this->assertStringContainsString('lang="vi"', $result['body']);
     }
 
     /**
-     * AC-04: Explicit compatibility run uses en and resolves English keys.
+     * AC-04: English compatibility is a separate explicit bootstrap, not setLocale after boot.
      */
     public function test_english_compatibility_run_resolves_english_translations(): void
     {
-        app()->setLocale('en');
-        config(['app.locale' => 'en']);
+        $result = $this->bootSeparateApplication('en');
 
-        $this->assertEquals('en', app()->getLocale());
-        $this->assertEquals('Community Feed', __('Community Feed'));
-        $this->assertEquals('Classroom', __('Classroom'));
-        $this->assertEquals('Log in', __('Log in'));
+        $this->assertSame('en', $result['locale']);
+        $this->assertSame(200, $result['status']);
+        $this->assertStringContainsString('Log in', $result['body']);
+        $this->assertStringContainsString('lang="en"', $result['body']);
+    }
+
+    /**
+     * Boot without the repository's dotenv or config cache. Only isolated test DB/mail settings
+     * enter the child; this never reads host secrets or connects to the development database.
+     *
+     * @return array{locale: string, status: int, body: string}
+     */
+    private function bootSeparateApplication(?string $locale): array
+    {
+        $directory = sys_get_temp_dir().'/scool-locale-'.bin2hex(random_bytes(8));
+        mkdir($directory, 0700);
+        file_put_contents($directory.'/hot', 'http://127.0.0.1:5173');
+        $script = <<<'PHP'
+require 'vendor/autoload.php';
+$app = require 'bootstrap/app.php';
+$app->useEnvironmentPath($argv[1]);
+$app->loadEnvironmentFrom('.env.testing');
+$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+$kernel->bootstrap();
+$app->make(Illuminate\Foundation\Vite::class)->useHotFile($argv[1].'/hot');
+$response = $kernel->handle(Illuminate\Http\Request::create('/login', 'GET'));
+echo json_encode(['locale' => $app->getLocale(), 'status' => $response->getStatusCode(), 'body' => $response->getContent()], JSON_THROW_ON_ERROR);
+PHP;
+        $connection = config('database.connections.mysql');
+        $environment = [
+            'APP_ENV' => 'testing',
+            'APP_KEY' => 'base64:'.base64_encode(str_repeat('x', 32)),
+            'APP_LOCALE' => $locale ?? false,
+            'APP_FALLBACK_LOCALE' => 'en',
+            'APP_CONFIG_CACHE' => $directory.'/config.php',
+            'DB_URL' => false,
+            'DATABASE_URL' => false,
+            'DB_CONNECTION' => 'mysql',
+            'DB_HOST' => $connection['host'],
+            'DB_PORT' => (string) $connection['port'],
+            'DB_DATABASE' => 'scool_test',
+            'DB_USERNAME' => $connection['username'],
+            'DB_PASSWORD' => $connection['password'],
+            'MAIL_MAILER' => 'array',
+            'SESSION_DRIVER' => 'array',
+            'CACHE_STORE' => 'array',
+            'QUEUE_CONNECTION' => 'sync',
+        ];
+        try {
+            $process = new Process([PHP_BINARY, '-r', $script, $directory], base_path(), $environment);
+            $process->mustRun();
+
+            return json_decode($process->getOutput(), true, flags: JSON_THROW_ON_ERROR);
+        } finally {
+            unlink($directory.'/hot');
+            rmdir($directory);
+        }
     }
 
     /**
@@ -145,6 +195,21 @@ class VietnameseLocaleTest extends TestCase
         ]);
     }
 
+    public function test_application_validation_uses_vietnamese_field_names(): void
+    {
+        app()->setLocale('vi');
+        foreach ([
+            'video_url' => 'liên kết video',
+            'skill_label' => 'nhãn kỹ năng',
+            'price_vnd' => 'giá tính bằng VNĐ',
+            'recipient_id' => 'người nhận',
+            'starts_at' => 'thời điểm bắt đầu',
+        ] as $field => $label) {
+            $message = validator([], [$field => 'required'])->errors()->first($field);
+            $this->assertSame('Trường '.$label.' không được để trống.', $message);
+        }
+    }
+
     /**
      * AC-03: Community workspace shows six D6 tabs:
      * Cộng Đồng / Lớp Học / Lịch / Thành Viên / Bảng xếp hạng / Giới Thiệu
@@ -179,27 +244,25 @@ class VietnameseLocaleTest extends TestCase
      */
     public function test_module_catalog_json_is_loaded_deterministically(): void
     {
-        app()->setLocale('vi');
-        config(['app.locale' => 'vi']);
+        // These keys exist only in module catalogs. Provider registration must have loaded
+        // them during the real application boot; manually addJsonPath() would hide a defect.
+        $common = json_decode(file_get_contents(lang_path('vi.json')), true, flags: JSON_THROW_ON_ERROR);
+        $catalogs = glob(lang_path('modules/*/vi.json')) ?: [];
+        sort($catalogs, SORT_STRING);
+        $this->assertNotEmpty($catalogs);
+        $expectedPaths = array_map('dirname', $catalogs);
+        $registeredPaths = array_values(array_filter(
+            app('translator')->getLoader()->jsonPaths(),
+            fn ($path) => str_starts_with($path, lang_path('modules').DIRECTORY_SEPARATOR)
+        ));
+        $this->assertSame($expectedPaths, $registeredPaths);
 
-        $testModuleDir = lang_path('modules/test_course_flow');
-        File::ensureDirectoryExists($testModuleDir);
-
-        $fixtureFile = $testModuleDir.'/vi.json';
-        File::put($fixtureFile, json_encode([
-            'course_module_test_unique_key' => 'Khóa học kiểm thử thành công',
-        ], JSON_UNESCAPED_UNICODE));
-
-        try {
-            // Re-register module translations via translator's addJsonPath
-            app('translator')->addJsonPath($testModuleDir);
-
-            $this->assertEquals(
-                'Khóa học kiểm thử thành công',
-                __('course_module_test_unique_key')
-            );
-        } finally {
-            File::deleteDirectory($testModuleDir);
+        foreach ($catalogs as $catalog) {
+            $entries = json_decode(file_get_contents($catalog), true, flags: JSON_THROW_ON_ERROR);
+            $moduleOnly = array_diff_key($entries, $common);
+            $this->assertNotEmpty($moduleOnly, $catalog);
+            $key = array_key_first($moduleOnly);
+            $this->assertSame($moduleOnly[$key], __($key, [], 'vi'), $catalog);
         }
     }
 
@@ -208,41 +271,28 @@ class VietnameseLocaleTest extends TestCase
      */
     public function test_module_catalogs_have_no_colliding_keys(): void
     {
-        $modulesPath = lang_path('modules');
-        if (! is_dir($modulesPath)) {
-            $this->assertTrue(true);
+        $catalogs = [lang_path('vi.json'), ...(glob(lang_path('modules/*/vi.json')) ?: [])];
+        $registered = [];
+        foreach ($catalogs as $catalog) {
+            $source = file_get_contents($catalog);
+            $entries = json_decode($source, true, flags: JSON_THROW_ON_ERROR);
+            $this->assertIsArray($entries);
+            // All catalogs are flat JSON string maps. Inspect raw keys before json_decode's
+            // last-key-wins behavior can conceal an accidental duplicate in one file.
+            $keyPattern = <<<'JSON_KEYS'
+/^\h*("(?:\\.|[^"\\])*")\h*:/m
+JSON_KEYS;
+            preg_match_all($keyPattern, $source, $matches);
+            $rawKeys = array_map(fn ($key) => json_decode($key, true, flags: JSON_THROW_ON_ERROR), $matches[1]);
+            $this->assertCount(count($entries), $rawKeys, 'Every flat catalog entry must have its own JSON key line: '.$catalog);
+            $this->assertCount(count(array_unique($rawKeys)), $rawKeys, 'Duplicate JSON key in '.$catalog);
 
-            return;
-        }
-
-        $commonKeys = [];
-        $commonFile = lang_path('vi.json');
-        if (file_exists($commonFile)) {
-            $commonKeys = array_keys(json_decode(file_get_contents($commonFile), true) ?: []);
-        }
-
-        $moduleDirs = glob($modulesPath.'/*', GLOB_ONLYDIR) ?: [];
-        $registeredKeys = [];
-
-        foreach ($moduleDirs as $moduleDir) {
-            $moduleName = basename($moduleDir);
-            $jsonFile = $moduleDir.'/vi.json';
-            if (! file_exists($jsonFile)) {
-                continue;
-            }
-
-            $keys = array_keys(json_decode(file_get_contents($jsonFile), true) ?: []);
-            foreach ($keys as $key) {
-                $alreadyIn = $registeredKeys[$key] ?? '';
-                $this->assertFalse(
-                    isset($registeredKeys[$key]),
-                    "Duplicate translation key '{$key}' detected in module '{$moduleName}' (already defined in '{$alreadyIn}')"
-                );
-                $registeredKeys[$key] = $moduleName;
+            foreach ($entries as $key => $value) {
+                $this->assertIsString($value, $catalog.': '.$key);
+                $this->assertArrayNotHasKey($key, $registered, 'Cross-catalog duplicate: '.$key);
+                $registered[$key] = $catalog;
             }
         }
-
-        $this->assertTrue(true);
     }
 
     /**

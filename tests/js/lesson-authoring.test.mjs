@@ -202,3 +202,63 @@ test('fetchPreview handles server error gracefully', async () => {
     assert.equal(authoring.loading, false);
     assert.equal(authoring.errorMessage, 'Không thể tải bản xem trước.');
 });
+
+function deferred() {
+    let resolve;
+    let reject;
+    const promise = new Promise((accept, fail) => { resolve = accept; reject = fail; });
+    return { promise, resolve, reject };
+}
+
+test('clearing content invalidates an outstanding preview even if abort is ignored', async () => {
+    const pending = deferred();
+    const textarea = createTextareaMock('Old lesson');
+    const { authoring } = setup(() => pending.promise, {}, textarea);
+    const oldRequest = authoring.fetchPreview();
+
+    textarea.value = '';
+    await authoring.fetchPreview();
+    pending.resolve({ ok: true, json: async () => ({ html: '<p>Old lesson</p>' }) });
+    await oldRequest;
+
+    assert.equal(authoring.lastRenderedContent, '');
+    assert.doesNotMatch(authoring.previewHtml, /Old lesson/);
+    assert.equal(authoring.loading, false);
+});
+
+test('a cancelled earlier request cannot settle the current preview loading state', async () => {
+    const first = deferred();
+    const second = deferred();
+    const textarea = createTextareaMock('First lesson');
+    let callCount = 0;
+    const { authoring } = setup(() => ++callCount === 1 ? first.promise : second.promise, {}, textarea);
+    const firstRequest = authoring.fetchPreview();
+    textarea.value = 'Second lesson';
+    const secondRequest = authoring.fetchPreview();
+
+    first.reject(Object.assign(new Error('Cancelled'), { name: 'AbortError' }));
+    await firstRequest;
+    assert.equal(authoring.loading, true);
+
+    second.resolve({ ok: true, json: async () => ({ html: '<p>Second lesson</p>' }) });
+    await secondRequest;
+    assert.equal(authoring.loading, false);
+    assert.equal(authoring.previewHtml, '<p>Second lesson</p>');
+});
+
+test('a slower previous preview cannot overwrite the newest rendered content', async () => {
+    const first = deferred();
+    const textarea = createTextareaMock('First lesson');
+    let callCount = 0;
+    const { authoring } = setup(() => ++callCount === 1 ? first.promise : Promise.resolve({
+        ok: true, json: async () => ({ html: '<p>Second lesson</p>' }),
+    }), {}, textarea);
+    const firstRequest = authoring.fetchPreview();
+    textarea.value = 'Second lesson';
+    await authoring.fetchPreview();
+    first.resolve({ ok: true, json: async () => ({ html: '<p>First lesson</p>' }) });
+    await firstRequest;
+
+    assert.equal(authoring.previewHtml, '<p>Second lesson</p>');
+    assert.equal(authoring.lastRenderedContent, 'Second lesson');
+});
