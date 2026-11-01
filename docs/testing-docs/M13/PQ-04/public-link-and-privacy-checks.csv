@@ -1,0 +1,11 @@
+target_url_or_asset,context,auth_required,guest_probe_status,authenticated_probe_status,privacy_and_security_notes
+http://127.0.0.1:8080/help,Main Public Documentation Hub,No,HTTP 200 OK,HTTP 200 OK,Fully public documentation. No secrets or private tokens rendered.
+http://127.0.0.1:8080/,Landing Page,No,HTTP 200 OK,HTTP 200 OK,Public showcase with symbolic constellation and controllable marquee.
+http://127.0.0.1:8080/login,Authentication Entrypoint,No,HTTP 200 OK,HTTP 302 Found (Redirect to Dashboard),Clean auth boundary.
+http://127.0.0.1:8080/register,New Account Registration,No,HTTP 200 OK,HTTP 302 Found (Redirect to Dashboard),Rate-limited registration form.
+http://127.0.0.1:8080/dashboard,Communities Directory,Yes,HTTP 302 Found (Redirect to /login),HTTP 200 OK,Protected member dashboard. Unauthenticated visitors cannot browse private catalog.
+http://127.0.0.1:8080/community/demo-free-learning,Private Community Feed,Yes,HTTP 302 Found (Redirect to /login),HTTP 200 OK (if Member),Tenant-isolated feed. Unauthorized users receive 403 or redirect.
+http://127.0.0.1:8080/community/demo-free-learning/classroom,Classroom Syllabus,Yes,HTTP 302 Found (Redirect to /login),HTTP 200 OK,Protected course outlines and video player.
+http://127.0.0.1:8080/admin/communities,Platform Administration,Yes,HTTP 302 Found (Redirect to /login),HTTP 403 Forbidden (if regular user),Strictly gated by is_platform_admin role check.
+http://127.0.0.1:8080/storage/app/community-media/4/cover.png,Direct Storage Disk Path,Yes,HTTP 404 Not Found,HTTP 404 Not Found,Private storage root protected against direct web server directory traversal.
+http://127.0.0.1:8080/community-media/4/cover,Authorized Media Streaming Route,Yes,HTTP 401 Unauthorized,HTTP 200 OK (Signed Referer & User),Protected by anti-sniff and signature validation guards.
