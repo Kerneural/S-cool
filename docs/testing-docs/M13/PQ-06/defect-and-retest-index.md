@@ -21,3 +21,4 @@
 * **Search Typing & Sequence Invalidation**: Retested rapid keystrokes (`python` &rarr; `dokcer`) on Communities list and global typeahead. In-flight requests abort cleanly; no stale results rendered.
 * **Test Mode Payment IPN**: Tested tampered currency, mismatched amounts, and replayed tokens. All invalid payloads safely rejected with 401/422 status codes.
 * **Responsive Reflow & Reduced Motion**: Retested at 320px, 375px, 768px, and 1280px. Zero horizontal scroll overflow detected across tested views.
+

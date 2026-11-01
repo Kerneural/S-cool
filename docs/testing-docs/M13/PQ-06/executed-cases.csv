@@ -11,3 +11,4 @@ TC-M13-009,EUR-72-AC05,1ce19a2,Visitor,Active,Landing,Marquee manual pause/resum
 TC-M13-010,EUR-72-AC05,1ce19a2,Visitor,Active,Landing,Reduced motion static wrap,Clones hidden and static flex layout wraps,PASS,docs/testing-docs/M13/PQ-06/chrome-evidence/02_landing_tablet_768.png
 TC-M13-011,EUR-72-AC02,1ce19a2,Creator,Active,Group B Catalog,Creator Proof of Work review mode,Submission preview and feedback actions rendered,PASS,testing-docs/M13/PQ-03B/chrome-learning-evidence/creator-pow-preview.png
 TC-M13-012,EUR-72-AC04,1ce19a2,Platform Admin,Active,Full Catalog,Admin community suspension/restore,Audited action creates platform action log,PASS,tests/Feature/RealCommunityVerificationTest.php
+

@@ -56,3 +56,4 @@
   * Simulated webhook IPN payload successfully triggers activation. Replay payloads are idempotent.
   * Anti-sniff guards on video routes block direct URL browser visits and enforce signed referers.
 * **Findings**: None. No real payment credentials or personal data exposed.
+
