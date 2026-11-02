@@ -30,7 +30,7 @@
                 <!-- S-cool Home / Brand Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}" aria-label="{{ __('S-cool home') }}" class="group rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2">
-                        <x-application-logo class="block h-8 w-auto fill-current text-slate-800 group-hover:scale-105 transition-transform" />
+                        <x-application-logo class="block h-8 w-auto group-hover:scale-105 transition-transform" />
                     </a>
                 </div>
 

@@ -152,11 +152,11 @@ class OnboardingStepCompletion extends Model
             $steps[] = [
                 'key' => 'post',
                 'title' => __('Introduce Yourself'),
-                'description' => __("Share a post in the ':category' category to introduce yourself.", ['category' => $introCat->name]),
+                'description' => __("Share a post in the ':category' category to introduce yourself.", ['category' => $introCat->display_name]),
                 'completed' => isset($completedSet['post']),
                 'unavailable' => false,
                 'category_id' => $introCat->id,
-                'category_name' => $introCat->name,
+                'category_name' => $introCat->display_name,
                 'action_type' => 'link',
                 'action_url' => route('communities.posts.index', [$community, 'category' => $introCat->slug]),
             ];

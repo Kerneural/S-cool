@@ -18,7 +18,7 @@
         </div>
     </x-slot>
 
-    <div class="mx-auto min-w-0 max-w-5xl break-words [overflow-wrap:anywhere] space-y-6 px-4 py-8 sm:px-6">
+    <div class="mx-auto min-w-0 max-w-7xl break-words [overflow-wrap:anywhere] space-y-6 px-4 py-8 sm:px-6">
         <x-community-workspace :community="$community" active-tab="proof-of-work" />
         <x-classroom-feedback />
 

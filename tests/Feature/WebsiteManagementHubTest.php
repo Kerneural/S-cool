@@ -59,7 +59,7 @@ class WebsiteManagementHubTest extends TestCase
 
         // Check direct tools for Community 1 (with published course)
         $response->assertSee(route('communities.manage', $comm1));
-        $response->assertSee(route('communities.manage.courses.show', [$comm1, $course1]));
+        $response->assertSee(route('communities.classroom.index', [$comm1, 'manage' => 1]));
         $response->assertSee(route('communities.members.index', $comm1));
         $response->assertSee(route('communities.invitations.index', $comm1));
         $response->assertSee(route('communities.reports.index', $comm1));
@@ -69,7 +69,7 @@ class WebsiteManagementHubTest extends TestCase
 
         // Check direct tools for Community 2 (without courses, safely falls back to classroom)
         $response->assertSee(route('communities.manage', $comm2));
-        $response->assertSee(route('communities.classroom.index', $comm2));
+        $response->assertSee(route('communities.classroom.index', [$comm2, 'manage' => 1]));
         $response->assertSee(route('communities.members.index', $comm2));
         $response->assertSee(route('communities.invitations.index', $comm2));
         $response->assertSee(route('communities.reports.index', $comm2));
@@ -126,8 +126,10 @@ class WebsiteManagementHubTest extends TestCase
 
         $response->assertOk();
         // Verify responsive adaptive grid classes avoiding horizontal scroll
-        $response->assertSee('grid-cols-1 md:grid-cols-2 lg:grid-cols-3', false);
-        $response->assertSee('grid-cols-2 sm:grid-cols-4', false);
+        $response->assertSee('grid-cols-1', false);
+        $response->assertSee('hub-search', false);
+        $response->assertSee('hub-status', false);
+        $response->assertSee(route('communities.manage', Community::first()), false);
 
         // Verify touch targets and accessibility
         $response->assertSee('min-h-[44px]', false);
@@ -160,13 +162,13 @@ class WebsiteManagementHubTest extends TestCase
         $response->assertOk();
         $response->assertSee('Quản trị website');
         $response->assertSee('Tạo cộng đồng');
-        $response->assertSee('Quản trị nền tảng');
-        $response->assertSee('Công cụ trực tiếp');
-        $response->assertSee('Tổng quan');
-        $response->assertSee('Khóa học');
+        $response->assertSee('Vận hành website');
+        $response->assertSee('Tìm theo tên cộng đồng');
+        $response->assertSee('Quản lý');
+        $response->assertSee('Quản lý khóa học');
         $response->assertSee('Thành Viên');
         $response->assertSee('Lời mời');
-        $response->assertSee('Báo cáo');
+        $response->assertSee('Báo cáo vi phạm');
         $response->assertSee('Đơn hàng');
         $response->assertSee('Bài nộp');
         $response->assertSee('Cài đặt');

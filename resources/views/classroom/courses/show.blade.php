@@ -169,7 +169,7 @@
                                     <form method="POST" action="{{ route('communities.courses.cover.destroy', [$community, $course]) }}" x-data="{ confirmMsg: @js(__('Remove this course cover?')) }" @submit="if (! confirm(confirmMsg)) $event.preventDefault()">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-xs font-semibold text-rose-600 hover:text-rose-700 underline cursor-pointer">
+                                        <button type="submit" class="inline-flex min-h-11 items-center rounded-lg border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-rose-600">
                                             {{ __('Remove Cover') }}
                                         </button>
                                     </form>

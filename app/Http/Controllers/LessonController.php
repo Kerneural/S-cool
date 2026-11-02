@@ -199,7 +199,7 @@ class LessonController extends Controller
             'content' => ['nullable', 'string', 'max:50000'],
         ]);
 
-        $html = LessonMarkdown::toHtml($validated['content'] ?? '');
+        $html = LessonMarkdown::toHtml($validated['content'] ?? '', $course);
 
         return response()->json(['html' => $html]);
     }

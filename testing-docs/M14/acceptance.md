@@ -190,3 +190,79 @@ Follow-up captures (synthetic data only):
 
 These local corrections do not change GitHub/Linear publication state or claim
 a CloudPanel/Azure release. EUR-84 remains separate.
+
+
+## Owner usability follow-up — 2026-11-02 (unpublished)
+
+Owner-approved seven-group follow-up on eur-83-owner-usability, based on merged
+main 3b37c67. The EUR-83 working checkpoint records the bounded authoring/media,
+calendar, message polling and presentation changes.
+
+- Full guarded MySQL scool_test: 746 tests, 9,584 assertions, 391.451s, PASS.
+- After final view/security refinements: 48 focused tests, 404 assertions, PASS.
+- JS: 77 tests PASS, including visual-editor Markdown round-trip and child-button
+  instance lookup; build, Pint, PHPStan and shared contract checks PASS.
+- Real local browser: editor upload and safe preview, unchanged stored lesson, expanded
+  Save/heading, desktop/375px, restored SVG fill, Vietnamese pagination, 365-day calendar,
+  real About cover with visible Classroom action, draft retention during polling, and
+  a 321.6px pending discussion panel. No lesson mutation or direct message was submitted.
+- Two generated unreferenced QA uploads were removed by exact content hash.
+- Independent two-session browser delivery, real zoom and host rollout are unverified.
+  No publication or formal Linear completion is implied.
+
+
+## Management usability follow-up — 2026-11-02 (unpublished)
+
+Authority: owner approved the investigated five-part management UX proposal. Branch
+eur-83-owner-usability remains based on 3b37c67 with the earlier usability changes retained.
+
+- Management context stays full width across settings, invitations, operations and course
+  authoring. Courses opens creator actions directly; learner catalog/permissions remain intact.
+- Settings groups retain all field names and separate cover/settings endpoints, validation
+  input, actual save feedback and dirty/discard guards. Cover selection is labelled in Vietnamese.
+- Invitation history states are translated. Post/comment secondary actions use native disclosures,
+  44px targets, contextual deletion labels, preserved confirmation and Escape/focus restoration.
+- Full guarded scool_test: 749 tests, 9,679 assertions, PASS in 337.730s. Final targeted verification
+  after the last course-navigation and responsive refinements: 131 tests, 4,464 assertions,
+  PASS in 14.552s. JavaScript: 81/81 PASS; build, touched-test Pint, diff and agent-contract PASS.
+  No skipped tests. QA source/checkout hash parity: 840 files.
+- Chrome at canonical 127.0.0.1:8080: 1280px management navigation stays one row across all eight
+  operational pages. Stable scrollbar allocation yields the same 1159px nav width on short/long
+  pages. Settings and invitations reflow at 375/768px; settings also at 320px. Native section
+  anchors, dirty/revert, loaded cover, form ownership and course-editor entry were observed.
+- Private local captures: owner-usability/management-settings-desktop.png and
+  owner-usability/management-settings-mobile.png in this chat's visualization directory.
+  Desktop final capture includes a fully loaded cover; no raw tokens or emails.
+- No user fixture save/upload/delete/revoke, invitation send, seed/reset or host release.
+  Real 200% zoom and browser no-JS are unverified in this follow-up. Temporary QA is isolated
+  from the live scool database. Publication/review/CI and owner visual acceptance remain separate.
+
+
+## Social and website-management completion — 2026-11-02
+
+Approved follow-up on eur-83-owner-usability based on 3b37c67. Includes the earlier two
+usability batches; publication is now authorized for a review PR, with no host release.
+
+- Resource-list website hub, search/status filtering, retained secondary tools and direct
+  managed course catalog. Feed prioritizes writing, categories wrap and sorting is separate.
+- Shared lazy visual post/comment editor, private media, safe links/provider video, emoji,
+  one-level replies and unique persisted single-choice votes with explicit close.
+- Built-in category names are localized at display boundaries without rewriting slugs,
+  custom names or existing post text. Compact replies follow the inspected Skool reference:
+  inline icon controls, explicit formatting disclosure, bounded growing text and thumbnails.
+- Full guarded scool_test run: 758 tests / 9,899 assertions PASS (410.816s), before final
+  refinements. Final affected regression run: 67 tests / 543 assertions PASS (17.095s);
+  JS 85/85, PHPStan, production build and Blade compilation PASS. Final icon-toolbar
+  refinement was browser-checked after that targeted PHP run.
+- Canonical Chrome 127.0.0.1:8080: actual image post/comment, preserved bold formatting,
+  immediate successful reply, cleared draft, one-level reply, vote/change/close, author
+  profile navigation, hub search and course-management destination observed.
+  Feed/hub reflow at 375/768/1280px without page-wide overflow. Comment composer measured
+  90.4px desktop / 134.4px mobile, with bounded image thumbnails and working mobile emoji.
+- Private captures in this chat's visualization directory, owner-usability:
+  social-comments-desktop.png, social-comments-mobile.png, social-categories-mobile.png,
+  social-feed-desktop.png and social-hub-desktop.png. Only synthetic local acceptance data.
+- No new two-session member social/browser, real zoom, no-JS or host proof is claimed.
+  External URL metadata success was not browser-proven. Synthetic local post #39 and
+  comments #52–54 were used; browser cleanup was interrupted at its confirmation and
+  removal is unverified. Test fixtures, private captures, raw logs and DB backup stay local.

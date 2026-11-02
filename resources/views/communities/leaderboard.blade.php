@@ -23,7 +23,7 @@
                             </svg>
 
                             <!-- Avatar Inside Circle -->
-                            <div class="absolute rounded-full overflow-hidden bg-slate-900 border-2 border-white shadow-inner flex items-center justify-center" style="width: 126px; height: 126px;">
+                            <a href="{{ route('communities.directory.show', [$community, auth()->user()]) }}" aria-label="{{ __('View profile of :name', ['name' => auth()->user()->name]) }}" class="absolute rounded-full overflow-hidden bg-slate-900 border-2 border-white shadow-inner flex items-center justify-center" style="width: 126px; height: 126px;">
                                 @if (auth()->user()->avatar_path)
                                     <img src="{{ route('communities.directory.avatar', [$community, auth()->user()]) }}" alt="{{ auth()->user()->name }}" class="w-full h-full object-cover">
                                 @else
@@ -31,7 +31,7 @@
                                         {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                                     </div>
                                 @endif
-                            </div>
+                            </a>
 
                             <!-- Bottom Right Circular Level Badge (like '0' in user's image) -->
                             <div class="absolute bottom-1 right-2 rounded-full bg-[#3B82F6] text-white font-extrabold text-sm flex items-center justify-center shadow-md ring-4 ring-white" style="width: 36px; height: 36px;">
@@ -41,7 +41,7 @@
 
                         <!-- User Name & Level Subtitle -->
                         <h3 class="text-lg font-bold text-slate-900 mt-4 leading-tight">
-                            {{ auth()->user()->name }}
+                            <x-member-identity :community="$community" :user="auth()->user()" :avatar="false" />
                         </h3>
                         <p class="text-xs font-semibold text-[#3B82F6] mt-1">
                             {{ __('Level :level', ['level' => $userLevel]) }}
@@ -221,13 +221,7 @@
                                         </td>
                                         <td class="py-4 px-6">
                                             <div class="flex items-center gap-3">
-                                                @if ($entry->user && $entry->user->avatar_path)
-                                                    <img src="{{ route('communities.directory.avatar', [$community, $entry->user]) }}" alt="{{ $entry->user->name }}" class="w-9 h-9 rounded-full object-cover">
-                                                @else
-                                                    <div class="w-9 h-9 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-semibold text-xs">
-                                                        {{ strtoupper(substr($entry->user->name ?? '?', 0, 1)) }}
-                                                    </div>
-                                                @endif
+                                                <x-member-identity :community="$community" :user="$entry->user" :name="false" />
                                                 <div>
                                                     <div class="font-semibold text-slate-900">
                                                         <a href="{{ route('communities.directory.show', [$community, $entry->user]) }}" class="hover:text-brand-600 hover:underline">

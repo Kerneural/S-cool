@@ -305,6 +305,7 @@ class CourseManagementWorkspaceTest extends TestCase
      */
     public function test_ac06_all_labels_are_vietnamese(): void
     {
+        app()->setLocale('vi');
         [$community, $creator] = $this->createCommunityWithCreator();
         $course = Course::factory()->create(['community_id' => $community->id]);
         $section = CourseSection::factory()->create(['course_id' => $course->id]);
@@ -316,7 +317,7 @@ class CourseManagementWorkspaceTest extends TestCase
             ->get(route('communities.manage.courses.show', [$community, $course, 'lesson' => $lesson->id]))
             ->assertOk();
 
-        $response->assertSee('Lớp Học');
+        $response->assertSee(route('communities.classroom.index', [$community, 'manage' => 1]), false);
         $response->assertSee('Quản lý khóa học');
         $response->assertSee('Chương trình học');
         $response->assertSee('Thêm chương');

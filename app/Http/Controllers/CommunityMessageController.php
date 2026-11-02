@@ -6,6 +6,7 @@ use App\Models\Community;
 use App\Models\CommunityConversation;
 use App\Models\CommunityMessage;
 use App\Models\User;
+use App\Services\CommunityMessaging;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -102,27 +103,7 @@ class CommunityMessageController extends Controller
 
         $actor = $request->user();
 
-        [$community, $conversation, $messages] = DB::transaction(function () use ($community, $conversation, $actor): array {
-            $currentCommunity = Community::whereKey($community->id)->lockForUpdate()->firstOrFail();
-            $currentConversation = CommunityConversation::whereKey($conversation->id)
-                ->where('community_id', $currentCommunity->id)->lockForUpdate()->firstOrFail();
-            abort_unless($currentConversation->isParticipant($actor), 404);
-            $this->requireLockedParticipants($currentCommunity, [$currentConversation->user_one_id, $currentConversation->user_two_id]);
-
-            // Newest page first, chronological order within each page.
-            $messages = $currentConversation->messages()->with('sender')->orderByDesc('id')->paginate(30);
-            $messages->setCollection($messages->getCollection()->reverse()->values());
-            $readAt = now('UTC');
-            $currentConversation->messages()->whereIn('id', $messages->pluck('id'))
-                ->where('sender_id', '!=', $actor->id)->whereNull('read_at')->update(['read_at' => $readAt]);
-            foreach ($messages as $message) {
-                if ((int) $message->sender_id !== (int) $actor->id && $message->read_at === null) {
-                    $message->read_at = $readAt;
-                }
-            }
-
-            return [$currentCommunity, $currentConversation, $messages];
-        }, 3);
+        [$community, $conversation, $messages] = app(CommunityMessaging::class)->snapshot($community, $conversation, $actor);
 
         $otherUser = $conversation->getOtherParticipant($actor);
 
@@ -157,37 +138,7 @@ class CommunityMessageController extends Controller
         $actor = $request->user();
         $clientSendId = $validated['client_send_id'];
 
-        DB::transaction(function () use ($community, $conversation, $actor, $body, $clientSendId): void {
-            $currCommunity = Community::whereKey($community->id)->lockForUpdate()->firstOrFail();
-            abort_unless($currCommunity->isActive(), 404);
-
-            $currConv = CommunityConversation::whereKey($conversation->id)
-                ->where('community_id', $currCommunity->id)
-                ->lockForUpdate()
-                ->firstOrFail();
-
-            abort_unless($currConv->isParticipant($actor), 404);
-            $this->requireLockedParticipants($currCommunity, [$currConv->user_one_id, $currConv->user_two_id]);
-
-            // Idempotency check with client_send_id
-            $existing = CommunityMessage::where('conversation_id', $currConv->id)
-                ->where('sender_id', $actor->id)
-                ->where('client_send_id', $clientSendId)
-                ->first();
-
-            if ($existing !== null) {
-                return;
-            }
-
-            CommunityMessage::create([
-                'conversation_id' => $currConv->id,
-                'sender_id' => $actor->id,
-                'body' => $body,
-                'client_send_id' => $clientSendId,
-            ]);
-
-            $currConv->forceFill(['last_message_at' => now('UTC')])->save();
-        }, 3);
+        app(CommunityMessaging::class)->send($community, $conversation, $actor, $body, $clientSendId);
 
         return redirect()->route('communities.messages.show', [$community, $conversation]);
     }

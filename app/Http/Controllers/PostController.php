@@ -11,6 +11,11 @@ use App\Models\Post;
 use App\Models\User;
 use App\Services\CommunityContributionService;
 use App\Services\LearningFocusService;
+use App\Services\SocialAttachments;
+use App\Services\VideoEmbedService;
+use App\Support\CommunityIdentity;
+use App\Support\SocialContent;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -48,7 +53,7 @@ class PostController extends Controller
                 'author:id,name,avatar_path',
                 'latestVisibleComment' => fn ($q) => $q->select(['comments.id', 'comments.post_id', 'comments.user_id', 'comments.body', 'comments.created_at']),
                 'latestVisibleComment.author:id,name',
-                'category',
+                'category', 'attachments', 'poll',
                 'course',
                 'lesson.section',
                 'likes' => fn ($q) => $user ? $q->where('is_active', true)->where('user_id', $user->id) : $q->whereRaw('0 = 1'),
@@ -90,6 +95,8 @@ class PostController extends Controller
         }
 
         $posts = $query->paginate(15)->withQueryString();
+        CommunityIdentity::prime($community,
+            $posts->getCollection()->pluck('user_id')->concat($posts->getCollection()->pluck('latestVisibleComment.user_id'))->push($user->id)->all());
         $categories = $community->categories()->get();
 
         return view('communities.posts.index', [
@@ -126,11 +133,19 @@ class PostController extends Controller
     /**
      * Store a newly created post in storage.
      */
-    public function store(Request $request, Community $community): RedirectResponse
+    public function store(Request $request, Community $community): RedirectResponse|JsonResponse
     {
         Gate::authorize('create', [Post::class, $community]);
 
+        if (! $request->boolean('poll_enabled')) {
+            $request->merge(['poll_options' => null]);
+        }
         $validated = $request->validate([
+            ...SocialContent::rules(),
+            ...SocialAttachments::rules(),
+            'poll_enabled' => ['sometimes', 'boolean'],
+            'poll_options' => ['nullable', 'array', 'min:2', 'max:6'],
+            'poll_options.*' => ['required', 'string', 'max:120', 'distinct:ignore_case'],
             'title' => ['required', 'string', 'max:255'],
             'body' => ['required', 'string', 'max:10000'],
             'category_id' => [
@@ -159,20 +174,51 @@ class PostController extends Controller
             }
         }
 
-        app(FeedMutation::class)->run($request->user(), $community, null, null, function (Community $current) use ($request, $validated): void {
-            Gate::authorize('create', [Post::class, $current]);
-            $this->validateLearningContext(
-                $current, $request->user(),
-                isset($validated['course_id']) ? (int) $validated['course_id'] : null,
-                isset($validated['lesson_id']) ? (int) $validated['lesson_id'] : null,
-            );
-            $post = $current->posts()->create(['user_id' => $request->user()->id, ...$validated]);
-
-            $introCategory = $current->getIntroductionCategory();
-            if ($introCategory && (int) $post->category_id === (int) $introCategory->id) {
-                OnboardingStepCompletion::markStep($current, $request->user(), 'post');
+        if ($request->boolean('poll_enabled') && count($validated['poll_options'] ?? []) < 2) {
+            throw ValidationException::withMessages(['poll_options' => __('Add between two and six different poll choices.')]);
+        }
+        if (empty($validated['link_url'])) {
+            $sharedUrl = SocialContent::firstUrl($validated['body'], $validated['content_format'] ?? 'plain');
+            if ($sharedUrl && VideoEmbedService::isValid($sharedUrl)) {
+                $validated['video_url'] ??= $sharedUrl;
+            } else {
+                $validated['link_url'] = $sharedUrl;
             }
-        });
+        }
+        $pollOptions = $request->boolean('poll_enabled') ? $validated['poll_options'] : [];
+        unset($validated['poll_enabled'], $validated['poll_options'], $validated['images'], $validated['documents']);
+        $media = app(SocialAttachments::class);
+        $staged = $media->stage($request->file('images', []), $request->file('documents', []));
+        try {
+            app(FeedMutation::class)->run($request->user(), $community, null, null, function (Community $current) use ($request, $validated, $media, $staged, $pollOptions): void {
+                Gate::authorize('create', [Post::class, $current]);
+                $this->validateLearningContext(
+                    $current, $request->user(),
+                    isset($validated['course_id']) ? (int) $validated['course_id'] : null,
+                    isset($validated['lesson_id']) ? (int) $validated['lesson_id'] : null,
+                );
+                $post = $current->posts()->create(['user_id' => $request->user()->id, ...$validated]);
+                $media->publish($staged, $post, $request->user());
+                if ($pollOptions !== []) {
+                    $poll = $post->poll()->create();
+                    foreach (array_values($pollOptions) as $position => $label) {
+                        $poll->options()->create(['label' => trim($label), 'position' => $position]);
+                    }
+                }
+
+                $introCategory = $current->getIntroductionCategory();
+                if ($introCategory && (int) $post->category_id === (int) $introCategory->id) {
+                    OnboardingStepCompletion::markStep($current, $request->user(), 'post');
+                }
+            });
+
+        } catch (\Throwable $exception) {
+            $media->discard($staged);
+            throw $exception;
+        }
+        if ($request->expectsJson()) {
+            return response()->json(['redirect' => route('communities.posts.index', $community)], 201);
+        }
 
         return redirect()->route('communities.posts.index', $community)->with('status', 'post-created');
     }
@@ -193,9 +239,10 @@ class PostController extends Controller
             'likes' => fn ($q) => $user ? $q->where('is_active', true)->where('user_id', $user->id) : $q->whereRaw('0 = 1'),
             'bookmarks' => fn ($q) => $user ? $q->where('user_id', $user->id) : $q->whereRaw('0 = 1'),
         ]);
+        $post->loadMissing(['attachments', 'poll', 'author']);
         $post->loadCount(['likes as active_likes_count' => fn ($q) => $q->where('is_active', true)]);
 
-        $comments = $post->comments()->with('author:id,name')->orderBy('created_at')->orderBy('id')->paginate(20);
+        $comments = $post->comments()->with(['author:id,name,avatar_path', 'attachments', 'parent.author:id,name'])->orderBy('created_at')->orderBy('id')->paginate(20);
         $comments->each(fn ($comment) => $comment->setRelation('post', $post));
 
         return view('communities.posts.show', [
@@ -229,6 +276,8 @@ class PostController extends Controller
         Gate::authorize('update', $post);
 
         $validated = $request->validate([
+            ...SocialContent::rules(),
+            ...SocialAttachments::rules(),
             'title' => ['required', 'string', 'max:255'],
             'body' => ['required', 'string', 'max:10000'],
             'category_id' => [
@@ -261,20 +310,30 @@ class PostController extends Controller
             }
         }
 
-        app(FeedMutation::class)->run($request->user(), $community, $post->id, null, function (Community $current, Post $currentPost) use ($request, $validated, $removeContext): void {
-            Gate::authorize('update', $currentPost);
-            $attributes = $validated + ['course_id' => $currentPost->course_id, 'lesson_id' => $currentPost->lesson_id];
-            if ($removeContext) {
-                $attributes['course_id'] = null;
-                $attributes['lesson_id'] = null;
-            }
-            $this->validateLearningContext(
-                $current, $request->user(),
-                isset($attributes['course_id']) ? (int) $attributes['course_id'] : null,
-                isset($attributes['lesson_id']) ? (int) $attributes['lesson_id'] : null,
-            );
-            $currentPost->update($attributes);
-        });
+        unset($validated['images'], $validated['documents']);
+        $media = app(SocialAttachments::class);
+        $staged = $media->stage($request->file('images', []), $request->file('documents', []));
+        try {
+            app(FeedMutation::class)->run($request->user(), $community, $post->id, null, function (Community $current, Post $currentPost) use ($request, $validated, $removeContext, $media, $staged): void {
+                Gate::authorize('update', $currentPost);
+                $attributes = $validated + ['course_id' => $currentPost->course_id, 'lesson_id' => $currentPost->lesson_id];
+                if ($removeContext) {
+                    $attributes['course_id'] = null;
+                    $attributes['lesson_id'] = null;
+                }
+                $this->validateLearningContext(
+                    $current, $request->user(),
+                    isset($attributes['course_id']) ? (int) $attributes['course_id'] : null,
+                    isset($attributes['lesson_id']) ? (int) $attributes['lesson_id'] : null,
+                );
+                $currentPost->update($attributes);
+                $media->publish($staged, $currentPost, $request->user());
+            });
+
+        } catch (\Throwable $exception) {
+            $media->discard($staged);
+            throw $exception;
+        }
 
         return redirect()->route('communities.posts.index', $community)->with('status', 'post-updated');
     }

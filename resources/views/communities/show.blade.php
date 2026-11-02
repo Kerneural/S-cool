@@ -20,9 +20,14 @@
                 </div>
             @endif
 
+            <div class="grid items-center gap-6 {{ $community->cover_path ? 'lg:grid-cols-2' : '' }}">
+            @if ($community->cover_path)
+                <x-media-frame :src="route('communities.cover.show', $community)" :alt="__('Ảnh bìa :name', ['name' => $community->name])" class="w-full rounded-2xl overflow-hidden" />
+            @endif
+
             {{-- Orientation and the primary learning action come before any long content (design 11.10). --}}
             <section class="rounded-2xl border border-line bg-surface p-5 sm:p-6" aria-labelledby="community-entry-heading">
-                <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div class="flex flex-col gap-4">
                     <div class="min-w-0">
                         <p class="text-xs font-semibold uppercase tracking-wide text-muted">{{ __('About this Community') }}</p>
                         <h1 id="community-entry-heading" class="mt-1 break-words text-2xl font-bold tracking-tight text-ink">{{ $community->name }}</h1>
@@ -36,11 +41,12 @@
                         <a href="{{ route('communities.classroom.index', $community) }}" class="inline-flex min-h-11 items-center justify-center rounded-xl bg-brand px-5 py-2.5 text-sm font-semibold text-white shadow-xs transition hover:bg-brand-hover">{{ __('Open Classroom') }}</a>
                         <a href="{{ route('communities.posts.index', $community) }}" class="inline-flex min-h-11 items-center justify-center rounded-xl border border-line bg-surface px-4 py-2.5 text-sm font-semibold text-ink transition hover:bg-slate-50">{{ __('Community Feed') }}</a>
                         @can('update', $community)
-                            <a href="{{ route('communities.edit', $community) }}" class="inline-flex min-h-11 items-center justify-center rounded-xl border border-brand-200 bg-brand-soft px-4 py-2.5 text-sm font-semibold text-brand transition hover:bg-teal-100">{{ __('Edit Settings') }}</a>
+                            <a href="{{ route('communities.edit', $community) }}" class="inline-flex min-h-11 items-center justify-center rounded-xl border border-brand-200 bg-brand-soft px-4 py-2.5 text-sm font-semibold text-brand transition hover:bg-teal-100">{{ __('Community settings') }}</a>
                         @endcan
                     </div>
                 </div>
             </section>
+            </div>
 
             <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
                 <div class="min-w-0 space-y-6">
@@ -122,12 +128,10 @@
                     <h2 id="about-context-heading" class="sr-only">{{ __('Community context') }}</h2>
                     @if ($community->creator)
                         <div class="flex items-center gap-3">
-                            <x-media-frame :src="$hostAvatar" shape="avatar" :alt="$community->creator->name" class="h-12 w-12 shrink-0 border border-slate-200">
-                                <span class="text-sm font-bold text-slate-700">{{ mb_strtoupper(mb_substr($community->creator->name, 0, 1)) }}</span>
-                            </x-media-frame>
+                            <x-member-identity :community="$community" :user="$community->creator" :name="false" />
                             <div class="min-w-0">
                                 <p class="text-xs font-semibold text-muted">{{ __('Creator & Host') }}</p>
-                                <p class="break-words text-sm font-bold text-ink">{{ $community->creator->name }}</p>
+                                <x-member-identity :community="$community" :user="$community->creator" :avatar="false" />
                             </div>
                         </div>
                     @endif

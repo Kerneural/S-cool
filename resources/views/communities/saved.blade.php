@@ -50,7 +50,7 @@
                                         @endif
                                         @if ($post->category)
                                             <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md text-[11px] font-medium">
-                                                {{ $post->category->name }}
+                                                {{ $post->category->display_name }}
                                             </span>
                                         @endif
                                     </div>

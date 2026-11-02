@@ -1238,3 +1238,26 @@ Do not copy stale root controllers/views/config wholesale or publish `.agent/`.
 
 Keep assignments, Points, dates, status and actual blockers in Linear. Do not infer
 acceptance from this mapping or silently carry historical evidence to the new release.
+
+
+#### Owner-approved usability follow-up — 2026-11-02
+
+The owner approved the bounded amendment recorded in Design 13.1 and the EUR-83
+working checkpoint: visual Tiptap editing with preserved Markdown storage/source mode,
+private course-scoped lesson images, a 365-day UTC activity calendar and visible-thread
+message polling. This supersedes earlier no-editor-package/no-upload and refresh-only
+messaging restrictions for these surfaces. Existing tenant, entitlement, draft and
+participant policies remain mandatory. No schema/content migration, message attachments,
+presence or host release is included. Verification/publication remain separate gates.
+
+
+#### Owner-approved social and management completion — 2026-11-02
+
+Design 13.2–13.3 and the active EUR-83 checkpoint record the later approved management
+and social scope. This adds the forward-only social migration (attachments, content format,
+one-level replies and persisted polls), reuses the installed authoring package and retains
+existing tenant/membership/entitlement and moderation contracts. Deployment runs ordinary
+migrations, dependency installation and production asset builds; never reset/reseed data.
+Apply the documented PHP-FPM/Nginx upload limits and persist the private media disk.
+Commit/push/review PR is authorized; review/CI, merge, Linear closure and host rollout
+remain distinct gates.

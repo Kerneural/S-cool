@@ -170,7 +170,7 @@ class CommunityBaselineTest extends TestCase
             ->assertOk()
             ->assertSee('Private Masterclass')
             ->assertSee('private-masterclass')
-            ->assertSee('Edit Settings');
+            ->assertSee('Community settings');
     }
 
     public function test_non_creator_cannot_view_private_community(): void
@@ -216,7 +216,7 @@ class CommunityBaselineTest extends TestCase
         $this->actingAs($creator)
             ->get("/communities/{$community->slug}/edit")
             ->assertOk()
-            ->assertSee('Edit Community')
+            ->assertSee('Community settings')
             ->assertSee('Old Name');
 
         $response = $this->actingAs($creator)->put("/communities/{$community->slug}", [

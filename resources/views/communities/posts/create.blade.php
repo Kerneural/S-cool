@@ -25,7 +25,7 @@
                 </p>
             </div>
 
-            <form method="POST" action="{{ route('communities.posts.store', $community) }}" class="space-y-5">
+            <form method="POST" enctype="multipart/form-data" action="{{ route('communities.posts.store', $community) }}" class="space-y-5">
                 @csrf
                 @php
                     $courseId = is_scalar(old('course_id', $courseId)) ? old('course_id', $courseId) : null;
@@ -63,7 +63,7 @@
                         @foreach ($categories as $cat)
                             @if (! $cat->isAnnouncements() || $community->isCreator(auth()->user()))
                                 <option value="{{ $cat->id }}" @selected(old('category_id') == $cat->id)>
-                                    {{ $cat->name }}{{ $cat->isAnnouncements() ? ' (Creator Only)' : '' }}
+                                    {{ $cat->display_name }}{{ $cat->isAnnouncements() ? ' ('.__('Creator Only').')' : '' }}
                                 </option>
                             @endif
                         @endforeach
@@ -71,11 +71,8 @@
                     <x-input-error :messages="$errors->get('category_id')" class="mt-2" />
                 </div>
 
-                <div>
-                    <x-input-label for="post-body" :value="__('Content')" />
-                    <textarea id="post-body" name="body" rows="6" maxlength="10000" class="mt-1 block w-full border-slate-300 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 rounded-xl shadow-xs text-sm text-slate-800 bg-white leading-relaxed p-3" required placeholder="{{ __('Share your thoughts, insights, or questions with the community...') }}">{{ is_string(old('body')) ? old('body') : '' }}</textarea>
-                    <x-input-error :messages="$errors->get('body')" class="mt-2" />
-                </div>
+                <x-social-editor id="post-body" :value="old('body', '')" :format="old('content_format', 'plain')" :poll="true" :ajax="true" />
+                    <x-social-link-fields id="direct-post"  />
 
                 <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
                     <a href="{{ route('communities.posts.index', $community) }}" class="px-4 py-2 bg-white border border-slate-300 rounded-xl text-slate-700 text-xs font-semibold hover:bg-slate-50 transition">

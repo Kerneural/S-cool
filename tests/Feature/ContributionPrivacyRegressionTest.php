@@ -92,7 +92,7 @@ class ContributionPrivacyRegressionTest extends TestCase
         Post::factory()->create(['community_id' => $community->id, 'user_id' => $member->id,
             'title' => 'HIDDEN-COURSE-ACTIVITY', 'course_id' => $course->id, 'created_at' => now()]);
         Post::factory()->create(['community_id' => $community->id, 'user_id' => $member->id,
-            'title' => 'OUTSIDE-WINDOW', 'created_at' => now()->subDays(90)]);
+            'title' => 'OUTSIDE-WINDOW', 'created_at' => now()->subDays(365)]);
 
         $response = $this->actingAs($viewer)->get(route('communities.directory.show', [$community, $member]));
         $response->assertOk()->assertSee('Daily activity counts (UTC)')->assertSee('Recent community activity')
@@ -101,7 +101,7 @@ class ContributionPrivacyRegressionTest extends TestCase
             ->assertDontSee('OUTSIDE-WINDOW')
             ->assertDontSee('PRIVATE-EVIDENCE-SUMMARY')->assertDontSee('https://example.com/private-evidence');
         $heatmap = $response->viewData('activityHeatmap');
-        $this->assertCount(90, $heatmap['days']);
+        $this->assertCount(365, $heatmap['days']);
         $this->assertSame(1, $heatmap['total_posts']);
         $this->assertSame(0, $heatmap['total_comments']);
         $this->assertNull($response->viewData('verifiedSkills')['evidence'][0]['url']);

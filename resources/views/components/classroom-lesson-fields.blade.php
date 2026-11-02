@@ -42,13 +42,16 @@
     <div
         x-data="lessonAuthoring({
             previewUrl: @js($resolvedPreviewUrl),
+            uploadUrl: @js($resolvedPreviewUrl ? preg_replace('~/lessons/preview$~', '/lesson-images', $resolvedPreviewUrl) : ''),
             csrfToken: @js(csrf_token()),
             initialTab: 'edit',
+            saveLabel: @js($retry ? 'Lưu chưa thành công — nội dung được giữ lại' : ($lesson ? 'Nội dung đã lưu' : 'Bài học mới chưa lưu')),
             emptyPlaceholder: @js(__('Chưa có nội dung bài học để xem trước.')),
             loadingMessage: @js(__('Đang tải bản xem trước...')),
             errorMessage: @js(__('Không thể tải bản xem trước. Vui lòng thử lại.'))
         })"
-        class="space-y-1.5"
+        class="space-y-1.5 lesson-authoring"
+        :class="expanded ? 'lesson-authoring--expanded' : ''"
     >
         <div class="flex items-center justify-between gap-2">
             <label for="{{ $formKey }}-content" class="block text-xs font-bold text-ink uppercase tracking-wider">{{ __('Nội dung bài học') }}</label>
@@ -77,14 +80,23 @@
             </div>
         </div>
 
-        <div class="border border-slate-300 rounded-xl overflow-hidden focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500 shadow-xs bg-white">
-            <div x-show="tab === 'edit'" class="flex flex-wrap items-center gap-1 p-1.5 bg-slate-50 border-b border-slate-200 text-slate-700">
+        <div class="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
+            <div class="flex gap-2" x-show="tab === 'edit'">
+                <button type="button" @click="chooseMode('visual')" :disabled="!visualReady" :aria-pressed="mode === 'visual'" class="rounded-lg border border-line px-3 py-2">Trực quan</button>
+                <button type="button" @click="chooseMode('source')" :aria-pressed="mode === 'source'" class="rounded-lg border border-line px-3 py-2">Markdown</button>
+            </div>
+            <button type="button" @click="expanded = !expanded" :aria-expanded="expanded" class="rounded-lg border border-line px-3 py-2" x-text="expanded ? 'Thu gọn khung viết' : 'Mở rộng khung viết'">Mở rộng khung viết</button>
+            <button type="submit" x-show="expanded" :disabled="uploading" @click="expanded = false" class="rounded-lg bg-brand px-4 py-2 font-semibold text-white disabled:opacity-50">Lưu bài học</button>
+            <span role="status" class="text-muted" x-text="submitting ? 'Đang lưu...' : (dirty ? 'Có thay đổi chưa lưu' : saveLabel)"></span>
+        </div>
+        <div class="border border-slate-300 rounded-xl overflow-clip focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500 shadow-xs bg-white">
+            <div x-show="tab === 'edit'" class="flex flex-wrap items-center gap-1 p-2 bg-slate-50 lesson-editor-toolbar border-b border-slate-200 text-slate-700">
                 <button
                     type="button"
                     @click="applyFormat('h2')"
                     title="{{ __('Tiêu đề (H2)') }}"
                     aria-label="{{ __('Tiêu đề (H2)') }}"
-                    class="p-1 rounded-md text-slate-600 hover:text-brand-600 hover:bg-slate-200/60 font-bold text-xs leading-none flex items-center justify-center min-w-[28px] h-7"
+                    class="p-1 rounded-md text-slate-600 hover:text-brand-600 hover:bg-slate-200/60 font-bold text-xs leading-none flex items-center justify-center min-w-[36px] h-9"
                 >
                     H2
                 </button>
@@ -93,7 +105,7 @@
                     @click="applyFormat('bold')"
                     title="{{ __('In đậm') }}"
                     aria-label="{{ __('In đậm') }}"
-                    class="p-1 rounded-md text-slate-600 hover:text-brand-600 hover:bg-slate-200/60 font-black text-xs leading-none flex items-center justify-center min-w-[28px] h-7"
+                    class="p-1 rounded-md text-slate-600 hover:text-brand-600 hover:bg-slate-200/60 font-black text-xs leading-none flex items-center justify-center min-w-[36px] h-9"
                 >
                     B
                 </button>
@@ -102,7 +114,7 @@
                     @click="applyFormat('italic')"
                     title="{{ __('In nghiêng') }}"
                     aria-label="{{ __('In nghiêng') }}"
-                    class="p-1 rounded-md text-slate-600 hover:text-brand-600 hover:bg-slate-200/60 italic font-serif text-xs leading-none flex items-center justify-center min-w-[28px] h-7"
+                    class="p-1 rounded-md text-slate-600 hover:text-brand-600 hover:bg-slate-200/60 italic font-serif text-xs leading-none flex items-center justify-center min-w-[36px] h-9"
                 >
                     I
                 </button>
@@ -112,7 +124,7 @@
                     @click="applyFormat('bullet')"
                     title="{{ __('Danh sách chấm') }}"
                     aria-label="{{ __('Danh sách chấm') }}"
-                    class="p-1 rounded-md text-slate-600 hover:text-brand-600 hover:bg-slate-200/60 flex items-center justify-center min-w-[28px] h-7"
+                    class="p-1 rounded-md text-slate-600 hover:text-brand-600 hover:bg-slate-200/60 flex items-center justify-center min-w-[36px] h-9"
                 >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16M2 6h.01M2 12h.01M2 18h.01"/></svg>
                 </button>
@@ -121,7 +133,7 @@
                     @click="applyFormat('number')"
                     title="{{ __('Danh sách số') }}"
                     aria-label="{{ __('Danh sách số') }}"
-                    class="p-1 rounded-md text-slate-600 hover:text-brand-600 hover:bg-slate-200/60 flex items-center justify-center min-w-[28px] h-7"
+                    class="p-1 rounded-md text-slate-600 hover:text-brand-600 hover:bg-slate-200/60 flex items-center justify-center min-w-[36px] h-9"
                 >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 6h13M7 12h13M7 18h13M3 5v3m0 0h1.5M3 12h2m-2 4h2v2H3"/></svg>
                 </button>
@@ -130,7 +142,7 @@
                     @click="applyFormat('quote')"
                     title="{{ __('Trích dẫn') }}"
                     aria-label="{{ __('Trích dẫn') }}"
-                    class="p-1 rounded-md text-slate-600 hover:text-brand-600 hover:bg-slate-200/60 flex items-center justify-center min-w-[28px] h-7"
+                    class="p-1 rounded-md text-slate-600 hover:text-brand-600 hover:bg-slate-200/60 flex items-center justify-center min-w-[36px] h-9"
                 >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
                 </button>
@@ -139,28 +151,36 @@
                     @click="applyFormat('link')"
                     title="{{ __('Liên kết') }}"
                     aria-label="{{ __('Liên kết') }}"
-                    class="p-1 rounded-md text-slate-600 hover:text-brand-600 hover:bg-slate-200/60 flex items-center justify-center min-w-[28px] h-7"
+                    class="p-1 rounded-md text-slate-600 hover:text-brand-600 hover:bg-slate-200/60 flex items-center justify-center min-w-[36px] h-9"
                 >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
                 </button>
+                <button type="button" @click="$refs.imageInput.click()" :disabled="uploading" class="rounded-lg border border-line px-3 py-2 text-sm" aria-label="Chèn ảnh">Ảnh</button>
+                <button type="button" @click="applyFormat('code')" x-show="visualReady && mode === 'visual'" class="rounded-lg px-3 py-2 text-sm">Mã</button>
+                <button type="button" @click="applyFormat('table')" x-show="visualReady && mode === 'visual'" class="rounded-lg px-3 py-2 text-sm">Bảng</button>
+                <button type="button" @click="applyFormat('undo')" x-show="visualReady && mode === 'visual'" class="rounded-lg px-3 py-2 text-sm" aria-label="Hoàn tác">↶</button>
+                <button type="button" @click="applyFormat('redo')" x-show="visualReady && mode === 'visual'" class="rounded-lg px-3 py-2 text-sm" aria-label="Làm lại">↷</button>
+                <input type="file" x-ref="imageInput" accept="image/jpeg,image/png,image/webp" class="hidden" @change="uploadImage($event.target.files[0])">
             </div>
-
-            <div x-show="tab === 'edit'">
+            <div x-show="uploading" role="status" class="p-3 text-sm text-brand">Đang tải ảnh: <span x-text="uploadProgress"></span>%</div>
+            <p x-show="uploadError" x-text="uploadError" role="alert" class="p-3 text-sm text-rose-700"></p>
+            <div x-show="tab === 'edit' && visualReady && mode === 'visual'" x-ref="rich" class="lesson-rich-editor"></div>
+            <div x-show="tab === 'edit' && (!visualReady || mode === 'source')">
                 <textarea
                     id="{{ $formKey }}-content"
                     x-ref="textarea"
                     name="content"
                     maxlength="50000"
-                    rows="6"
+                    rows="18"
                     placeholder="{{ __('Nội dung bài học, kiến thức cốt lõi và bài tập thực hành...') }}"
-                    class="block w-full border-0 focus:ring-0 text-sm text-ink placeholder-slate-400 p-3 bg-white resize-y"
+                    class="block w-full border-0 focus:ring-0 text-base text-ink placeholder-slate-400 p-5 bg-white resize-y min-h-[420px] leading-relaxed"
                 >{{ $value('content', $lesson?->content) }}</textarea>
             </div>
 
             <div
                 x-show="tab === 'preview'"
                 x-cloak
-                class="w-full min-h-[160px] max-h-[500px] overflow-y-auto p-4 bg-white"
+                class="w-full min-h-[420px] overflow-y-auto p-4 bg-white"
             >
                 <div x-show="loading" class="flex items-center justify-center py-8 text-sm text-slate-500 gap-2">
                     <span class="inline-block animate-spin w-4 h-4 border-2 border-brand-500 border-t-transparent rounded-full" aria-hidden="true"></span>

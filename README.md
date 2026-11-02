@@ -569,3 +569,15 @@ Agents must not commit/push/merge or mark Done without explicit authorization.
 
 Project documentation: [docs/00_README.md](docs/00_README.md).
 Setup evidence and remaining acceptance gaps: [docs/WORKING_CONTEXT.md](docs/WORKING_CONTEXT.md) and EUR-20 in Linear.
+
+### Social media request limits
+
+Social publishing accepts up to four JPEG/PNG/WebP images (5 MB each), three PDF/Office
+documents (10 MB each), and 20 MB total per post/comment. The Docker image uses
+docker/php/uploads.ini (upload_max_filesize=10M, post_max_size=24M) and Nginx
+client_max_body_size 24m. On CloudPanel, apply the same PHP-FPM and Vhost limits
+before releasing these features; CLI PHP settings alone do not configure web uploads.
+Social files stay on the existing private community_media disk and are delivered
+through authorized routes, so include that disk with persistent uploads in releases.
+The additive social migration runs through the existing artisan migrate --force
+deployment step; never reseed/reset the database to enable social functionality.
