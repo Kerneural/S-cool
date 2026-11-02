@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Contracts\PaymentGateway;
+use App\Jobs\SendCommunityInvitation;
 use App\Models\Community;
 use App\Models\CommunityInvitation;
 use App\Models\CommunityMembership;
@@ -13,6 +14,7 @@ use App\Models\ReferralInvitationRequest;
 use App\Models\User;
 use App\Services\Payment\SePayGateway;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
@@ -570,6 +572,8 @@ class ReferralCommissionTest extends TestCase
 
     public function test_member_can_request_referral_invitation_and_creator_can_approve_or_reject(): void
     {
+        Queue::fake([SendCommunityInvitation::class]);
+
         $community = Community::factory()->create(['access_mode' => 'PAID', 'referral_commission_rate' => 15]);
         $member = $this->createActiveMember($community);
 
@@ -602,5 +606,9 @@ class ReferralCommissionTest extends TestCase
         $invitation = CommunityInvitation::find($request->community_invitation_id);
         $this->assertSame($member->id, $invitation->referrer_id);
         $this->assertSame('friend_invitee@example.com', $invitation->normalized_email);
+        Queue::assertPushed(
+            SendCommunityInvitation::class,
+            fn ($job): bool => $job->invitationId === $invitation->id
+        );
     }
 }

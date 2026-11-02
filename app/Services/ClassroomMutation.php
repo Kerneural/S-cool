@@ -39,7 +39,7 @@ class ClassroomMutation
         if (count($submitted) !== count(array_unique($submitted))
             || count($submitted) !== count($existing)
             || array_diff($submitted, $existing) !== [] || array_diff($existing, $submitted) !== []) {
-            throw ValidationException::withMessages(['order' => 'Submit each current sibling ID exactly once. Refresh and retry.']);
+            throw ValidationException::withMessages(['order' => __('Submit each current sibling ID exactly once. Refresh and retry.')]);
         }
         foreach ($submitted as $index => $id) {
             (clone $siblings)->where('id', $id)->update(['order' => $index + 1]);

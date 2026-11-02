@@ -49,15 +49,12 @@
                             $unread = $conv->unread_count;
                             $latest = $conv->latestMessage;
                         @endphp
-                        <a href="{{ route('communities.messages.show', [$community, $conv]) }}"
-                           class="p-4 sm:p-5 flex items-center justify-between hover:bg-slate-50/75 transition block group">
+                        <div class="p-4 sm:p-5 flex items-center justify-between hover:bg-slate-50/75 transition block group">
                             <div class="flex items-center space-x-4 min-w-0 flex-1">
-                                <img src="{{ route('communities.directory.avatar', [$community, $other]) }}"
-                                     alt="{{ $other->name }}"
-                                     class="w-12 h-12 rounded-full object-cover border border-slate-200 shrink-0 bg-slate-100 group-hover:scale-105 transition-transform">
+                                <x-member-identity :community="$community" :user="$other" :name="false" />
                                 <div class="min-w-0 flex-1">
                                     <div class="flex items-center gap-2">
-                                        <p class="font-bold text-sm text-slate-900 truncate group-hover:text-brand-600 transition">{{ $other->name }}</p>
+                                        <x-member-identity :community="$community" :user="$other" :avatar="false" />
                                         @if ($community->isCreator($other))
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-brand-50 text-brand-700 border border-brand-200">
                                                 {{ __('Creator') }}
@@ -79,6 +76,7 @@
                                 </div>
                             </div>
 
+                            <a href="{{ route('communities.messages.show', [$community, $conv]) }}" class="inline-flex min-h-11 items-center px-3 text-sm font-semibold text-brand">{{ __('Open conversation') }}</a>
                             <div class="text-right text-xs text-slate-400 shrink-0 ml-4">
                                 @if ($latest)
                                     <span>{{ $latest->created_at->diffForHumans() }}</span>
@@ -87,7 +85,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                 </svg>
                             </div>
-                        </a>
+                        </div>
                     @endforeach
                 </div>
                 @if ($conversations->hasPages())

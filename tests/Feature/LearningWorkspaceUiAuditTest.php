@@ -134,9 +134,17 @@ class LearningWorkspaceUiAuditTest extends TestCase
         [$community, $member, $course] = $this->fixture();
         $response = $this->actingAs($member)->get(route('communities.posts.index', [$community, 'course_id' => $course->id]))->assertOk();
         $response->assertSee(route('communities.posts.create', [$community, 'course_id' => $course->id]))
-            ->assertSee(route('communities.posts.index', [$community, 'sort' => 'most_commented', 'course_id' => $course->id]))
             ->assertSee('aria-labelledby="composer-modal-title"', false)
             ->assertSee('name="course_id" :value="courseId" value="'.$course->id.'"', false);
+        $dom = new \DOMDocument;
+        @$dom->loadHTML($response->getContent());
+        $xpath = new \DOMXPath($dom);
+        $sort = $xpath->query('//select[@id="feed-sort"]')->item(0);
+        $form = $sort->parentNode;
+        $this->assertSame('GET', $form->getAttribute('method'));
+        $this->assertSame(1, $xpath->query('.//option[@value="most_commented"]', $sort)->length);
+        $this->assertSame((string) $course->id, $xpath->query('.//input[@name="course_id"]', $form)->item(0)->getAttribute('value'));
+
     }
 
     public function test_lesson_server_fallback_exposes_progress_and_outline_and_preserves_practical_checkbox(): void

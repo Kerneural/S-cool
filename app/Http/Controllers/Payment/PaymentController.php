@@ -64,12 +64,12 @@ class PaymentController extends Controller
             if ($payment->isCourseAccess() && $payment->course) {
                 return redirect()
                     ->route('communities.courses.show', [$payment->community, $payment->course])
-                    ->with('status', 'Course unlocked! Welcome to the course.');
+                    ->with('status', __('Course unlocked! Welcome to the course.'));
             }
 
             return redirect()
                 ->route('communities.show', $payment->community)
-                ->with('status', 'Payment completed. Welcome to the community!');
+                ->with('status', __('Payment completed. Welcome to the community!'));
         }
 
         abort_if(($payment->isCourseAccess() || $payment->isMembershipRenewal() || $payment->purpose === Payment::PURPOSE_COMMUNITY_JOIN)
@@ -114,12 +114,12 @@ class PaymentController extends Controller
             if ($payment->isCourseAccess() && $payment->course) {
                 return redirect()
                     ->route('communities.courses.show', [$payment->community, $payment->course])
-                    ->with('status', 'Payment confirmed. Course unlocked!');
+                    ->with('status', __('Payment confirmed. Course unlocked!'));
             }
 
             return redirect()
                 ->route('communities.show', $payment->community)
-                ->with('status', $payment->isMembershipRenewal() ? 'Payment confirmed. Membership term renewed!' : 'Payment confirmed. Membership activated!');
+                ->with('status', $payment->isMembershipRenewal() ? __('Payment confirmed. Membership term renewed!') : __('Payment confirmed. Membership activated!'));
         }
 
         return view('payments.status', [

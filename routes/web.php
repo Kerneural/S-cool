@@ -22,6 +22,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\HelpController;
 use App\Http\Controllers\HelpfulAnswerController;
 use App\Http\Controllers\LessonController;
+use App\Http\Controllers\LessonImageController;
 use App\Http\Controllers\LessonProgressController;
 use App\Http\Controllers\MembershipAccessController;
 use App\Http\Controllers\NotificationController;
@@ -30,6 +31,7 @@ use App\Http\Controllers\Payment\SePayWebhookController;
 use App\Http\Controllers\PaymentHistoryController;
 use App\Http\Controllers\PostCategoryController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\PostPollController;
 use App\Http\Controllers\PostReactionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProofOfWorkController;
@@ -37,6 +39,9 @@ use App\Http\Controllers\ProofOfWorkReviewController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SecureVideoStreamController;
+use App\Http\Controllers\SocialAttachmentController;
+use App\Http\Controllers\SocialLinkPreviewController;
+use App\Http\Controllers\WebsiteManagementHubController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -79,6 +84,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/payments/{reference}/status', [PaymentController::class, 'status'])->middleware('verified')->name('payments.status');
     Route::post('/payments/{reference}/cancel', [PaymentController::class, 'cancel'])->middleware(['verified', 'throttle:10,1'])->name('payments.cancel');
 
+    Route::get('/website-hub', [WebsiteManagementHubController::class, 'index'])->middleware('verified')->name('website-hub');
     Route::get('/communities', [CommunityController::class, 'index'])->name('communities.index');
     Route::get('/communities/create', [CommunityController::class, 'create'])->name('communities.create');
     Route::post('/communities', [CommunityController::class, 'store'])->name('communities.store');
@@ -113,6 +119,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/communities/{community:slug}/directory/{user}/avatar', [DirectoryController::class, 'avatar'])->withoutScopedBindings()->name('communities.directory.avatar');
 
         Route::get('/communities/{community:slug}/posts', [PostController::class, 'index'])->name('communities.posts.index');
+        Route::get('/communities/{community:slug}/social-media/{attachment}', [SocialAttachmentController::class, 'show'])->withoutScopedBindings()->name('communities.social-media.show');
+        Route::delete('/communities/{community:slug}/social-media/{attachment}', [SocialAttachmentController::class, 'destroy'])->withoutScopedBindings()->name('communities.social-media.destroy');
+        Route::get('/communities/{community:slug}/posts/{post}/link-preview', [SocialLinkPreviewController::class, 'show'])->middleware('throttle:30,1')->name('communities.posts.link-preview');
+        Route::post('/communities/{community:slug}/posts/{post}/poll/vote', [PostPollController::class, 'vote'])->middleware('throttle:60,1')->name('communities.posts.poll.vote');
+        Route::post('/communities/{community:slug}/posts/{post}/poll/close', [PostPollController::class, 'close'])->name('communities.posts.poll.close');
         Route::get('/communities/{community:slug}/posts/create', [PostController::class, 'create'])->name('communities.posts.create');
         Route::post('/communities/{community:slug}/posts', [PostController::class, 'store'])->name('communities.posts.store');
         Route::get('/communities/{community:slug}/posts/{post}', [PostController::class, 'show'])->name('communities.posts.show');
@@ -162,6 +173,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/communities/{community:slug}/courses', [CourseController::class, 'store'])->name('communities.courses.store');
         Route::post('/communities/{community:slug}/courses/reorder', [CourseController::class, 'reorder'])->name('communities.courses.reorder');
         Route::get('/communities/{community:slug}/courses/{course}', [CourseController::class, 'show'])->name('communities.courses.show');
+        Route::get('/communities/{community:slug}/manage/courses/{course}', [CourseController::class, 'manage'])->name('communities.manage.courses.show');
         Route::get('/communities/{community:slug}/courses/{course}/cover', [CourseCoverController::class, 'show'])->name('communities.courses.cover');
         Route::post('/communities/{community:slug}/courses/{course}/cover', [CourseCoverController::class, 'store'])->name('communities.courses.cover.store');
         Route::delete('/communities/{community:slug}/courses/{course}/cover', [CourseCoverController::class, 'destroy'])->name('communities.courses.cover.destroy');
@@ -188,6 +200,9 @@ Route::middleware('auth')->group(function () {
         Route::put('/communities/{community:slug}/courses/{course}/sections/{section}/lessons/{lesson}', [LessonController::class, 'update'])->name('communities.lessons.update');
         Route::delete('/communities/{community:slug}/courses/{course}/sections/{section}/lessons/{lesson}', [LessonController::class, 'destroy'])->name('communities.lessons.destroy');
         Route::post('/communities/{community:slug}/courses/{course}/sections/{section}/lessons/reorder', [LessonController::class, 'reorder'])->name('communities.lessons.reorder');
+        Route::post('/communities/{community:slug}/courses/{course}/lesson-images', [LessonImageController::class, 'store'])->middleware('throttle:30,1')->name('communities.courses.lesson-images.store');
+        Route::get('/communities/{community:slug}/courses/{course}/lesson-images/{filename}', [LessonImageController::class, 'show'])->name('communities.courses.lesson-images.show');
+        Route::post('/communities/{community:slug}/courses/{course}/lessons/preview', [LessonController::class, 'preview'])->middleware('throttle:60,1')->name('communities.courses.lessons.preview');
     });
 });
 

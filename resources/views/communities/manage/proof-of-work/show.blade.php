@@ -18,7 +18,7 @@
         </div>
     </x-slot>
 
-    <div class="mx-auto min-w-0 max-w-5xl break-words [overflow-wrap:anywhere] space-y-6 px-4 py-8 sm:px-6">
+    <div class="mx-auto min-w-0 max-w-7xl break-words [overflow-wrap:anywhere] space-y-6 px-4 py-8 sm:px-6">
         <x-community-workspace :community="$community" active-tab="proof-of-work" />
         <x-classroom-feedback />
 
@@ -92,7 +92,7 @@
                 <div class="space-y-1.5">
                     <span class="font-bold text-slate-400 uppercase tracking-wider text-xs block">{{ __('Evidence Screenshot / Attachment') }}</span>
                     <div class="aspect-video max-w-xl overflow-hidden rounded-xl border border-slate-200 bg-slate-900 shadow-xs">
-                        <img src="{{ route('communities.proof-of-work.image', [$community, $proofOfWork]) }}" alt="Proof of Work Attachment" class="w-full h-full object-contain">
+                        <img src="{{ route('communities.proof-of-work.image', [$community, $proofOfWork]) }}" alt="{{ __('Proof of Work Attachment') }}" class="w-full h-full object-contain">
                     </div>
                     <a href="{{ route('communities.proof-of-work.image', [$community, $proofOfWork]) }}" target="_blank" rel="noopener noreferrer" class="mt-2 inline-block text-xs font-semibold text-brand underline">
                         {{ __('Open original evidence image') }}
@@ -170,7 +170,7 @@
                 <div class="flex items-center gap-3 text-xs text-slate-500">
                     <span>{{ __('Reviewed by:') }} <strong>{{ $proofOfWork->reviewer?->name ?? __('Creator') }}</strong></span>
                     @if ($proofOfWork->reviewed_at)
-                        &bull; <span>{{ $proofOfWork->reviewed_at->format('M d, Y H:i') }}</span>
+                        &bull; <span>{{ $proofOfWork->reviewed_at->translatedFormat('M d, Y H:i') }}</span>
                     @endif
                 </div>
                 @if ($proofOfWork->feedback)

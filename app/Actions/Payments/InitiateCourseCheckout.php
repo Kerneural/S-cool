@@ -46,14 +46,14 @@ class InitiateCourseCheckout
 
             if (! $lockedCourse->isOneTime()) {
                 throw ValidationException::withMessages([
-                    'course' => 'This course is included with community membership and does not require purchase.',
+                    'course' => __('This course is included with community membership and does not require purchase.'),
                 ]);
             }
 
             $price = (int) $lockedCourse->price;
             if ($price <= 0) {
                 throw ValidationException::withMessages([
-                    'course' => 'Course price is not configured.',
+                    'course' => __('Course price is not configured.'),
                 ]);
             }
 
@@ -65,7 +65,7 @@ class InitiateCourseCheckout
 
             if ($hasEntitlement) {
                 throw ValidationException::withMessages([
-                    'course' => 'You already have access to this course.',
+                    'course' => __('You already have access to this course.'),
                 ]);
             }
 

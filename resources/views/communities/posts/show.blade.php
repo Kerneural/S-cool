@@ -20,7 +20,7 @@
                         <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                         </svg>
-                        <span>{{ session('status') }}</span>
+                        <span>{{ __(session('status')) }}</span>
                     </div>
                 </div>
             @endif
@@ -30,12 +30,10 @@
                 <!-- Post Author & Metadata Header -->
                 <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                     <div class="flex min-w-0 items-center gap-3">
-                        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-brand-600 to-teal-800 text-white font-bold flex items-center justify-center text-sm shadow-xs shrink-0">
-                            {{ strtoupper(substr($post->author->name ?? 'U', 0, 1)) }}
-                        </div>
+                        <x-member-identity :community="$community" :user="$post->author" :name="false" />
                         <div class="min-w-0">
                             <div class="flex flex-wrap items-center gap-2 font-semibold text-ink text-sm">
-                                <span>{{ $post->author->name ?? __('Unknown') }}</span>
+                                <x-member-identity :community="$community" :user="$post->author" :avatar="false" />
                                 @if ($community->isCreator($post->author))
                                     <span class="px-2 py-0.5 bg-brand-50 text-brand-700 rounded-full text-xs font-semibold border border-brand-200/60">
                                         {{ __('Creator') }}
@@ -43,7 +41,7 @@
                                 @endif
                                 @if ($post->category)
                                     <span class="px-2 py-0.5 bg-slate-100 text-slate-700 rounded-full text-xs font-medium">
-                                        {{ $post->category->name }}
+                                        {{ $post->category->display_name }}
                                     </span>
                                 @endif
                                 @if ($post->isPinned())
@@ -78,25 +76,27 @@
                                 @endif
                             </div>
                             <div class="text-xs text-muted mt-0.5">
-                                {{ $post->created_at->format('M d, Y H:i') }} ({{ $post->created_at->diffForHumans() }})
+                                {{ $post->created_at->translatedFormat('M d, Y H:i') }} ({{ $post->created_at->diffForHumans() }})
                             </div>
                         </div>
                     </div>
 
                     <!-- Creator / Author Actions Toolbar -->
                     <div class="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:shrink-0">
-                        @if ($community->isCreator(auth()->user()))
+                        @if ($community->isCreator(auth()->user()) || auth()->user()->can('update', $post) || auth()->user()->can('delete', $post))
+                                            <x-action-menu :label="__('Post actions').' — '.$post->title">
+@if ($community->isCreator(auth()->user()))
                             @if ($post->isPinned())
                                 <form method="POST" action="{{ route('communities.posts.unpin', [$community, $post]) }}">
                                     @csrf
-                                    <button type="submit" class="px-2.5 py-1 text-xs text-amber-800 bg-amber-50 hover:bg-amber-100 font-semibold rounded-lg border border-amber-200 transition">
+                                    <button type="submit" class="flex min-h-11 w-full items-center rounded-lg px-3 py-2 text-left text-sm font-medium text-ink hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand">
                                         {{ __('Unpin') }}
                                     </button>
                                 </form>
                             @else
                                 <form method="POST" action="{{ route('communities.posts.pin', [$community, $post]) }}">
                                     @csrf
-                                    <button type="submit" class="px-2.5 py-1 text-xs text-slate-600 bg-slate-50 hover:bg-slate-100 font-semibold rounded-lg border border-slate-200 transition">
+                                    <button type="submit" class="flex min-h-11 w-full items-center rounded-lg px-3 py-2 text-left text-sm font-medium text-ink hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand">
                                         {{ __('Pin') }}
                                     </button>
                                 </form>
@@ -104,20 +104,22 @@
                         @endif
 
                         @can('update', $post)
-                            <a href="{{ route('communities.posts.edit', [$community, $post]) }}" class="px-2.5 py-1 text-xs text-brand-700 bg-brand-50 hover:bg-brand-100 font-semibold rounded-lg border border-brand-200/60 transition">
+                            <a href="{{ route('communities.posts.edit', [$community, $post]) }}" class="flex min-h-11 w-full items-center rounded-lg px-3 py-2 text-left text-sm font-medium text-ink hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand">
                                 {{ __('Edit') }}
                             </a>
                         @endcan
 
                         @can('delete', $post)
-                            <form method="POST" action="{{ route('communities.posts.destroy', [$community, $post]) }}" onsubmit="return confirm('Are you sure you want to delete this post?');">
+                            <form class="mt-1 border-t border-line pt-1" method="POST" action="{{ route('communities.posts.destroy', [$community, $post]) }}" onsubmit="return confirm('{{ __('Are you sure you want to delete this post?') }}');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="px-2.5 py-1 text-xs text-rose-700 bg-rose-50 hover:bg-rose-100 font-semibold rounded-lg border border-rose-200 transition">
-                                    {{ __('Delete') }}
+                                <button type="submit" class="flex min-h-11 w-full items-center rounded-lg px-3 py-2 text-left text-sm font-semibold text-rose-700 hover:bg-rose-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-rose-600">
+                                    {{ __('Delete post') }}
                                 </button>
                             </form>
                         @endcan
+                                            </x-action-menu>
+                                        @endif
 
                         @if (auth()->check() && $community->hasAccess(auth()->user()))
                             @php
@@ -159,9 +161,7 @@
                 </h1>
 
                 <!-- Post Body Content -->
-                <div class="break-words text-slate-700 leading-relaxed whitespace-pre-line text-base font-normal">
-                    {{ $post->body }}
-                </div>
+                <x-social-post-content :community="$community" :post="$post" />
 
                 <!-- Reaction & Engagement Bar -->
                 <div class="pt-5 border-t border-slate-100 flex items-center justify-between text-xs text-muted">
@@ -177,7 +177,7 @@
             </article>
 
             <!-- Comments & Discussion Replies Thread -->
-            <section class="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-6 sm:p-8 space-y-6">
+            <section x-data="{ replyId: '', replyName: '' }" @reply-to-comment.window="replyId = $event.detail.id; replyName = $event.detail.name; $nextTick(() => { $refs.replyForm.scrollIntoView({block: 'center'}); $refs.replyForm.querySelector('[contenteditable=true], textarea')?.focus() })" class="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-6 sm:p-8 space-y-6">
                 <div class="flex items-center justify-between">
                     <h2 class="text-lg font-bold text-ink">
                         {{ __('Comments') }} ({{ $comments->total() }})
@@ -185,12 +185,15 @@
                 </div>
 
                 <!-- Add Comment Composer Form -->
-                <form method="POST" action="{{ route('communities.posts.comments.store', [$community, $post]) }}" class="space-y-3">
+                <form x-ref="replyForm" method="POST" enctype="multipart/form-data" action="{{ route('communities.posts.comments.store', [$community, $post]) }}" class="space-y-3">
                     @csrf
-                    <div>
-                        <textarea id="body" name="body" rows="3" required placeholder="{{ __('Write a reply...') }}" class="block w-full border-slate-300 focus:border-brand-500 focus:ring-brand-500 rounded-xl shadow-xs text-sm text-ink placeholder-slate-400 p-3.5">{{ old('body') }}</textarea>
-                        <x-input-error :messages="$errors->get('body')" class="mt-2" />
+                    <input type="hidden" name="parent_id" :value="replyId">
+                    <div x-show="replyId" x-cloak class="flex items-center justify-between gap-2 rounded-lg bg-brand-soft p-2 text-sm">
+                        <span>{{ __('Replying to') }} <strong x-text="replyName"></strong></span>
+                        <button type="button" @click="replyId = ''; replyName = ''" class="min-h-11 px-2">{{ __('Cancel') }}</button>
                     </div>
+                    <x-social-editor id="comment-body" :value="old('body', '')" :format="old('content_format', 'plain')" :limit="2000" />
+
                     <div class="flex justify-end">
                         <x-primary-button>
                             {{ __('Comment') }}
@@ -202,13 +205,11 @@
                 <div class="space-y-4 pt-4 border-t border-slate-100">
                     @forelse ($comments as $comment)
                         <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/60 flex items-start gap-3.5">
-                            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-700 to-slate-900 text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-xs">
-                                {{ strtoupper(substr($comment->author->name ?? 'U', 0, 1)) }}
-                            </div>
+                            <x-member-identity :community="$community" :user="$comment->author" :name="false" />
                             <div class="flex-1 min-w-0">
                                     <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
                                     <div class="flex items-center gap-2 flex-wrap">
-                                        <span class="font-bold text-xs text-ink">{{ $comment->author->name ?? __('Unknown') }}</span>
+                                        <x-member-identity :community="$community" :user="$comment->author" :avatar="false" />
                                         @if ($community->isCreator($comment->author))
                                             <span class="px-1.5 py-0.5 bg-brand-50 text-brand-700 rounded text-[10px] font-semibold border border-brand-200/60">
                                                 {{ __('Creator') }}
@@ -218,21 +219,25 @@
                                     </div>
 
                                     <div class="flex items-center gap-2">
-                                        @can('update', $comment)
-                                            <a href="{{ route('communities.posts.comments.edit', [$community, $post, $comment]) }}" class="text-xs font-semibold text-brand-700 hover:text-brand-800 transition">
+                                        @if (auth()->user()->can('update', $comment) || auth()->user()->can('delete', $comment))
+                                            <x-action-menu :label="__('Comment actions').' — '.$comment->author->name">
+@can('update', $comment)
+                                            <a href="{{ route('communities.posts.comments.edit', [$community, $post, $comment]) }}" class="flex min-h-11 w-full items-center rounded-lg px-3 py-2 text-left text-sm font-medium text-ink hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand">
                                                 {{ __('Edit') }}
                                             </a>
                                         @endcan
 
                                         @can('delete', $comment)
-                                            <form method="POST" action="{{ route('communities.posts.comments.destroy', [$community, $post, $comment]) }}" onsubmit="return confirm('Delete comment?');">
+                                            <form class="mt-1 border-t border-line pt-1" method="POST" action="{{ route('communities.posts.comments.destroy', [$community, $post, $comment]) }}" onsubmit="return confirm('{{ __('Delete comment?') }}');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="text-xs text-rose-600 hover:text-rose-800 font-semibold transition">
-                                                    &times; {{ __('Delete') }}
+                                                <button type="submit" class="flex min-h-11 w-full items-center rounded-lg px-3 py-2 text-left text-sm font-semibold text-rose-700 hover:bg-rose-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-rose-600">
+                                                    {{ __('Delete comment') }}
                                                 </button>
                                             </form>
                                         @endcan
+                                            </x-action-menu>
+                                        @endif
 
                                         @if (auth()->check() && $community->hasAccess(auth()->user()))
                                             @php
@@ -266,9 +271,9 @@
                                         @endif
                                     </div>
                                 </div>
-                                <div class="break-words text-sm text-slate-700 whitespace-pre-line leading-relaxed">
-                                    {{ $comment->body }}
-                                </div>
+                                <x-social-comment-content :community="$community" :comment="$comment" />
+                                <button type="button" @click="$dispatch('reply-to-comment', { id: @js($comment->parent_id ?: $comment->id), name: @js($comment->parent?->author?->name ?: $comment->author->name) })" class="mt-2 min-h-11 text-sm font-medium text-brand">{{ __('Reply') }}</button>
+
                             </div>
                         </div>
                     @empty

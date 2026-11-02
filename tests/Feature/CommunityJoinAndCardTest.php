@@ -93,8 +93,8 @@ class CommunityJoinAndCardTest extends TestCase
             $removedPresentation($response);
         }
         $this->get(route('communities.leaderboard', $community))->assertOk()
-            ->assertSee('Level 1 - AI Explorer')->assertSee('Level 2 - Automation Novice')
-            ->assertSee('Level 9 - AI Grandmaster')->assertSee('Distribution not measured');
+            ->assertSee('Level 1 - New Member')->assertSee('Level 2 - Active Contributor')
+            ->assertSee('Level 5 - Community Master');
 
         // About consolidates identity into one context panel instead of repeating the card.
         $about = $this->get(route('communities.show', $community))->assertOk()

@@ -135,7 +135,7 @@ class CommunitySearchTypeahead extends Component
                         }
                     }
                 })
-                ->with(['author:id,name', 'category:id,name'])
+                ->with(['author:id,name', 'category:id,name,slug'])
                 ->tap(fn ($query) => SearchNormalizationService::prioritizeCandidates($query, 'title', $trimmed, 'desc'))
                 ->limit(20)
                 ->get();
@@ -150,7 +150,7 @@ class CommunitySearchTypeahead extends Component
                     'item' => [
                         'id' => 'post-'.$post->id,
                         'title' => $post->title,
-                        'subtitle' => $post->category?->name ?? 'Discussion',
+                        'subtitle' => $post->category?->display_name ?? 'Discussion',
                         'badge' => 'Post',
                         'url' => route('communities.posts.show', [$community, $post]),
                     ],

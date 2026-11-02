@@ -3,23 +3,27 @@
 namespace App\Livewire;
 
 use App\Actions\CommunityContent\FeedMutation;
-use App\Jobs\SendPostReplyNotification;
 use App\Models\Comment;
 use App\Models\Community;
-use App\Models\OnboardingStepCompletion;
 use App\Models\Post;
 use App\Services\HelpfulAnswerService;
+use App\Services\SocialPublishing;
+use App\Support\CommunityIdentity;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class DiscussionViewer extends Component
 {
+    use WithFileUploads;
+
     private const COMMENTS_PAGE_SIZE = 20;
 
     #[Locked]
@@ -81,10 +85,38 @@ class DiscussionViewer extends Component
 
     public string $newCommentBody = '';
 
+    public string $newCommentFormat = 'plain';
+
+    public array $commentImages = [];
+
+    public array $commentDocuments = [];
+
+    public ?int $replyToId = null;
+
+    public string $replyToName = '';
+
+    public function replyTo(int $commentId): void
+    {
+        [, $post] = $this->visiblePost();
+        $comment = $post->comments()->with('author')->findOrFail($commentId);
+        $parent = $comment->parent_id ? $post->comments()->with('author')->findOrFail($comment->parent_id) : $comment;
+        $this->replyToId = $parent->id;
+        $this->replyToName = $parent->author->name;
+        $this->dispatch('social-reply-focused');
+    }
+
+    public function cancelReply(): void
+    {
+        $this->replyToId = null;
+        $this->replyToName = '';
+    }
+
     // Comment editing
     public ?int $editingCommentId = null;
 
     public string $editingCommentBody = '';
+
+    public string $editingCommentFormat = 'plain';
 
     // Feedback
     public ?string $errorMessage = null;
@@ -118,7 +150,7 @@ class DiscussionViewer extends Component
         $this->authorName = $post->author->name ?? __('Unknown');
         $this->authorInitial = strtoupper(substr($this->authorName, 0, 1));
         $this->isAuthorCreator = $post->author ? $community->isCreator($post->author) : false;
-        $this->categoryName = $post->category->name ?? null;
+        $this->categoryName = $post->category->display_name ?? null;
         $this->postCreatedAt = $post->created_at->diffForHumans();
         $this->isPinned = $post->isPinned();
         $this->isAuthor = $user && (int) $post->user_id === (int) $user->id;
@@ -135,6 +167,11 @@ class DiscussionViewer extends Component
         $this->editingCommentId = null;
         $this->editingCommentBody = '';
         $this->newCommentBody = '';
+        $this->commentImages = [];
+        $this->commentDocuments = [];
+        $this->newCommentFormat = 'plain';
+        $this->cancelReply();
+        $this->dispatch('social-comment-cleared');
 
         $this->dispatch(
             'discussion-opened',
@@ -182,7 +219,7 @@ class DiscussionViewer extends Component
         $this->commentsCount = $post->comments()->count();
 
         $comments = $post->comments()
-            ->with('author:id,name')
+            ->with(['author:id,name,avatar_path', 'parent.author:id,name'])
             ->orderByDesc('created_at')
             ->orderByDesc('id')
             ->limit($this->commentsLimit)
@@ -201,6 +238,8 @@ class DiscussionViewer extends Component
             }
         }
 
+        CommunityIdentity::prime($community, $comments->pluck('user_id')->push($post->user_id)->push($user?->id)->all());
+
         $this->comments = $comments->map(function ($comment) use ($user, $isCreator, $community, $post, $eligibleAcceptedId, $eligibleAuthorIds) {
             $isCommentAuthor = $user && (int) $comment->user_id === (int) $user->id;
             $isAccepted = (int) $post->accepted_comment_id === (int) $comment->id;
@@ -211,7 +250,12 @@ class DiscussionViewer extends Component
                 'id' => $comment->id,
                 'user_id' => $comment->user_id,
                 'author_name' => $comment->author->name ?? __('Unknown'),
-                'author_initial' => strtoupper(substr($comment->author->name ?? 'U', 0, 1)),
+                'author_initial' => mb_strtoupper(mb_substr($comment->author->name ?? 'U', 0, 1)),
+                'avatar_url' => $comment->author?->avatar_path ? route('communities.directory.avatar', [$community, $comment->author]) : null,
+                'profile_url' => CommunityIdentity::profile($community, $comment->author),
+                'parent_id' => $comment->parent_id,
+                'reply_name' => $comment->parent?->author?->name,
+                'content_format' => $comment->content_format,
                 'is_creator' => $comment->author ? $community->isCreator($comment->author) : false,
                 'body' => $comment->body,
                 'created_at' => $comment->created_at->diffForHumans(),
@@ -234,6 +278,7 @@ class DiscussionViewer extends Component
             latestComment: $latest ? [
                 'id' => $latest->id,
                 'author' => $latest->author->name ?? __('Unknown'),
+                'profileUrl' => CommunityIdentity::profile($community, $latest->author),
                 'body' => Str::limit($latest->body, 140),
                 'datetime' => $latest->created_at->toIso8601String(),
                 'time' => $latest->created_at->diffForHumans(),
@@ -270,7 +315,7 @@ class DiscussionViewer extends Component
     {
         $user = auth()->user();
         if (! $user) {
-            $this->errorMessage = 'Please sign in to comment.';
+            $this->errorMessage = __('Please sign in to comment.');
 
             return;
         }
@@ -282,41 +327,42 @@ class DiscussionViewer extends Component
         try {
             $community = Community::findOrFail($this->communityId);
 
-            app(FeedMutation::class)->run($user, $community, $this->postId, null, function (Community $current, Post $currentPost) use ($user): void {
-                Gate::authorize('create', [Comment::class, $currentPost]);
-
-                $comment = $currentPost->comments()->create([
-                    'user_id' => $user->id,
-                    'body' => $this->newCommentBody,
-                ]);
-
-                if ((int) $currentPost->user_id !== (int) $user->id) {
-                    SendPostReplyNotification::dispatch($comment->id);
-                }
-
-                OnboardingStepCompletion::markStep($current, $user, 'comment');
-            });
+            app(SocialPublishing::class)->comment(
+                $user, $community, $this->postId,
+                ['body' => $this->newCommentBody, 'parent_id' => $this->replyToId, 'content_format' => $this->newCommentFormat],
+                $this->commentImages, $this->commentDocuments,
+            );
+            $this->commentImages = [];
+            $this->commentDocuments = [];
+            $this->cancelReply();
 
             $this->newCommentBody = '';
+            $this->newCommentFormat = 'plain';
+            $this->dispatch('social-comment-cleared');
             $this->errorMessage = null;
-            $this->successMessage = 'Comment posted successfully.';
+            $this->successMessage = __('Comment posted successfully.');
 
             $post = $community->posts()->findOrFail($this->postId);
             $this->loadComments($post);
+        } catch (ValidationException $e) {
+            $this->errorMessage = collect($e->errors())->flatten()->first();
         } catch (\Throwable $e) {
             report($e);
-            $this->errorMessage = 'Unable to post comment. Please check your access and try again.';
+            $this->errorMessage = __('Unable to post comment. Please check your access and try again.');
         }
     }
 
     public function editComment(int $commentId): void
     {
-        $comment = collect($this->comments)->firstWhere('id', $commentId);
-        if ($comment && $comment['can_edit']) {
-            $this->editingCommentId = $commentId;
-            $this->editingCommentBody = $comment['body'];
-            $this->errorMessage = null;
+        [, $post] = $this->visiblePost();
+        $comment = $post->comments()->findOrFail($commentId);
+        if (Gate::denies('update', $comment)) {
+            return;
         }
+        $this->editingCommentId = $commentId;
+        $this->editingCommentBody = $comment->body;
+        $this->editingCommentFormat = $comment->content_format;
+        $this->errorMessage = null;
     }
 
     public function cancelEditComment(): void
@@ -335,6 +381,7 @@ class DiscussionViewer extends Component
 
         $this->validate([
             'editingCommentBody' => ['required', 'string', 'max:2000'],
+            'editingCommentFormat' => ['in:plain,markdown'],
         ]);
 
         try {
@@ -342,19 +389,19 @@ class DiscussionViewer extends Component
 
             app(FeedMutation::class)->run($user, $community, $this->postId, $this->editingCommentId, function (Community $current, Post $currentPost, Comment $currentComment): void {
                 Gate::authorize('update', $currentComment);
-                $currentComment->update(['body' => $this->editingCommentBody]);
+                $currentComment->update(['body' => $this->editingCommentBody, 'content_format' => $this->editingCommentFormat]);
             });
 
             $this->editingCommentId = null;
             $this->editingCommentBody = '';
             $this->errorMessage = null;
-            $this->successMessage = 'Comment updated.';
+            $this->successMessage = __('Comment updated.');
 
             $post = $community->posts()->findOrFail($this->postId);
             $this->loadComments($post);
         } catch (\Throwable $e) {
             report($e);
-            $this->errorMessage = 'Unable to update comment. Please check your access and try again.';
+            $this->errorMessage = __('Unable to update comment. Please check your access and try again.');
         }
     }
 
@@ -374,13 +421,13 @@ class DiscussionViewer extends Component
             });
 
             $this->errorMessage = null;
-            $this->successMessage = 'Comment deleted.';
+            $this->successMessage = __('Comment deleted.');
 
             $post = $community->posts()->findOrFail($this->postId);
             $this->loadComments($post);
         } catch (\Throwable $e) {
             report($e);
-            $this->errorMessage = 'Unable to delete comment. Please check your access and try again.';
+            $this->errorMessage = __('Unable to delete comment. Please check your access and try again.');
         }
     }
 
@@ -390,7 +437,7 @@ class DiscussionViewer extends Component
         $this->successMessage = null;
         $user = auth()->user();
         if (! $user) {
-            $this->errorMessage = 'Please sign in to accept answers.';
+            $this->errorMessage = __('Please sign in to accept answers.');
 
             return;
         }
@@ -398,7 +445,7 @@ class DiscussionViewer extends Component
         try {
             [$community, $post, $isCreator] = $this->visiblePost();
             if (! $isCreator) {
-                $this->errorMessage = 'Only the community creator can accept helpful answers.';
+                $this->errorMessage = __('Only the community creator can accept helpful answers.');
 
                 return;
             }
@@ -411,7 +458,7 @@ class DiscussionViewer extends Component
             $this->acceptedCommentId = $post->accepted_comment_id;
             $this->loadComments($post);
         } catch (\Throwable $e) {
-            $this->errorMessage = 'Unable to accept this answer. Refresh, check access and try again.';
+            $this->errorMessage = __('Unable to accept this answer. Refresh, check access and try again.');
         }
     }
 
@@ -421,7 +468,7 @@ class DiscussionViewer extends Component
         $this->successMessage = null;
         $user = auth()->user();
         if (! $user) {
-            $this->errorMessage = 'Please sign in to revoke answers.';
+            $this->errorMessage = __('Please sign in to revoke answers.');
 
             return;
         }
@@ -429,7 +476,7 @@ class DiscussionViewer extends Component
         try {
             [$community, $post, $isCreator] = $this->visiblePost();
             if (! $isCreator) {
-                $this->errorMessage = 'Only the community creator can revoke helpful answers.';
+                $this->errorMessage = __('Only the community creator can revoke helpful answers.');
 
                 return;
             }
@@ -442,7 +489,7 @@ class DiscussionViewer extends Component
             $this->acceptedCommentId = $post->accepted_comment_id;
             $this->loadComments($post);
         } catch (\Throwable $e) {
-            $this->errorMessage = 'Unable to revoke this answer. Refresh, check access and try again.';
+            $this->errorMessage = __('Unable to revoke this answer. Refresh, check access and try again.');
         }
     }
 
@@ -470,7 +517,7 @@ class DiscussionViewer extends Component
 
         $post = $community->posts()
             ->whereNull('deleted_at')
-            ->with(['author:id,name', 'category', 'course', 'lesson.section'])
+            ->with(['author:id,name,avatar_path', 'category', 'course', 'lesson.section', 'attachments', 'poll'])
             ->findOrFail($resolvedPostId);
 
         $post->setRelation('community', $community);
@@ -480,10 +527,15 @@ class DiscussionViewer extends Component
 
     public function render(): View
     {
+        $socialPost = null;
+        $socialComments = collect();
         if ($this->isOpen && $this->postId !== null) {
             try {
                 [, $post] = $this->visiblePost();
                 $this->loadLearningContext($post);
+                $socialPost = $post;
+                $socialComments = $post->comments()->with(['author', 'attachments', 'parent.author'])
+                    ->whereIn('id', array_column($this->comments, 'id'))->get()->keyBy('id');
             } catch (ModelNotFoundException|HttpException) {
                 $this->reset([
                     'postTitle', 'postBody', 'authorName', 'authorInitial', 'categoryName',
@@ -497,6 +549,6 @@ class DiscussionViewer extends Component
             }
         }
 
-        return view('livewire.discussion-viewer');
+        return view('livewire.discussion-viewer', ['socialPost' => $socialPost, 'socialComments' => $socialComments]);
     }
 }

@@ -62,7 +62,7 @@ class CourseCoverController extends Controller
             $this->cleanup($oldPath, $community->id);
         }
 
-        return back()->with('status', 'Course cover updated successfully.');
+        return back()->with('status', __('Course cover updated successfully.'));
     }
 
     public function show(Request $request, Community $community, Course $course): StreamedResponse
@@ -123,7 +123,7 @@ class CourseCoverController extends Controller
             $this->cleanup($oldPath, $community->id);
         }
 
-        return back()->with('status', 'Course cover removed.');
+        return back()->with('status', __('Course cover removed.'));
     }
 
     private function cleanup(string $path, int $communityId): void

@@ -8,7 +8,7 @@
                     <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
-                    <span class="font-medium text-sm text-green-700">{{ session('status') }}</span>
+                    <span class="font-medium text-sm text-green-700">{{ __(session('status')) }}</span>
                 </div>
             @endif
 
@@ -50,7 +50,7 @@
                                         @endif
                                         @if ($post->category)
                                             <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md text-[11px] font-medium">
-                                                {{ $post->category->name }}
+                                                {{ $post->category->display_name }}
                                             </span>
                                         @endif
                                     </div>

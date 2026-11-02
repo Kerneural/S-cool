@@ -39,6 +39,22 @@ class PostCategory extends Model
     }
 
     /**
+     * Translate only untouched built-in names; preserve owner-authored labels.
+     */
+    public function getDisplayNameAttribute(): string
+    {
+        $defaults = [
+            'general' => ['General', 'General'],
+            'announcements' => ['Announcements', 'Announcements'],
+            'questions' => ['Questions', 'Questions'],
+            'introductions' => ['Introductions', 'Introductions'],
+        ];
+        $default = $defaults[$this->slug] ?? null;
+
+        return $default && $this->name === $default[0] ? __($default[1]) : $this->name;
+    }
+
+    /**
      * Determine if this category is the special announcements category.
      */
     public function isAnnouncements(): bool
