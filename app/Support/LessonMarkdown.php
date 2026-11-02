@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\Course;
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Event\DocumentParsedEvent;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
@@ -16,7 +17,7 @@ use League\CommonMark\Node\Inline\Text;
  * The only boundary allowed to turn stored lesson text into HTML.
  *
  * Raw HTML is stripped, unsafe link schemes are dropped and parser nesting is
- * bounded. Images are rendered as plain links so Markdown cannot embed remote
+ * bounded. Only managed, course-scoped images render inline; other images become links so Markdown cannot embed remote
  * trackers or bypass the private-media routes. Content headings start at h2
  * because the lesson page owns its single h1.
  */
@@ -24,18 +25,18 @@ class LessonMarkdown
 {
     private static ?MarkdownConverter $converter = null;
 
-    public static function toHtml(?string $markdown): string
+    public static function toHtml(?string $markdown, ?Course $course = null): string
     {
         if ($markdown === null || trim($markdown) === '') {
             return '';
         }
 
-        return self::converter()->convert($markdown)->getContent();
+        return self::converter($course)->convert($markdown)->getContent();
     }
 
-    private static function converter(): MarkdownConverter
+    private static function converter(?Course $course = null): MarkdownConverter
     {
-        if (self::$converter !== null) {
+        if ($course === null && self::$converter !== null) {
             return self::$converter;
         }
 
@@ -48,12 +49,12 @@ class LessonMarkdown
         ]);
         $environment->addExtension(new CommonMarkCoreExtension);
         $environment->addExtension(new GithubFlavoredMarkdownExtension);
-        $environment->addEventListener(DocumentParsedEvent::class, [self::class, 'normalize']);
+        $environment->addEventListener(DocumentParsedEvent::class, fn (DocumentParsedEvent $event) => self::normalize($event, $course));
 
-        return self::$converter = new MarkdownConverter($environment);
+        return $course === null ? self::$converter = new MarkdownConverter($environment) : new MarkdownConverter($environment);
     }
 
-    public static function normalize(DocumentParsedEvent $event): void
+    public static function normalize(DocumentParsedEvent $event, ?Course $course = null): void
     {
         $document = $event->getDocument();
         $headings = [];
@@ -74,6 +75,15 @@ class LessonMarkdown
         }
 
         foreach ($images as $image) {
+            if ($course !== null) {
+                $prefix = route('communities.courses.lesson-images.show', [$course->community, $course, 'FILE'], false);
+                $pattern = str_replace('FILE', '[a-zA-Z0-9]{40}\.(?:jpg|jpeg|png|webp)', preg_quote($prefix, '~'));
+                if (preg_match('~\A'.$pattern.'\z~D', $image->getUrl()) === 1) {
+                    $image->data->set('attributes/loading', 'lazy');
+
+                    continue;
+                }
+            }
             $link = new Link($image->getUrl(), null, $image->getTitle());
             foreach ($image->children() as $child) {
                 $link->appendChild($child);

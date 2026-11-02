@@ -45,7 +45,7 @@ class PostCategoryController extends Controller
 
             if ($slug === '' || $lockedCommunity->categories()->where('slug', $slug)->exists()) {
                 throw ValidationException::withMessages([
-                    'name' => 'A category with this name or slug already exists in this community.',
+                    'name' => __('A category with this name or slug already exists in this community.'),
                 ]);
             }
 

@@ -68,7 +68,7 @@
                 <p class="text-xs text-emerald-700">
                     {{ __('Skill snapshotted:') }} <strong>{{ $currentProofOfWork->skill_label_snapshot ?? $lesson->skill_label }}</strong>
                     @if ($currentProofOfWork->reviewed_at)
-                        &bull; {{ $currentProofOfWork->reviewed_at->format('M d, Y') }}
+                        &bull; {{ $currentProofOfWork->reviewed_at->translatedFormat('M d, Y') }}
                     @endif
                 </p>
                 @if ($currentProofOfWork->feedback)
@@ -138,7 +138,7 @@
                     <div class="pt-2">
                         <span class="font-semibold text-slate-500 text-xs block mb-1.5">{{ __('Attached Evidence Image:') }}</span>
                         <div class="aspect-video max-w-md overflow-hidden rounded-xl border border-slate-200 bg-slate-900">
-                            <img src="{{ route('communities.proof-of-work.image', [$community, $currentProofOfWork]) }}" alt="Submitted Proof of Work" class="w-full h-full object-contain">
+                            <img src="{{ route('communities.proof-of-work.image', [$community, $currentProofOfWork]) }}" alt="{{ __('Submitted Proof of Work') }}" class="w-full h-full object-contain">
                         </div>
                         <a href="{{ route('communities.proof-of-work.image', [$community, $currentProofOfWork]) }}" target="_blank" rel="noopener noreferrer" class="mt-2 inline-block text-xs font-semibold text-brand underline">
                             {{ __('Open original evidence image') }}

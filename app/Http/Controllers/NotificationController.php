@@ -49,7 +49,7 @@ class NotificationController extends Controller
 
         $notification->markAsRead();
 
-        return back()->with('status', 'Notification marked as read.');
+        return back()->with('status', __('Notification marked as read.'));
     }
 
     /**
@@ -67,7 +67,7 @@ class NotificationController extends Controller
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
 
-        return back()->with('status', 'All notifications marked as read.');
+        return back()->with('status', __('All notifications marked as read.'));
     }
 
     /**
@@ -92,7 +92,7 @@ class NotificationController extends Controller
         if (! $notification->isAvailableFor($user)) {
             return redirect()
                 ->route('communities.notifications.index', $community)
-                ->with('error', 'The requested content is no longer available.');
+                ->with('error', __('The requested content is no longer available.'));
         }
 
         $targetUrl = $notification->targetUrl($community);

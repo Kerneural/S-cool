@@ -7,7 +7,7 @@
 
         <title>{{ config('app.name', 'S-cool') }}</title>
 
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20261102">
 
         <!-- Scripts & Styles -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])

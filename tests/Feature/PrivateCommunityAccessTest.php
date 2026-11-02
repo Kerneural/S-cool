@@ -40,7 +40,7 @@ class PrivateCommunityAccessTest extends TestCase
         $member = CommunityMembership::factory()->active()->create();
         $community = $member->community;
         $base = '/communities/'.$community->slug;
-        $this->actingAs($member->user)->get($base)->assertOk()->assertDontSee('Edit Settings')->assertDontSee('Invitations');
+        $this->actingAs($member->user)->get($base)->assertOk()->assertDontSee('Community settings')->assertDontSee('Invitations');
         $this->get($base.'/edit')->assertNotFound();
         $this->put($base, ['name' => 'Attack'])->assertNotFound();
         $this->post($base.'/cover', ['cover' => UploadedFile::fake()->image('attack.png')])->assertNotFound();

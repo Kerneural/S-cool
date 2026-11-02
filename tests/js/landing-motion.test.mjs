@@ -2,13 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
+import { landingBladeLiterals } from './landing-blade-literals.mjs';
 
 const viewPath = 'resources/views/welcome.blade.php';
 const cssPath = 'resources/css/app.css';
 const read = path => process.env.LANDING_SOURCE_REF
     ? execFileSync('git', ['show', `${process.env.LANDING_SOURCE_REF}:${path}`], { encoding: 'utf8' })
     : readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8');
-const source = read(viewPath);
+const source = landingBladeLiterals(read(viewPath));
 const css = read(cssPath);
 
 function component(marker) {

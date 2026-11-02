@@ -14,7 +14,7 @@
                     </svg>
                 </div>
                 <h3 class="text-xl font-bold text-slate-900">{{ __("You're logged in!") }}</h3>
-                <p class="text-sm text-slate-500 max-w-md mx-auto">Explore your learning communities or launch a new classroom on S-cool.</p>
+                <p class="text-sm text-slate-500 max-w-md mx-auto">{{ __('Explore your learning communities or launch a new classroom on S-cool.') }}</p>
                 <div class="pt-2">
                     <a href="{{ route('communities.index') }}" class="inline-flex items-center px-5 py-2.5 bg-brand hover:bg-brand-hover text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-xs transition">
                         {{ __('Go to Communities') }} &rarr;

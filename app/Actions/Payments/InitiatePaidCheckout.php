@@ -43,7 +43,7 @@ class InitiatePaidCheckout
 
             if ($community->access_mode !== 'PAID') {
                 throw ValidationException::withMessages([
-                    'invitation' => 'This community is free. Use standard invitation acceptance.',
+                    'invitation' => __('This community is free. Use standard invitation acceptance.'),
                 ]);
             }
 
@@ -53,7 +53,7 @@ class InitiatePaidCheckout
             abort_if($membership && ! in_array($membership->status, ['PENDING_PAYMENT', 'ACTIVE', 'LEFT'], true), 404);
             if ($membership && $membership->status === 'ACTIVE') {
                 throw ValidationException::withMessages([
-                    'invitation' => 'You are already an active member of this community.',
+                    'invitation' => __('You are already an active member of this community.'),
                 ]);
             }
 
@@ -82,7 +82,7 @@ class InitiatePaidCheckout
                 $reference = 'INV-'.strtoupper(Str::random(10));
                 $amount = (int) $community->price_vnd;
                 if ($amount <= 0) {
-                    throw ValidationException::withMessages(['invitation' => 'The creator must configure a paid access price before checkout.']);
+                    throw ValidationException::withMessages(['invitation' => __('The creator must configure a paid access price before checkout.')]);
                 }
 
                 $payment = Payment::create([

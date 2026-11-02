@@ -13,7 +13,7 @@ class CommunityInvitationMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Your private community invitation');
+        return new Envelope(subject: __('Your private community invitation'));
     }
 
     public function content(): Content

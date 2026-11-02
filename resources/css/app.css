@@ -654,3 +654,97 @@ a:focus-visible > .landing-arrow {
         backdrop-filter: blur(8px);
     }
 }
+
+
+/* Scoped owner-authoring and calendar refinements. Existing reader/landing retained. */
+.lesson-rich-content { min-height: 480px; padding: 1.5rem; outline: none; font-size: 16px; line-height: 1.75; }
+.lesson-rich-content > :first-child { margin-top: 0; }
+.lesson-rich-content img, .lesson-prose img { max-width: 100%; height: auto; border-radius: 0.75rem; }
+.lesson-rich-content table { border-collapse: collapse; width: 100%; }
+.lesson-rich-content th, .lesson-rich-content td { border: 1px solid #CBD5E1; min-width: 6rem; padding: 0.6rem; }
+.lesson-rich-content th { background: #F1F5F9; }
+.lesson-rich-content .selectedCell { background: #CCFBF1; }
+.lesson-rich-content ul[data-type="taskList"] { list-style: none; padding-left: 0; }
+.lesson-rich-content li[data-type="taskItem"] { display: flex; align-items: start; gap: 0.5rem; }
+.lesson-rich-content li[data-type="taskItem"] > div { flex: 1; }
+.lesson-editor-toolbar { position: sticky; top: 4rem; z-index: 10; }
+.lesson-authoring--expanded { position: fixed; inset: 4rem 1rem 1rem; z-index: 45; overflow-y: auto; padding: 1rem; background: white; border: 1px solid #CBD5E1; border-radius: 1rem; box-shadow: 0 12px 40px #0F172A26; }
+.lesson-authoring--expanded .lesson-rich-content { min-height: 65vh; }
+.contribution-calendar { display: flex; gap: 0.5rem; }
+.contribution-calendar__days { display: flex; flex-direction: column; justify-content: space-around; padding-top: 1.25rem; font-size: 10px; color: #475569; }
+.contribution-calendar__weeks { display: flex; gap: 3px; flex: 1; }
+.contribution-calendar__week { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 9px; }
+.contribution-calendar__month { height: 1rem; font-size: 9px; color: #475569; white-space: nowrap; }
+.contribution-calendar__cell { display: block; aspect-ratio: 1; border-radius: 2px; background: #E2E8F0; }
+.contribution-calendar__cell:focus-visible { outline: 2px solid #0F766E; outline-offset: 1px; }
+.contribution-calendar__cell--1 { background: #99F6E4; }
+.contribution-calendar__cell--2 { background: #5EEAD4; }
+.contribution-calendar__cell--3 { background: #14B8A6; }
+.contribution-calendar__cell--4 { background: #0F766E; }
+.contribution-calendar__cell--padding { visibility: hidden; }
+@media (max-width: 767px) {
+    .lesson-rich-content { min-height: 360px; padding: 1rem; }
+    .lesson-authoring--expanded { inset: 4rem 0.25rem 0.25rem; padding: 0.5rem; }
+}
+
+.lesson-authoring--expanded .lesson-editor-toolbar { top: 0; }
+
+
+/* Management pages keep their shell width when short/long content changes the scrollbar. */
+html:has([data-community-workspace] #creator-navigation) {
+    scrollbar-gutter: stable;
+}
+
+/* Approved social reading and composition. */
+.feed-layout { max-width: 1140px; }
+.feed-more-categories .when-open { display: none; }
+.feed-more-categories[open] .when-open { display: inline; }
+.feed-more-categories[open] .when-closed { display: none; }
+.social-editor-content { min-height: 220px; padding: 1rem; font-size: 16px; line-height: 1.65; outline: none; overflow-wrap: anywhere; }
+.social-editor-content p + p, .social-prose p + p { margin-top: .75em; }
+.social-prose { font-size: 16px; line-height: 1.65; overflow-wrap: anywhere; }
+.social-prose a { color: var(--color-brand); text-decoration: underline; }
+.social-prose ul, .social-editor-content ul { list-style: disc; padding-left: 1.5rem; }
+.social-prose ol, .social-editor-content ol { list-style: decimal; padding-left: 1.5rem; }
+.social-prose blockquote, .social-editor-content blockquote { border-left: 3px solid var(--color-brand); padding-left: 1rem; margin-block: .75rem; color: var(--color-muted); }
+.social-prose pre { overflow-x: auto; padding: 1rem; border-radius: .5rem; background: #F1F5F9; }
+.social-prose h2, .social-prose h3 { font-size: 1.15em; font-weight: 600; margin-block: .75em .35em; }
+.social-gallery { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.social-gallery--single { grid-template-columns: minmax(0, 1fr); }
+.social-gallery--single .media-frame { max-height: 420px; }
+.social-lightbox { max-width: min(94vw, 1000px); max-height: 90vh; }
+.social-lightbox::backdrop { background: rgb(15 23 42 / .75); }
+@media (max-width: 639px) { .social-editor-content { min-height: 180px; } }
+
+.social-editor--comment .social-editor-content { min-height: 76px; max-height: 160px; overflow-y: auto; }
+
+
+
+
+/* Compact social replies: reserve reading space, reveal tools by intent. */
+.social-tool { display: inline-flex; min-width: 44px; min-height: 44px; align-items: center; justify-content: center; border-radius: .5rem; color: var(--color-muted); }
+.social-tool:hover { background: #F1F5F9; color: var(--color-brand); }
+.social-tool:focus-visible { outline: 2px solid var(--color-brand); outline-offset: 2px; }
+.social-editor--comment { gap: 0; }
+.social-editor--comment > div:nth-of-type(1) { display: flex; flex-wrap: wrap; align-items: flex-end; border-radius: 1.25rem; }
+.social-editor--comment [role="toolbar"] { flex-basis: 100%; }
+.social-editor--comment .social-editor-writing { min-width: 0; flex: 1 1 180px; }
+.social-editor--comment .social-editor-content { min-height: 44px; max-height: 112px; padding: 10px 12px; line-height: 1.5; font-size: 14px; overflow-y: auto; }
+.social-editor--comment .social-editor-source { min-height: 44px; max-height: 112px; font-size: 14px; }
+.social-editor--comment .social-editor-tools { flex: 0 0 auto; }
+.social-editor-content p.is-empty:first-child::before { content: attr(data-placeholder); }
+.social-editor-content:has(> p:only-child > br:only-child)::before { content: attr(data-placeholder); color: #64748B; pointer-events: none; float: left; height: 0; }
+.social-comment-prose { font-size: 14px; line-height: 1.5; }
+.social-attachments--comment .social-gallery { grid-template-columns: repeat(2, minmax(0, 140px)); max-width: 286px; }
+.social-attachments--comment .social-gallery--single { grid-template-columns: minmax(0, 220px); max-width: 220px; }
+.social-attachments--comment .social-gallery .media-frame { max-height: 160px; }
+.discussion-composer { position: relative; }
+.social-editor--comment .social-emoji-picker { right: 0; left: auto; }
+@media (max-width: 639px) {
+    .social-editor--comment .social-editor-writing { flex-basis: 100%; }
+    .social-editor--comment .social-editor-tools { margin-left: 4px; }
+}
+
+@media (max-width: 639px) {
+    .social-editor--comment .social-emoji-picker { left: 0; right: auto; width: 240px; }
+}

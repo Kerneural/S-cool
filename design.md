@@ -838,7 +838,7 @@ Implementation and visual acceptance remain the corresponding Linear issues.
 - **Authoring:** Markdown toolbar for heading, bold/italic, lists, link and quote;
   Vietnamese tooltips/help, editable text and **Xem trước** rendered by the same safe
   server renderer as the reader. Labeled resource links belong in existing content.
-  Show save/preview errors without losing text. No WYSIWYG or uploaded-file promise.
+  Show save/preview errors without losing text. The 2026-11-02 owner amendment below supersedes the original Markdown-toolbar-only scope.
 - **Learning:** retain content/outline separation, safe formatted Markdown, published
   ancestry and entitlement rules. Show **Bắt đầu học / Tiếp tục học**, persisted progress,
   completion feedback and permitted previous/next navigation. No editable creator
@@ -851,3 +851,68 @@ EUR-83 verifies changed screens/roles at 375/768/1280 px, real 200% zoom, keyboa
 long Vietnamese labels, empty/error states, slow/failed media and persisted mutations.
 Compare sanitized captures at the integrated revision; tests/build alone do not prove
 visual parity. Dark mode, copied assets, unrelated landing redesign and DRM UI are out.
+
+
+### 13.1 Owner-approved usability amendment (2026-11-02)
+
+The owner approved a visual editor alongside the existing Markdown source and server
+preview. Use a 280–300px curriculum rail, a flexible writing pane, 480px desktop/360px
+mobile visual-editor minimum height, readable 16px text, expanded writing mode and visible
+unsaved state. Keep headings, lists, code, tables and image controls reachable. Load the
+editor only on authoring screens; preserve existing Markdown until an actual edit.
+
+Managed course images support selection/drop/paste with upload progress and actionable
+errors. Accept JPEG/PNG/WebP within 2 MB/4096px and retain private course access checks.
+Preview and reader use the same server renderer; unmanaged remote images remain links.
+
+Render member About's real 16:9 cover through the existing media-loading component.
+Reserve discussion loading height before content arrives, including reduced-motion mode.
+The contribution calendar shows 365 actual UTC dates aligned by weekday, month labels,
+a color legend and an accessible daily alternative; mobile scroll is local to the chart.
+Keep the post/comment counting rules separate from engagement points.
+
+Participant-only messages update after successful send and by visible-thread polling.
+Preserve the draft and scroll position when reading history; show a new-message action.
+These changes do not add presence, attachments in messages, WebSockets or payment behavior.
+
+
+### 13.2 Owner-approved management usability amendment (2026-11-02)
+
+Keep the management shell at the existing 1280px desktop maximum across operations, settings,
+invitations and course authoring. Bound forms inside that shell, never shrink its navigation.
+Retain horizontal desktop navigation with local overflow where needed and a labelled mobile
+disclosure. Name community administration, learner view, settings, referrals and moderation
+unambiguously; expose existing courses directly. Preserve authorization and all destinations.
+
+Group community settings into images, general information, guidelines/introduction, welcome
+and access/pricing, with native anchor navigation and readable form widths. Keep cover upload
+independent from the settings PUT, explain both save boundaries, retain old/error input and
+warn before a navigation or separate save discards pending input. Never imply automatic saving.
+Use a compact 16:9 cover, an accessible save region and truthful pending/success/error states.
+
+Use native, keyboard-operable action disclosures for post/comment secondary actions, a 44px
+trigger, Escape/outside-close and visible focus. Destructive labels name their target, retain
+existing confirmation and server policies, and follow ordinary edit actions. Keep account
+deletion in its existing separate danger region. Invitation compose remains bounded with
+readable statuses/history and a clearly labelled revoke action.
+
+### 13.3 Owner-approved social completion (2026-11-02)
+
+Use a searchable, filterable resource list for the website hub, with one primary Manage
+action and a learner-view link per community. Preserve all operational destinations in
+community management; Courses opens the managed catalog rather than an arbitrary course.
+Feed prioritizes composer, wrapping category chips with Show more/less, an independent
+sort row, posts and compact optional context. Keep current light/teal identity and reader.
+Social authoring reuses lazy Tiptap: formatting, private images/documents, safe link cards,
+validated provider video, Unicode emoji, and explicit single-choice polls. Comments support
+media and one-level replies. Reuse community-scoped identity links wherever names/avatars
+appear; unavailable profiles have an explained neutral state. Existing plain text remains
+plain, safe renderer and access checks own display. Preserve drafts on failure and report
+real upload/submission progress. New polls/attachments/replies require persisted contracts,
+not decorative controls. No landing changes, fabricated activity or external GIF service.
+
+The owner-approved reference follow-up uses compact Skool-style replies: a single-line idle
+composer, inline icon tools, explicit formatting disclosure, bounded growing text and small
+comment image thumbnails opening the existing viewer. The composer must not dominate the
+discussion. Localize untouched built-in category names in display only; retain authored names,
+slugs and stored values.

@@ -66,13 +66,13 @@ class ReferralController extends Controller
 
         if ($normalizedEmail === strtolower($actor->email)) {
             throw ValidationException::withMessages([
-                'email' => 'You cannot refer yourself.',
+                'email' => __('You cannot refer yourself.'),
             ]);
         }
 
         if ($normalizedEmail === strtolower($community->creator->email)) {
             throw ValidationException::withMessages([
-                'email' => 'The community creator already has access.',
+                'email' => __('The community creator already has access.'),
             ]);
         }
 
@@ -84,7 +84,7 @@ class ReferralController extends Controller
 
         if ($existingPending) {
             throw ValidationException::withMessages([
-                'email' => 'A referral request for this email is already awaiting creator approval.',
+                'email' => __('A referral request for this email is already awaiting creator approval.'),
             ]);
         }
 
@@ -95,7 +95,7 @@ class ReferralController extends Controller
             'status' => ReferralInvitationRequest::STATUS_PENDING,
         ]);
 
-        return redirect()->back()->with('status', 'Referral invitation requested. Awaiting creator review and approval.');
+        return redirect()->back()->with('status', __('Referral invitation requested. Awaiting creator review and approval.'));
     }
 
     /**
@@ -117,7 +117,7 @@ class ReferralController extends Controller
             ]);
         }, 3);
 
-        return redirect()->back()->with('status', 'Referral approved and private invitation queued.');
+        return redirect()->back()->with('status', __('Referral approved and private invitation queued.'));
     }
 
     /**
@@ -134,7 +134,7 @@ class ReferralController extends Controller
             $currentRequest->update(['status' => ReferralInvitationRequest::STATUS_REJECTED]);
         }, 3);
 
-        return redirect()->back()->with('status', 'Referral request rejected.');
+        return redirect()->back()->with('status', __('Referral request rejected.'));
     }
 
     /**
