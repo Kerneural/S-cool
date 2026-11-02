@@ -1,56 +1,29 @@
-# EUR-72 (PQ-06) — Release Handoff & Owner-UAT Readiness Pack
+# EUR-72 — Reviewed QA evidence disposition
 
-**Date**: 2026-11-01  
-**Milestone**: M13 — Product quality & content completion  
-**Authority**: Linear Issue [EUR-72 (PQ-06)](https://linear.app/eurusdevsec/issue/EUR-72/pq-06-execute-integrated-chrome-regression-and-deliver-the-owner-uat)  
-**Parent Acceptance Issue**: [EUR-65](https://linear.app/eurusdevsec/issue/EUR-65/m13-acceptance-complete-existing-journeys-curated-learning-content-and)  
-**Evaluated Candidate**: `1ce19a23905c0f0b398b24f7e17b9ba3767ce11b` (origin/main)  
-**Branch**: `hadangkhoasss/eur-72-pq-06-execute-integrated-chrome-regression-and-deliver-the`
+Review: 2026-11-02. Accepted app: `8a0982b1f3a374196354421c0887c7a933fb4174`.
+Submitted PR #86: `a698ed75415fba766d716d5be8cdb84cf7342397`.
+The submitted 1ce19a2 report is historical and does not certify this release.
 
----
+## Verdict: NOT READY for final QA sign-off
 
-## 1. Executive Summary & Readiness (AC-08)
+This PR is an evidence correction, not proof that the M13 campaign is complete.
+Current product functionality is not declared broken by these documentation findings.
+The owner-approved five imported reference communities/862 lessons are excluded
+from curriculum acceptance; nine A+B communities/fifty lessons remain in scope.
 
-The M13 product quality and content packages (PQ-01 through PQ-05) have been verified, regression-tested, and audited on an integrated local stack. All automated test suites, Chrome responsive checks, and privacy/security gates pass with zero blocking defects.
+[Executed cases](executed-cases.csv) now preserve historical claims without certifying
+them. [Defects](defect-and-retest-index.md), [bounded review](exploratory-sessions.md)
+and [canonical/receiver proof](canonical-and-receiver-proof.md) state actual limits.
+The [image manifest](chrome-evidence/manifest.csv) records pixels/hashes, not verified
+CSS viewport, Chrome version, DPR or real 200% zoom.
 
-This handoff pack delivers verified evidence to the **Product Owner** to perform final visual and flow UAT on `http://127.0.0.1:8080`.
+Required before Done:
+1. Resolve outstanding baseline, technical-content and public-guide AC.
+2. Execute the current matrix on the identified candidate, including permission,
+   persistence, private media, actual worker/mail/provider boundaries as applicable.
+3. Supply measured Chrome/keyboard/real-zoom/motion evidence and independent receiver receipt.
+4. Tie required tests/build/static/security/CI/review to the accepted candidate.
+5. Hand over actual completed evidence; owner UAT remains the owner's decision.
 
----
-
-## 2. Evidence Pack Inventory
-
-| Artifact File | Description & AC Coverage | Link |
-|---|---|---|
-| `executed-cases.csv` | Full test execution results for cases TC-M13-001 through TC-M13-012 | [executed-cases.csv](executed-cases.csv) |
-| `exploratory-sessions.md` | Bounded exploratory charters covering Visitor, Member, Creator, and SePay Test Mode | [exploratory-sessions.md](exploratory-sessions.md) |
-| `defect-and-retest-index.md` | Minor defects identified, retested, and resolved | [defect-and-retest-index.md](defect-and-retest-index.md) |
-| `canonical-and-receiver-proof.md` | Verification proof of Docker services, ports, and clean setup scripts | [canonical-and-receiver-proof.md](canonical-and-receiver-proof.md) |
-| `chrome-evidence/` | 6 high-fidelity Chrome captures covering Desktop (1280px), Tablet (768px), and Mobile (375px) | [chrome-evidence/](chrome-evidence/) |
-
----
-
-## 3. Product Owner UAT Script (Ready to Rehearse)
-
-1. **Visitor & Landing Experience**:
-   - Open `http://127.0.0.1:8080/`.
-   - Inspect symbolic hero illustration, product screenshots, and controllable logo marquee.
-   - Click Pause button on the logo strip; confirm marquee halts smoothly.
-2. **Help Center & Public Guides**:
-   - Open `http://127.0.0.1:8080/help`.
-   - Toggle tabs: *📘 Hướng dẫn Học viên*, *🛠️ Creator Studio*, *🔧 Xử lý Sự cố*.
-   - Confirm SePay Test Mode warning is prominently displayed.
-3. **Search & Catalog Exploration**:
-   - Sign in as `member@scool.local` (password `password`).
-   - On Dashboard, search `dokcer`; confirm `Docker & Containerization` appears first without page reload.
-   - Test global navigation typeahead with exact-match results.
-4. **Learning & Proof of Work**:
-   - Enter `demo-free-learning` Classroom.
-   - Check lesson progression and Proof of Work submission box.
-
----
-
-## 4. Pending Final Gate
-
-* **Final Owner UAT Status**: **PENDING OWNER REVIEW**.
-* Per project contract, final milestone closure and moving EUR-65/EUR-72 to **Done** is reserved for explicit authorization by the Product Owner.
-
+PR workflow green badges currently represent Runner Preflight only where present.
+They are not full application CI. No owner sign-off or exception is invented.

@@ -1,35 +1,28 @@
-# EUR-72 (PQ-06) — Canonical and Receiver Host Verification Proof
+# EUR-72 — Reviewed QA evidence disposition
 
-**Date**: 2026-11-01  
-**Milestone**: M13 — Product quality & content completion  
-**Authority**: Linear Issue [EUR-72 (PQ-06)](https://linear.app/eurusdevsec/issue/EUR-72/pq-06-execute-integrated-chrome-regression-and-deliver-the-owner-uat)  
-**Evaluated Candidate**: `1ce19a23905c0f0b398b24f7e17b9ba3767ce11b` (origin/main)
+Review: 2026-11-02. Accepted app: `8a0982b1f3a374196354421c0887c7a933fb4174`.
+Submitted PR #86: `a698ed75415fba766d716d5be8cdb84cf7342397`.
+The submitted 1ce19a2 report is historical and does not certify this release.
 
----
+## Current canonical observations
 
-## 1. Primary Canonical Host Environment (AC-06)
+HEAD equals origin/main, accepted checkout clean; canonical app source mount matches.
+Five services healthy. Original loopback bindings: web 8080, MySQL 3306,
+Mailpit SMTP 1025/UI 8025. /up and guest /help return HTTP 200.
+Migration status has no pending entries. Curated inventory is 14/67/912, not
+16/69/916. www-data reads 18/18 A+B community/course covers.
+No development seed, migration, reset, account/media change or deployment occurred.
 
-* **Host System**: Windows 11 Pro, Docker Desktop (WSL2 engine).
-* **Tools**: Git 2.47+, Node.js v24.16.0 / npm 11.13.0, Docker Engine 28.4.0, Compose v2.39.4.
-* **Canonical Local Origin**: `http://127.0.0.1:8080` (IPv4 loopback port binding).
-* **Stack State**: 5 Services active and Healthy:
-  - `scool_app` (PHP-FPM 8.2.35): Healthy.
-  - `scool_nginx` (Nginx Alpine): Healthy, binding `127.0.0.1:8080:80`.
-  - `scool_mysql` (MySQL 8.0): Healthy, binding `127.0.0.1:3306:3306`.
-  - `scool_mailpit` (Mailpit): Healthy, binding `127.0.0.1:8025:8025` and `127.0.0.1:1025:1025`.
-  - `scool_queue` (Laravel Worker daemon): Healthy.
+## Receiving-machine status: NOT VERIFIED
 
-### Health Probes & Endpoint Responses
-* `curl.exe -I http://127.0.0.1:8080/up`: `HTTP/1.1 200 OK`.
-* `curl.exe -I http://127.0.0.1:8080/help`: `HTTP/1.1 200 OK`.
-* MySQL accessibility: `scool` (application database) and `scool_test` (isolated test runner) fully verified.
+No independent teammate host, received SHA, exact sync invocation/result or matching
+content/media receipt is supplied. The old generic setup statements and 74-test count
+do not establish another machine's successful receipt. An isolated test container is
+also not a teammate machine. Preserve this gate until an actual receipt is available.
 
----
+## Reproduced automated scope
 
-## 2. Receiving Teammate Independent Verification
-
-* **Clean Checkout Execution**: Tested via `bash scripts/verify-fresh-setup.sh --mode verify`.
-* **Test Suite Verification**: Complete test suite passed 74 tests / 515 assertions with zero failures across MySQL `scool_test`.
-* **Catalog Synchronization**: `LocalDemoSyncSeeder` cleanly syncs without corrupting existing records or deleting user database volumes.
-* **Service User Storage Permissions**: Media paths under `storage/app/community-media/` have `0755` directory and `0644` file permissions, enabling Nginx and FPM to serve authorized images without permission errors.
-
+Accepted Help/catalog tests: 14 tests/115 assertions PASS (13.77s);
+search/privacy/component tests: 14/100 PASS (8.03s), both exit 0.
+These guarded MySQL scool_test runs use fake mail/storage and are not full-suite,
+browser, provider, worker or receiving-host evidence.

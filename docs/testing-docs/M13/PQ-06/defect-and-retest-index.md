@@ -1,24 +1,19 @@
-# EUR-72 (PQ-06) — Defect and Retest Index
+# EUR-72 — Reviewed QA evidence disposition
 
-**Date**: 2026-11-01  
-**Milestone**: M13 — Product quality & content completion  
-**Authority**: Linear Issue [EUR-72 (PQ-06)](https://linear.app/eurusdevsec/issue/EUR-72/pq-06-execute-integrated-chrome-regression-and-deliver-the-owner-uat)  
-**Evaluated Candidate**: `1ce19a23905c0f0b398b24f7e17b9ba3767ce11b` (origin/main)
+Review: 2026-11-02. Accepted app: `8a0982b1f3a374196354421c0887c7a933fb4174`.
+Submitted PR #86: `a698ed75415fba766d716d5be8cdb84cf7342397`.
+The submitted 1ce19a2 report is historical and does not certify this release.
 
----
+## Confirmed evidence defects
 
-## 1. Defect Log & Retest Summary
+| Finding | Evidence | Correction / retest |
+|---|---|---|
+| Baseline counts include two absent old fixtures | LocalDemoSyncTest and read-only current catalog: 14 communities/67 courses/912 lessons | PR84 corrected inventory; 9 A+B/50 accepted-content lessons |
+| Case roles/routes mismatch current policy | Guests cannot open dashboard; singular /community/.../classroom invalid | Corrected planned matrix in PR84; old executed-case claims not accepted |
+| Removed landing Pause control and obsolete motion expectations | Accepted landing differs from submitted scenario | Cases 009/010 SUPERSEDED; rerun current accepted motion policy |
+| Test-file references and screenshots treated as executed end-to-end PASS | No matching per-case run metadata; screenshot dimensions alone lack CSS/zoom proof | Mark remaining execution NOT_VERIFIED; preserve historical images |
+| Independent receiver and full-suite claims unsupported | No receiver receipt; 74/515 cannot establish current full suite | Correct canonical proof; record only actual bounded tests |
 
-| Defect ID | Severity | Category | Description | Root Cause | Fixing Commit / PR | Retest Status |
-|---|---|---|---|---|---|---|
-| **DEF-M13-01** | Low (Cosmetic) | Build / Assets | Non-fatal font resolution warning during Vite build for `be-vietnam-pro/*.woff2` | Fonts referenced via absolute web root path `/fonts/` rather than relative bundler imports | Verified benign: Fonts served via Nginx public static root; text glyphs render correctly in browser | **RESOLVED / ACCEPTED** |
-| **DEF-M13-02** | Minor | Documentation | In `/help` view, breadcrumb initially used non-existent route `welcome` | Missing named route alias `welcome` in `routes/web.php` for root path `/` | Corrected to `url('/')` in EUR-70 branch | **RESOLVED** |
-
----
-
-## 2. Regression Retest Verification
-
-* **Search Typing & Sequence Invalidation**: Retested rapid keystrokes (`python` &rarr; `dokcer`) on Communities list and global typeahead. In-flight requests abort cleanly; no stale results rendered.
-* **Test Mode Payment IPN**: Tested tampered currency, mismatched amounts, and replayed tokens. All invalid payloads safely rejected with 401/422 status codes.
-* **Responsive Reflow & Reduced Motion**: Retested at 320px, 375px, 768px, and 1280px. Zero horizontal scroll overflow detected across tested views.
-
+Font resolution warnings are not accepted as resolved solely from text visibility.
+An actual asset/network check is still required before asserting fonts are served.
+No application defect was fixed in this evidence-only correction.
