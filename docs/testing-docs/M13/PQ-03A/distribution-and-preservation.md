@@ -1,43 +1,36 @@
-# EUR-68 (PQ-03A) — Content Distribution & Non-Destructive Preservation Proof
+# EUR-68 — Independent technical catalog review
 
-**Date**: 2026-11-01  
-**Milestone**: M13 — Product quality & content completion  
-**Authority**: Linear Issue [EUR-68 (PQ-03A)](https://linear.app/eurusdevsec/issue/EUR-68/pq-03a-complete-the-technical-demo-learning-catalog-with-reproducible)  
-**Parent Acceptance Issue**: [EUR-65](https://linear.app/eurusdevsec/issue/EUR-65/m13-acceptance-complete-existing-journeys-curated-learning-content-and)  
-**Evaluated Candidate**: `1ce19a23905c0f0b398b24f7e17b9ba3767ce11b` (origin/main)
+Review: 2026-11-02. Accepted application: `8a0982b1f3a374196354421c0887c7a933fb4174`.
+Original PR #87: `fa694f4ee6f9f78b7825134b845edfee5e0af129`.
+The previous all-PASS curriculum report is superseded by the source-backed findings below.
 
----
+## Actual receiving path
 
-## 1. Managed Catalog Seeding & Rollout Architecture (AC-05)
+LocalDemoSyncSeeder calls LearningCommunitySeeder with preserveExisting=true.
+It fills a missing community, but skips an existing same-owner community, retaining
+its edited content and state. It does not version-upgrade Group A lesson text.
+The generic LearningCommunitySeeder default is repair mode: it force-fills content,
+publication, community and membership state. It must not be presented as safe routine sync.
 
-Content for Group A technical communities is deterministically seeded and versioned via `LearningCommunitySeeder`:
-1. **Target Communities**:
-   - `networking-learning`
-   - `cloud-master`
-   - `docker-engineering`
-   - `ai-engineer`
-2. **Safe Rollout Strategy**:
-   - Uses transactional queries with slug matching (`where('slug', $spec['slug'])`).
-   - If an existing community has been edited or is owned by another creator, the seeder detects the state and aborts or preserves existing data rather than silently resetting records.
-   - Course sections and lessons are mapped by `order` and `title`, preserving foreign key references in `lesson_progresses` and `lesson_proof_of_works`.
+scripts/verify-runtime.php seed requires an empty users table and invokes DatabaseSeeder
+twice. It checks the five bootstrap personas, not Group A content/progress preservation.
+Do not run this command on the accepted development database as an audit probe.
 
----
+## Actual evidence
 
-## 2. Media Distribution & Permission Isolation (AC-05, AC-06)
+On the unchanged accepted implementation, the targeted Help/LocalDemoSync/
+AppliedCatalogUpgrade run passed 14 tests / 115 assertions, exit 0, 13.77s.
+LocalDemoSyncTest covers edited content, custom covers, roles/passwords, suspended
+state and progress retention in isolated MySQL scool_test with fake media.
+It does not prove receipt on another person's machine or every audit/history field.
+App service-user www-data reads all eight Group A community/course covers.
 
-* **Disk Storage**: Covers are loaded from `database/seeders/assets/community-covers/` into the private media disk (`storage/app/community-media/{id}/cover.png`).
-* **Service User Access**: Permissions are explicitly set to `0755` for directories and `0644` for files.
-* **Testing Sandbox Guard**: In `testing` environment on MySQL `scool_test`, `LearningCommunitySeeder` skips writing to local media roots to prevent fixture leakage into development media volumes.
+## Missing delivery gates
 
----
-
-## 3. Preservation & Idempotency Evidence
-
-* **Rerun Safety**: Repeated execution of `LearningCommunitySeeder` preserves existing user accounts, passwords, earned progress status, and proof of work evidence submissions.
-* **Verification Command**:
-  ```bash
-  docker compose -p scool run --rm --no-deps app php scripts/verify-runtime.php seed
-  ```
-  *Result*: `[PASS] Five personas; all attributes unchanged on rerun.`
-* **Database Isolation**: All automated tests run on guarded MySQL database `scool_test`. The application database `scool` remains untouched during test suites.
-
+No content patch or managed Group A upgrade is included in PR #87.
+Before any future content update: define old/desired version identity, preserve
+unknown/personal changes as conflicts, retain lesson IDs and all access/progress/
+entitlement/history, then verify a missing-record setup and an existing receiving
+environment. Never force a generic seed/reset to complete the report.
+Second teammate receipt and actual Chrome lesson/progress/private-practice retest
+remain unverified. The current app/data have not been modified by this review.
