@@ -21,117 +21,7 @@
                 </section>
 
                 <div class="feed-layout__main min-w-0 space-y-5">
-                    <h1 class="text-2xl font-bold tracking-tight text-ink">{{ __('Community Feed') }}</h1>
-                    <!-- Category Filter & Sort Toolbar -->
-                    <div class="bg-white p-3.5 sm:p-4 rounded-2xl shadow-xs border border-slate-200/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                        <!-- Horizontal Category Filter Pills -->
-                        <div class="flex items-center gap-1.5 text-xs overflow-x-auto scrollbar-none pb-1 sm:pb-0">
-                            <span class="font-semibold text-slate-600 shrink-0 mr-1">{{ __('Filter:') }}</span>
-                            <a href="{{ route('communities.posts.index', [$community, 'sort' => $currentSort, 'course_id' => $currentCourseId]) }}"
-                               class="px-3 py-1.5 rounded-full font-medium transition shrink-0 active:scale-[0.98] {{ empty($currentCategory) || $currentCategory === 'all' ? 'bg-brand-600 text-white shadow-xs font-semibold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' }}">
-                                {{ __('All') }}
-                            </a>
-                            @foreach ($categories as $cat)
-                                <a href="{{ route('communities.posts.index', [$community, 'category' => $cat->slug, 'sort' => $currentSort, 'course_id' => $currentCourseId]) }}"
-                                   class="px-3 py-1.5 rounded-full font-medium transition shrink-0 active:scale-[0.98] {{ $currentCategory === $cat->slug ? 'bg-brand-600 text-white shadow-xs font-semibold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' }}">
-                                    {{ $cat->name }}
-                                </a>
-                            @endforeach
-                            <a href="{{ route('communities.posts.index', [$community, 'category' => 'uncategorized', 'sort' => $currentSort, 'course_id' => $currentCourseId]) }}"
-                               class="px-3 py-1.5 rounded-full font-medium transition shrink-0 active:scale-[0.98] {{ $currentCategory === 'uncategorized' ? 'bg-brand-600 text-white shadow-xs font-semibold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' }}">
-                                {{ __('Uncategorized') }}
-                            </a>
-                            <a href="{{ route('communities.saved.index', $community) }}"
-                               class="px-3 py-1.5 rounded-full font-medium transition shrink-0 active:scale-[0.98] inline-flex items-center gap-1 bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200">
-                                <svg class="w-3.5 h-3.5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
-                                </svg>
-                                <span>{{ __('Saved Posts') }}</span>
-                            </a>
-                        </div>
-
-                        <!-- Sort Toggle Controls -->
-                        <div class="flex items-center gap-2 text-xs shrink-0 self-end sm:self-center">
-                            <span class="font-semibold text-slate-600">{{ __('Sort:') }}</span>
-                            <div class="inline-flex rounded-lg shadow-xs border border-slate-200 bg-slate-50 p-0.5">
-                                <a href="{{ route('communities.posts.index', [$community, 'category' => $currentCategory, 'sort' => 'newest', 'course_id' => $currentCourseId]) }}"
-                                   class="px-2.5 py-1 text-xs font-medium rounded-md transition {{ ($currentSort ?? 'newest') === 'newest' ? 'bg-white text-brand-700 font-semibold shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
-                                    {{ __('Newest') }}
-                                </a>
-                                <a href="{{ route('communities.posts.index', [$community, 'category' => $currentCategory, 'sort' => 'most_commented', 'course_id' => $currentCourseId]) }}"
-                                   class="px-2.5 py-1 text-xs font-medium rounded-md transition {{ ($currentSort ?? '') === 'most_commented' ? 'bg-white text-brand-700 font-semibold shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
-                                    {{ __('Most Commented') }}
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    @if (! empty($isCreator))
-                        {{-- Creator Category Management --}}
-                        <div x-data="{ openManage: {{ $errors->has('name') ? 'true' : 'false' }} }" class="bg-white p-3.5 rounded-2xl shadow-xs border border-slate-200/80 text-xs">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-2 text-slate-700 font-semibold">
-                                    <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                                    </svg>
-                                    <span>{{ __('Manage Categories') }}</span>
-                                </div>
-                                <button type="button" @click="openManage = !openManage" class="text-brand-600 hover:text-brand-700 font-semibold transition">
-                                    <span x-show="!openManage">{{ __('Manage +') }}</span>
-                                    <span x-show="openManage" x-cloak>{{ __('Close &times;') }}</span>
-                                </button>
-                            </div>
-
-                            <div x-show="openManage" x-cloak x-transition class="mt-3 pt-3 border-t border-slate-100 space-y-3">
-                                <form method="POST" action="{{ route('communities.categories.store', $community) }}" class="flex flex-col items-stretch gap-2 sm:flex-row sm:items-start">
-                                    @csrf
-                                    <div class="min-w-0 flex-1">
-                                        <label for="new-category-name" class="sr-only">{{ __('New category name') }}</label>
-                                        <input id="new-category-name" type="text" name="name" required maxlength="60" value="{{ $errors->has('name') && is_string(old('name')) ? old('name') : '' }}" placeholder="{{ __('New category name...') }}"
-                                               class="w-full text-xs rounded-xl border-slate-300 shadow-xs focus:border-brand-500 focus:ring-1 focus:ring-brand-500 py-2.5 px-3 bg-white" />
-                                        <x-input-error :messages="$errors->get('name')" class="mt-2" />
-                                    </div>
-                                    <button type="submit" class="px-3.5 py-1.5 bg-brand-600 text-white rounded-xl hover:bg-brand-500 font-semibold whitespace-nowrap shadow-xs transition active:scale-[0.99]">
-                                        {{ __('Add Category') }}
-                                    </button>
-                                </form>
-
-                                @if ($categories->isNotEmpty())
-                                    <div class="flex flex-wrap items-center gap-2 pt-1">
-                                        @foreach ($categories as $cat)
-                                            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-slate-700">
-                                                <span>{{ $cat->name }}</span>
-                                                <form method="POST" action="{{ route('communities.categories.destroy', [$community, $cat]) }}"
-                                                      onsubmit="return confirm('{{ __('Delete this category? Posts will become uncategorized.') }}');"
-                                                      class="inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="text-slate-400 hover:text-rose-600 font-bold ml-1 leading-none" title="{{ __('Delete category') }}">
-                                                        &times;
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                    @endif
-
-                    @if (! empty($currentCourseId))
-                        <div class="flex items-center justify-between p-3.5 rounded-2xl bg-brand-50 border border-brand-200 text-xs">
-                            <div class="flex items-center gap-2 text-brand-900 font-semibold">
-                                <svg class="w-4 h-4 text-brand-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                                </svg>
-                                <span>{{ __('Filtering discussions by Course #') }}{{ $currentCourseId }}</span>
-                            </div>
-                            <a href="{{ route('communities.posts.index', [$community, 'category' => $currentCategory, 'sort' => $currentSort]) }}" class="text-brand-700 hover:text-brand-900 font-bold">
-                                &times; {{ __('Clear Filter') }}
-                            </a>
-                        </div>
-                    @endif
-
+                    <h1 class="sr-only">{{ __('Community Feed') }}</h1>
                     <!-- Shared composer retains server routes and keyboard dialog behavior. -->
                     @php
                         $composerValue = static fn ($value) => is_scalar($value) ? (string) $value : '';
@@ -140,21 +30,23 @@
                         $composerCategory = $composerValue(old('category_id', ''));
                         $composerCourse = $composerValue(old('course_id', request('course_id', '')));
                         $composerLesson = $composerValue(old('lesson_id', request('lesson_id', '')));
-                        $composerOpen = $errors->hasAny(['title', 'body', 'category_id', 'course_id', 'lesson_id']) || request()->hasAny(['course_id', 'lesson_id', 'compose']);
+                        $composerOpen = $errors->hasAny(['title', 'body', 'category_id', 'course_id', 'lesson_id', 'images', 'documents', 'poll_options', 'link_url', 'video_url']) || request()->hasAny(['course_id', 'lesson_id', 'compose']);
                     @endphp
                     <div x-data="{
                         title: @js($composerTitle),
+                        hasFiles: false,
                         body: @js($composerBody),
                         categoryId: @js($composerCategory),
                         courseId: @js($composerCourse),
                         lessonId: @js($composerLesson),
                         confirmClose() {
-                            if ((this.title.trim() || this.body.trim() || this.categoryId) && !window.confirm(@js(__('Discard your unsaved post draft?')))) return false;
-                            this.title = ''; this.body = ''; this.categoryId = '';
+                            if ((this.title.trim() || this.body.trim() || this.categoryId || this.hasFiles) && !window.confirm(@js(__('Discard your unsaved post draft?')))) return false;
+                            this.title = ''; this.body = ''; this.categoryId = ''; this.hasFiles = false;
+                            this.$dispatch('social-composer-discard', { id: 'modal-post-body' });
                             this.$nextTick(() => document.querySelector('[data-composer-trigger]')?.focus());
                             return true;
                         }
-                    }" class="space-y-4">
+                    }" @social-draft-updated="body = $event.detail.body; hasFiles = $event.detail.hasFiles" class="space-y-4">
                         <a href="{{ route('communities.posts.create', [$community, 'course_id' => $currentCourseId, 'lesson_id' => request('lesson_id')]) }}"
                            @click.prevent="$dispatch('open-modal', 'post-composer')" data-composer-trigger
                            class="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-4 sm:p-5 flex flex-wrap items-center gap-3 hover:bg-slate-50/75 transition focus:outline-none focus:ring-2 focus:ring-brand"
@@ -174,8 +66,12 @@
                                     <h2 id="composer-modal-title" class="text-lg font-bold text-slate-900">{{ __('Create a Post') }}</h2>
                                     <button type="button" @click="$dispatch('close')" class="min-h-11 min-w-11 text-slate-500 hover:text-slate-700 p-1.5 rounded-lg text-lg leading-none transition" aria-label="{{ __('Close dialog') }}">&times;</button>
                                 </div>
-                                <form method="POST" action="{{ route('communities.posts.store', $community) }}" class="space-y-4">
+                                <form method="POST" enctype="multipart/form-data" action="{{ route('communities.posts.store', $community) }}" class="space-y-4">
                                     @csrf
+                                    <div class="flex flex-wrap items-center gap-2 text-sm text-muted">
+                                        <x-member-identity :community="$community" :user="auth()->user()" />
+                                        <span>· {{ $community->name }}</span>
+                                    </div>
                                     <input type="hidden" name="course_id" :value="courseId" value="{{ $composerCourse }}">
                                     <input type="hidden" name="lesson_id" :value="lessonId" value="{{ $composerLesson }}">
 
@@ -208,7 +104,7 @@
                                             @foreach ($categories as $cat)
                                                 @if (! $cat->isAnnouncements() || $community->isCreator(auth()->user()))
                                                     <option value="{{ $cat->id }}" @selected($composerCategory == $cat->id)>
-                                                        {{ $cat->name }}{{ $cat->isAnnouncements() ? ' (Creator Only)' : '' }}
+                                                        {{ $cat->display_name }}{{ $cat->isAnnouncements() ? ' ('.__('Creator Only').')' : '' }}
                                                     </option>
                                                 @endif
                                             @endforeach
@@ -216,11 +112,8 @@
                                         <x-input-error :messages="$errors->get('category_id')" class="mt-2" />
                                     </div>
 
-                                    <div>
-                                        <x-input-label for="modal-post-body" :value="__('Content')" />
-                                        <textarea id="modal-post-body" name="body" rows="5" maxlength="10000" x-model="body" class="mt-1 block w-full border-slate-300 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 rounded-xl shadow-xs text-sm text-slate-800 bg-white leading-relaxed p-3" required placeholder="{{ __('Share your thoughts, insights, or questions with the community...') }}">{{ $composerBody }}</textarea>
-                                        <x-input-error :messages="$errors->get('body')" class="mt-2" />
-                                    </div>
+                                    <x-social-editor id="modal-post-body" :value="$composerBody" :format="old('content_format', 'plain')" :poll="true" :ajax="true" />
+                                    <x-social-link-fields id="modal-post" />
 
                                     <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
                                         <x-secondary-button type="button" @click="$dispatch('close')">
@@ -235,6 +128,22 @@
                         </x-modal>
                     </div>
 
+                    <x-feed-filters :community="$community" :categories="$categories" :current-category="$currentCategory" :current-sort="$currentSort" :current-course-id="$currentCourseId" />
+
+                    @if (! empty($currentCourseId))
+                        <div class="flex items-center justify-between p-3.5 rounded-2xl bg-brand-50 border border-brand-200 text-xs">
+                            <div class="flex items-center gap-2 text-brand-900 font-semibold">
+                                <svg class="w-4 h-4 text-brand-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                </svg>
+                                <span>{{ __('Filtering discussions by Course #') }}{{ $currentCourseId }}</span>
+                            </div>
+                            <a href="{{ route('communities.posts.index', [$community, 'category' => $currentCategory, 'sort' => $currentSort]) }}" class="text-brand-700 hover:text-brand-900 font-bold">
+                                &times; {{ __('Clear Filter') }}
+                            </a>
+                        </div>
+                    @endif
+
                     <!-- Posts Feed List -->
                     <div x-data class="space-y-4">
                         @forelse ($posts as $post)
@@ -243,6 +152,7 @@
                                 $commentMetadata = $latestComment ? [
                                     'id' => $latestComment->id,
                                     'author' => $latestComment->author->name ?? __('Unknown'),
+                                    'profileUrl' => \App\Support\CommunityIdentity::profile($community, $latestComment->author),
                                     'body' => \Illuminate\Support\Str::limit($latestComment->body, 140),
                                     'datetime' => $latestComment->created_at->toIso8601String(),
                                     'time' => $latestComment->created_at->diffForHumans(),
@@ -253,18 +163,16 @@
                                      class="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-5 sm:p-6 transition hover:border-slate-300 {{ $post->isPinned() ? 'ring-2 ring-amber-400/80 bg-amber-50/15' : '' }}">
                                 <div class="flex flex-wrap justify-between items-start gap-4 mb-3">
                                     <div class="min-w-0 max-w-full flex items-center space-x-3">
-                                        <x-media-frame :src="$post->author?->avatar_path ? route('communities.directory.avatar', [$community, $post->author]) : null" shape="avatar" loading="lazy" class="w-10 h-10 shrink-0 border border-brand-200 bg-brand-50">
-                                            <span class="text-sm font-bold text-brand-700">{{ mb_strtoupper(mb_substr($post->author->name ?? 'U', 0, 1)) }}</span>
-                                        </x-media-frame>
+                                        <x-member-identity :community="$community" :user="$post->author" :name="false" />
                                         <div class="min-w-0">
                                             <div class="flex flex-wrap items-center gap-1.5 font-semibold text-slate-900 text-sm">
-                                                <span class="break-words">{{ $post->author->name ?? __('Unknown') }}</span>
+                                                <x-member-identity :community="$community" :user="$post->author" :avatar="false" />
                                                 @if ($community->isCreator($post->author))
                                                     <span class="px-2 py-0.5 bg-brand-50 text-brand-700 rounded-full text-[11px] font-semibold border border-brand-200">{{ __('Creator') }}</span>
                                                 @endif
                                                 @if ($post->category)
                                                     <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-xs font-normal">
-                                                        {{ $post->category->name }}
+                                                        {{ $post->category->display_name }}
                                                     </span>
                                                 @endif
                                                 @if ($post->isPinned())
@@ -306,18 +214,20 @@
 
                                     <!-- Moderator / Creator Actions Dropdown or Row -->
                                     <div class="flex items-center space-x-2 shrink-0">
-                                        @if ($community->isCreator(auth()->user()))
+                                        @if ($community->isCreator(auth()->user()) || auth()->user()->can('update', $post) || auth()->user()->can('delete', $post))
+                                            <x-action-menu :label="__('Post actions').' — '.$post->title">
+@if ($community->isCreator(auth()->user()))
                                             @if ($post->isPinned())
                                                 <form method="POST" action="{{ route('communities.posts.unpin', [$community, $post]) }}">
                                                     @csrf
-                                                    <button type="submit" class="text-xs text-amber-700 hover:text-amber-900 font-medium transition underline">
+                                                    <button type="submit" class="flex min-h-11 w-full items-center rounded-lg px-3 py-2 text-left text-sm font-medium text-ink hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand">
                                                         {{ __('Unpin') }}
                                                     </button>
                                                 </form>
                                             @else
                                                 <form method="POST" action="{{ route('communities.posts.pin', [$community, $post]) }}">
                                                     @csrf
-                                                    <button type="submit" class="text-xs text-slate-500 hover:text-slate-900 font-medium transition underline">
+                                                    <button type="submit" class="flex min-h-11 w-full items-center rounded-lg px-3 py-2 text-left text-sm font-medium text-ink hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand">
                                                         {{ __('Pin') }}
                                                     </button>
                                                 </form>
@@ -325,20 +235,22 @@
                                         @endif
 
                                         @can('update', $post)
-                                            <a href="{{ route('communities.posts.edit', [$community, $post]) }}" class="text-xs text-brand-600 hover:text-brand-700 font-medium underline transition">
+                                            <a href="{{ route('communities.posts.edit', [$community, $post]) }}" class="flex min-h-11 w-full items-center rounded-lg px-3 py-2 text-left text-sm font-medium text-ink hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand">
                                                 {{ __('Edit') }}
                                             </a>
                                         @endcan
 
                                         @can('delete', $post)
-                                            <form method="POST" action="{{ route('communities.posts.destroy', [$community, $post]) }}" onsubmit="return confirm('{{ __('Are you sure you want to delete this post?') }}');">
+                                            <form class="mt-1 border-t border-line pt-1" method="POST" action="{{ route('communities.posts.destroy', [$community, $post]) }}" onsubmit="return confirm('{{ __('Are you sure you want to delete this post?') }}');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="text-xs text-rose-600 hover:text-rose-800 font-medium underline transition">
-                                                    {{ __('Delete') }}
+                                                <button type="submit" class="flex min-h-11 w-full items-center rounded-lg px-3 py-2 text-left text-sm font-semibold text-rose-700 hover:bg-rose-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-rose-600">
+                                                    {{ __('Delete post') }}
                                                 </button>
                                             </form>
                                         @endcan
+                                            </x-action-menu>
+                                        @endif
                                     </div>
                                 </div>
 
@@ -346,17 +258,15 @@
                                    data-discussion-trigger="{{ $post->id }}"
                                    @click.prevent="$dispatch('open-discussion-trigger', { postId: {{ $post->id }}, trigger: $el })"
                                    class="block group cursor-pointer">
-                                    <h4 class="break-words text-lg font-bold text-slate-900 group-hover:text-brand-600 transition mb-2">
+                                    <h2 class="break-words text-lg font-bold text-slate-900 group-hover:text-brand-600 transition mb-2">
                                         {{ $post->title }}
-                                    </h4>
-                                    <p class="break-words text-slate-700 text-sm whitespace-pre-line line-clamp-3 leading-relaxed mb-4">
-                                        {{ $post->body }}
-                                    </p>
+                                    </h2>
                                 </a>
+                                <div class="mb-4"><x-social-post-content :community="$community" :post="$post" :preview="true" /></div>
 
                                     <div x-show="latestComment" @if (! $latestComment) style="display: none" @endif
                                          class="min-w-0 mb-4 rounded-xl bg-slate-50 p-3 text-xs text-slate-600" data-latest-comment="{{ $latestComment?->id }}" :data-latest-comment="latestComment?.id">
-                                        <span class="font-semibold">{{ __('Latest reply') }} · <span x-text="latestComment?.author">{{ $commentMetadata['author'] ?? '' }}</span></span>
+                                        <span class="font-semibold">{{ __('Latest reply') }} · <a :href="latestComment?.profileUrl || null" x-text="latestComment?.author" class="hover:text-brand hover:underline" @if($commentMetadata['profileUrl'] ?? null) href="{{ $commentMetadata['profileUrl'] }}" @endif>{{ $commentMetadata['author'] ?? '' }}</a></span>
                                         <time datetime="{{ $commentMetadata['datetime'] ?? '' }}" :datetime="latestComment?.datetime" x-text="latestComment?.time">{{ $commentMetadata['time'] ?? '' }}</time>
                                         <p class="mt-1 break-words" x-text="latestComment?.body">{{ $commentMetadata['body'] ?? '' }}</p>
                                     </div>
@@ -403,6 +313,45 @@
                             {{ $posts->links() }}
                         </div>
                     </div>
+                    @if (! empty($isCreator))
+                        <details class="rounded-xl border border-line bg-white p-3" @if ($errors->has('name')) open @endif><summary class="min-h-11 cursor-pointer text-sm font-medium text-brand">{{ __('Manage Categories') }}</summary>
+                            <div class="mt-3 space-y-3">
+                                <form method="POST" action="{{ route('communities.categories.store', $community) }}" class="flex flex-col items-stretch gap-2 sm:flex-row sm:items-start">
+                                    @csrf
+                                    <div class="min-w-0 flex-1">
+                                        <label for="new-category-name" class="sr-only">{{ __('New category name') }}</label>
+                                        <input id="new-category-name" type="text" name="name" required maxlength="60" value="{{ $errors->has('name') && is_string(old('name')) ? old('name') : '' }}" placeholder="{{ __('New category name...') }}"
+                                               class="w-full text-xs rounded-xl border-slate-300 shadow-xs focus:border-brand-500 focus:ring-1 focus:ring-brand-500 py-2.5 px-3 bg-white" />
+                                        <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                                    </div>
+                                    <button type="submit" class="px-3.5 py-1.5 bg-brand-600 text-white rounded-xl hover:bg-brand-500 font-semibold whitespace-nowrap shadow-xs transition active:scale-[0.99]">
+                                        {{ __('Add Category') }}
+                                    </button>
+                                </form>
+
+                                @if ($categories->isNotEmpty())
+                                    <div class="flex flex-wrap items-center gap-2 pt-1">
+                                        @foreach ($categories as $cat)
+                                            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-slate-700">
+                                                <span>{{ $cat->display_name }}</span>
+                                                <form method="POST" action="{{ route('communities.categories.destroy', [$community, $cat]) }}"
+                                                      onsubmit="return confirm('{{ __('Delete this category? Posts will become uncategorized.') }}');"
+                                                      class="inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-muted hover:bg-rose-50 hover:text-rose-700" aria-label="{{ __('Delete category').' — '.$cat->display_name }}" title="{{ __('Delete category') }}">
+                                                        <svg aria-hidden="true" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 7h12m-10 0 1 13h6l1-13M9 7V4h6v3"/></svg>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+
+                        </details>
+                    @endif
+
                 </div>
 
                 <!-- Secondary community context: compact summary and collapsed disclosures. -->

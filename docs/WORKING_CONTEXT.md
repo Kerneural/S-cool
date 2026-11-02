@@ -2,6 +2,115 @@
 
 A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
+## EUR-83 — Approved social and website management completion (2026-11-02)
+
+- Authority: owner approved the six-part proposal in chat. Continue eur-83-owner-usability at
+  3b37c67, preserving both earlier usability batches. The owner subsequently authorized commit,
+  push and a review PR on 2026-11-02. Merge, Linear closure and host release are not authorized.
+- Outcome: resource-list website hub; unclipped feed categories and composer-first hierarchy;
+  reusable community-scoped profile links; shared visual social composer, private attachments,
+  safe links/video, one-level replies and persisted single-choice polls.
+- Contracts: preserve existing plain-text posts, comment limits, policies, FeedMutation lock order,
+  onboarding, helpful answers, engagement scoring and all unrelated reader/landing behavior.
+  New content uses explicit markdown format; attachments require authorized parent reads.
+  Poll voting uses one vote per actor and post-locked transactions; changes stop after closing.
+- Scope: forward-only additive MySQL migration, no new dependency. Same native multipart and
+  Livewire paths share validation/services. Existing data is not reset or reseeded.
+- Verification plan: guarded scool_test feature/security/regression suites, JS tests/build/static
+  checks; actual canonical 127.0.0.1:8080 Owner/Member responsive/keyboard/task smoke.
+  Back up local development DB before applying the additive migration.
+- Delivered: searchable/status-filtered resource-list hub with retained management destinations;
+  composer-first feed with wrapping categories and independent sorting; lazy shared rich composers,
+  private image/document routes, HTTPS cards/provider video, emoji, one-level replies and persisted polls.
+  Default category display is translated only while its name still matches the built-in value.
+  Compact replies were compared directly with the supplied Skool post/feed in Chrome: idle input is
+  one line, formatting is disclosed with Aa, media is thumbnail-sized and opens the existing viewer.
+- Verification: full guarded Linux-copy MySQL scool_test run PASS, 758 tests / 9,899 assertions,
+  410.816s, before the final category/rich-edit/compact refinements. Final related suite after those
+  backend refinements PASS, 67 tests / 543 assertions, 17.095s; PHPStan no errors. JS 85/85 PASS;
+  production assets and Blade cache compile successfully. Final icon-only toolbar is a later
+  presentation refinement observed in Chrome; CI must still validate the published revision.
+- Browser: canonical 127.0.0.1:8080 serves this checkout with unchanged ports. Actual synthetic
+  publishing, image upload, Markdown emphasis, one-level reply, vote/change/close and immediate
+  comment rendering were observed. Idle composer measured 90.4px desktop and 134.4px at 375px;
+  comment image thumbnail remains 220px wide. Feed/hub checks at 375/768/1280px showed no page-wide
+  overflow. The mobile emoji picker clipping found during smoke was corrected and rechecked.
+  Author profile navigation, searchable hub and managed course-catalog destination were observed.
+- Data/runtime: additive migration applied to local scool after a private DB backup. No seed/reset.
+  Docker PHP/Nginx request limits match the documented 20 MB aggregate upload contract.
+- Limits: no fresh two-session member social browser run, real 200% zoom, no-JS browser run,
+  external mail/payment or CloudPanel/Azure rollout in this social follow-up. Role/revocation/
+  parent binding and duplicate-vote checks are covered by guarded feature tests. External URL
+  metadata success is not browser-proven. Local synthetic post #39 (comments #52–54) was used;
+  cleanup reached Chrome's confirmation but browser control stopped before its outcome could
+  be established. Do not claim it was removed. No private fixtures, uploads or DB backup are staged.
+  No current CI/review/Linear completion is inferred from local results.
+
+## EUR-83 — Management usability follow-up (2026-11-02)
+
+- Authority: owner approved the read-only investigation's five-part proposal and requested complete implementation.
+  Continue eur-83-owner-usability at 3b37c67; preserve all prior usability work and private local data.
+  No commit/push/PR/merge, Linear mutation or host release is authorized.
+- Scope: stable full-width management context across settings/invitations/operations; explicit courses entry,
+  clear community/management labels; sectioned settings with compact separately saved cover and dirty-input
+  guards; bounded invitation compose and localized history; consistent post/comment action disclosures,
+  contextual destructive labels and existing confirmations. Preserve routes, payloads, policies and Test Mode.
+- Verify: production assets and guarded scool_test feature regressions; JS separate-save/dirty-state behavior;
+  browser desktop/mobile width parity, task navigation, validation, disclosure keyboard/focus, no page overflow.
+  Optional graph index is stale; source/consumer inspection is used without graph completeness claims.
+- Delivered: identical management shell, direct creator course list/editing context, explicit management/learner
+  labels and scoped active navigation. Settings retains separate cover POST and settings PUT with native anchors,
+  bounded inputs, a compact cover, a sticky save region, dirty/revert feedback and cross-form discard guards.
+  Invitation compose is bounded and its four history states localized. Native action disclosures retain post/
+  comment permissions, confirmation, 44px targets and Escape/focus handling; membership removal names its scope.
+- Verification: full Linux-copy MySQL scool_test run 749 tests / 9,679 assertions PASS (337.730s).
+  This precedes the final course-entry/breadcrumb and responsive/focus refinements; the final 131-test targeted
+  gate passed 4,464 assertions (14.552s) on those final files. JS 81/81 PASS; production build, touched-test Pint,
+  diff and structural routing/privacy checks PASS. Exact QA/checkout parity verified for 840 tracked/new files.
+  The full run caught three obsolete UI-copy assertions (updated, including the negative visibility check)
+  and a missing QA APP_NAME (corrected only in the disposable QA environment). No business guard was weakened.
+- Browser: all eight operational destinations retain one desktop navigation row; settings/reports both measure
+  1159px at a 1280px viewport after stable scrollbar allocation. Real course-management entry opens the existing
+  editor. Settings/invitations reflow at 375/768px and settings at 320px without page-wide overflow. Section anchors,
+  input dirty/revert, loaded cover, separate native form ownership, native post/comment disclosures and Escape/
+  focus restoration were observed. The actual 127.0.0.1:8080 runtime serves this checkout; no port changes.
+- Limits: no real 200% zoom or no-JS browser run in this follow-up; no live cover/save/revoke/delete was submitted.
+  Guarded tests verify persisted settings, retained validation input and role/access behavior. No host operations,
+  publication, Linear mutation or changes to unrelated backend source. Screenshot references are in M14 acceptance.
+
+## EUR-83 — Owner usability follow-up (2026-11-02)
+
+- Authority: owner approved the seven reported groups and requested a new branch and implementation.
+  No publication, Linear status change or host deployment is authorized.
+- Branch: eur-83-owner-usability from merged main 3b37c67. Preserve the dirty root checkout,
+  existing data and canonical 127.0.0.1:8080 runtime.
+- Approved amendment: visual Tiptap authoring with a Markdown source fallback, private
+  course-scoped image upload/rendering, expanded writing area and unchanged authored content
+  until editing; a 365-day UTC activity calendar; participant-only message polling.
+- Presentation repairs: pagination/heatmap Vietnamese copy, original SVG outline fill,
+  non-collapsing pending discussion panel and an actual cover on member About.
+- Media: JPEG/PNG/WebP, 2 MB, 4096 px; private community_media disk, random filenames.
+  Every read rechecks community/course membership and paid entitlement; member reads require
+  a published lesson reference. Unmanaged/remote images remain links. No data migration.
+- Messaging: one shared transactional service retains participant rechecks, lock order and
+  client-send idempotency; Livewire preserves drafts and polls a visible thread every 2 seconds.
+- Verification: full Linux-copy PHPUnit 746 tests / 9,584 assertions PASS (391.451s),
+  followed by 48 focused tests / 404 assertions PASS after final view/security refinements.
+  JavaScript 77/77 PASS, including Markdown round-trip and the Alpine root-instance regression;
+  production build, Pint, PHPStan and shared contract checks PASS. The first full run exposed
+  a no-JS message fallback regression (fixed) and an incomplete QA archive (corrected).
+- Browser on the actual 127.0.0.1:8080 feature runtime: Vietnamese pagination; SVG paths have
+  no fill; visual editor at desktop/375px; actual image upload and server preview; original
+  lesson content unchanged after reload; expanded editor Save and unobscured heading; About
+  cover alongside a classroom action above the fold; 365 cells/53 weeks and local mobile
+  chart scrolling; draft retained across real polling; pending discussion height 321.6px.
+- Cleanup: two exact-hash unreferenced synthetic uploads removed; no lesson save, seed/reset,
+  account creation, message send or host operation. Existing ports/data/uploads and unrelated
+  root edits retained. Local runtime now mounts this feature checkout, not another port.
+- Limits: browser send/receive in two independent sessions and real 200% zoom not repeated;
+  service/Livewire send/refresh/revocation/idempotency are covered by guarded tests.
+  Changes remain uncommitted; no PR, CI, merge or Linear status claim.
+
 ## EUR-83 — Approved-UI preservation follow-up (2026-11-02)
 
 - Authority: owner requested a thorough audit of the integrated M14 changes, including

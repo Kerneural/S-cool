@@ -120,15 +120,14 @@
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-slate-100">
+                                @php \App\Support\CommunityIdentity::prime($community, $memberships->pluck('user_id')->all()); @endphp
                                 @foreach ($memberships as $membership)
                                     <tr class="hover:bg-slate-50/60 transition-colors">
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center gap-3">
-                                                <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">
-                                                    {{ strtoupper(substr($membership->user->name, 0, 1)) }}
-                                                </div>
+                                                <x-member-identity :community="$community" :user="$membership->user" :name="false" />
                                                 <div>
-                                                    <div class="font-bold text-slate-900">{{ $membership->user->name }}</div>
+                                                    <x-member-identity :community="$community" :user="$membership->user" :avatar="false" />
                                                     <div class="text-slate-400 text-xs">{{ $membership->user->email }}</div>
                                                 </div>
                                             </div>
@@ -186,7 +185,7 @@
                                                         <input id="suspend-reason-{{ $membership->id }}" name="reason" type="text" required minlength="3" maxlength="500"
                                                                class="w-44 rounded-lg border-slate-200 text-xs shadow-2xs focus:border-amber-500 focus:ring-amber-500 py-1.5 px-2.5"
                                                                placeholder="Lý do tạm khóa">
-                                                        <button type="submit" class="inline-flex items-center px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200/80 rounded-lg font-bold text-xs transition duration-150 whitespace-nowrap">
+                                                        <button type="submit" class="inline-flex min-h-11 items-center px-3 py-2 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200/80 rounded-lg font-bold text-xs transition duration-150 whitespace-nowrap">
                                                             Tạm khóa
                                                         </button>
                                                     </form>
@@ -197,8 +196,8 @@
                                                         <input id="remove-reason-{{ $membership->id }}" name="reason" type="text" required minlength="3" maxlength="500"
                                                                class="w-44 rounded-lg border-slate-200 text-xs shadow-2xs focus:border-rose-500 focus:ring-rose-500 py-1.5 px-2.5"
                                                                placeholder="Lý do xóa">
-                                                        <button type="submit" class="inline-flex items-center px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/80 rounded-lg font-bold text-xs transition duration-150 whitespace-nowrap">
-                                                            Xóa
+                                                        <button type="submit" class="inline-flex min-h-11 items-center px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/80 rounded-lg font-bold text-xs transition duration-150 whitespace-nowrap">
+                                                            Xóa khỏi cộng đồng
                                                         </button>
                                                     </form>
                                                 </div>
@@ -210,7 +209,7 @@
                                                         <input id="reactivate-reason-{{ $membership->id }}" name="reason" type="text" required minlength="3" maxlength="500"
                                                                class="w-44 rounded-lg border-slate-200 text-xs shadow-2xs focus:border-emerald-500 focus:ring-emerald-500 py-1.5 px-2.5"
                                                                placeholder="Lý do mở khóa">
-                                                        <button type="submit" class="inline-flex items-center px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200/80 rounded-lg font-bold text-xs transition duration-150 whitespace-nowrap">
+                                                        <button type="submit" class="inline-flex min-h-11 items-center px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200/80 rounded-lg font-bold text-xs transition duration-150 whitespace-nowrap">
                                                             Mở khóa
                                                         </button>
                                                     </form>
@@ -221,8 +220,8 @@
                                                         <input id="remove-reason-{{ $membership->id }}" name="reason" type="text" required minlength="3" maxlength="500"
                                                                class="w-44 rounded-lg border-slate-200 text-xs shadow-2xs focus:border-rose-500 focus:ring-rose-500 py-1.5 px-2.5"
                                                                placeholder="Lý do xóa">
-                                                        <button type="submit" class="inline-flex items-center px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/80 rounded-lg font-bold text-xs transition duration-150 whitespace-nowrap">
-                                                            Xóa
+                                                        <button type="submit" class="inline-flex min-h-11 items-center px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/80 rounded-lg font-bold text-xs transition duration-150 whitespace-nowrap">
+                                                            Xóa khỏi cộng đồng
                                                         </button>
                                                     </form>
                                                 </div>

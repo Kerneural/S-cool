@@ -6,6 +6,7 @@ use App\Models\Community;
 use App\Models\LessonProofOfWork;
 use App\Models\PointContribution;
 use App\Models\Post;
+use App\Support\CommunityIdentity;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -68,6 +69,9 @@ class CommunityLeaderboardController extends Controller
 
         $communityLevels = $this->getCommunityLevels($community);
         $userLevel = PointContribution::levelForPoints($lifetimePoints);
+
+        CommunityIdentity::prime($community,
+            $leaderboard->getCollection()->pluck('user.id')->push($user->id)->all());
 
         return view('communities.leaderboard', [
             'community' => $community,

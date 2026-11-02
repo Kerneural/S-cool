@@ -32,3 +32,5 @@ COPY docker/php/security.ini /usr/local/etc/php/conf.d/zz-scool-security.ini
 COPY docker/php/verify-security.php /usr/local/bin/scool-verify-php-security.php
 RUN php /usr/local/bin/scool-verify-php-security.php
 WORKDIR /var/www/html
+
+COPY docker/php/uploads.ini /usr/local/etc/php/conf.d/uploads.ini

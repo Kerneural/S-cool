@@ -1,5 +1,6 @@
 <x-app-layout>
     <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:py-8 space-y-6">
+        <x-community-workspace :community="$community" active-tab="courses" />
         <x-classroom-feedback />
 
         {{-- Top Navigation & Header Bar --}}
@@ -7,8 +8,8 @@
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div class="min-w-0 space-y-2">
                     <nav aria-label="{{ __('Breadcrumb') }}" class="flex flex-wrap items-center gap-2 text-xs font-medium text-muted">
-                        <a href="{{ route('communities.classroom.index', $community) }}" class="hover:text-brand transition-colors">
-                            {{ __('Lớp Học') }}
+                        <a href="{{ route('communities.classroom.index', [$community, 'manage' => 1]) }}" class="hover:text-brand transition-colors">
+                            {{ __('Manage courses') }}
                         </a>
                         <span aria-hidden="true">&rsaquo;</span>
                         <a href="{{ route('communities.courses.show', [$community, $course]) }}" class="min-w-0 break-words hover:text-brand transition-colors">
@@ -67,7 +68,7 @@
         <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
 
             {{-- Left Column: Curriculum Tree (4 cols on desktop) --}}
-            <aside aria-label="{{ __('Chương trình học') }}" class="min-w-0 md:col-span-5 lg:col-span-4 space-y-4">
+            <aside aria-label="{{ __('Chương trình học') }}" class="min-w-0 md:col-span-4 lg:col-span-3 space-y-4">
                 <details open x-data="{ expanded: window.innerWidth >= 768 }" :open="expanded" @toggle="expanded = $el.open" class="rounded-xl border border-line bg-surface p-4 sm:p-5 shadow-2xs">
                     <summary class="min-h-10 cursor-pointer text-sm font-semibold text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">{{ __('Ẩn/hiện cây khóa học') }}</summary>
                     <div class="pt-3">
@@ -174,7 +175,7 @@
             </aside>
 
             {{-- Right Column: Active Editor Workspace (8 cols on desktop) --}}
-            <section aria-label="{{ __('Khung soạn thảo') }}" class="min-w-0 break-words md:col-span-7 lg:col-span-8">
+            <section aria-label="{{ __('Khung soạn thảo') }}" class="min-w-0 break-words md:col-span-8 lg:col-span-9">
                 <div class="rounded-xl border border-line bg-surface p-5 sm:p-6 shadow-2xs">
 
                     {{-- Mode 1: Edit Lesson --}}
@@ -365,7 +366,7 @@
                                         <form method="POST" action="{{ route('communities.courses.cover.destroy', [$community, $course]) }}" x-data="{ confirmMsg: @js(__('Xóa ảnh bìa này?')) }" @submit="if (! confirm(confirmMsg)) $event.preventDefault()">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="text-xs font-semibold text-rose-600 hover:text-rose-700 underline cursor-pointer">
+                                            <button type="submit" class="inline-flex min-h-11 items-center rounded-lg border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-rose-600">
                                                 {{ __('Xóa ảnh bìa') }}
                                             </button>
                                         </form>

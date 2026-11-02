@@ -142,11 +142,11 @@
                     @endif
                 </div>
 
-                <!-- 90-Day UTC Activity Heatmap (AC-11) -->
+                <!-- 365-Day UTC Activity Heatmap (AC-11) -->
                 <div class="pt-5 border-t border-slate-100 space-y-3">
                     <div class="flex flex-wrap items-center justify-between gap-2">
                         <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800">
-                            {{ __('90-Day Activity Heatmap (UTC)') }}
+                            {{ __('365-Day Activity Heatmap (UTC)') }}
                         </h3>
                         <span class="text-xs text-slate-600 font-mono">
                             {{ $activityHeatmap['start_date'] }} &mdash; {{ $activityHeatmap['end_date'] }}
@@ -160,23 +160,29 @@
 
                     <!-- Heatmap Grid -->
                     <div class="bg-slate-50/80 rounded-xl p-4 border border-slate-200/70 overflow-x-auto">
-                        <div class="min-w-[500px]">
-                            <!-- Calendar Grid: 90 days wrapped in 13 weekly columns of 7 rows -->
-                            <div class="grid grid-flow-col grid-rows-7 gap-1.5 w-max" aria-hidden="true">
-                                @foreach ($activityHeatmap['days'] as $day)
-                                    @php
-                                        $bgColor = match ($day['level']) {
-                                            4 => 'bg-teal-700 border-teal-800',
-                                            3 => 'bg-teal-500 border-teal-600',
-                                            2 => 'bg-teal-300 border-teal-400',
-                                            1 => 'bg-teal-100 border-teal-200',
-                                            default => 'bg-white border-slate-200/80',
-                                        };
-                                    @endphp
-                                    <div class="w-3.5 h-3.5 rounded-xs border {{ $bgColor }} transition-colors cursor-default"
-                                         title="{{ $day['date'] }}: {{ $day['total_count'] }} contribution(s) ({{ $day['post_count'] }} posts, {{ $day['comment_count'] }} comments)">
-                                    </div>
-                                @endforeach
+                        <div class="min-w-[680px]">
+                            @php
+                                $firstDay = \Carbon\CarbonImmutable::parse($activityHeatmap['start_date'], 'UTC');
+                                $padding = $firstDay->dayOfWeek;
+                                $cells = array_merge(array_fill(0, $padding, null), $activityHeatmap['days']);
+                                $weeks = array_chunk($cells, 7);
+                            @endphp
+                            <div class="contribution-calendar" aria-hidden="true">
+                                <div class="contribution-calendar__days" aria-hidden="true"><span>T2</span><span>T4</span><span>T6</span></div>
+                                <div class="contribution-calendar__weeks">
+                                    @foreach ($weeks as $week)
+                                        <div class="contribution-calendar__week">
+                                            <span class="contribution-calendar__month" aria-hidden="true">@foreach ($week as $day)@if ($day && substr($day['date'], -2) === '01'){{ \Carbon\CarbonImmutable::parse($day['date'])->translatedFormat('M') }}@endif @endforeach</span>
+                                            @foreach ($week as $day)
+                                                @if ($day)
+                                                    <span class="contribution-calendar__cell contribution-calendar__cell--{{ $day['level'] }}" title="{{ __(':date: :total contributions (:posts posts, :comments comments)', ['date' => $day['date'], 'total' => $day['total_count'], 'posts' => $day['post_count'], 'comments' => $day['comment_count']]) }}"></span>
+                                                @else
+                                                    <span class="contribution-calendar__cell contribution-calendar__cell--padding" aria-hidden="true"></span>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
 
                             <!-- Heatmap Legend & Totals -->
@@ -202,7 +208,7 @@
                         <summary class="cursor-pointer min-h-11 py-3 font-medium text-brand-700">{{ __('Daily activity counts (UTC)') }}</summary>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-sm">
-                                <caption class="sr-only">{{ __('Daily posts and comments for all 90 UTC dates') }}</caption>
+                                <caption class="sr-only">{{ __('Daily posts and comments for all 365 UTC dates') }}</caption>
                                 <thead><tr><th scope="col" class="p-2">{{ __('Date (UTC)') }}</th><th scope="col" class="p-2">{{ __('Posts') }}</th><th scope="col" class="p-2">{{ __('Comments') }}</th><th scope="col" class="p-2">{{ __('Total') }}</th></tr></thead>
                                 <tbody>
                                     @foreach ($activityHeatmap['days'] as $day)

@@ -1,3 +1,5 @@
+const richEditors = new WeakMap();
+
 export function lessonAuthoring(options = {}, browser = globalThis) {
     return {
         tab: options.initialTab || 'edit',
@@ -12,6 +14,121 @@ export function lessonAuthoring(options = {}, browser = globalThis) {
         emptyPlaceholder: options.emptyPlaceholder || 'Chưa có nội dung bài học để xem trước.',
         loadingMessage: options.loadingMessage || 'Đang tải bản xem trước...',
         defaultErrorMessage: options.errorMessage || 'Không thể tải bản xem trước. Vui lòng thử lại.',
+
+        mode: 'visual',
+        visualReady: false,
+        dirty: false,
+        submitting: false,
+        saveLabel: options.saveLabel || 'Chưa có thay đổi',
+        expanded: false,
+        uploading: false,
+        uploadProgress: 0,
+        uploadError: '',
+        uploadUrl: options.uploadUrl || '',
+
+        async init() {
+            const textarea = this.getTextarea();
+            this.initialContent = textarea?.value || '';
+            this.onInput = () => { this.dirty = textarea.value !== this.initialContent; };
+            textarea?.addEventListener('input', this.onInput);
+            this.beforeLeave = event => {
+                if (this.submitting || (!this.dirty && !this.uploading)) return;
+                event.preventDefault();
+                event.returnValue = '';
+            };
+            browser.addEventListener('beforeunload', this.beforeLeave);
+            this.form = this.$el.closest('form');
+            this.onSubmit = event => {
+                if (this.uploading) { event.preventDefault(); this.uploadError = 'Chờ ảnh tải lên xong rồi lưu bài học.'; return; }
+                this.submitting = true;
+                this.dirty = false;
+            };
+            this.form?.addEventListener('submit', this.onSubmit);
+            try {
+                const { createLessonEditor } = options.createEditor
+                    ? { createLessonEditor: options.createEditor }
+                    : await import('./rich-lesson-editor');
+                const editor = createLessonEditor(this.$refs.rich, {
+                    content: textarea.value, uploadUrl: this.uploadUrl,
+                    change: markdown => {
+                        textarea.value = markdown;
+                        textarea.dispatchEvent(new browser.Event('input', { bubbles: true }));
+                    },
+                    upload: file => this.uploadImage(file),
+                    error: message => { this.uploadError = message; },
+                });
+                richEditors.set(this.$root, editor);
+                this.visualReady = true;
+            } catch {
+                this.mode = 'source';
+                this.uploadError = 'Không tải được trình soạn thảo trực quan. Bạn vẫn có thể sửa và lưu Markdown.';
+            }
+        },
+
+        chooseMode(mode) {
+            if (mode === 'visual') richEditors.get(this.$root)?.setContent(this.getTextarea().value);
+            this.mode = mode;
+        },
+
+        async uploadImage(file) {
+            if (!file || this.uploading) return;
+            this.uploadError = '';
+            if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 2 * 1024 * 1024) {
+                this.uploadError = 'Chọn ảnh JPEG, PNG hoặc WebP tối đa 2 MB.';
+                return;
+            }
+            const textarea = this.getTextarea();
+            const selection = { start: textarea.selectionStart, end: textarea.selectionEnd };
+            this.uploading = true;
+            this.uploadProgress = 0;
+            try {
+                const result = await new Promise((resolve, reject) => {
+                    const request = new browser.XMLHttpRequest();
+                    this.uploadRequest = request;
+                    request.open('POST', this.uploadUrl);
+                    request.setRequestHeader('Accept', 'application/json');
+                    request.setRequestHeader('X-CSRF-TOKEN', this.csrfToken);
+                    request.upload.onprogress = e => { if (e.lengthComputable) this.uploadProgress = Math.round(e.loaded / e.total * 100); };
+                    request.onload = () => {
+                        let data;
+                        try { data = JSON.parse(request.responseText); } catch { reject(new Error('Máy chủ trả về phản hồi không hợp lệ.')); return; }
+                        if (request.status < 200 || request.status >= 300) {
+                            reject(new Error(data.errors?.image?.[0] || 'Không tải được ảnh. Kiểm tra quyền truy cập và thử lại.'));
+                            return;
+                        }
+                        const base = new URL(this.uploadUrl, browser.location.href).pathname;
+                        if (typeof data.url !== 'string' || !data.url.startsWith(base + '/') || !/\/[a-zA-Z0-9]{40}\.(?:jpe?g|png|webp)$/.test(data.url)) {
+                            reject(new Error('Địa chỉ ảnh không hợp lệ.')); return;
+                        }
+                        resolve(data.url);
+                    };
+                    request.onerror = () => reject(new Error('Mất kết nối. Chọn lại ảnh để thử tải lên.'));
+                    request.onabort = () => reject(new Error('Đã hủy tải ảnh.'));
+                    request.timeout = 60000;
+                    request.ontimeout = () => reject(new Error('Tải ảnh quá lâu. Vui lòng thử lại.'));
+                    const form = new browser.FormData();
+                    form.append('image', file);
+                    request.send(form);
+                });
+                if (this.mode === 'visual' && this.visualReady) richEditors.get(this.$root)?.insertImage(result, file.name.replace(/\.[^.]+$/, ''));
+                else {
+                    const alt = file.name.replace(/[\[\]\\r\n]/g, '').replace(/\.[^.]+$/, '');
+                    const image = '\n![' + alt + '](' + result + ')\n';
+                    textarea.setRangeText(image, selection.start, selection.end, 'end');
+                    textarea.dispatchEvent(new browser.Event('input', { bubbles: true }));
+                }
+            } catch (error) { this.uploadError = error.message; }
+            finally { this.uploading = false; this.uploadRequest = null; if (this.$refs.imageInput) this.$refs.imageInput.value = ''; }
+        },
+
+        destroy() {
+            richEditors.get(this.$root)?.destroy();
+            richEditors.delete(this.$root);
+            this.uploadRequest?.abort();
+            browser.removeEventListener('beforeunload', this.beforeLeave);
+            this.form?.removeEventListener('submit', this.onSubmit);
+            this.getTextarea()?.removeEventListener('input', this.onInput);
+        },
 
         getTextarea() {
             if (this.$refs && this.$refs.textarea) {
@@ -113,6 +230,7 @@ export function lessonAuthoring(options = {}, browser = globalThis) {
         },
 
         applyFormat(type) {
+            if (this.visualReady && this.mode === 'visual') { richEditors.get(this.$root)?.format(type); return; }
             if (this.tab !== 'edit') {
                 this.tab = 'edit';
             }

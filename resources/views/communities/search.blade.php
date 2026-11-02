@@ -145,11 +145,11 @@
                                             @endif
                                             @if ($post->category)
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
-                                                    {{ $post->category->name }}
+                                                    {{ $post->category->display_name }}
                                                 </span>
                                             @endif
                                             <span class="text-xs text-slate-400">
-                                                {{ __('By :name', ['name' => $post->author->name ?? __('Unknown')]) }} &bull; {{ $post->created_at->diffForHumans() }}
+                                                <x-member-identity :community="$community" :user="$post->author" :avatar="false" /> &bull; {{ $post->created_at->diffForHumans() }}
                                             </span>
                                         </div>
                                     </div>

@@ -29,6 +29,7 @@ class Post extends Model
         'user_id',
         'title',
         'body',
+        'content_format', 'link_url', 'link_title', 'video_url',
         'pinned_at',
         'accepted_comment_id',
     ];
@@ -224,6 +225,16 @@ class Post extends Model
     public function hasAcceptedAnswer(): bool
     {
         return $this->accepted_comment_id !== null;
+    }
+
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(SocialAttachment::class)->whereNull('comment_id');
+    }
+
+    public function poll(): HasOne
+    {
+        return $this->hasOne(PostPoll::class);
     }
 
     /**
