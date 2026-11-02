@@ -92,7 +92,7 @@ class NotificationController extends Controller
         if (! $notification->isAvailableFor($user)) {
             return redirect()
                 ->route('communities.notifications.index', $community)
-                ->with('error', 'The requested content is no longer available.');
+                ->with('error', __('The requested content is no longer available.'));
         }
 
         $targetUrl = $notification->targetUrl($community);

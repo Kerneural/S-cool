@@ -212,19 +212,19 @@
                                         <td class="py-3.5 px-4 sm:px-6">
                                             @if ($payment->isSucceeded())
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                                    SUCCEEDED
+                                                    {{ __('SUCCEEDED') }}
                                                 </span>
                                             @elseif ($payment->isPending())
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                                                    PENDING
+                                                    {{ __('PENDING') }}
                                                 </span>
                                             @elseif ($payment->isCancelled())
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-50 text-slate-600 border border-slate-200">
-                                                    CANCELLED
+                                                    {{ __('CANCELLED') }}
                                                 </span>
                                             @else
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
-                                                    FAILED
+                                                    {{ __('FAILED') }}
                                                 </span>
                                             @endif
                                         </td>

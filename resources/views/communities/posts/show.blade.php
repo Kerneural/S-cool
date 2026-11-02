@@ -78,7 +78,7 @@
                                 @endif
                             </div>
                             <div class="text-xs text-muted mt-0.5">
-                                {{ $post->created_at->format('M d, Y H:i') }} ({{ $post->created_at->diffForHumans() }})
+                                {{ $post->created_at->translatedFormat('M d, Y H:i') }} ({{ $post->created_at->diffForHumans() }})
                             </div>
                         </div>
                     </div>

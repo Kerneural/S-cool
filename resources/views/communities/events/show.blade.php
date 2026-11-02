@@ -83,7 +83,7 @@
                     <div>
                         <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">{{ __('Date & Time') }}</div>
                         <div class="text-base font-bold text-slate-900 mt-1">
-                            {{ $event->localStartsAt()->format('l, M d, Y') }}
+                            {{ $event->localStartsAt()->translatedFormat('l, M d, Y') }}
                         </div>
                         <div class="text-sm text-slate-600 mt-0.5">
                             {{ $event->localStartsAt()->format('H:i') }} &ndash; {{ $event->localEndsAt()->format('H:i') }}

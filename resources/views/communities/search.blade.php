@@ -266,7 +266,7 @@
                                                     {{ __('SCHEDULED') }}
                                                 </span>
                                                 <span class="text-xs text-slate-500">
-                                                    {{ $event->starts_at->format('M d, Y H:i') }} ({{ $event->timezone }})
+                                                    {{ $event->starts_at->translatedFormat('M d, Y H:i') }} ({{ $event->timezone }})
                                                 </span>
                                             </div>
                                             <a href="{{ route('communities.events.show', [$community, $event]) }}" class="text-xs font-semibold text-brand-600 hover:text-brand-700 inline-flex items-center gap-1">
