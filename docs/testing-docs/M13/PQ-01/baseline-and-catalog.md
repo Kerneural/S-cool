@@ -1,88 +1,58 @@
-# EUR-66 (PQ-01) — Baseline and Catalog Freeze Report
+# EUR-66 — Reviewed baseline and catalog
 
-**Date**: 2026-11-01  
-**Authority**: Linear Issue [EUR-66 (PQ-01)](https://linear.app/eurusdevsec/issue/EUR-66/pq-01-verify-integrated-baseline-freeze-the-full-demo-catalog-and)  
-**Milestone**: M13 — Product quality & content completion  
-**Branch**: `hadangkhoasss/eur-66-pq-01-verify-integrated-baseline-freeze-the-full-demo`  
-**Base Revision**: `1ce19a23905c0f0b398b24f7e17b9ba3767ce11b` (Merged origin/main)  
-**Host & Runtime**: Windows 11, Docker Desktop (WSL2), Docker Engine 28.4.0, Compose v2.39.4, PHP 8.2.35 (FPM), Nginx (Alpine), MySQL 8.0, Node.js v24.16.0 / npm 11.13.0.  
-**Canonical Local Origin**: `http://127.0.0.1:8080` (IPv4 Compose binding).
+Review: 2026-11-02. Accepted application: `8a0982b1f3a374196354421c0887c7a933fb4174`.
+Original PR #84 head: `9a1a7fbd1a684e6dafdb879b108b72ba7adadacc`.
+This correction supersedes unsupported PASS claims; it is not final release acceptance.
 
----
+## Observed baseline
 
-## 1. Runtime & Stack Verification (AC-01)
+- HEAD equals origin/main and the accepted checkout is clean. The canonical app
+  mounts that checkout, never the isolated PR review directories.
+- Five services healthy. Original loopback ports retained: web 8080, MySQL 3306,
+  Mailpit SMTP 1025 and UI 8025. /up and guest /help return HTTP 200.
+- Migration status lists no pending migration. No schema/data/media changes made.
+- Curated runtime: **14 communities, 67 courses, 912 lessons**. The two old
+  Demo Free/Paid Learning fixtures are absent and excluded, not counted as catalog.
+- Service user www-data can read **18/18** covers for the nine A+B communities.
+  This does not prove browser playback, every private route or media rights.
 
-### 1.1 Service Inventory & Health State
-Inspected via `docker compose -p scool ps`:
+## Owner-approved allocation, 2026-11-02
 
-| Service | Container Name | Image | Status | Published Ports | Mount / Working Directory | Health Check Status |
-|---|---|---|---|---|---|---|
-| `app` | `scool_app` | `scool-app` (local build) | Up (healthy) | 9000/tcp | Host bind `./:/var/www/html` | Healthy (`nc -z 127.0.0.1 9000`) |
-| `nginx` | `scool_nginx` | `nginx:alpine` | Up (healthy) | `127.0.0.1:8080->80/tcp` | Host bind `./:/var/www/html` | Healthy (HTTP reverse proxy to app:9000) |
-| `mysql` | `scool_mysql` | `mysql:8.0` | Up (healthy) | `127.0.0.1:3306->3306/tcp` | Named volume `scool_scool_mysql_data` | Healthy (`mysqladmin ping`) |
-| `mailpit` | `scool_mailpit` | `axllent/mailpit:latest` | Up (healthy) | `127.0.0.1:1025->1025/tcp`, `127.0.0.1:8025->8025/tcp` | Ephemeral | Healthy (HTTP probe on :8025) |
-| `queue` | `scool_queue` | `scool-queue` (local build) | Up (healthy) | 9000/tcp | Host bind `./:/var/www/html` | Healthy (Worker process check in /proc/1/cmdline) |
+Content acceptance: **A = 4 communities / 4 courses / 30 lessons; B = 5/5/20**.
+A and B are disjoint and cover exactly the nine accepted content communities.
+The owner retained five imported reference communities (**5/58/862**) outside
+content acceptance. Keep their reference/regression use; do not infer rights
+clearance or curriculum quality from source availability.
 
-* Observation: Canonical web entrypoint `http://127.0.0.1:8080/up` returns HTTP 200 OK.
-* Mailpit web UI accessible at `http://127.0.0.1:8025`.
-* MySQL running with databases `scool` (application) and `scool_test` (isolated test runner database).
+| Slug | Allocation | Courses | Lessons | Observed state |
+|---|---|---:|---:|---|
+| agentic-ai-founders | B | 1 | 4 | ACTIVE / PAID |
+| ai-automation-society | REFERENCE_ONLY | 17 | 264 | ACTIVE / FREE |
+| ai-engineer | A | 1 | 8 | ACTIVE / FREE |
+| ai-video-bootcamp | B | 1 | 4 | ACTIVE / PAID |
+| cliefnotes | REFERENCE_ONLY | 18 | 249 | ACTIVE / FREE |
+| cloud-master | A | 1 | 8 | ACTIVE / FREE |
+| docker-engineering | A | 1 | 8 | ACTIVE / FREE |
+| learn-ai | REFERENCE_ONLY | 12 | 150 | ACTIVE / FREE |
+| maker-school-ai-automation | B | 1 | 4 | ACTIVE / PAID |
+| max-business-school | REFERENCE_ONLY | 2 | 106 | ACTIVE / FREE |
+| networking-learning | A | 1 | 6 | ACTIVE / FREE |
+| python-developers | B | 1 | 4 | ACTIVE / FREE |
+| tattoo-masterclass | B | 1 | 4 | ACTIVE / PAID |
+| the-ai-advantage | REFERENCE_ONLY | 9 | 93 | ACTIVE / FREE |
 
-### 1.2 Checkout & Git Integrity
-* Working branch: `hadangkhoasss/eur-66-pq-01-verify-integrated-baseline-freeze-the-full-demo` (branched from `origin/main` at `1ce19a2`).
-* Git working tree: Clean prior to adding PQ-01 testing documentation artifacts.
-* Preserved work: Existing `hadangkhoasss/eur-82-*` commits remain intact on their respective feature branch.
+[in-scope-catalog.csv](in-scope-catalog.csv) enumerates all 50 in-scope lessons,
+ordered sections, course publication/access state and body hashes. Source mapping:
+A: LearningCommunitySeeder; B: RealCommunitySampleSeeder and
+database/data/applied-catalog-baselines.json; reference: RealFreeCommunitySeeder
+and database/seeders/data/skool-real-communities.json. Raw probes stay private.
 
----
+## Reproduction and limits
 
-## 2. Frozen Full Catalog Inventory (AC-02 & AC-03)
-
-The total inventory contains **16 Communities**, **69 Courses**, and **916 Lessons**.
-All communities are owned by single creator `creator@scool.local` and are in `ACTIVE` status.
-
-### 2.1 Complete Catalog Matrix
-
-| # | Slug | Name | Access Mode | Price (VND) | Courses | Lessons | Content Allocation | Provenance / Seeder |
-|---|---|---|---|---|---|---|---|---|
-| 1 | `demo-free-learning` | Demo Free Learning | FREE | null | 1 | 2 | **Baseline Core** | `DemoContentSeeder` |
-| 2 | `demo-paid-learning` | Demo Paid Learning | PAID | 100,000 | 1 | 2 | **Baseline Core** | `DemoContentSeeder` |
-| 3 | `networking-learning` | Computer Networking Fundamentals | FREE | null | 1 | 6 | **Group A: Technical** | `LearningCommunitySeeder` |
-| 4 | `cloud-master` | Cloud Architecture & DevOps | FREE | null | 1 | 8 | **Group A: Technical** | `LearningCommunitySeeder` |
-| 5 | `docker-engineering` | Docker & Containerization | FREE | null | 1 | 8 | **Group A: Technical** | `LearningCommunitySeeder` |
-| 6 | `ai-engineer` | AI Engineer | FREE | null | 1 | 8 | **Group A: Technical** | `LearningCommunitySeeder` |
-| 7 | `python-developers` | Python Developers | FREE | null | 1 | 4 | **Group B: Applied** | `RealCommunitySampleSeeder` / `skool-real-communities.json` |
-| 8 | `ai-video-bootcamp` | AI Video Bootcamp | PAID | 225,000 | 1 | 4 | **Group B: Applied** | `RealCommunitySampleSeeder` |
-| 9 | `maker-school-ai-automation` | Maker School: AI Automation | PAID | 4,600,000 | 1 | 4 | **Group B: Applied** | `RealCommunitySampleSeeder` |
-| 10 | `agentic-ai-founders` | Agentic AI Founders | PAID | 2,400,000 | 1 | 4 | **Group B: Applied** | `RealCommunitySampleSeeder` |
-| 11 | `tattoo-masterclass` | Tattoo Artist Business & Practice | PAID | 980,000 | 1 | 4 | **Group B: Applied** | `RealCommunitySampleSeeder` |
-| 12 | `ai-automation-society` | AI Automation Society | FREE | null | 17 | 264 | **Group C: Curated Skool Reference** | `RealFreeCommunitySeeder` / `skool-real-communities.json` |
-| 13 | `learn-ai` | AI Automation Agency Hub | FREE | null | 12 | 150 | **Group C: Curated Skool Reference** | `RealFreeCommunitySeeder` / `skool-real-communities.json` |
-| 14 | `max-business-school` | Max Business School™ | FREE | null | 2 | 106 | **Group C: Curated Skool Reference** | `RealFreeCommunitySeeder` / `skool-real-communities.json` |
-| 15 | `the-ai-advantage` | The AI Advantage | FREE | null | 9 | 93 | **Group C: Curated Skool Reference** | `RealFreeCommunitySeeder` / `skool-real-communities.json` |
-| 16 | `cliefnotes` | Clief Notes | FREE | null | 18 | 249 | **Group C: Curated Skool Reference** | `RealFreeCommunitySeeder` / `skool-real-communities.json` |
-
-### 2.2 Content Group Allocation & Disjoint Union (AC-03)
-* **Baseline Core (2 communities, 2 courses, 4 lessons)**:
-  * Golden-flow verification for free admission and SePay Test Mode paid activation.
-* **Group A: Technical Curated (4 communities, 4 courses, 30 lessons)**:
-  * `networking-learning`, `cloud-master`, `docker-engineering`, `ai-engineer`.
-  * Comprehensive multi-section syllabus, structured lab assignments, local cover storage.
-* **Group B: Applied Demonstrations (5 communities, 5 courses, 20 lessons)**:
-  * `python-developers`, `ai-video-bootcamp`, `maker-school-ai-automation`, `agentic-ai-founders`, `tattoo-masterclass`.
-  * Outlines locked in `applied-catalog-baselines.json`; verified through `AppliedCatalogUpgradeSeeder`.
-* **Group C: Realistic Large-Scale References (5 communities, 58 courses, 862 lessons)**:
-  * Realistic dataset crawled from public Skool communities to stress-test pagination, search ranking, and tenant boundaries without risking proprietary creator IP.
-* **Exclusions**:
-  * Synthetic automated test tenants generated by `RefreshDatabase` in `tests/` are excluded from the demo catalog.
-  * No test fixture or personal developer sandbox data is exposed in the production/demo catalog.
-  * No development data or volume was deleted during inventory.
-
----
-
-## 3. Preservation & Idempotency Safeguards
-
-1. **Non-destructive Seeding**:
-   `LocalDemoSyncSeeder` uses `firstOrCreate` / `firstOrNew` matching on slug, preserving user passwords, membership states, and customized user inputs.
-2. **Deterministic Upgrades**:
-   `AppliedCatalogUpgradeSeeder` will not overwrite content if modifications are detected (marks `CONFLICT` for human review instead of overwriting).
-3. **Media Safety**:
-   `SkoolMediaSyncSeeder` generates deterministically hashed local paths in `storage/app/community-media/` and sets `0644`/`0755` permissions for Nginx/FPM access without exposing public storage directory listings.
+The [case matrix](manual-cases.csv) defines checks, not execution results.
+[Coverage](coverage-map.md) separates reproduced tests from pending browser checks.
+Only LocalDemoSyncSeeder's preserve path is routine sync. The generic learning
+seeder's default repair mode may overwrite state. Never invoke it to force parity.
+scripts/verify-runtime.php seed is a bootstrap mutation, not a read-only probe.
+Independent receiver proof, human walkthrough, real browser 200% zoom, media rights
+and owner UAT remain unverified. No old fixture, account or volume was deleted.

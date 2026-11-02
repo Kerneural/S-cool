@@ -2,6 +2,39 @@
 
 A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
+## M13 — Independent evidence review of PR #84–87 (2026-11-02)
+
+- Authority: audit/fix the four submitted M13 issues and close only accepted work.
+  The owner then required preservation of the latest accepted product, and excluded
+  five reference communities/862 lessons from curriculum acceptance.
+- Accepted app: 8a0982b1f3a374196354421c0887c7a933fb4174. Canonical checkout remains
+  clean and served at 127.0.0.1:8080. All review changes are isolated; no app, schema,
+  data, media, port, dependency, cloud or accepted UI change is introduced.
+- Reviewed original heads: PR84 9a1a7fbd, PR85 8addb37d, PR86 a698ed75,
+  PR87 fa694f4e, including Linear readbacks/handoffs and submitted evidence.
+- Findings: absent old fixtures inflate inventory; invalid guest/route setup and
+  removed Pause control invalidate cases; Group A report names a different syllabus;
+  generic repair seeder is misdescribed as safe sync; peer/receiver/zoom/full-suite
+  PASS claims lack matching evidence. Current main already contains the lockfile
+  versions submitted in the branches; no dependency patch is added here.
+- Corrections: source-backed 14/67/912 inventory with disjoint nine-community
+  A+B/50-lesson content scope; 50 identities and 34 unexecuted cases; actual thirty
+  Group A lesson audit and precise gaps; accepted Help retained byte-for-byte;
+  corrected guide map and historical QA/image classification. No invented PASS.
+- Current verification: guarded QA Help/catalog 14 tests/115 assertions, exit 0,
+  13.77s; search/privacy/component 14/100, exit 0, 8.03s. Relevant source/test hashes
+  match accepted source. Guest Help HTTP200; original mounts/ports; no pending
+  migrations; www-data reads all eighteen A+B covers. This is not a full suite,
+  browser/real-zoom/provider/worker/receiver campaign or independent human walkthrough.
+- Tool scope: direct source/diff and artifact checks; no complete graph/taint coverage
+  claimed for these documentation changes. Required shared-contract/diff/CSV gates
+  run before publication. Review/CI and owner acceptance remain distinct.
+- Acceptance: baseline still needs peer Creator-to-Member reproduction; technical
+  content needs actual worked examples/references/prerequisites and peer/receipt;
+  task-specific public guide delivery/walkthrough remains absent; integrated QA needs
+  actual current execution/receiver evidence. Do not mark these unmet AC Done or
+  merge obsolete behavior to make their original reports appear correct.
+
 ## EUR-83 — Approved social and website management completion (2026-11-02)
 
 - Authority: owner approved the six-part proposal in chat. Continue eur-83-owner-usability at
