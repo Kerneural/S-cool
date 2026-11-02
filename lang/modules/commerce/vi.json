@@ -136,5 +136,14 @@
     "This transaction ended with status :status.": "Giao dịch này đã kết thúc với trạng thái :status.",
     "You can complete the test transfer to renew 30 UTC days of membership access.": "Bạn có thể hoàn tất chuyển khoản thử nghiệm để gia hạn 30 ngày UTC truy cập thành viên.",
     "You can complete the test transfer to unlock this course.": "Bạn có thể hoàn tất chuyển khoản thử nghiệm để mở khóa khóa học này.",
-    "You can complete the test transfer to activate your membership.": "Bạn có thể hoàn tất chuyển khoản thử nghiệm để kích hoạt tư cách thành viên của bạn."
+    "You can complete the test transfer to activate your membership.": "Bạn có thể hoàn tất chuyển khoản thử nghiệm để kích hoạt tư cách thành viên của bạn.",
+    "COMMUNITY_ACCESS": "Quyền truy cập cộng đồng",
+    "COURSE_ACCESS": "Quyền truy cập khóa học",
+    "MEMBERSHIP_RENEWAL": "Gia hạn thành viên",
+    "This course is included with community membership and does not require purchase.": "Khóa học này đã bao gồm trong quyền thành viên cộng đồng, bạn không cần mua riêng.",
+    "Course price is not configured.": "Khóa học chưa được cấu hình giá.",
+    "You already have access to this course.": "Bạn đã có quyền truy cập khóa học này.",
+    "This community is free. Use standard invitation acceptance.": "Cộng đồng này miễn phí. Hãy dùng luồng nhận lời mời thông thường.",
+    "You are already an active member of this community.": "Bạn đang là thành viên hoạt động của cộng đồng này.",
+    "The creator must configure a paid access price before checkout.": "Chủ cộng đồng cần cấu hình mức phí truy cập trước khi thanh toán."
 }

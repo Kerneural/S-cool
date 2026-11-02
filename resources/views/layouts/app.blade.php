@@ -7,7 +7,7 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20261028">
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20261102">
 
         <!-- Scripts & Styles -->
         @livewireStyles

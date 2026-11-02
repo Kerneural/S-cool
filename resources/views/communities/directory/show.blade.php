@@ -21,7 +21,7 @@
                                     </span>
                                     @if ($joinedAt)
                                         <span class="text-xs text-slate-600">
-                                            {{ __('Joined') }} {{ $joinedAt->format('M d, Y') }}
+                                            {{ __('Joined') }} {{ $joinedAt->translatedFormat('M d, Y') }}
                                         </span>
                                     @endif
                                 </div>

@@ -108,7 +108,7 @@
                                             <form method="POST" action="{{ route('communities.referrals.reject', [$community, $req]) }}" class="inline-block">
                                                 @csrf
                                                 <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition duration-150">
-                                                    Reject
+                                                    {{ __('Reject') }}
                                                 </button>
                                             </form>
                                         </td>

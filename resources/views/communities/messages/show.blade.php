@@ -61,7 +61,7 @@
                                 <p class="whitespace-pre-line leading-relaxed break-words">{{ $msg->body }}</p>
                             </div>
                             <div class="flex items-center gap-2 mt-1 px-1 text-[11px] text-slate-400">
-                                <span>{{ $msg->created_at->format('M d, H:i') }}</span>
+                                <span>{{ $msg->created_at->translatedFormat('M d, H:i') }}</span>
                                 @if ($isMe)
                                     <span>&bull;</span>
                                     <span>{{ $msg->isRead() ? __('Read') : __('Sent') }}</span>

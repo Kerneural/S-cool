@@ -107,3 +107,86 @@ delivery. Native 200% zoom, no-JS and throttled-network visual checks were not r
 no accessibility-compliance claim. Permission/ancestry, progress-error/retry, stale
 access and idempotency also have automated coverage, rather than every case being
 reenacted manually.
+
+
+## Approved-UI preservation follow-up — 2026-11-02
+
+Base: published main af3540bd5e6f3955ef5a20ddc4e9ba6ab67952c6.
+Candidate: the tested implementation on eur-83-preserve-approved-ui; the PR
+commit identifies the published revision. Publication was authorized on 2026-11-02
+and remains subject to required CI/review before merge.
+Compare the complete M14 surface with contract-freeze baseline 1ce19a2.
+
+This follow-up supersedes the earlier assumption that the integrated release
+preserved all accepted branding/landing presentation. PR #74 deliberately changed
+the logo, favicon, brand typography and static footer; its inclusion in the
+integrated ancestry was not authority to expand the frozen M14 design scope.
+The original 2026-11-01 captures above retain that historical appearance.
+
+Review inputs: all 13 EUR-73–85 issue descriptions, 31 Linear comments, original
+PR #72–83 descriptions and 14 discussion entries. Handoffs confirm that the hub
+links in both navigation/account menu, tree/editor/preview, Start/Continue flow
+and five real point levels are intentional and must remain. No other broad
+unapproved view/layout rewrite was confirmed in the reviewed M14 diff.
+
+Corrections:
+
+- Restore the original S-chain SVG/favicon and brand typography. Restore the
+  static outlined footer and its CSS; keep localization and existing landing
+  carousel/marquee/re-entry behavior. Logo/favicon/CSS match baseline bytes.
+- Remove only the 37 new dark utility tokens from lesson fields and one from the
+  authoring placeholder, preserving every light class and preview/cancellation guard.
+- Complete Vietnamese labels, accessible names, operation flashes, payment/purpose
+  display labels and user-facing domain validation failures. Resolve escaped
+  symbol labels as actual arrows/multiplication signs, rather than HTML text.
+- Localize month/day names using the existing date objects/timezones. Preserve
+  authored titles/body/names/reasons, stored enums, payment snapshots and timestamps.
+- All nine backend file deltas normalize exactly to their original code after
+  removing literal translation wrappers: no authorization, transaction or mutation
+  branch changed. Schema, seeders, demo media, font assets and dependencies are unchanged.
+
+Verification:
+
+- Two regression cases fail against the original populated cover/flash views,
+  then pass on the correction. Six added HTTP/error-path cases cover populated
+  moderation/settings, flash keys, immutable payment statuses, duplicate invitation,
+  stale reorder/ambiguous time and unavailable notification.
+- Focused locale suites: 24 passed / 3,360 assertions on the final text corrections.
+- Final full PHP suite: 742 passed / 9,530 assertions, no failures/skips,
+  305.60 seconds; guarded sequential MySQL scool_test, fail-on-skipped and
+  fail-on-empty enabled. Final runtime/worktree parity: 378 files.
+- JavaScript: 72 passed. Production assets app-yB9fOYEg.css / app-qfwVCcvI.js.
+  Pint 333 files passed; PHPStan no errors; shared routing/privacy and diff checks passed.
+- Optional local graph refresh completed, but the MCP provider retained a stale
+  snapshot and compare transport closed. No complete graph/taint coverage is claimed;
+  conclusions rely on direct diff/source, focused independent review and runtime proof.
+
+Browser acceptance uses the same canonical origin, a temporary QA proxy and synthetic
+scool_test fixtures. Original runtime/source/data are restored after the run.
+
+- Restored logo and static footer observed; footer has no reveal ancestor.
+- Mobile menu works; both marquee transforms change while animations remain running.
+- Journey/illustration labels and cover/moderation actions are Vietnamese.
+- Owner hub, course tree keyboard disclosure and safe Markdown preview work.
+- Learner completion remains 1/3 (33%) after reload; no creator forms appear.
+- Fresh learner sees no community names and direct website hub access returns 403.
+- Checked 375/768/1280 reflow; no page-wide overflow in the inspected states.
+- The browser click helper was inconsistent once on mobile logout; keyboard Enter
+  completed logout. No application change was inferred from that isolated tool result.
+- Native 200% zoom, no-JS, network throttling, real external mail, payments,
+  host rollout and licensed DRM remain outside this follow-up proof.
+
+Follow-up captures (synthetic data only):
+
+- [Restored mobile landing](current-evidence/preserved-landing-375.jpg)
+- [Static footer](current-evidence/preserved-footer-1280.jpg)
+- [Populated moderation](current-evidence/preserved-moderation-1280.jpg)
+- [Guest login](current-evidence/preserved-login-375.jpg)
+- [Owner hub mobile](current-evidence/preserved-owner-hub-375.jpg)
+- [Owner hub desktop](current-evidence/preserved-owner-hub-1280.jpg)
+- [Mobile authoring preview](current-evidence/preserved-owner-editor-375.jpg)
+- [Learner persisted completion](current-evidence/preserved-learner-reader-375.jpg)
+- [Fresh learner welcome](current-evidence/preserved-fresh-welcome-1280.jpg)
+
+These local corrections do not change GitHub/Linear publication state or claim
+a CloudPanel/Azure release. EUR-84 remains separate.

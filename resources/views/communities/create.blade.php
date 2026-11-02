@@ -66,7 +66,7 @@
 
                             <!-- Preview Area when Image is chosen -->
                             <div x-show="previewUrl" x-cloak class="relative rounded-2xl overflow-hidden border border-slate-200 aspect-[16/9] max-h-56 bg-slate-900 group shadow-xs">
-                                <img :src="previewUrl" alt="Cover preview" class="w-full h-full object-cover">
+                                <img :src="previewUrl" alt="{{ __('Cover preview') }}" class="w-full h-full object-cover">
                                 <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
                                     <button type="button" @click="$refs.coverInput.click()" class="px-3.5 py-1.5 bg-white/95 hover:bg-white text-slate-900 text-xs font-semibold rounded-xl shadow-xs transition">
                                         {{ __('Change') }}

@@ -8,7 +8,7 @@
                 <div>
                     <h1 class="text-xl font-bold text-slate-900 tracking-tight">{{ __('Content Moderation Queue') }}</h1>
                     <p class="text-sm text-slate-500 mt-1">
-                        Moderate reported posts and comments in <span class="font-semibold text-slate-700">{{ $community->name }}</span>.
+                        {{ __('Moderate reported posts and comments in') }} <span class="font-semibold text-slate-700">{{ $community->name }}</span>.
                     </p>
                 </div>
 
@@ -16,19 +16,19 @@
                 <div class="flex w-full flex-wrap items-center gap-1 bg-slate-100/80 p-1 rounded-xl border border-slate-200/60 md:w-auto">
                     <a href="{{ route('communities.reports.index', ['community' => $community, 'status' => 'OPEN']) }}"
                        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition {{ $status === 'OPEN' ? 'bg-white text-teal-700 shadow-2xs' : 'text-slate-600 hover:text-slate-900' }}">
-                        Pending (OPEN)
+                        {{ __('Pending (OPEN)') }}
                     </a>
                     <a href="{{ route('communities.reports.index', ['community' => $community, 'status' => 'RESOLVED']) }}"
                        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition {{ $status === 'RESOLVED' ? 'bg-white text-emerald-700 shadow-2xs' : 'text-slate-600 hover:text-slate-900' }}">
-                        Resolved (RESOLVED)
+                        {{ __('Resolved (RESOLVED)') }}
                     </a>
                     <a href="{{ route('communities.reports.index', ['community' => $community, 'status' => 'DISMISSED']) }}"
                        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition {{ $status === 'DISMISSED' ? 'bg-white text-slate-800 shadow-2xs' : 'text-slate-600 hover:text-slate-900' }}">
-                        Dismissed (DISMISSED)
+                        {{ __('Dismissed (DISMISSED)') }}
                     </a>
                     <a href="{{ route('communities.reports.index', ['community' => $community, 'status' => 'ALL']) }}"
                        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition {{ $status === 'ALL' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900' }}">
-                        All
+                        {{ __('All') }}
                     </a>
                 </div>
             </div>
@@ -70,29 +70,29 @@
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                                     <div class="flex items-center gap-2">
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold {{ $report->target_type === 'POST' ? 'bg-sky-50 text-sky-700 border border-sky-200' : 'bg-purple-50 text-purple-700 border border-purple-200' }}">
-                                            {{ $report->target_type === 'POST' ? 'POST' : 'COMMENT' }} #{{ $report->target_id }}
+                                            {{ $report->target_type === 'POST' ? __('Post') : __('Comment') }} #{{ $report->target_id }}
                                         </span>
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold {{ $report->status === 'OPEN' ? 'bg-amber-50 text-amber-700 border border-amber-200' : ($report->status === 'RESOLVED' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-700 border border-slate-200') }}">
                                             {{ __($report->status) }}
                                         </span>
                                         <span class="text-xs text-slate-400">
-                                            Reported at: {{ $report->created_at->format('Y-m-d H:i') }} UTC
+                                            {{ __('Reported at:') }} {{ $report->created_at->format('Y-m-d H:i') }} UTC
                                         </span>
                                     </div>
                                     <div class="text-xs text-slate-500">
-                                        Reporter: <span class="font-semibold text-slate-800">{{ $report->reporter?->name ?? 'Unavailable user' }}</span>
+                                        {{ __('Reporter:') }} <span class="font-semibold text-slate-800">{{ $report->reporter?->name ?? __('Unavailable user') }}</span>
                                     </div>
                                 </div>
 
                                 <!-- Target Preview -->
                                 <div class="bg-slate-50/80 p-4 rounded-xl border border-slate-200/70">
                                     <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
-                                        Reported Content:
+                                        {{ __('Reported Content:') }}
                                     </div>
                                     @if (! $target)
-                                        <p class="text-sm text-slate-400 italic">[Content does not exist or was permanently removed]</p>
+                                        <p class="text-sm text-slate-400 italic">{{ __('[Content does not exist or was permanently removed]') }}</p>
                                     @elseif ($target->trashed())
-                                        <p class="text-sm text-rose-600 font-semibold italic">[Content removed]</p>
+                                        <p class="text-sm text-rose-600 font-semibold italic">{{ __('[Content removed]') }}</p>
                                     @else
                                         @if ($report->target_type === 'POST')
                                             <div>
@@ -126,7 +126,7 @@
                                 <!-- Reason Provided -->
                                 <div class="space-y-1.5">
                                     <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                                        Report Reason:
+                                        {{ __('Report Reason:') }}
                                     </div>
                                     <div class="p-3.5 bg-white rounded-xl border border-slate-200 text-sm text-slate-800 whitespace-pre-wrap font-sans leading-relaxed">
                                         {{ $report->reason }}
@@ -138,13 +138,13 @@
                                     <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 bg-slate-50/75 p-3.5 rounded-xl border border-slate-200/60">
                                         <div>
                                             <span class="font-semibold text-slate-700">{{ __('Action:') }}</span>
-                                            <span class="font-mono text-slate-900 font-bold ml-1">{{ $report->resolution_action }}</span>
+                                            <span class="font-mono text-slate-900 font-bold ml-1">{{ __($report->resolution_action) }}</span>
                                             <span class="mx-2 text-slate-300">&bull;</span>
                                             <span class="font-semibold text-slate-700">{{ __('Resolution note:') }}</span>
                                             <span class="text-slate-800 ml-1">{{ $report->resolution_reason }}</span>
                                         </div>
                                         <div>
-                                            <span>Moderator: <strong class="text-slate-800">{{ $report->resolver?->name ?? 'Moderator' }}</strong></span>
+                                            <span>{{ __('Moderator:') }} <strong class="text-slate-800">{{ $report->resolver?->name ?? __('Moderator') }}</strong></span>
                                             <span class="mx-1 text-slate-300">&bull;</span>
                                             <span>{{ $report->resolved_at?->format('Y-m-d H:i') }} UTC</span>
                                         </div>
@@ -160,9 +160,9 @@
                                             <label for="remove-resolution-{{ $report->id }}" class="sr-only">{{ __('Removal note') }}</label>
                                             <input id="remove-resolution-{{ $report->id }}" type="text" name="resolution_reason" placeholder="{{ __('Removal note (optional)...') }}"
                                                 class="w-full text-xs border-slate-200 rounded-xl px-3 py-2 focus:ring-rose-500 focus:border-rose-500 sm:w-56 shadow-2xs">
-                                            <button type="submit" onclick="return confirm('Are you sure you want to remove this reported content?')"
+                                            <button type="submit" data-confirm="{{ __('Are you sure you want to remove this reported content?') }}" onclick="return confirm(this.dataset.confirm)"
                                                 class="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-xs transition duration-150 whitespace-nowrap">
-                                                Remove Content
+                                                {{ __('Remove Content') }}
                                             </button>
                                         </form>
 
@@ -174,7 +174,7 @@
                                                 class="w-full text-xs border-slate-200 rounded-xl px-3 py-2 focus:ring-slate-500 focus:border-slate-500 sm:w-56 shadow-2xs">
                                             <button type="submit"
                                                 class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition duration-150 whitespace-nowrap">
-                                                Dismiss
+                                                {{ __('Dismiss') }}
                                             </button>
                                         </form>
                                     </div>

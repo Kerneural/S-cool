@@ -2,6 +2,44 @@
 
 A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
+## EUR-83 — Approved-UI preservation follow-up (2026-11-02)
+
+- Authority: owner requested a thorough audit of the integrated M14 changes, including
+  PR/Linear handoff comments, and correction of confirmed regressions/scope drift.
+  Publication and host deployment are not part of this follow-up authorization.
+- Branch: eur-83-preserve-approved-ui from main af3540b; compare the complete M14
+  change surface against contract-freeze baseline 1ce19a2. Preserve the dirty root
+  checkout, existing local runtime, data and canonical 127.0.0.1:8080 origin.
+- Contract: Product Scope 23, Architecture 18, Delivery 20 and Design 13; live Linear
+  EUR-73–85 and original PR #72–83 descriptions/discussions are review inputs.
+- Confirmed drift: PR #74 changed the S-chain logo/favicon, brand typography and
+  static landing footer despite the retained-identity/landing contract. Restore
+  only those presentation hunks; retain M14 translations, hub/navigation policies,
+  course management and accepted landing motion. Refresh favicon cache version.
+- Additional corrections: remove 38 unapproved dark utility tokens; complete UI/
+  accessibility/status and domain-failure translations, localized month/day names
+  and escaped-symbol labels. Nine backend deltas are exclusively literal translation
+  wrappers; stored enums, authored content, authorization and mutations are unchanged.
+- Review inputs: 13 live Linear contracts, 31 Linear comments, 12 original PR bodies
+  and 14 discussion entries. Preserve the documented duplicate hub entries, approved
+  tree/editor/preview and Start/Continue workflow, and the five actual point levels.
+- Verification: two cover/flash regressions fail on old views then pass; final locale
+  suites 24 passed / 3,360 assertions; final full PHP 742 passed / 9,530 assertions,
+  305.60s, zero failures/skips on guarded MySQL scool_test. Exact source parity:
+  378 runtime/worktree files. JavaScript 72 passed; build app-yB9fOYEg.css and
+  app-qfwVCcvI.js; Pint 333 files, PHPStan and shared routing/privacy checks passed.
+- Browser: restored branding/static footer; mobile menu and actual marquee movement;
+  Owner hub/keyboard tree/safe preview; learner completion remains 33% after reload;
+  fresh welcome leaks no community and direct hub returns 403. Checked 375/768/1280.
+  Sanitized follow-up captures and the superseded branding claim are recorded in
+  testing-docs/M14/acceptance.md. Native 200% zoom/no-JS/throttling not repeated.
+- Optional graph refresh succeeded locally; MCP compare transport closed and cached
+  context remained stale. No complete graph/taint coverage is claimed.
+- Publication authorized on 2026-11-02: commit/push/PR and merge after required
+  CI/review; publication is pending at this checkpoint. No Linear mutation or
+  host release is included. EUR-84 remains separate.
+  Temporary QA routing/container cleanup is verified before final handoff.
+
 ## EUR-83 — Integrated M14 audit and acceptance (2026-11-01)
 
 - Authority: current user authorization to finish acceptance, comment, commit, push,

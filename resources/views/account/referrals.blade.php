@@ -173,7 +173,7 @@
                                             {{ $comm->community->name ?? __('Community') }}
                                         </td>
                                         <td class="py-3.5 px-5 text-xs font-mono text-slate-700">
-                                            {{ $comm->purpose }}
+                                            {{ __($comm->purpose) }}
                                         </td>
                                         <td class="py-3.5 px-5 text-right font-medium text-slate-900">
                                             {{ number_format($comm->payment_amount) }} {{ $comm->currency }}

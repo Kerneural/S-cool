@@ -28,16 +28,16 @@
                                 </svg>
                             </div>
                             <div>
-                                <x-input-label for="cover" value="Private community cover" class="font-bold text-slate-900 text-sm" />
+                                <x-input-label for="cover" :value="__('Private community cover')" class="font-bold text-slate-900 text-sm" />
                                 <p class="text-xs text-slate-500">{{ __('Visible on the community discovery catalog and header.') }}</p>
                             </div>
                         </div>
 
                         @if ($community->cover_path)
                             <div class="relative rounded-xl overflow-hidden border border-slate-200 max-h-52 group">
-                                <img src="{{ route('communities.cover.show', $community) }}" alt="Community cover" class="w-full h-48 object-cover">
+                                <img src="{{ route('communities.cover.show', $community) }}" alt="{{ __('Community cover') }}" class="w-full h-48 object-cover">
                                 <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold">
-                                    Current cover preview
+                                    {{ __('Current cover preview') }}
                                 </div>
                             </div>
                         @endif
@@ -50,7 +50,7 @@
                             <x-input-error :messages="$errors->get('cover')" class="mt-1" />
                             <div class="pt-1">
                                 <x-primary-button class="text-xs px-4 py-2 rounded-xl">
-                                    Upload cover
+                                    {{ __('Upload cover') }}
                                 </x-primary-button>
                             </div>
                         </form>

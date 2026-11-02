@@ -43,7 +43,7 @@ export function lessonAuthoring(options = {}, browser = globalThis) {
             this.errorMessage = '';
 
             if (!content || !content.trim()) {
-                this.previewHtml = `<div class="italic text-slate-400 dark:text-navy-300 py-6 text-center">${this.emptyPlaceholder}</div>`;
+                this.previewHtml = `<div class="italic text-slate-400 py-6 text-center">${this.emptyPlaceholder}</div>`;
                 this.lastRenderedContent = content;
                 this.loading = false;
                 this.errorMessage = '';

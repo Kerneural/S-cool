@@ -6,7 +6,7 @@
     <title>{{ __('S-cool — The Private Learning & Community Platform') }}</title>
     <meta name="description" content="S-cool enables every community to own their learning and knowledge sharing. Structured classrooms, private discussions, and proof of work reviews.">
 
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20261028">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20261102">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
@@ -23,8 +23,8 @@
             <!-- Left: Brand Logo & Links -->
             <div class="flex items-center gap-8">
                 <a href="/" class="flex items-center gap-2.5 group focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 rounded-lg" aria-label="{{ __('S-cool Home') }}">
-                    <x-application-logo class="w-8 h-8 group-hover:scale-105 transition-transform" />
-                    <span class="font-extrabold text-2xl text-ink tracking-tight font-sans">S-cool</span>
+                    <x-application-logo class="w-8 h-8 rounded-lg shadow-xs" />
+                    <span class="font-bold text-xl text-ink tracking-tight font-sans">S-cool</span>
                 </a>
 
                 <!-- Desktop Navigation Menu -->
@@ -303,7 +303,7 @@
             <div class="w-full pt-14 border-t border-line/60 mt-16 text-center overflow-hidden">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
                     <p class="text-xs uppercase tracking-widest text-muted font-medium">
-                        Learning resources and communities — independent links, not partnerships
+                        {{ __('Learning resources and communities — independent links, not partnerships') }}
                     </p>
                 </div>
 
@@ -917,7 +917,7 @@
                              class="landing-fade-fast col-start-1 row-start-1 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center {{ $index === 0 ? '' : 'opacity-0 invisible' }}">
                             <div class="lg:col-span-5 space-y-5">
                                 <div class="space-y-3">
-                                    <p class="text-xs font-semibold uppercase tracking-wider text-brand">Step {{ $index + 1 }} of {{ count($journeyStages) }}</p>
+                                    <p class="text-xs font-semibold uppercase tracking-wider text-brand">{{ __('Step :current of :total', ['current' => $index + 1, 'total' => count($journeyStages)]) }}</p>
                                     <h3 class="text-2xl sm:text-3xl font-bold text-ink tracking-tight">{{ $stage['name'] }}</h3>
                                     <p class="text-base text-muted leading-relaxed">{{ $stage['title'] }}</p>
                                 </div>
@@ -927,7 +927,7 @@
                                             <span class="w-5 h-5 rounded-full bg-brand-soft text-brand flex items-center justify-center shrink-0 mt-0.5" aria-hidden="true">
                                                 <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
                                             </span>
-                                            <span class="text-sm text-ink leading-normal">{{ $point }}</span>
+                                            <span class="text-sm text-ink leading-normal">{{ __($point) }}</span>
                                         </li>
                                     @endforeach
                                 </ul>
@@ -951,10 +951,10 @@
                                                     <div class="flex items-center gap-3 rounded-lg border border-line bg-surface p-3">
                                                         <span class="w-10 h-10 rounded-lg bg-brand-soft shrink-0" aria-hidden="true"></span>
                                                         <div class="min-w-0 flex-1">
-                                                            <p class="truncate text-sm font-semibold text-ink">{{ $name }}</p>
-                                                            <p class="text-xs text-muted">{{ $access }} community</p>
+                                                            <p class="truncate text-sm font-semibold text-ink">{{ __($name) }}</p>
+                                                            <p class="text-xs text-muted">{{ __(':access community', ['access' => __($access)]) }}</p>
                                                         </div>
-                                                        <span class="shrink-0 rounded-md border border-line px-2.5 py-1 text-xs font-medium text-ink">{{ $action }}</span>
+                                                        <span class="shrink-0 rounded-md border border-line px-2.5 py-1 text-xs font-medium text-ink">{{ __($action) }}</span>
                                                     </div>
                                                 @endforeach
                                             @elseif ($stage['visual'] === 'practice')
@@ -970,8 +970,8 @@
                                             @else
                                                 @foreach ([['Waiting', 'Submitted, waiting in the creator queue', 'bg-sky-50 text-sky-700 border-sky-200'], ['Needs revision', 'Creator feedback asks for changes', 'bg-amber-50 text-amber-800 border-amber-200'], ['Verified', 'Creator confirmed the practical work', 'bg-emerald-50 text-emerald-700 border-emerald-200']] as [$status, $note, $tone])
                                                     <div class="flex items-center gap-3 rounded-lg border border-line bg-surface p-3">
-                                                        <span class="shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-semibold {{ $tone }}">{{ $status }}</span>
-                                                        <p class="text-xs text-muted">{{ $note }}</p>
+                                                        <span class="shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-semibold {{ $tone }}">{{ __($status) }}</span>
+                                                        <p class="text-xs text-muted">{{ __($note) }}</p>
                                                     </div>
                                                 @endforeach
                                             @endif
@@ -1018,7 +1018,7 @@
                                     <div class="h-full flex flex-col justify-center gap-2 p-5 bg-canvas" role="img" aria-label="{{ __('Illustration of practical work moving from Waiting to Verified') }}">
                                         @foreach ([['Waiting', 'bg-sky-50 text-sky-700 border-sky-200'], ['Needs revision', 'bg-amber-50 text-amber-800 border-amber-200'], ['Verified', 'bg-emerald-50 text-emerald-700 border-emerald-200']] as [$status, $tone])
                                             <div class="flex items-center gap-3 rounded-lg border border-line bg-surface px-3 py-2" aria-hidden="true">
-                                                <span class="rounded-full border px-2 py-0.5 text-[11px] font-semibold {{ $tone }}">{{ $status }}</span>
+                                                <span class="rounded-full border px-2 py-0.5 text-[11px] font-semibold {{ $tone }}">{{ __($status) }}</span>
                                                 <span class="h-2 flex-1 rounded-full bg-slate-100"></span>
                                             </div>
                                         @endforeach
@@ -1389,8 +1389,8 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pb-12 border-b border-line">
                 <div class="lg:col-span-5 space-y-3">
                     <a href="/" class="flex items-center gap-2.5">
-                        <x-application-logo class="w-7 h-7" />
-                        <span class="font-extrabold text-xl text-ink tracking-tight font-sans">S-cool</span>
+                        <x-application-logo class="w-7 h-7 rounded-lg" />
+                        <span class="font-bold text-lg text-ink">S-cool</span>
                     </a>
                     <p class="text-xs text-muted max-w-sm leading-relaxed">
                         {{ __('The open platform for private cohort communities, structured curriculums, and verifiable peer feedback. Built for creators, trusted by learners.') }}
@@ -1400,7 +1400,7 @@
                 <!-- Newsletter Subscription Form with Alpine feedback -->
                 <div class="lg:col-span-7 space-y-3">
                     <div class="text-xs font-semibold text-ink">
-                        Newsletter preview — subscriptions are not available yet
+                        {{ __('Newsletter preview — subscriptions are not available yet') }}
                     </div>
                     <div x-show="subscribed" x-cloak role="status" class="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs">
                         {{ __('Preview only. No subscription was created and your email was not saved.') }}
@@ -1486,34 +1486,9 @@
                 </div>
             </div>
 
-            <!-- Outlined brand lockup (LangChain aesthetic): decorative, excluded from the accessibility tree -->
-            <div class="landing-wordmark-container pt-8 pb-4 text-center select-none flex justify-center" data-reveal aria-hidden="true">
-                <span class="landing-wordmark inline-flex items-center justify-center w-full">
-                    <svg class="landing-footer-brand-svg" viewBox="0 0 560 140" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Geometric mark on the left (pure wireframe outline, unboxed) -->
-                        <g transform="translate(15, 15) scale(3.235) translate(-7, -7)">
-                            <!-- Piece 1: Top-left Leaf / Open Page -->
-                            <path d="M16 23 C16 14.716 22.716 8 31 8 C31 16.284 24.284 23 16 23 Z"
-                                  stroke="currentColor" stroke-width="1.8" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
-                            <!-- Piece 2: Top-right Book Spine Arc -->
-                            <path d="M32.5 9.5 C36.642 9.5 40 12.858 40 17 C40 21.142 36.642 24.5 32.5 24.5 C32.5 16.284 32.5 9.5 32.5 9.5 Z"
-                                  stroke="currentColor" stroke-width="1.8" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
-                            <!-- Piece 3: Bottom-left Community Base -->
-                            <path d="M15.5 24.5 C11.358 24.5 8 27.858 8 32 C8 36.142 11.358 39.5 15.5 39.5 C15.5 31.716 15.5 24.5 15.5 24.5 Z"
-                                  stroke="currentColor" stroke-width="1.8" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
-                            <!-- Piece 4: Bottom-right Forward Leaf -->
-                            <path d="M32 25 C23.716 25 17 31.716 17 40 C25.284 40 32 33.284 32 25 Z"
-                                  stroke="currentColor" stroke-width="1.8" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
-                        </g>
-                        <!-- Outlined wordmark on the right (same baseline, locked proportion) -->
-                        <text x="152" y="103"
-                              font-family="'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-                              font-size="108" font-weight="800" letter-spacing="-3"
-                              fill="none" stroke="currentColor" stroke-width="1.8" vector-effect="non-scaling-stroke">
-                            S<tspan font-weight="700">-</tspan>cool
-                        </text>
-                    </svg>
-                </span>
+            <!-- Static outlined wordmark: decorative, excluded from the accessibility tree -->
+            <div class="pt-6 overflow-hidden text-center select-none" aria-hidden="true">
+                <span class="landing-wordmark block text-[22vw] sm:text-9xl lg:text-[11rem] leading-none font-black font-sans tracking-tight">S-cool</span>
             </div>
 
             <!-- Bottom Sub-Footer: Status & Legal -->
@@ -1525,7 +1500,7 @@
                 <div class="flex items-center gap-6">
                     <a href="{{ route('help.index') }}" class="hover:text-ink transition-colors">{{ __('Privacy policy') }}</a>
                     <a href="{{ route('help.index') }}" class="hover:text-ink transition-colors">{{ __('Terms of service') }}</a>
-                    <span>&copy; {{ date('Y') }} S-cool Inc. All rights reserved.</span>
+                    <span>&copy; {{ date('Y') }} S-cool Inc. {{ __('All rights reserved.') }}</span>
                 </div>
             </div>
         </div>

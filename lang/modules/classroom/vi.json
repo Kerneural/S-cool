@@ -281,5 +281,8 @@
     "Reviewed by:": "Người duyệt:",
     "Feedback given:": "Phản hồi đã gửi:",
     "Skill snapshot created for EUR-51 profile and verified skills directory:": "Kỹ năng đã được ghi nhận cho hồ sơ và danh bạ kỹ năng được xác minh:",
-    "Revision History": "Lịch sử chỉnh sửa"
+    "Revision History": "Lịch sử chỉnh sửa",
+    "Submitted Proof of Work": "Minh chứng thực hành đã nộp",
+    "Proof of Work Attachment": "Tệp minh chứng thực hành",
+    "Submit each current sibling ID exactly once. Refresh and retry.": "Danh sách sắp xếp đã thay đổi hoặc có mục trùng lặp. Vui lòng tải lại trang rồi thử lại."
 }
