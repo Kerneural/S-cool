@@ -126,8 +126,8 @@ class OnboardingStepCompletion extends Model
         if (! empty($community->intro_video_url)) {
             $steps[] = [
                 'key' => 'video',
-                'title' => 'Watch Introduction Video',
-                'description' => 'Watch the community welcome video and acknowledge it.',
+                'title' => __('Watch Introduction Video'),
+                'description' => __('Watch the community welcome video and acknowledge it.'),
                 'completed' => isset($completedSet['video']),
                 'unavailable' => false,
                 'action_type' => 'video_button',
@@ -138,8 +138,8 @@ class OnboardingStepCompletion extends Model
         // 2. First Qualifying Comment Step (always included)
         $steps[] = [
             'key' => 'comment',
-            'title' => 'Leave Your First Comment',
-            'description' => 'Join the discussion by commenting on any post in the community.',
+            'title' => __('Leave Your First Comment'),
+            'description' => __('Join the discussion by commenting on any post in the community.'),
             'completed' => isset($completedSet['comment']),
             'unavailable' => false,
             'action_type' => 'link',
@@ -151,12 +151,12 @@ class OnboardingStepCompletion extends Model
         if ($introCat) {
             $steps[] = [
                 'key' => 'post',
-                'title' => 'Introduce Yourself',
-                'description' => "Share a post in the '{$introCat->name}' category to introduce yourself.",
+                'title' => __('Introduce Yourself'),
+                'description' => __("Share a post in the ':category' category to introduce yourself.", ['category' => $introCat->display_name]),
                 'completed' => isset($completedSet['post']),
                 'unavailable' => false,
                 'category_id' => $introCat->id,
-                'category_name' => $introCat->name,
+                'category_name' => $introCat->display_name,
                 'action_type' => 'link',
                 'action_url' => route('communities.posts.index', [$community, 'category' => $introCat->slug]),
             ];
@@ -164,8 +164,8 @@ class OnboardingStepCompletion extends Model
             // Category deleted: display unavailable task and exclude it from denominator
             $steps[] = [
                 'key' => 'post',
-                'title' => 'Introduce Yourself (Category Unavailable)',
-                'description' => 'The introductions category was removed. Awaiting community creator to assign a replacement.',
+                'title' => __('Introduce Yourself (Category Unavailable)'),
+                'description' => __('The introductions category was removed. Awaiting community creator to assign a replacement.'),
                 'completed' => isset($completedSet['post']),
                 'unavailable' => true,
                 'action_type' => 'none',

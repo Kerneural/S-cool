@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Actions\CommunityContent\FeedMutation;
-use App\Jobs\SendPostReplyNotification;
 use App\Models\Comment;
 use App\Models\Community;
-use App\Models\OnboardingStepCompletion;
 use App\Models\Post;
+use App\Services\SocialAttachments;
+use App\Services\SocialPublishing;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -22,20 +22,16 @@ class CommentController extends Controller
     {
         Gate::authorize('create', [Comment::class, $post]);
 
-        $validated = $request->validate([
+        $data = $request->validate([
             'body' => ['required', 'string', 'max:2000'],
+            'content_format' => ['sometimes', 'in:plain,markdown'],
+            'parent_id' => ['nullable', 'integer', 'min:1'],
+            ...SocialAttachments::rules(),
         ]);
-
-        app(FeedMutation::class)->run($request->user(), $community, $post->id, null, function (Community $current, Post $currentPost) use ($request, $validated): void {
-            Gate::authorize('create', [Comment::class, $currentPost]);
-            $comment = $currentPost->comments()->create(['user_id' => $request->user()->id, 'body' => $validated['body']]);
-
-            if ($currentPost->user_id !== $request->user()->id) {
-                SendPostReplyNotification::dispatch($comment->id);
-            }
-
-            OnboardingStepCompletion::markStep($current, $request->user(), 'comment');
-        });
+        app(SocialPublishing::class)->comment(
+            $request->user(), $community, $post->id, $data,
+            $request->file('images', []), $request->file('documents', []),
+        );
 
         return redirect()->route('communities.posts.show', [$community, $post])->with('status', 'comment-created');
     }
@@ -53,12 +49,24 @@ class CommentController extends Controller
     public function update(Request $request, Community $community, Post $post, Comment $comment): RedirectResponse
     {
         Gate::authorize('update', $comment);
-        $validated = $request->validate(['body' => ['required', 'string', 'max:2000']]);
-
-        app(FeedMutation::class)->run($request->user(), $community, $post->id, $comment->id, function (Community $current, Post $currentPost, Comment $currentComment) use ($validated): void {
-            Gate::authorize('update', $currentComment);
-            $currentComment->update($validated);
-        });
+        $validated = $request->validate([
+            'body' => ['required', 'string', 'max:2000'],
+            'content_format' => ['sometimes', 'in:plain,markdown'],
+            ...SocialAttachments::rules(),
+        ]);
+        unset($validated['images'], $validated['documents']);
+        $media = app(SocialAttachments::class);
+        $staged = $media->stage($request->file('images', []), $request->file('documents', []));
+        try {
+            app(FeedMutation::class)->run($request->user(), $community, $post->id, $comment->id, function (Community $current, Post $currentPost, Comment $currentComment) use ($request, $validated, $media, $staged): void {
+                Gate::authorize('update', $currentComment);
+                $currentComment->update($validated);
+                $media->publish($staged, $currentPost, $request->user(), $currentComment);
+            });
+        } catch (\Throwable $exception) {
+            $media->discard($staged);
+            throw $exception;
+        }
 
         return redirect()->route('communities.posts.show', [$community, $post])->with('status', 'comment-updated');
     }

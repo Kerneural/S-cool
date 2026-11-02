@@ -46,7 +46,7 @@
                             </span>
                         @endif
                         @if ($isCreator)
-                            <span class="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-ink">{{ $course->status }}</span>
+                            <span class="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-ink">{{ __($course->status) }}</span>
                         @endif
                         @if ($isEntitled)
                             <span class="text-xs text-muted">
@@ -94,6 +94,13 @@
                                 <span>{{ __('Discuss this course') }}</span>
                             </a>
                         @endif
+                        @if ($isCreator)
+                            <a href="{{ route('communities.manage.courses.show', [$community, $course]) }}"
+                               class="inline-flex min-h-11 items-center gap-2 rounded-lg bg-brand px-4 text-sm font-semibold text-white shadow-xs transition-colors duration-150 hover:bg-brand-hover">
+                                <span>{{ __('Quản lý khóa học') }}</span>
+                                <span aria-hidden="true">&rarr;</span>
+                            </a>
+                        @endif
                     </div>
                 </div>
 
@@ -136,6 +143,16 @@
                     <h2 id="course-management-heading" class="text-sm font-semibold uppercase tracking-wide text-muted">{{ __('Manage course') }}</h2>
                     <p class="text-xs text-muted">{{ __('Unpublish to hide content; permanent deletion is not available.') }}</p>
                 </div>
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-xl border border-brand/30 bg-brand-soft">
+                    <div>
+                        <h3 class="text-sm font-bold text-ink">{{ __('Không gian quản lý khóa học') }}</h3>
+                        <p class="text-xs text-muted">{{ __('Chỉnh sửa chương, bài học và sắp xếp trực quan theo cấu trúc 2 cột.') }}</p>
+                    </div>
+                    <a href="{{ route('communities.manage.courses.show', [$community, $course]) }}" class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-brand-hover transition-colors shrink-0">
+                        <span>{{ __('Mở không gian quản lý') }}</span>
+                        <span aria-hidden="true">&rarr;</span>
+                    </a>
+                </div>
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                     <details class="rounded-xl bg-surface p-5 shadow-2xs border border-line" @if ($errors->has('cover')) open @endif>
                         <summary class="cursor-pointer font-semibold text-sm text-brand hover:text-brand-hover flex items-center justify-between">
@@ -152,7 +169,7 @@
                                     <form method="POST" action="{{ route('communities.courses.cover.destroy', [$community, $course]) }}" x-data="{ confirmMsg: @js(__('Remove this course cover?')) }" @submit="if (! confirm(confirmMsg)) $event.preventDefault()">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-xs font-semibold text-rose-600 hover:text-rose-700 underline cursor-pointer">
+                                        <button type="submit" class="inline-flex min-h-11 items-center rounded-lg border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-rose-600">
                                             {{ __('Remove Cover') }}
                                         </button>
                                     </form>
@@ -265,7 +282,7 @@
                                         <form method="POST" action="{{ route('communities.lessons.store', [$community, $course, $section]) }}" class="mt-3 space-y-3 pt-2 border-t border-line/60">
                                             @csrf
                                             <input type="hidden" name="_form" value="{{ $createKey }}">
-                                            <x-classroom-lesson-fields :form-key="$createKey" />
+                                            <x-classroom-lesson-fields :form-key="$createKey" :course="$course" :community="$community" />
                                             <div class="flex justify-end pt-1">
                                                 <x-primary-button>
                                                     {{ __('Create Lesson') }}
@@ -308,7 +325,7 @@
                                     @if ($isCreator)
                                         <div class="flex shrink-0 items-center gap-2 px-5 pb-3 sm:pb-0 sm:pl-0">
                                             <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md {{ $lesson->isPublished() ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-800' }}">
-                                                {{ $lesson->status }}
+                                                {{ __($lesson->status) }}
                                             </span>
                                             <x-classroom-reorder :ids="$section->lessons->modelKeys()" :id="$lesson->id" :action="route('communities.lessons.reorder', [$community, $course, $section])" />
                                         </div>

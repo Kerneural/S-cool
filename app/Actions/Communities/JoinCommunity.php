@@ -29,12 +29,12 @@ class JoinCommunity
             $eligible = $membership === null || $membership->status === 'LEFT'
                 || ($community->access_mode === 'PAID' && $membership->status === 'PENDING_PAYMENT');
             if (! $eligible) {
-                throw ValidationException::withMessages(['join' => 'This membership cannot be joined again here. Use My Access to renew an expired term, or contact the creator about restricted access.']);
+                throw ValidationException::withMessages(['join' => __('This membership cannot be joined again here. Use My Access to renew an expired term, or contact the creator about restricted access.')]);
             }
 
             $paid = $community->access_mode === 'PAID';
             if ($paid && (int) $community->price_vnd <= 0) {
-                throw ValidationException::withMessages(['join' => 'The creator must configure a positive admission price before checkout.']);
+                throw ValidationException::withMessages(['join' => __('The creator must configure a positive admission price before checkout.')]);
             }
             if (! in_array($community->access_mode, ['FREE', 'PAID'], true)) {
                 abort(404);

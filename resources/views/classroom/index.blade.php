@@ -1,18 +1,20 @@
 <x-app-layout>
     <div data-live-search-surface class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
-        <x-community-workspace :community="$community" active-tab="classroom" />
+        @php($managementView = request()->boolean('manage') && auth()->user()->can('update', $community))
+        <x-community-workspace :community="$community" :active-tab="$managementView ? 'courses' : 'classroom'" />
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <h1 class="text-2xl font-bold tracking-tight text-ink">{{ __('Classroom Courses') }}</h1>
+            <h1 class="text-2xl font-bold tracking-tight text-ink">{{ $managementView ? __('Manage courses') : __('Classroom Courses') }}</h1>
 
             <!-- Classroom Course Search Form with Alpine Debounce -->
             <form method="GET" action="{{ route('communities.classroom.index', $community) }}" class="flex flex-wrap items-center gap-2 min-w-0" x-data="liveListSearch" @submit.prevent="search()">
+                @if ($managementView)<input type="hidden" name="manage" value="1">@endif
                 <div class="relative w-full sm:w-72">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </div>
-                    <input type="text" name="q" aria-label="Search courses in classroom" maxlength="100" value="{{ $searchQuery ?? '' }}" placeholder="{{ __('Search courses in classroom...') }}"
+                    <input type="text" name="q" aria-label="{{ __('Search courses in classroom') }}" maxlength="100" value="{{ $searchQuery ?? '' }}" placeholder="{{ __('Search courses in classroom...') }}"
                            @input="liveSearch"
                            autocomplete="off"
                            class="w-full text-sm rounded-xl border-line pl-9 pr-3 py-2 bg-surface focus:bg-white focus:border-brand focus:ring-brand transition-colors text-ink shadow-2xs">
@@ -20,8 +22,8 @@
                 <button type="submit" class="inline-flex items-center px-4 py-2 bg-brand hover:bg-brand-hover text-white font-medium text-xs rounded-xl transition shadow-2xs">
                     {{ __('Search') }}
                 </button>
-                    <a href="{{ route('communities.classroom.index', $community) }}" class="text-xs text-muted hover:text-ink underline ml-1">
-                        {{ __('Clear') }}
+                    <a href="{{ route('communities.classroom.index', [$community, 'manage' => $managementView ? 1 : null]) }}" class="text-xs text-muted hover:text-ink underline ml-1">
+                        {{ __('Clear course search') }}
                     </a>
 
                         <p x-show="loading" x-cloak role="status" class="basis-full text-xs text-muted">{{ __('Searching…') }}</p>
@@ -33,7 +35,9 @@
         </div>
         <x-classroom-feedback />
 
-        <x-learning-focus :community="$community" :learning-focus="$learningFocus" />
+        @unless ($managementView)
+            <x-learning-focus :community="$community" :learning-focus="$learningFocus" />
+        @endunless
 
         @if ($isCreator)
             <details class="rounded-xl bg-surface p-6 shadow-2xs border border-line" @if ($errors->any() && old('_form') === 'create-course') open @endif>
@@ -119,7 +123,7 @@
 
                         <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
                             <div class="space-y-2">
-                                <a href="{{ route('communities.courses.show', [$community, $course]) }}" class="block break-words text-base font-semibold text-ink group-hover:text-brand transition-colors">
+                                <a href="{{ $managementView ? route('communities.manage.courses.show', [$community, $course]) : route('communities.courses.show', [$community, $course]) }}" class="block break-words text-base font-semibold text-ink group-hover:text-brand transition-colors">
                                     {{ $course->title }}
                                 </a>
 
@@ -144,7 +148,7 @@
                             </div>
 
                             <div class="pt-3 border-t border-line/60 space-y-3">
-                                @if ($hasAccess && $isActiveMember && $course->isPublished())
+                                @if (! $managementView && $hasAccess && $isActiveMember && $course->isPublished())
                                     @php($percent = $course->progress_total ? (int) round(100 * $course->progress_completed / $course->progress_total) : 0)
                                     <div class="space-y-1.5">
                                         <div class="flex items-center justify-between text-xs font-semibold text-muted">
@@ -159,8 +163,8 @@
                                 @endif
 
                                 <div class="flex items-center justify-between text-xs">
-                                    <a href="{{ route('communities.courses.show', [$community, $course]) }}" class="inline-flex items-center font-semibold text-brand hover:text-brand-hover group-hover:translate-x-0.5 transition-transform">
-                                        <span>{{ $hasAccess ? __('Open Course') : __('Unlock Course') }}</span>
+                                    <a href="{{ $managementView ? route('communities.manage.courses.show', [$community, $course]) : route('communities.courses.show', [$community, $course]) }}" class="inline-flex items-center font-semibold text-brand hover:text-brand-hover group-hover:translate-x-0.5 transition-transform">
+                                        <span>{{ $managementView ? __('Manage course') : ($hasAccess ? __('Open Course') : __('Unlock Course')) }}</span>
                                         <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                         </svg>

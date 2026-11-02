@@ -3,18 +3,20 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <h1 class="text-2xl font-bold tracking-tight text-slate-900">
-                    {{ __('Communities') }}
+                    {{ config('scool.deployment_mode') === 'expert' && (! Auth::user()?->isDeploymentOwner()) ? __('My Communities') : __('Communities') }}
                 </h1>
                 <p class="text-sm text-slate-500 mt-1">
-                    {{ __('Explore, collaborate, and manage your learning spaces.') }}
+                    {{ config('scool.deployment_mode') === 'expert' && (! Auth::user()?->isDeploymentOwner()) ? __('Choose a community to enter.') : __('Explore, collaborate, and manage your learning spaces.') }}
                 </p>
             </div>
-            <a href="{{ route('communities.create') }}" class="inline-flex items-center justify-center px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-medium text-sm rounded-xl shadow-sm shadow-brand-500/20 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-all">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                {{ __('Create Community') }}
-            </a>
+            @can('create', App\Models\Community::class)
+                <a href="{{ route('communities.create') }}" class="inline-flex items-center justify-center px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-medium text-sm rounded-xl shadow-sm shadow-brand-500/20 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-all">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    {{ __('Create Community') }}
+                </a>
+            @endcan
         </div>
     </x-slot>
 
@@ -32,8 +34,9 @@
             <!-- Search and Filter Toolbar -->
             <div class="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-sm">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                    @if (config('scool.deployment_mode') !== 'expert' || Auth::user()?->isDeploymentOwner())
                     <!-- Filter Tabs -->
-                    <nav data-live-search-tabs class="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 rounded-xl" aria-label="Filters">
+                    <nav data-live-search-tabs class="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 rounded-xl" aria-label="{{ __('Filters') }}">
                         <a href="{{ route('communities.index', array_filter(['filter' => 'all', 'q' => $searchQuery ?? ''])) }}"
                            class="px-3.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all {{ ($currentFilter ?? 'all') === 'all' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-white/50' }}">
                             {{ __('All') }}
@@ -47,6 +50,7 @@
                             {{ __('Joined (Member)') }}
                         </a>
                     </nav>
+                    @endif
 
                     <!-- Search Form -->
                     <form method="GET" action="{{ route('communities.index') }}" class="flex flex-wrap items-center gap-2 min-w-0" x-data="liveListSearch" @submit.prevent="search()">
@@ -57,7 +61,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                             </div>
-                            <input type="text" name="q" aria-label="Search communities" maxlength="100" value="{{ $searchQuery ?? '' }}" placeholder="{{ __('Search communities...') }}"
+                            <input type="text" name="q" aria-label="{{ __('Search communities') }}" maxlength="100" value="{{ $searchQuery ?? '' }}" placeholder="{{ __('Search communities...') }}"
                                    @input="liveSearch"
                                    autocomplete="off"
                                    class="w-full text-sm rounded-xl border-slate-200 pl-9 pr-3 py-2 bg-slate-50/50 focus:bg-white focus:border-brand-500 focus:ring-brand-500 transition-colors">
@@ -96,18 +100,22 @@
                         @elseif (($currentFilter ?? 'all') === 'owned')
                             <h3 class="text-base font-semibold text-slate-900 mb-1">{{ __('No created communities yet') }}</h3>
                             <p class="text-sm text-slate-500 mb-6 max-w-md mx-auto">{{ __('You have not created any communities yet. Build your first learning hub in seconds.') }}</p>
+                        @can('create', App\Models\Community::class)
                             <a href="{{ route('communities.create') }}" class="inline-flex items-center px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-medium text-xs rounded-xl transition shadow-sm shadow-brand-500/20">
                                 {{ __('Create a Community') }}
                             </a>
+                        @endcan
                         @elseif (($currentFilter ?? 'all') === 'joined')
                             <h3 class="text-base font-semibold text-slate-900 mb-1">{{ __('No memberships found') }}</h3>
                             <p class="text-sm text-slate-500 mb-6 max-w-md mx-auto">{{ __('You have not joined any communities as a member yet.') }}</p>
                         @else
                             <h3 class="text-base font-semibold text-slate-900 mb-1">{{ __('Welcome to S-cool') }}</h3>
                             <p class="text-sm text-slate-500 mb-6 max-w-md mx-auto">{{ __('No active communities are available yet. Create the first learning community.') }}</p>
+                        @can('create', App\Models\Community::class)
                             <a href="{{ route('communities.create') }}" class="inline-flex items-center px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-medium text-xs rounded-xl transition shadow-sm shadow-brand-500/20">
                                 {{ __('Get Started — Create a Community') }}
                             </a>
+                        @endcan
                         @endif
                     </div>
                 @else
@@ -156,11 +164,11 @@
                                         @if ($community->isActive())
                                             <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-emerald-500/20 backdrop-blur-md text-emerald-300 border border-emerald-500/30 shadow-xs">
                                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5"></span>
-                                                {{ $community->status }}
+                                                {{ __($community->status) }}
                                             </span>
                                         @else
                                             <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-amber-500/20 backdrop-blur-md text-amber-300 border border-amber-500/40 shadow-xs">
-                                                {{ $community->status }}
+                                                {{ __($community->status) }}
                                             </span>
                                         @endif
                                     </div>

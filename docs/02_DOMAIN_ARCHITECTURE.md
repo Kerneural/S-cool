@@ -930,3 +930,27 @@ attachment schema, editor package, WYSIWYG claim or content migration.
 
 Points retain the existing ledger and level calculation. Video masking remains an
 access-control/obfuscation measure, not DRM; research and report evidence stay distinct.
+
+
+#### Owner-approved usability follow-up — 2026-11-02
+
+The owner approved the bounded amendment recorded in Design 13.1 and the EUR-83
+working checkpoint: visual Tiptap editing with preserved Markdown storage/source mode,
+private course-scoped lesson images, a 365-day UTC activity calendar and visible-thread
+message polling. This supersedes earlier no-editor-package/no-upload and refresh-only
+messaging restrictions for these surfaces. Existing tenant, entitlement, draft and
+participant policies remain mandatory. No schema/content migration, message attachments,
+presence or host release is included. Verification/publication remain separate gates.
+
+### Social publishing contract (2026-11-02)
+
+Posts/comments explicitly distinguish plain and markdown content; safe server rendering
+never accepts raw HTML or arbitrary inline remote images. Private SocialAttachment rows
+bind community, post and optional comment; reads re-authorize the live parent and deny
+soft-deleted content. Uploads are validated/staged once, transactionally attached and
+discarded on failed publication; limits are four 5 MB images, three 10 MB documents,
+20 MB aggregate. PostPoll/Option/Vote use one unique actor vote per poll and FeedMutation
+community/membership/post locking. Closed polls reject vote changes; only author/creator
+closes. Comment parent_id must identify a live root comment in the same post. No new points.
+Public HTTPS metadata is fetched lazily with bounded response/time, pinned public IPv4,
+no redirect/proxy/credentials, and a usable no-preview fallback; no third-party API is used.

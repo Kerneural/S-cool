@@ -26,7 +26,7 @@ class EventController extends Controller
         $view = $request->query('view', 'list');
         if (! is_string($view) || ! in_array($view, ['month', 'list'], true)) {
             throw ValidationException::withMessages([
-                'view' => 'The selected view is invalid.',
+                'view' => __('The selected view is invalid.'),
             ]);
         }
 
@@ -34,7 +34,7 @@ class EventController extends Controller
         $displayTimezone = $request->query('display_timezone', 'Asia/Ho_Chi_Minh');
         if (! is_string($displayTimezone) || ! in_array($displayTimezone, DateTimeZone::listIdentifiers(), true)) {
             throw ValidationException::withMessages([
-                'display_timezone' => 'The selected timezone is invalid.',
+                'display_timezone' => __('The selected timezone is invalid.'),
             ]);
         }
 
@@ -46,7 +46,7 @@ class EventController extends Controller
         if ($hasExplicitMonth) {
             if (! is_string($month) || ! preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $month)) {
                 throw ValidationException::withMessages([
-                    'month' => 'The selected month must be in YYYY-MM format.',
+                    'month' => __('The selected month must be in YYYY-MM format.'),
                 ]);
             }
         } else {
@@ -167,7 +167,7 @@ class EventController extends Controller
     public function edit(Community $community, Event $event): View
     {
         Gate::authorize('update', $event);
-        abort_if($event->isCancelled(), 400, 'Cancelled events cannot be modified.');
+        abort_if($event->isCancelled(), 400, __('Cancelled events cannot be modified.'));
 
         return view('communities.events.edit', ['community' => $community, 'event' => $event, 'timezones' => DateTimeZone::listIdentifiers()]);
     }
@@ -208,7 +208,7 @@ class EventController extends Controller
     private function assertEditable(Event $event): void
     {
         if ($event->isCancelled()) {
-            throw ValidationException::withMessages(['title' => 'Cancelled events cannot be modified.']);
+            throw ValidationException::withMessages(['title' => __('Cancelled events cannot be modified.')]);
         }
     }
 
@@ -230,7 +230,7 @@ class EventController extends Controller
         $start = EventWallTime::toUtc($validated['starts_at'], $validated['timezone'], 'starts_at');
         $end = EventWallTime::toUtc($validated['ends_at'], $validated['timezone'], 'ends_at');
         if ($end->lessThanOrEqualTo($start)) {
-            throw ValidationException::withMessages(['ends_at' => 'The end time must be after the start time.']);
+            throw ValidationException::withMessages(['ends_at' => __('The end time must be after the start time.')]);
         }
 
         return [...$validated, 'starts_at' => $start, 'ends_at' => $end];

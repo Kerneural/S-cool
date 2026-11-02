@@ -20,7 +20,7 @@
                             </div>
                             <input type="text"
                                    name="q"
-                                   id="search-input" @input="liveSearch" aria-label="Search community content" maxlength="100"
+                                   id="search-input" @input="liveSearch" aria-label="{{ __('Search community content') }}" maxlength="100"
                                    value="{{ $searchQuery ?? '' }}"
                                    placeholder="{{ __('Search discussions, courses, lessons, and members...') }}"
                                    class="block w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition">
@@ -56,7 +56,7 @@
 
                 <!-- Type Selector Tabs -->
                 <div class="mt-6 border-b border-slate-100">
-                    <nav data-live-search-tabs class="-mb-px flex flex-wrap gap-4 sm:gap-8" aria-label="Search Type Tabs">
+                    <nav data-live-search-tabs class="-mb-px flex flex-wrap gap-4 sm:gap-8" aria-label="{{ __('Search Type Tabs') }}">
                         @php
                             $tabs = [
                                 'posts' => __('Discussions'),
@@ -145,11 +145,11 @@
                                             @endif
                                             @if ($post->category)
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
-                                                    {{ $post->category->name }}
+                                                    {{ $post->category->display_name }}
                                                 </span>
                                             @endif
                                             <span class="text-xs text-slate-400">
-                                                {{ __('By :name', ['name' => $post->author->name ?? __('Unknown')]) }} &bull; {{ $post->created_at->diffForHumans() }}
+                                                <x-member-identity :community="$community" :user="$post->author" :avatar="false" /> &bull; {{ $post->created_at->diffForHumans() }}
                                             </span>
                                         </div>
                                     </div>
@@ -266,7 +266,7 @@
                                                     {{ __('SCHEDULED') }}
                                                 </span>
                                                 <span class="text-xs text-slate-500">
-                                                    {{ $event->starts_at->format('M d, Y H:i') }} ({{ $event->timezone }})
+                                                    {{ $event->starts_at->translatedFormat('M d, Y H:i') }} ({{ $event->timezone }})
                                                 </span>
                                             </div>
                                             <a href="{{ route('communities.events.show', [$community, $event]) }}" class="text-xs font-semibold text-brand-600 hover:text-brand-700 inline-flex items-center gap-1">

@@ -29,7 +29,7 @@ class AcceptInvitation
                 && ! $community->isCreator($actor), 404);
 
             if ($community->access_mode !== 'FREE') {
-                throw ValidationException::withMessages(['invitation' => 'This community requires paid access. Reopen the original invitation email and choose Paid Checkout (SePay). No access was granted.']);
+                throw ValidationException::withMessages(['invitation' => __('This community requires paid access. Reopen the original invitation email and choose Paid Checkout (SePay). No access was granted.')]);
             }
             $membership = $community->memberships()->where('user_id', $actor->id)->lockForUpdate()->first();
             abort_if($membership && ! in_array($membership->status, ['ACTIVE', 'LEFT'], true), 404);

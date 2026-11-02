@@ -135,7 +135,7 @@ class ExperienceShellAuditRegressionTest extends TestCase
         $this->get($url)->assertOk()->assertSee('PREVIEW-COURSE-1')->assertDontSee('Show more courses');
 
         $this->actingAs($community->creator)->get($url)->assertOk()
-            ->assertSee('Edit Settings')->assertSee('You host this community.')->assertSee('LOCKED-PREVIEW-COURSE');
+            ->assertSee('Community settings')->assertSee('You host this community.')->assertSee('LOCKED-PREVIEW-COURSE');
     }
 
     public function test_feed_rail_leads_with_learning_focus_and_collapses_secondary_context_once(): void

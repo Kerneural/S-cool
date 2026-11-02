@@ -78,10 +78,10 @@ class CommunityMembership extends Model
             return $this->status;
         }
         if (! $this->community?->isActive()) {
-            return 'Community inactive';
+            return __('Community inactive');
         }
 
-        return $this->hasEffectiveAccess() ? 'Active access' : 'Expired access';
+        return $this->hasEffectiveAccess() ? __('Active access') : __('Expired access');
     }
 
     public function community(): BelongsTo
@@ -118,7 +118,7 @@ class CommunityMembership extends Model
                 'LEFT' => [],
             ];
             if (! in_array($target, $allowed[$current->status] ?? [], true)) {
-                throw ValidationException::withMessages(['membership' => 'This membership transition is not permitted.']);
+                throw ValidationException::withMessages(['membership' => __('This membership transition is not permitted.')]);
             }
             $current->status = $target;
             $current->save();

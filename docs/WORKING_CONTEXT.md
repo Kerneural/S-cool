@@ -2,6 +2,413 @@
 
 A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
+## EUR-83 — Approved social and website management completion (2026-11-02)
+
+- Authority: owner approved the six-part proposal in chat. Continue eur-83-owner-usability at
+  3b37c67, preserving both earlier usability batches. The owner subsequently authorized commit,
+  push and a review PR on 2026-11-02. Merge, Linear closure and host release are not authorized.
+- Outcome: resource-list website hub; unclipped feed categories and composer-first hierarchy;
+  reusable community-scoped profile links; shared visual social composer, private attachments,
+  safe links/video, one-level replies and persisted single-choice polls.
+- Contracts: preserve existing plain-text posts, comment limits, policies, FeedMutation lock order,
+  onboarding, helpful answers, engagement scoring and all unrelated reader/landing behavior.
+  New content uses explicit markdown format; attachments require authorized parent reads.
+  Poll voting uses one vote per actor and post-locked transactions; changes stop after closing.
+- Scope: forward-only additive MySQL migration, no new dependency. Same native multipart and
+  Livewire paths share validation/services. Existing data is not reset or reseeded.
+- Verification plan: guarded scool_test feature/security/regression suites, JS tests/build/static
+  checks; actual canonical 127.0.0.1:8080 Owner/Member responsive/keyboard/task smoke.
+  Back up local development DB before applying the additive migration.
+- Delivered: searchable/status-filtered resource-list hub with retained management destinations;
+  composer-first feed with wrapping categories and independent sorting; lazy shared rich composers,
+  private image/document routes, HTTPS cards/provider video, emoji, one-level replies and persisted polls.
+  Default category display is translated only while its name still matches the built-in value.
+  Compact replies were compared directly with the supplied Skool post/feed in Chrome: idle input is
+  one line, formatting is disclosed with Aa, media is thumbnail-sized and opens the existing viewer.
+- Verification: full guarded Linux-copy MySQL scool_test run PASS, 758 tests / 9,899 assertions,
+  410.816s, before the final category/rich-edit/compact refinements. Final related suite after those
+  backend refinements PASS, 67 tests / 543 assertions, 17.095s; PHPStan no errors. JS 85/85 PASS;
+  production assets and Blade cache compile successfully. Final icon-only toolbar is a later
+  presentation refinement observed in Chrome; CI must still validate the published revision.
+- Browser: canonical 127.0.0.1:8080 serves this checkout with unchanged ports. Actual synthetic
+  publishing, image upload, Markdown emphasis, one-level reply, vote/change/close and immediate
+  comment rendering were observed. Idle composer measured 90.4px desktop and 134.4px at 375px;
+  comment image thumbnail remains 220px wide. Feed/hub checks at 375/768/1280px showed no page-wide
+  overflow. The mobile emoji picker clipping found during smoke was corrected and rechecked.
+  Author profile navigation, searchable hub and managed course-catalog destination were observed.
+- Data/runtime: additive migration applied to local scool after a private DB backup. No seed/reset.
+  Docker PHP/Nginx request limits match the documented 20 MB aggregate upload contract.
+- Limits: no fresh two-session member social browser run, real 200% zoom, no-JS browser run,
+  external mail/payment or CloudPanel/Azure rollout in this social follow-up. Role/revocation/
+  parent binding and duplicate-vote checks are covered by guarded feature tests. External URL
+  metadata success is not browser-proven. Local synthetic post #39 (comments #52–54) was used;
+  cleanup reached Chrome's confirmation but browser control stopped before its outcome could
+  be established. Do not claim it was removed. No private fixtures, uploads or DB backup are staged.
+  No current CI/review/Linear completion is inferred from local results.
+
+## EUR-83 — Management usability follow-up (2026-11-02)
+
+- Authority: owner approved the read-only investigation's five-part proposal and requested complete implementation.
+  Continue eur-83-owner-usability at 3b37c67; preserve all prior usability work and private local data.
+  No commit/push/PR/merge, Linear mutation or host release is authorized.
+- Scope: stable full-width management context across settings/invitations/operations; explicit courses entry,
+  clear community/management labels; sectioned settings with compact separately saved cover and dirty-input
+  guards; bounded invitation compose and localized history; consistent post/comment action disclosures,
+  contextual destructive labels and existing confirmations. Preserve routes, payloads, policies and Test Mode.
+- Verify: production assets and guarded scool_test feature regressions; JS separate-save/dirty-state behavior;
+  browser desktop/mobile width parity, task navigation, validation, disclosure keyboard/focus, no page overflow.
+  Optional graph index is stale; source/consumer inspection is used without graph completeness claims.
+- Delivered: identical management shell, direct creator course list/editing context, explicit management/learner
+  labels and scoped active navigation. Settings retains separate cover POST and settings PUT with native anchors,
+  bounded inputs, a compact cover, a sticky save region, dirty/revert feedback and cross-form discard guards.
+  Invitation compose is bounded and its four history states localized. Native action disclosures retain post/
+  comment permissions, confirmation, 44px targets and Escape/focus handling; membership removal names its scope.
+- Verification: full Linux-copy MySQL scool_test run 749 tests / 9,679 assertions PASS (337.730s).
+  This precedes the final course-entry/breadcrumb and responsive/focus refinements; the final 131-test targeted
+  gate passed 4,464 assertions (14.552s) on those final files. JS 81/81 PASS; production build, touched-test Pint,
+  diff and structural routing/privacy checks PASS. Exact QA/checkout parity verified for 840 tracked/new files.
+  The full run caught three obsolete UI-copy assertions (updated, including the negative visibility check)
+  and a missing QA APP_NAME (corrected only in the disposable QA environment). No business guard was weakened.
+- Browser: all eight operational destinations retain one desktop navigation row; settings/reports both measure
+  1159px at a 1280px viewport after stable scrollbar allocation. Real course-management entry opens the existing
+  editor. Settings/invitations reflow at 375/768px and settings at 320px without page-wide overflow. Section anchors,
+  input dirty/revert, loaded cover, separate native form ownership, native post/comment disclosures and Escape/
+  focus restoration were observed. The actual 127.0.0.1:8080 runtime serves this checkout; no port changes.
+- Limits: no real 200% zoom or no-JS browser run in this follow-up; no live cover/save/revoke/delete was submitted.
+  Guarded tests verify persisted settings, retained validation input and role/access behavior. No host operations,
+  publication, Linear mutation or changes to unrelated backend source. Screenshot references are in M14 acceptance.
+
+## EUR-83 — Owner usability follow-up (2026-11-02)
+
+- Authority: owner approved the seven reported groups and requested a new branch and implementation.
+  No publication, Linear status change or host deployment is authorized.
+- Branch: eur-83-owner-usability from merged main 3b37c67. Preserve the dirty root checkout,
+  existing data and canonical 127.0.0.1:8080 runtime.
+- Approved amendment: visual Tiptap authoring with a Markdown source fallback, private
+  course-scoped image upload/rendering, expanded writing area and unchanged authored content
+  until editing; a 365-day UTC activity calendar; participant-only message polling.
+- Presentation repairs: pagination/heatmap Vietnamese copy, original SVG outline fill,
+  non-collapsing pending discussion panel and an actual cover on member About.
+- Media: JPEG/PNG/WebP, 2 MB, 4096 px; private community_media disk, random filenames.
+  Every read rechecks community/course membership and paid entitlement; member reads require
+  a published lesson reference. Unmanaged/remote images remain links. No data migration.
+- Messaging: one shared transactional service retains participant rechecks, lock order and
+  client-send idempotency; Livewire preserves drafts and polls a visible thread every 2 seconds.
+- Verification: full Linux-copy PHPUnit 746 tests / 9,584 assertions PASS (391.451s),
+  followed by 48 focused tests / 404 assertions PASS after final view/security refinements.
+  JavaScript 77/77 PASS, including Markdown round-trip and the Alpine root-instance regression;
+  production build, Pint, PHPStan and shared contract checks PASS. The first full run exposed
+  a no-JS message fallback regression (fixed) and an incomplete QA archive (corrected).
+- Browser on the actual 127.0.0.1:8080 feature runtime: Vietnamese pagination; SVG paths have
+  no fill; visual editor at desktop/375px; actual image upload and server preview; original
+  lesson content unchanged after reload; expanded editor Save and unobscured heading; About
+  cover alongside a classroom action above the fold; 365 cells/53 weeks and local mobile
+  chart scrolling; draft retained across real polling; pending discussion height 321.6px.
+- Cleanup: two exact-hash unreferenced synthetic uploads removed; no lesson save, seed/reset,
+  account creation, message send or host operation. Existing ports/data/uploads and unrelated
+  root edits retained. Local runtime now mounts this feature checkout, not another port.
+- Limits: browser send/receive in two independent sessions and real 200% zoom not repeated;
+  service/Livewire send/refresh/revocation/idempotency are covered by guarded tests.
+  Changes remain uncommitted; no PR, CI, merge or Linear status claim.
+
+## EUR-83 — Approved-UI preservation follow-up (2026-11-02)
+
+- Authority: owner requested a thorough audit of the integrated M14 changes, including
+  PR/Linear handoff comments, and correction of confirmed regressions/scope drift.
+  Publication and host deployment are not part of this follow-up authorization.
+- Branch: eur-83-preserve-approved-ui from main af3540b; compare the complete M14
+  change surface against contract-freeze baseline 1ce19a2. Preserve the dirty root
+  checkout, existing local runtime, data and canonical 127.0.0.1:8080 origin.
+- Contract: Product Scope 23, Architecture 18, Delivery 20 and Design 13; live Linear
+  EUR-73–85 and original PR #72–83 descriptions/discussions are review inputs.
+- Confirmed drift: PR #74 changed the S-chain logo/favicon, brand typography and
+  static landing footer despite the retained-identity/landing contract. Restore
+  only those presentation hunks; retain M14 translations, hub/navigation policies,
+  course management and accepted landing motion. Refresh favicon cache version.
+- Additional corrections: remove 38 unapproved dark utility tokens; complete UI/
+  accessibility/status and domain-failure translations, localized month/day names
+  and escaped-symbol labels. Nine backend deltas are exclusively literal translation
+  wrappers; stored enums, authored content, authorization and mutations are unchanged.
+- Review inputs: 13 live Linear contracts, 31 Linear comments, 12 original PR bodies
+  and 14 discussion entries. Preserve the documented duplicate hub entries, approved
+  tree/editor/preview and Start/Continue workflow, and the five actual point levels.
+- Verification: two cover/flash regressions fail on old views then pass; final locale
+  suites 24 passed / 3,360 assertions; final full PHP 742 passed / 9,530 assertions,
+  305.60s, zero failures/skips on guarded MySQL scool_test. Exact source parity:
+  378 runtime/worktree files. JavaScript 72 passed; build app-yB9fOYEg.css and
+  app-qfwVCcvI.js; Pint 333 files, PHPStan and shared routing/privacy checks passed.
+- Browser: restored branding/static footer; mobile menu and actual marquee movement;
+  Owner hub/keyboard tree/safe preview; learner completion remains 33% after reload;
+  fresh welcome leaks no community and direct hub returns 403. Checked 375/768/1280.
+  Sanitized follow-up captures and the superseded branding claim are recorded in
+  testing-docs/M14/acceptance.md. Native 200% zoom/no-JS/throttling not repeated.
+- Optional graph refresh succeeded locally; MCP compare transport closed and cached
+  context remained stale. No complete graph/taint coverage is claimed.
+- Publication authorized on 2026-11-02: commit/push/PR and merge after required
+  CI/review; publication is pending at this checkpoint. No Linear mutation or
+  host release is included. EUR-84 remains separate.
+  Temporary QA routing/container cleanup is verified before final handoff.
+
+## EUR-83 — Integrated M14 audit and acceptance (2026-11-01)
+
+- Authority: current user authorization to finish acceptance, comment, commit, push,
+  merge subject to required review/CI, and set accepted issues Done.
+- AC source: live Linear EUR-74 through EUR-83 and EUR-85; frozen mentor contract in
+  Product Scope 23, Architecture 18, Delivery 20 and Design 13. Host release is EUR-84.
+- Candidate: branch eur-83-m14-audit-fixes from PR #83 at
+  f3e87559f53c67e558b3470af18cee50820fde42. All nine feature lanes are already in that
+  ancestry; PR #75 research history is integrated with the reviewed corrected note.
+  Preserve the unrelated dirty root checkout and its existing local runtime.
+- Corrections: exact-origin/intended-route validation (including hostile lookalike
+  hosts), preview abort/stale-response guards, native collapsible mobile course tree,
+  validation selection, missing Vietnamese interface/validation/auth mail/notification/
+  onboarding/status copy, correct zero-point level/progress and post-like rules.
+  Translation-only fixes preserve content names and authorization/state contracts.
+- Research: EUR-85 now distinguishes signed access, masking and licensed DRM; removes
+  unsupported guarantees/prices, cites primary sources and defers implementation.
+- Full-suite evidence: 736 passed, 9,321 assertions, no failures/skips, 301.74s.
+  Command: php artisan test --fail-on-skipped --fail-on-empty-test-suite
+  --log-junit /tmp/m14-final-junit.xml --no-ansi.
+  Run sequentially on guarded MySQL scool_test in a Linux filesystem copy; APP_NAME
+  S-cool and canonical APP_URL match the checked-in setup. 106 PHP test class files.
+  All 378 app/catalog/resource/test files matched worktree SHA-256 before the run.
+- Inventory correction: the prior 154-test/1,945-assertion checkpoint did NOT establish
+  complete discovery on the Windows bind mount. That acceptance claim is superseded
+  by the complete Linux-copy run above. Interrupted runs are not acceptance evidence.
+- Frontend: 72/72 JS tests; production assets app-DL_tfS_H.css and app-BF5cHejR.js.
+  Preview race regressions fail before the fix and pass after it. Landing harness
+  resolves literal translation/JS wrappers and retains the original motion scenarios.
+- Static gates: Pint 333 files PASS; PHPStan no errors; diff check PASS; shared agent
+  contract 11 tracked files/routing/privacy PASS. Optional graph impact is a lower
+  bound for dynamic Laravel/Blade, not proof of acceptance or a vulnerability report.
+- Browser: canonical 127.0.0.1:8080, isolated scool_test fixtures, verified expert owner.
+  Owner hub/Admin, editor preview, invalid-video recovery/save, local invitation;
+  fresh welcome -> accept -> Feed -> lesson completion/reload -> post/reply;
+  denied learner management; scoped directory, deliberate About and paid-course gate.
+  375/768/1280 checks and native keyboard interactions passed; font/glyph check passed.
+- Evidence/inventory/captions: testing-docs/M14/acceptance.md and 8 synthetic captures.
+  The temporary QA proxy was removed and original local routing restored (HTTP 200).
+  No development/host DB reset, new dependency, real payment or DRM implementation.
+- Limits: no CloudPanel/Azure release or real external-mail acceptance. Native 200%
+  zoom/no-JS/throttled-network checks were not repeated; no accessibility compliance
+  claim. Required PR CI, independent approval and merge are publication gates.
+- Publication: the final commit/PR/check/review/merge receipts belong in GitHub and
+  Linear. Do not infer Done from this local checkpoint.
+
+## EUR-75 — Access-scoped learner entry and discovery (2026-10-30)
+
+- Authority: User instruction to execute task M14 of issue [EUR-75](https://linear.app/eurusdevsec/issue/EUR-75/m14-access-scoped-learner-entry-and-discovery).
+- Baseline: branch `eur-75-access-scoped-learner-entry` at `a843b66`. Untracked/ignored: `docs/EUR_75_IMPLEMENTATION_PLAN.md`, `prompt.md`, `promp.md`, `.agent/`.
+- Outcome: In an expert deployment, a learner lands where they can actually learn: their only community's Feed, a chooser of their communities, or a welcome state — never a directory of communities they have not joined.
+- AC:
+  - AC-01: Given expert mode and a fresh verified learner with zero memberships, `/dashboard` shows the welcome state and no pre-existing community name.
+  - AC-02: Given one effective membership, `/dashboard` redirects to that community's Feed.
+  - AC-03: Given two memberships and one unjoined community, the chooser shows exactly the two; `?filter=all`, `?q=<unjoined name>`, `?page=2` and counts never reveal the third.
+  - AC-04: Given a membership suspended or expired after login, the next request neither lists nor redirects into that community.
+  - AC-05: Given a guest opening an invitation, registering and verifying email, the user returns to the invitation page.
+  - AC-06: Given a permitted About link, a learner sees the approved preview and join/checkout action without gaining membership.
+  - AC-07: Given general mode, the existing discovery behavior and `CommunityDiscoveryTest` remain green.
+- Scope boundaries: Owns `app/Http/Controllers/CommunityController.php` (expert mode scoped routing), `app/Policies/CommunityPolicy.php` (expert mode create gate), `resources/views/communities/welcome.blade.php` (welcome state view), `app/Http/Controllers/CommunityInvitationController.php` (intended URL persistence), `app/Http/Controllers/Auth/RegisteredUserController.php` (intended redirect), and `resources/views/communities/index.blade.php` create button gate. Excludes general-mode discovery changes, public/private listing field, auto-membership, deleting communities.
+- Verification plan: `tests/Feature/ExpertLearnerEntryTest.php` covering AC-01 to AC-07; regression runs on `CommunityDiscoveryTest`, `CommunityWorkspaceSwitcherTest`, `PrivateCommunityAccessTest`, `CommunityAcquisitionTest`, `WebsiteManagementHubTest`.
+- Verification results (2026-10-31):
+  - `php artisan test tests/Feature/ExpertLearnerEntryTest.php`: 8 passed (47 assertions), Exit 0. AC-01 through AC-07 + policy gates fully verified.
+  - Regression suite (`CommunityDiscoveryTest`, `CommunityWorkspaceSwitcherTest`, `PrivateCommunityAccessTest`, `CommunityAcquisitionTest`, `WebsiteManagementHubTest`, `ExpertLearnerEntryTest`): 46 passed (444 assertions), Exit 0.
+  - PHPStan: `vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M --no-progress` -> [OK] No errors, Exit 0.
+  - Pint: `composer run pint:test` -> PASS across all 324 files, Exit 0.
+  - Frontend build: `npm run build` -> built in 4.36s, Exit 0.
+  - JS unit tests: `node --test tests/js/*.test.mjs` -> 69 pass, 0 fail, Exit 0.
+  - Agent contract: `scripts/verify-agent-contract.sh --require-tracked` -> PASS, 11 shared files valid, Exit 0.
+- Status: Ready for Review (acceptance-ready).
+
+## EUR-76 — Quản trị website management hub (2026-10-29)
+
+- Authority: User instruction to execute task M14 of issue [EUR-76](https://linear.app/eurusdevsec/issue/EUR-76/m14-quan-tri-website-management-hub).
+- Baseline: branch `eur-76-website-management-hub` at `e4395d0`. Untracked/ignored: `prompt.md`, `promp.md`, `.agent/`.
+- Outcome: The owner opens **Quản trị website** from the main navigation and reaches every management task for every community without switching accounts or hunting through menus.
+- AC:
+  - AC-01: Given the owner with two communities, the hub lists both and each link opens the correct community's existing tool.
+  - AC-02: Given a learner, the hub link is absent and the hub URL returns 403.
+  - AC-03: Given 375px and desktop, the hub is usable without horizontal overflow and reachable by keyboard.
+  - AC-04: Every label on the hub is Vietnamese.
+- Scope boundaries: Owns `routes/web.php` (`/website-hub`), `app/Http/Controllers/WebsiteManagementHubController.php`, `resources/views/website-hub/index.blade.php`, and `resources/views/layouts/navigation.blade.php` hunk. Excludes new site-wide aggregate lists, new metrics, branding/settings editors.
+- Target files:
+  - `config/scool.php`
+  - `app/Models/User.php`
+  - `routes/web.php`
+  - `app/Http/Controllers/WebsiteManagementHubController.php`
+  - `resources/views/website-hub/index.blade.php`
+  - `resources/views/layouts/navigation.blade.php`
+  - `lang/modules/classroom/vi.json`
+  - `tests/Feature/WebsiteManagementHubTest.php`
+- Verification results (2026-10-29):
+  - `php artisan test tests/Feature/WebsiteManagementHubTest.php`: 7 passed (53 assertions), Duration 18.25s, Exit 0. AC-01 to AC-04 fully verified.
+  - `php artisan test tests/Feature/LearnerCourseFlowTest.php`: 6 passed (59 assertions), Duration 19.40s, Exit 0.
+  - `php artisan test tests/Feature/LearningReaderTest.php`: 5 passed (35 assertions), Duration 20.09s, Exit 0.
+  - `php artisan test tests/Feature/LessonAuthoringToolbarTest.php`: 8 passed (39 assertions), Duration 20.14s, Exit 0.
+  - `php artisan test tests/Feature/CourseManagementWorkspaceTest.php`: 7 passed (75 assertions), Duration 20.51s, Exit 0.
+  - `php artisan test tests/Feature/ClassroomRegressionTest.php`: 12 passed (236 assertions), Duration 24.52s, Exit 0.
+  - Full suite: 45 passed (497 assertions) in 33.36s.
+  - `composer run pint:test`: 323 files passed with zero style violations.
+  - `vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M`: 132/132 files checked, [OK] No errors.
+  - `npm run build`: built in 2.12s, Exit 0.
+  - `node --test tests/js/*.test.mjs`: 24 passed, 0 failed.
+  - `bash scripts/verify-agent-contract.sh`: [PASS] 11 shared files; routing/privacy gates valid.
+- Status: Ready for user review and acceptance. Awaiting authorization to commit/push/merge.
+
+## EUR-81 — Learner course flow and completion feedback (2026-10-28)
+
+- Authority: User instruction to execute task M14 of issue [EUR-81](https://linear.app/eurusdevsec/issue/EUR-81/m14-learner-course-flow-and-completion-feedback).
+- Baseline: branch `eur-81-learner-course-flow` at `16742fc`. Untracked/ignored: `docs/EUR_81_IMPLEMENTATION_PLAN.md`, `prompt.md`, `promp.md`.
+- Outcome: A learner opens a course, sees where to start or continue, studies with a clear outline, and marks lessons complete with feedback that reflects what the server saved.
+- AC:
+  - AC-01: Given a learner with lessons 1–2 complete, **Học tiếp** opens lesson 3.
+  - AC-02: Given a failed completion request, the previous state remains, a Vietnamese error appears and retry works.
+  - AC-03: Double-clicking completion creates one progress record and no duplicate contribution.
+  - AC-04: Drafts and empty unpublished sections stay hidden; suspended/removed users and mismatched course/lesson URLs cannot read content or change progress.
+  - AC-05: An unentitled learner on a paid course sees price/access explanation and cannot fetch lesson bodies or private media.
+- Scope boundaries: Owns `classroom/courses/show.blade.php` (Start/Continue entry & hidden empty sections), `classroom/lessons/show.blade.php` (outline reader, highlight & translations), `components/lesson-progress.blade.php` (loading, retry & Vietnamese error feedback), and `lang/modules/classroom/vi.json`. Does NOT add auto-complete, forced auto-next, or modify Markdown toolbar/preview (`EUR-80`).
+- Target files:
+  - `lang/modules/classroom/vi.json`
+  - `resources/views/components/lesson-progress.blade.php`
+  - `resources/views/classroom/courses/show.blade.php`
+  - `resources/views/classroom/lessons/show.blade.php`
+  - `tests/Feature/LearnerCourseFlowTest.php`
+- Verification results (2026-10-28):
+  - `php artisan test tests/Feature/LearnerCourseFlowTest.php`: 6 passed (59 assertions), Duration 19.40s, Exit 0. AC-01 to AC-06 fully verified.
+  - `php artisan test tests/Feature/LearningReaderTest.php`: 5 passed (35 assertions), Duration 20.09s, Exit 0.
+  - `php artisan test tests/Feature/LessonProgressTest.php`: 11 passed (55 assertions), Duration 20.97s, Exit 0.
+  - `php artisan test tests/Feature/ClassroomRegressionTest.php`: 12 passed (236 assertions), Duration 24.52s, Exit 0.
+  - `php artisan test tests/Feature/CourseManagementWorkspaceTest.php`: 7 passed (75 assertions), Duration 20.51s, Exit 0.
+  - `php artisan test tests/Feature/LessonAuthoringToolbarTest.php`: 8 passed (39 assertions), Duration 20.14s, Exit 0.
+  - `node --test tests/js/*.test.mjs`: 69 passed, 0 failed, Duration 291ms, Exit 0.
+  - `composer run pint:test`: 320 files passed with zero style violations.
+  - `vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M`: 130/130 files checked, [OK] No errors.
+  - `npm run build`: built in 4.58s, Exit 0.
+  - `bash scripts/verify-agent-contract.sh`: [PASS] 11 shared files; routing/privacy gates valid.
+- Status: Ready for user review and acceptance. Awaiting authorization to commit/push/merge.
+
+## EUR-80 — Lesson authoring toolbar, preview and resource links (2026-10-28)
+
+- Authority: User instruction to execute task M14 of issue [EUR-80](https://linear.app/eurusdevsec/issue/EUR-80/m14-lesson-authoring-toolbar-preview-and-resource-links).
+- Baseline: branch `eur-80-lesson-authoring-toolbar-preview` at `9b67b0a825a00242b1d5938823c860ff30c11b54`. Untracked/ignored: `docs/EUR_80_IMPLEMENTATION_PLAN.md`, `prompt.md`, `promp.md`, `.agents/`.
+- Outcome: Owner formats lesson content (headings, bold, italic, lists, resource links, quote) with toolbar buttons and previews rendered output before publishing, without learning Markdown.
+- AC:
+  - AC-01: Toolbar buttons wrap selection or insert template, keeping focus in field.
+  - AC-02: Preview output matches published reader output (`LessonMarkdown` & `.lesson-prose`).
+  - AC-03: Script tags, `javascript:` links, iframe, raw HTML sanitized/stripped.
+  - AC-04: Legacy plain-text lessons render correctly with `<p>` and soft breaks `<br>`.
+  - AC-05: Preview endpoint denies non-creators and foreign courses (403/404).
+- Scope boundaries: Owns `classroom-lesson-fields.blade.php`, `resources/js/lesson-authoring.js`, and `LessonController::preview`. Does NOT add WYSIWYG, file upload schema, or modify `lesson-progress.blade.php`.
+- Target files:
+  - `routes/web.php`
+  - `app/Http/Controllers/LessonController.php`
+  - `lang/modules/classroom/vi.json`
+  - `resources/js/lesson-authoring.js`
+  - `resources/js/app.js`
+  - `resources/views/components/classroom-lesson-fields.blade.php`
+  - `tests/js/lesson-authoring.test.mjs`
+  - `tests/Feature/LessonAuthoringToolbarTest.php`
+- Verification results (2026-10-28):
+  - `node --test tests/js/*.test.mjs`: 69 passed, 0 failed, Duration 273ms, Exit 0.
+  - `npm run build`: built in 2.05s, Exit 0.
+  - `composer run pint:test`: 319 files passed with zero style violations.
+  - `vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M`: 130/130 files checked, [OK] No errors.
+  - `php artisan test tests/Feature/LessonAuthoringToolbarTest.php`: 7 passed (35 assertions), Exit 0.
+  - `php artisan test tests/Feature/ClassroomRegressionTest.php`: 12 passed (236 assertions), Exit 0.
+  - `php artisan test tests/Feature/CourseManagementWorkspaceTest.php`: 7 passed (75 assertions), Exit 0.
+  - `bash scripts/verify-agent-contract.sh`: [PASS] 11 shared files; routing/privacy gates valid.
+- Status: Ready for user review and acceptance. Awaiting authorization to commit/push/merge.
+
+## EUR-79 — Course management workspace (tree + editor) (2026-10-27)
+
+- Authority: User instruction to execute task M14 of issue [EUR-79](https://linear.app/eurusdevsec/issue/EUR-79/m14-course-management-workspace-tree-editor).
+- Baseline: branch `eur-79-course-management-workspace` at `1ce19a23905c0f0b398b24f7e17b9ba3767ce11b`. Untracked files preserved: `docs/EUR_79_IMPLEMENTATION_PLAN.md`, `promp.md`, `prompt.md`.
+- Outcome: Creator course management workspace with two-column layout (section/lesson tree on left, selected item editor on right, stacked on mobile < 768px). Inline create/reorder for sections and lessons; course settings and cover management. Selection preserved via URL query param (`?lesson=`, `?section=`, `?tab=`) across redirects and validation failures.
+- AC:
+  - AC-01: Owner creates course, 2 chapters, 3 lessons appearing in tree in order without full-page hunt.
+  - AC-02: Validation error editing lesson returns page with that lesson selected and input preserved via `old()`.
+  - AC-03: Reordering section and lesson persists across refresh.
+  - AC-04: Learner or creator of foreign community receives 403/404 on workspace view and mutations.
+  - AC-05: Responsive at 375px without horizontal overflow; accessible by keyboard.
+  - AC-06: 100% Vietnamese labels registered in `lang/modules/classroom/vi.json`.
+- Scope boundaries: Uses existing mutation endpoints; no new POST/PUT/DELETE endpoints. Does NOT modify `classroom.courses.show` forms (preserving existing regression tests). Does NOT modify Markdown toolbar/preview (`EUR-80`).
+- Target files:
+  - `routes/web.php`
+  - `app/Http/Controllers/CourseController.php`
+  - `app/Providers/AppServiceProvider.php`
+  - `lang/modules/classroom/vi.json`
+  - `resources/views/classroom/courses/manage.blade.php`
+  - `resources/views/components/classroom-course-fields.blade.php`
+  - `resources/views/components/classroom-lesson-fields.blade.php`
+  - `resources/views/components/classroom-reorder.blade.php`
+  - `resources/views/classroom/courses/show.blade.php` (link to workspace for creators)
+  - `tests/Feature/CourseManagementWorkspaceTest.php`
+- Verification results (2026-10-27):
+  - `php artisan test tests/Feature/CourseManagementWorkspaceTest.php`: 7 passed (75 assertions), Duration 19.55s, Exit 0. AC-01 to AC-06 fully verified (including 100% Vietnamese on course settings and lesson authoring forms).
+  - `php artisan test tests/Feature/ClassroomRegressionTest.php`: 12 passed (236 assertions), Duration 22.85s, Exit 0.
+  - `php artisan test tests/Feature/ClassroomPublishingTest.php`: 8 passed (106 assertions), Duration 21.04s, Exit 0.
+  - `composer run pint:test`: 318 files passed with zero style violations.
+  - `vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M`: 129/129 files checked, [OK] No errors.
+  - `npm run build`: built in 2.14s, Exit 0.
+  - Chrome DevTools inspection: Checked on active browser instance. 375px mobile viewport confirmed zero horizontal overflow (`scrollWidth: 375, clientWidth: 375, hasHorizontalOverflow: false`). Desktop 1280px 2-column view confirmed interactive selection and tree reordering. Both course settings and lesson authoring forms verified 100% Vietnamese labels and options. Zero console errors.
+- Independent review and publication authorization: Pending user review and authorization.
+## EUR-78 — M14 Vietnamese sweep: account, commerce, admin and secondary screens (2026-10-28)
+
+- Authority: developer assigned [EUR-78](https://linear.app/eurusdevsec/issue/EUR-78); user approved implementation plan based on EUR-77 branch.
+- Starting branch: `hadangkhoasss/eur-78-m14-vietnamese-sweep-account-commerce-admin-and-secondary` branched from `cdbfe03346a9c1bdd4cceaae3cbb5f48419d7200` (EUR-77).
+- Scope & Contracts implemented (D14):
+  - Created 4 isolated per-module translation catalogs under `lang/modules/`:
+    - `lang/modules/account/vi.json` (account navigation, profiles, notifications, memberships).
+    - `lang/modules/admin/vi.json` (platform admin supervision, status filters, suspension/reactivation modals & audit reasons).
+    - `lang/modules/commerce/vi.json` (orders, payment history, receipts, checkout, pricing settings, simulated referral balances & earnings notices).
+    - `lang/modules/secondary/vi.json` (invitations accept & management, community preview, help center guides, landing header dropdowns).
+  - Wrapped visible strings, labels, status badges, empty states, and errors with `__()`:
+    - Views: `account/payment-history/index.blade.php`, `account/payment-history/show.blade.php`, `account/memberships/show.blade.php`, `account/referrals.blade.php`, `communities/orders/index.blade.php`, `communities/partials/access-pricing.blade.php`, `communities/invitations.blade.php`, `invitations/accept.blade.php`, `payments/checkout.blade.php`, `help/index.blade.php`, `welcome.blade.php`.
+    - Mail & Models: `app/Mail/CommunityInvitationMail.php` (subject & body Vietnamese, `acceptUrl` preserved), `resources/views/mail/community-invitation.blade.php`, `app/Models/CommunityMembership.php` (`accessStateLabel()`), `app/Models/Payment.php` (`purposeLabel()`).
+    - Controllers: `PaymentController.php`, `CommunityInvitationController.php`, `ReferralController.php` (flash status messages).
+  - Preserved Vietnamese Test Mode labeling: "Chế độ thử nghiệm SePay", simulated transaction notices (AC-04).
+- Verification:
+  - `tests/Feature/VietnameseSweepTest.php`: 5 passed, 39 assertions covering AC-01 to AC-04.
+  - `tests/Feature/VietnameseLocaleTest.php`: 8 passed, 363 assertions; module catalogs collision-free and deterministically loaded.
+  - Code style: `./vendor/bin/pint --test` PASS (323 files).
+  - Structural contract: `bash scripts/verify-agent-contract.sh` exited 0 (11 shared files PASS).
+## EUR-82 — M14 Community discussion, members and points clarity (2026-10-29)
+
+- Authority: assigned [EUR-82](https://linear.app/eurusdevsec/issue/EUR-82); user agreed and selected Phương án A (real 5-level thresholds matching `PointContribution::THRESHOLDS` and clear Vietnamese point calculation card).
+- Starting branch: `hadangkhoasss/eur-82-m14-community-discussion-members-and-points-clarity` branched from `cdbfe03` (`hadangkhoasss/eur-77-m14-vietnamese-default-locale-foundation`).
+- Scope & Contracts implemented:
+  - Created dedicated module translation catalog `lang/modules/community/vi.json` covering feed, discussions, composer, comments, members directory, events, leaderboard, and Livewire reactions/viewer. No key collisions with `lang/vi.json`.
+  - Refactored `CommunityLeaderboardController::getCommunityLevels()` and `resources/views/communities/leaderboard.blade.php`:
+    - Swapped 9 hardcoded mock levels and "Distribution not measured" placeholders for the real 5 threshold levels (Level 1: 0, Level 2: 5, Level 3: 15, Level 4: 30, Level 5: 60) calculated by `PointContribution::THRESHOLDS`.
+    - Added explicit "Quy tắc tính điểm & Cấp độ" and "Bảng xếp hạng & Cách tính điểm" cards explaining +1 point per post/comment like, no self-likes, and automatic deduction on unlike.
+  - Localized controller redirect status flash messages (`post-created`, `comment-created`, `event-created`, `member-suspended`, etc.) and Livewire notices (`PostLikeButton`, `PostSaveButton`, `DiscussionViewer`) to natural Vietnamese text.
+- Verification:
+  - `tests/Feature/CommunityDiscussionPointsTest.php`: 5 passed, 69 assertions covering AC-01 to AC-05.
+  - `tests/Feature/CommunityLeaderboardTest.php`: 8 passed, 75 assertions.
+  - `tests/Feature/LeaderboardMultiMetricTest.php`: 3 passed, 10 assertions.
+  - `tests/Feature/VietnameseLocaleTest.php`: 8 passed, 336 assertions.
+  - Code style: `./vendor/bin/pint --test` passed across all 323 files.
+  - Structural agent contract: `scripts/verify-agent-contract.sh --require-tracked` exited 0 (11 shared files PASS).
+
+## EUR-77 — M14 Vietnamese default locale foundation (2026-10-27)
+
+- Authority: developer assigned [EUR-77](https://linear.app/eurusdevsec/issue/EUR-77); user explicitly instructed branch creation and implementation.
+- Starting branch: `hadangkhoasss/eur-77-m14-vietnamese-default-locale-foundation` from `main` at `1ce19a23905c0f0b398b24f7e17b9ba3767ce11b` (EUR-73 merge).
+- Scope & Contracts implemented:
+  - `config/app.php` sets `locale => env('APP_LOCALE', 'vi')` and `fallback_locale => env('APP_FALLBACK_LOCALE', 'en')`.
+  - `.env.example` defaults `APP_LOCALE=vi`, `APP_FALLBACK_LOCALE=en`.
+  - `phpunit.xml` explicitly sets `<env name="APP_LOCALE" value="en"/>` for backward-compatible English test suite execution.
+  - `app/Providers/AppServiceProvider.php` implements `registerModuleTranslations()`: scans `lang/modules/`, sorts module directories alphabetically (deterministic order, D14), and registers each via `loadJsonTranslationsFrom()`.
+  - Hand-written Laravel core language files in `lang/vi/`: `auth.php`, `pagination.php`, `passwords.php`, `validation.php` (including attribute names for real application form fields).
+  - Common translation catalog in `lang/vi.json` covering navigation, auth screens, status labels, actions, and D6 six-tab labels: **Cộng Đồng / Lớp Học / Lịch / Thành Viên / Bảng xếp hạng / Giới Thiệu**.
+  - Verified that all auth templates and layout components are properly wrapped with `__()`.
+- Verification:
+  - `tests/Feature/VietnameseLocaleTest.php`: 8 passed, 67 assertions covering AC-01 to AC-06, clean bootstrap default resolution check, explicit `en` compatibility check, validation attributes, D6 tabs, module catalog loader, key collision check, and diacritic UTF-8 integrity.
+  - Regression checks: `tests/Feature/Auth` passed (28 tests, 84 assertions); `tests/Feature/CommunityWorkspaceSwitcherTest.php` passed (6 tests, 63 assertions).
+  - Pint code style: 7 files passed cleanly (`./vendor/bin/pint --test`).
+  - Structural agent contract: `bash scripts/verify-agent-contract.sh` exited 0 (11 shared files PASS).
+  - Browser verification: live browser check on `http://127.0.0.1:8080/login` verified complete Vietnamese text and clean glyph rendering with Be Vietnam Pro.
+
 ## EUR-73 — M14 contract freeze (2026-10-27)
 
 - Authority: product owner requested execution of [EUR-73](https://linear.app/eurusdevsec/issue/EUR-73).

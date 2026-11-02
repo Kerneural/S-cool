@@ -9,7 +9,7 @@
                         <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                         </svg>
-                        <span>{{ session('status') }}</span>
+                        <span>{{ __(session('status')) }}</span>
                     </div>
                 </div>
             @endif
@@ -169,19 +169,19 @@
                             <div class="flex items-center gap-4 shrink-0">
                                 <div class="w-16 h-16 rounded-2xl flex flex-col items-center justify-center text-center shadow-xs border {{ $event->isCancelled() ? 'bg-rose-50 border-rose-200 text-rose-700' : 'bg-brand-50/70 border-brand-200/80 text-brand-900' }}">
                                     <span class="text-[10px] font-bold uppercase tracking-wider {{ $event->isCancelled() ? 'text-rose-600' : 'text-brand-600' }}">
-                                        {{ $event->startsAtInTimezone($displayTimezone)->format('M') }}
+                                        {{ $event->startsAtInTimezone($displayTimezone)->translatedFormat('M') }}
                                     </span>
                                     <span class="text-xl font-bold leading-none mt-0.5">
                                         {{ $event->startsAtInTimezone($displayTimezone)->format('d') }}
                                     </span>
                                     <span class="text-[9px] font-medium text-slate-500 mt-0.5">
-                                        {{ $event->startsAtInTimezone($displayTimezone)->format('D') }}
+                                        {{ $event->startsAtInTimezone($displayTimezone)->translatedFormat('D') }}
                                     </span>
                                 </div>
 
                                 <div class="md:hidden">
                                     <div class="text-xs font-semibold text-slate-900">
-                                        {{ $event->startsAtInTimezone($displayTimezone)->format('M d, Y') }}
+                                        {{ $event->startsAtInTimezone($displayTimezone)->translatedFormat('M d, Y') }}
                                     </div>
                                     <div class="text-[11px] text-slate-500">
                                         {{ $event->startsAtInTimezone($displayTimezone)->format('H:i') }} - {{ $event->endsAtInTimezone($displayTimezone)->format('H:i') }} ({{ $displayTimezone }})
