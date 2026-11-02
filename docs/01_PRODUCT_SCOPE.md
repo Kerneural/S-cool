@@ -628,3 +628,21 @@ still requires its own entitlement; purchasing it never grants community members
 No new dark theme, quizzes/certificates, level-based unlock, subscriptions/trials,
 live payments/payouts, file manager, role designer, guest browsing, landing redesign
 or DRM implementation is added. Existing accepted functionality remains intact.
+
+
+#### Owner-approved usability follow-up — 2026-11-02
+
+The owner approved the bounded amendment recorded in Design 13.1 and the EUR-83
+working checkpoint: visual Tiptap editing with preserved Markdown storage/source mode,
+private course-scoped lesson images, a 365-day UTC activity calendar and visible-thread
+message polling. This supersedes earlier no-editor-package/no-upload and refresh-only
+messaging restrictions for these surfaces. Existing tenant, entitlement, draft and
+participant policies remain mandatory. No schema/content migration, message attachments,
+presence or host release is included. Verification/publication remain separate gates.
+
+### Approved social publishing follow-up (2026-11-02)
+
+The owner approved rich social posts, private images/documents, safe HTTPS link cards,
+validated provider video, Unicode emoji, one-level comment replies and single-choice polls.
+This supersedes plain-text-only social scope for new content. Existing plain records are
+unchanged. Post/comment access, ownership/moderation, helpful answers and points remain.

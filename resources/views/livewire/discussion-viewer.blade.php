@@ -8,6 +8,7 @@
         inertNodes: [],
         previousBodyOverflow: '',
         init() {
+            window.addEventListener('social-reply-focused', () => this.$nextTick(() => this.$root.querySelector('[data-social-composer] [contenteditable=true]')?.focus()));
             window.addEventListener('discussion-opened', (e) => {
                 this.opening = false;
                 if (this.cancelledOpening) {
@@ -63,6 +64,7 @@
             this.openError = null;
             this.historyNavigation = fromHistory;
             this.setBackgroundInert(true);
+            this.$nextTick(() => this.$refs.loadingCloseButton?.focus());
 
             try {
                 await $wire.openPost(postId);
@@ -75,6 +77,8 @@
             }
         },
         requestClose() {
+            if (($wire.newCommentBody?.trim() || $wire.commentImages?.length || $wire.commentDocuments?.length)
+                && !window.confirm(@js(__('Discard your unsaved reply?')))) return;
             if (this.opening) {
                 this.cancelledOpening = true;
                 this.setBackgroundInert(false);
@@ -177,11 +181,12 @@
              x-transition:leave="transition ease-in duration-150 motion-reduce:duration-0"
              x-transition:leave-start="opacity-100 translate-y-0"
              x-transition:leave-end="opacity-0 translate-y-1"
-             class="relative w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-3xl bg-white sm:rounded-3xl shadow-2xl border border-slate-200/80 flex flex-col z-10 overflow-hidden">
+             class="relative w-full h-full sm:h-auto sm:min-h-[320px] sm:max-h-[90vh] sm:max-w-3xl bg-white sm:rounded-3xl shadow-2xl border border-slate-200/80 flex flex-col z-10 overflow-hidden">
 
             <div x-show="opening && !isOpen"
-                 class="async-glass absolute inset-0 z-20 flex flex-col items-center justify-center gap-3"
+                 class="async-glass relative min-h-[320px] z-20 flex flex-col items-center justify-center gap-3"
                  role="status">
+                <button type="button" x-ref="loadingCloseButton" @click="requestClose()" aria-label="{{ __('Close discussion') }}" class="absolute right-3 top-3 min-h-10 min-w-10 rounded-lg text-xl text-slate-600 focus:ring-2 focus:ring-brand">×</button>
                 <span class="h-8 w-8 animate-spin motion-reduce:animate-none rounded-full border-2 border-slate-200 border-t-brand-600" aria-hidden="true"></span>
                 <span class="text-sm font-semibold text-slate-600">{{ __('Loading discussion...') }}</span>
             </div>
@@ -234,16 +239,14 @@
             </div>
 
             <!-- Scrollable Content: Post + Comments -->
-            <div x-show="isOpen" class="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6 overscroll-contain">
+            <div x-show="isOpen" class="min-h-0 flex-1 overflow-y-auto p-5 sm:p-6 space-y-6 overscroll-contain">
                 <!-- Post Main Body -->
                 <article class="space-y-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-brand-50 text-brand-700 font-bold flex items-center justify-center text-sm shrink-0 border border-brand-200">
-                            {{ $authorInitial }}
-                        </div>
+                        @if ($socialPost)<x-member-identity :community="$socialPost->community" :user="$socialPost->author" :name="false" />@endif
                         <div>
                             <div class="flex items-center gap-2">
-                                <span class="font-bold text-slate-900 text-sm">{{ $authorName }}</span>
+                                @if ($socialPost)<x-member-identity :community="$socialPost->community" :user="$socialPost->author" :avatar="false" />@endif
                                 @if ($isAuthorCreator)
                                     <span class="px-2 py-0.5 bg-brand-50 text-brand-700 rounded-full text-[10px] font-semibold border border-brand-200">
                                         {{ __('Creator') }}
@@ -258,9 +261,7 @@
                         {{ $postTitle ?: __('Discussion') }}
                     </h2>
 
-                    <div class="prose prose-slate max-w-none text-slate-700 text-sm sm:text-base leading-relaxed whitespace-pre-line">
-                        {{ $postBody }}
-                    </div>
+                    @if ($socialPost)<x-social-post-content :community="$socialPost->community" :post="$socialPost" />@endif
 
                     @if ($postId)
                         <div class="pt-3 border-t border-slate-100 flex items-center gap-4 text-xs text-slate-500">
@@ -315,15 +316,15 @@
                     @else
                         <div class="space-y-3">
                             @foreach ($comments as $comment)
-                                <div class="p-4 rounded-2xl {{ $comment['is_helpful'] ? 'bg-emerald-50/70 border-2 border-emerald-300 shadow-xs' : 'bg-slate-50/80 border border-slate-100' }} space-y-2 group" wire:key="comment-{{ $comment['id'] }}">
+                                @continue(! isset($socialComments[$comment['id']]))
+                                @php $record = $socialComments[$comment['id']]; @endphp
+                                <div class="social-comment p-3 rounded-xl {{ $record->parent_id ? 'ml-4 border-l-2 border-brand' : '' }} {{ $comment['is_helpful'] ? 'bg-emerald-50/70 border-2 border-emerald-300 shadow-xs' : 'bg-slate-50/80 border border-slate-100' }} space-y-2 group" wire:key="comment-{{ $comment['id'] }}">
                                     <div class="flex flex-wrap items-start justify-between gap-3">
                                         <div class="flex min-w-0 flex-1 items-center gap-2.5">
-                                            <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-xs shrink-0">
-                                                {{ $comment['author_initial'] }}
-                                            </div>
+                                            <x-member-identity :community="$socialPost->community" :user="$record->author" :name="false" />
                                             <div class="min-w-0 break-words [overflow-wrap:anywhere]">
                                                 <div class="flex items-center gap-1.5 flex-wrap">
-                                                    <span class="font-bold text-slate-900 text-xs">{{ $comment['author_name'] }}</span>
+                                                    <x-member-identity :community="$socialPost->community" :user="$record->author" :avatar="false" />
                                                     @if ($comment['is_creator'])
                                                         <span class="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-brand-50 text-brand-700">
                                                             {{ __('Creator') }}
@@ -359,10 +360,12 @@
                                                     {{ __('Revoke') }}
                                                 </button>
                                             @endif
-                                            @if ($comment['can_edit'] && $editingCommentId !== $comment['id'])
+                                            @if (($comment['can_edit'] || $comment['can_delete']) && $editingCommentId !== $comment['id'])
+                                                <x-action-menu :label="__('Comment actions').' — '.$comment['id']" wire:key="comment-actions-{{ $comment['id'] }}">
+@if ($comment['can_edit'] && $editingCommentId !== $comment['id'])
                                                 <button type="button"
                                                         wire:click="editComment({{ $comment['id'] }})"
-                                                        class="text-brand-600 hover:text-brand-700 font-medium">
+                                                        class="flex min-h-11 w-full items-center rounded-lg px-3 py-2 text-left text-sm font-medium text-ink hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand">
                                                     {{ __('Edit') }}
                                                 </button>
                                             @endif
@@ -370,19 +373,20 @@
                                                 <button type="button"
                                                         wire:click="deleteComment({{ $comment['id'] }})"
                                                         wire:confirm="{{ __('Delete this comment?') }}"
-                                                        class="text-rose-600 hover:text-rose-800 font-medium">
-                                                    {{ __('Delete') }}
+                                                        class="flex min-h-11 w-full items-center rounded-lg px-3 py-2 text-left text-sm font-semibold text-rose-700 hover:bg-rose-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-rose-600">
+                                                    {{ __('Delete comment') }}
                                                 </button>
+                                            @endif
+                                                </x-action-menu>
                                             @endif
                                         </div>
                                     </div>
 
                                     @if ($editingCommentId === $comment['id'])
                                         <div class="space-y-2 pt-2">
-                                            <textarea wire:model="editingCommentBody"
-                                                      rows="3"
-                                                      maxlength="2000"
-                                                      class="w-full text-xs sm:text-sm rounded-xl border-slate-300 focus:border-brand-500 focus:ring-brand-500 p-2.5 bg-white"></textarea>
+                                            <div wire:ignore wire:key="comment-rich-edit-{{ $comment['id'] }}">
+                                                <x-social-editor :id="'edit-comment-'.$comment['id']" :value="$editingCommentBody" :format="$editingCommentFormat" :limit="2000" :files="false" wire-body="editingCommentBody" wire-format="editingCommentFormat" />
+                                            </div>
                                             @error('editingCommentBody')
                                                 <p class="text-[11px] text-rose-600 font-medium">{{ $message }}</p>
                                             @enderror
@@ -401,9 +405,10 @@
                                             </div>
                                         </div>
                                     @else
-                                        <p class="text-xs sm:text-sm text-slate-700 whitespace-pre-line leading-relaxed pl-9">
-                                            {{ $comment['body'] }}
-                                        </p>
+                                        <x-social-comment-content :community="$socialPost->community" :comment="$record" />
+                                        @if (!$record->parent_id || ($record->parent && !$record->parent->trashed()))
+                                        <button type="button" wire:click="replyTo({{ $record->id }})" class="min-h-11 text-sm font-medium text-brand">{{ __('Reply') }}</button>
+                                        @endif
                                     @endif
                                 </div>
                             @endforeach
@@ -413,24 +418,41 @@
             </div>
 
             <!-- Sticky Comment Composer (Bottom) -->
-            <div x-show="isOpen" class="p-3 sm:p-4 bg-slate-50 border-t border-slate-200 shrink-0">
-                <form wire:submit="addComment" class="space-y-2">
-                    <div class="flex gap-2">
-                        <textarea wire:model="newCommentBody"
-                                  rows="2"
-                                  maxlength="2000"
-                                  placeholder="{{ __('Write a constructive reply...') }}"
-                                  class="flex-1 text-xs sm:text-sm rounded-xl border-slate-300 focus:border-brand-500 focus:ring-brand-500 p-2.5 bg-white shadow-xs resize-none"></textarea>
-                        <button type="submit"
-                                wire:loading.attr="disabled"
-                                class="px-4 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-xl shadow-xs transition active:scale-[0.98] self-stretch flex items-center justify-center disabled:opacity-60">
-                            <span wire:loading.remove wire:target="addComment">{{ __('Reply') }}</span>
-                            <span wire:loading wire:target="addComment">{{ __('Posting...') }}</span>
+            <div x-show="isOpen" class="discussion-composer p-3 sm:px-5 bg-white border-t border-slate-200 shrink-0">
+                <form wire:submit="addComment" class="space-y-2" x-data="{ uploading: false, progress: 0 }"
+                      x-on:livewire-upload-start="uploading = true" x-on:livewire-upload-finish="uploading = false" x-on:livewire-upload-error="uploading = false"
+                      x-on:livewire-upload-progress="progress = $event.detail.progress">
+                    @if ($replyToId)
+                        <div class="flex items-center justify-between rounded-lg bg-brand-soft px-3 text-sm">
+                            <span>{{ __('Replying to') }} <strong>{{ $replyToName }}</strong></span>
+                            <button type="button" wire:click="cancelReply" class="min-h-11 px-2">{{ __('Cancel') }}</button>
+                        </div>
+                    @endif
+                    <div class="flex items-end gap-2">
+                        <span aria-hidden="true" class="hidden h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-soft text-sm font-semibold text-brand sm:flex">{{ mb_substr(auth()->user()->name, 0, 1) }}</span>
+                        <div class="min-w-0 flex-1" wire:key="social-comment-editor" wire:ignore>
+                            <x-social-editor id="discussion-comment-body" :value="$newCommentBody" :format="$newCommentFormat" :limit="2000" :files="false" wire-body="newCommentBody" wire-format="newCommentFormat">
+                                <x-slot:tools>
+                                    <label class="social-tool cursor-pointer focus-within:ring-2 focus-within:ring-brand" title="{{ __('Photo') }}"><x-social-tool-icon name="photo" /><span class="sr-only">{{ __('Photo') }}</span><input type="file" wire:model="commentImages" multiple accept=".jpg,.jpeg,.png,.webp" class="sr-only"></label>
+                                    <label class="social-tool cursor-pointer focus-within:ring-2 focus-within:ring-brand" title="{{ __('Attach file') }}"><x-social-tool-icon name="attachment" /><span class="sr-only">{{ __('Attach file') }}</span><input type="file" wire:model="commentDocuments" multiple accept=".pdf,.docx,.xlsx,.pptx" class="sr-only"></label>
+                                </x-slot:tools>
+                            </x-social-editor>
+                        </div>
+                        <button type="submit" wire:loading.attr="disabled" :disabled="uploading" class="social-send flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full bg-brand text-white disabled:opacity-50" aria-label="{{ __('Send comment') }}" title="{{ __('Send comment') }}">
+                            <x-social-tool-icon name="send" />
                         </button>
                     </div>
-                    @error('newCommentBody')
-                        <p class="text-[11px] text-rose-600 font-medium">{{ $message }}</p>
-                    @enderror
+                    @foreach (['commentImages', 'commentDocuments'] as $field)
+                        @if ($this->$field)
+                            <div class="max-h-20 overflow-y-auto flex flex-wrap items-center gap-2 text-xs text-muted">
+                                @foreach ($this->$field as $file)<span class="break-all">{{ $file->getClientOriginalName() }}</span>@endforeach
+                                <button type="button" wire:click="$set('{{ $field }}', [])" class="min-h-11 px-2 text-rose-700">{{ __('Remove') }}</button>
+                            </div>
+                        @endif
+                        @error($field.'.*')<p class="text-sm text-rose-700">{{ $message }}</p>@enderror
+                    @endforeach
+                    <div x-show="uploading" x-cloak class="text-xs text-brand" role="status">{{ __('Uploading') }} <span x-text="progress + '%'"></span></div>
+                    @error('newCommentBody')<p class="text-sm text-rose-700">{{ $message }}</p>@enderror
                 </form>
             </div>
         </div>

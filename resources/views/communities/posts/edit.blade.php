@@ -23,7 +23,7 @@
                     </p>
                 </div>
 
-                <form method="POST" action="{{ route('communities.posts.update', [$community, $post]) }}" class="space-y-5">
+                <form method="POST" enctype="multipart/form-data" action="{{ route('communities.posts.update', [$community, $post]) }}" class="space-y-5">
                     @csrf
                     @method('PUT')
 
@@ -61,7 +61,7 @@
                             @foreach ($categories as $cat)
                                 @if (! $cat->isAnnouncements() || $community->isCreator(auth()->user()))
                                     <option value="{{ $cat->id }}" {{ old('category_id', $post->category_id) == $cat->id ? 'selected' : '' }}>
-                                        {{ $cat->name }}{{ $cat->isAnnouncements() ? ' (Creator Only)' : '' }}
+                                        {{ $cat->display_name }}{{ $cat->isAnnouncements() ? ' ('.__('Creator Only').')' : '' }}
                                     </option>
                                 @endif
                             @endforeach
@@ -69,11 +69,8 @@
                         <x-input-error :messages="$errors->get('category_id')" class="mt-2" />
                     </div>
 
-                    <div>
-                        <x-input-label for="body" :value="__('Content')" />
-                        <textarea id="body" name="body" rows="8" class="mt-1 block w-full border-slate-300 focus:border-brand-500 focus:ring-brand-500 rounded-xl shadow-xs text-sm text-ink p-3.5" required>{{ old('body', $post->body) }}</textarea>
-                        <x-input-error :messages="$errors->get('body')" class="mt-2" />
-                    </div>
+                    <x-social-editor id="body" :value="old('body', $post->body)" :format="old('content_format', $post->content_format)"  />
+                    <x-social-link-fields id="direct-post" :post="$post" />
 
                     <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
                         <a href="{{ route('communities.posts.show', [$community, $post]) }}" class="inline-flex items-center px-4 py-2.5 bg-white border border-slate-300 rounded-xl font-semibold text-xs text-slate-700 uppercase tracking-widest hover:bg-slate-50 active:scale-[0.98] transition shadow-xs">
@@ -84,6 +81,21 @@
                         </x-primary-button>
                     </div>
                 </form>
+                @if ($post->attachments->isNotEmpty())
+                    <section class="mt-5 space-y-2 border-t border-line pt-4" aria-label="{{ __('Current attachments') }}">
+                        <h2 class="text-sm font-semibold">{{ __('Current attachments') }}</h2>
+                        @foreach ($post->attachments as $file)
+                            <div class="flex items-center justify-between gap-3 rounded-lg border border-line p-3 text-sm">
+                                <a href="{{ route('communities.social-media.show', [$community, $file]) }}" class="min-w-0 break-all text-brand">{{ $file->name }}</a>
+                                <form method="POST" action="{{ route('communities.social-media.destroy', [$community, $file]) }}" onsubmit="return confirm(@js(__('Remove this attachment?')))">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="min-h-11 shrink-0 px-3 text-rose-700">{{ __('Remove file') }}</button>
+                                </form>
+                            </div>
+                        @endforeach
+                    </section>
+                @endif
+
             </div>
         </div>
     </div>

@@ -57,7 +57,7 @@ class ContentReportController extends Controller
         }
 
         if (! $target) {
-            return back()->withErrors(['target_id' => 'The reported content does not exist or has been deleted.']);
+            return back()->withErrors(['target_id' => __('The reported content does not exist or has been deleted.')]);
         }
 
         $postId = $target instanceof Post ? $target->id : $target->post_id;
@@ -94,7 +94,7 @@ class ContentReportController extends Controller
         );
 
         return $created
-            ? back()->with('status', 'Content report submitted to community moderator.')
+            ? back()->with('status', __('Content report submitted to community moderator.'))
             : back()->with('info', 'Your report for this content was already submitted.');
     }
 
@@ -198,7 +198,7 @@ class ContentReportController extends Controller
             }
         );
 
-        return back()->with('status', 'Content removed and report marked as resolved.');
+        return back()->with('status', __('Content removed and report marked as resolved.'));
     }
 
     /**
@@ -245,6 +245,6 @@ class ContentReportController extends Controller
             ]);
         });
 
-        return back()->with('status', 'Report has been dismissed.');
+        return back()->with('status', __('Report has been dismissed.'));
     }
 }

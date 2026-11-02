@@ -19,14 +19,14 @@ class CreateInvitation
             Gate::forUser($creator)->authorize('update', $current);
             $normalized = strtolower(trim($email));
             if ($normalized === strtolower($creator->email)) {
-                throw ValidationException::withMessages(['email' => 'The creator already has access.']);
+                throw ValidationException::withMessages(['email' => __('The creator already has access.')]);
             }
             if ($referrer && $normalized === strtolower($referrer->email)) {
-                throw ValidationException::withMessages(['email' => 'Referrers cannot refer themselves.']);
+                throw ValidationException::withMessages(['email' => __('Referrers cannot refer themselves.')]);
             }
             $existing = $current->invitations()->where('normalized_email', $normalized)->where('status', 'PENDING')->get();
             if ($existing->contains(fn ($invite) => $invite->isPending())) {
-                throw ValidationException::withMessages(['email' => 'A pending invitation already exists. Revoke it before sending another.']);
+                throw ValidationException::withMessages(['email' => __('A pending invitation already exists. Revoke it before sending another.')]);
             }
             foreach ($existing as $expired) {
                 $expired->status = 'EXPIRED';

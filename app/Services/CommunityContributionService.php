@@ -81,7 +81,7 @@ class CommunityContributionService
     /** Bounded, safe activity history; no comment bodies or evidence payloads. */
     public function getActivityHistory(Community $community, User $user, User $viewer): array
     {
-        $start = CarbonImmutable::now('UTC')->startOfDay()->subDays(89);
+        $start = CarbonImmutable::now('UTC')->startOfDay()->subDays(364);
         $end = CarbonImmutable::now('UTC')->endOfDay();
         $posts = Post::query()->where('posts.community_id', $community->id)->where('posts.user_id', $user->id)
             ->whereBetween('posts.created_at', [$start, $end])
@@ -116,7 +116,7 @@ class CommunityContributionService
     }
 
     /**
-     * Compute a 90-day UTC activity heatmap for the user scoped to this community.
+     * Compute a 365-day UTC activity heatmap for the user scoped to this community.
      * Uses bounded aggregate queries; no per-cell database queries.
      *
      * @return array{
@@ -133,7 +133,7 @@ class CommunityContributionService
     {
         $viewer ??= $user;
         $today = CarbonImmutable::now('UTC')->startOfDay();
-        $startDate = $today->subDays(89);
+        $startDate = $today->subDays(364);
         $endDate = $today->endOfDay();
 
         // Single aggregate query for posts
@@ -164,7 +164,7 @@ class CommunityContributionService
         $totalPosts = 0;
         $totalComments = 0;
 
-        for ($i = 0; $i < 90; $i++) {
+        for ($i = 0; $i < 365; $i++) {
             $day = $startDate->addDays($i);
             $dateStr = $day->format('Y-m-d');
 
@@ -196,16 +196,9 @@ class CommunityContributionService
             ];
         }
 
-        $accessibleSummary = $totalContributions === 0
-            ? '0 contributions in the last 90 UTC days.'
-            : sprintf(
-                '%d contributions (%d posts, %d comments) in the last 90 UTC days from %s to %s.',
-                $totalContributions,
-                $totalPosts,
-                $totalComments,
-                $startDate->format('M d, Y'),
-                $today->format('M d, Y')
-            );
+        $accessibleSummary = __(':total contributions (:posts posts, :comments comments) in the last 365 UTC days.', [
+            'total' => $totalContributions, 'posts' => $totalPosts, 'comments' => $totalComments,
+        ]);
 
         return [
             'days' => $days,

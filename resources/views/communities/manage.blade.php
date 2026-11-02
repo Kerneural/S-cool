@@ -46,7 +46,7 @@
                     <div>
                         <div class="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
                             <span>{{ __('Active Members') }}</span>
-                            <span class="text-brand-700 bg-brand-50 px-2 py-0.5 rounded-full text-[11px] font-bold border border-brand-200">ACTIVE</span>
+                            <span class="text-brand-700 bg-brand-50 px-2 py-0.5 rounded-full text-[11px] font-bold border border-brand-200">{{ __('ACTIVE') }}</span>
                         </div>
                         <div class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-3 tabular-nums">
                             {{ $activeMembersCount }}
@@ -72,7 +72,7 @@
                     <div>
                         <div class="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
                             <span>{{ __('Content & Courses') }}</span>
-                            <span class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full text-[11px] font-bold border border-emerald-200">Content</span>
+                            <span class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full text-[11px] font-bold border border-emerald-200">{{ __('Content') }}</span>
                         </div>
                         <div class="flex items-baseline gap-4 mt-3">
                             <div>
@@ -104,7 +104,7 @@
                     <div>
                         <div class="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
                             <span>{{ __('Simulated Receipts') }}</span>
-                            <span class="text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full text-[11px] font-bold border border-amber-200">Test Mode</span>
+                            <span class="text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full text-[11px] font-bold border border-amber-200">{{ __('Test Mode') }}</span>
                         </div>
                         <div class="text-2xl sm:text-3xl font-extrabold text-brand-700 mt-3 tabular-nums">
                             {{ $formattedSimulatedReceipts }}
@@ -129,7 +129,7 @@
                     <div>
                         <div class="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
                             <span>{{ __('Completion Ratio') }}</span>
-                            <span class="text-sky-700 bg-sky-50 px-2 py-0.5 rounded-full text-[11px] font-bold border border-sky-200">Learning</span>
+                            <span class="text-sky-700 bg-sky-50 px-2 py-0.5 rounded-full text-[11px] font-bold border border-sky-200">{{ __('Learning') }}</span>
                         </div>
                         <div class="mt-3">
                             @if ($hasCompletionData)
@@ -212,19 +212,19 @@
                                         <td class="py-3.5 px-4 sm:px-6">
                                             @if ($payment->isSucceeded())
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                                    SUCCEEDED
+                                                    {{ __('SUCCEEDED') }}
                                                 </span>
                                             @elseif ($payment->isPending())
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                                                    PENDING
+                                                    {{ __('PENDING') }}
                                                 </span>
                                             @elseif ($payment->isCancelled())
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-50 text-slate-600 border border-slate-200">
-                                                    CANCELLED
+                                                    {{ __('CANCELLED') }}
                                                 </span>
                                             @else
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
-                                                    FAILED
+                                                    {{ __('FAILED') }}
                                                 </span>
                                             @endif
                                         </td>

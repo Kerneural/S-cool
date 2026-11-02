@@ -36,7 +36,7 @@ class SearchController extends Controller
         $type = $request->query('type', 'posts');
         if (! is_string($type) || ! in_array($type, ['posts', 'courses', 'lessons', 'members', 'events'], true)) {
             throw ValidationException::withMessages([
-                'type' => 'The selected search type is invalid.',
+                'type' => __('The selected search type is invalid.'),
             ]);
         }
 
@@ -46,7 +46,7 @@ class SearchController extends Controller
         if ($request->has('q')) {
             if (! is_string($rawQ)) {
                 throw ValidationException::withMessages([
-                    'q' => 'The search query must be a valid text string.',
+                    'q' => __('The search query must be a valid text string.'),
                 ]);
             }
 
@@ -55,7 +55,7 @@ class SearchController extends Controller
 
             if ($length < 2 || $length > 100) {
                 throw ValidationException::withMessages([
-                    'q' => 'The search query must be between 2 and 100 characters.',
+                    'q' => __('The search query must be between 2 and 100 characters.'),
                 ]);
             }
 
