@@ -82,7 +82,41 @@
             </div>
 
             <!-- Members List Table -->
-            <div class="bg-white shadow-xs rounded-2xl overflow-hidden border border-slate-200/80">
+            <div x-data="{
+                actionModal: false,
+                actionType: '',
+                actionUrl: '',
+                memberName: '',
+                actionTitle: '',
+                actionPrompt: '',
+                actionBtnText: '',
+                actionBtnClass: '',
+                reason: '',
+                openAction(type, url, name) {
+                    this.actionType = type;
+                    this.actionUrl = url;
+                    this.memberName = name;
+                    this.reason = '';
+                    if (type === 'suspend') {
+                        this.actionTitle = 'Tạm khóa thành viên';
+                        this.actionPrompt = 'Vui lòng nhập lý do tạm khóa thành viên này:';
+                        this.actionBtnText = 'Xác nhận tạm khóa';
+                        this.actionBtnClass = 'bg-amber-600 hover:bg-amber-700 text-white';
+                    } else if (type === 'remove') {
+                        this.actionTitle = 'Xóa thành viên khỏi cộng đồng';
+                        this.actionPrompt = 'Vui lòng nhập lý do xóa thành viên này:';
+                        this.actionBtnText = 'Xác nhận xóa';
+                        this.actionBtnClass = 'bg-rose-600 hover:bg-rose-700 text-white';
+                    } else if (type === 'reactivate') {
+                        this.actionTitle = 'Mở khóa thành viên';
+                        this.actionPrompt = 'Vui lòng nhập lý do mở khóa cho thành viên này:';
+                        this.actionBtnText = 'Xác nhận mở khóa';
+                        this.actionBtnClass = 'bg-emerald-600 hover:bg-emerald-700 text-white';
+                    }
+                    this.actionModal = true;
+                    this.$nextTick(() => this.$refs.reasonInput?.focus());
+                }
+            }" class="bg-white shadow-xs rounded-2xl overflow-hidden border border-slate-200/80">
                 <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                         <h1 class="text-lg font-bold text-slate-900 tracking-tight">Danh sách thành viên</h1>
@@ -120,14 +154,15 @@
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-slate-100">
-                                @php \App\Support\CommunityIdentity::prime($community, $memberships->pluck('user_id')->all()); @endphp
                                 @foreach ($memberships as $membership)
                                     <tr class="hover:bg-slate-50/60 transition-colors">
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center gap-3">
-                                                <x-member-identity :community="$community" :user="$membership->user" :name="false" />
+                                                <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+                                                    {{ strtoupper(substr($membership->user->name, 0, 1)) }}
+                                                </div>
                                                 <div>
-                                                    <x-member-identity :community="$community" :user="$membership->user" :avatar="false" />
+                                                    <div class="font-bold text-slate-900">{{ $membership->user->name }}</div>
                                                     <div class="text-slate-400 text-xs">{{ $membership->user->email }}</div>
                                                 </div>
                                             </div>
@@ -175,59 +210,34 @@
                                                 <span class="text-slate-400 italic">Chưa có thay đổi</span>
                                             @endif
                                         </td>
-                                        <td class="px-6 py-4 text-right">
-                                            @if ($membership->status === 'ACTIVE')
-                                                <div class="space-y-2">
-                                                    <form method="POST" action="{{ route('communities.members.suspend', [$community, $membership]) }}" class="flex items-center justify-end gap-2"
-                                                          onsubmit="return confirm('Bạn có chắc chắn muốn tạm khóa thành viên này?');">
-                                                        @csrf
-                                                        <label for="suspend-reason-{{ $membership->id }}" class="sr-only">Lý do tạm khóa</label>
-                                                        <input id="suspend-reason-{{ $membership->id }}" name="reason" type="text" required minlength="3" maxlength="500"
-                                                               class="w-44 rounded-lg border-slate-200 text-xs shadow-2xs focus:border-amber-500 focus:ring-amber-500 py-1.5 px-2.5"
-                                                               placeholder="Lý do tạm khóa">
-                                                        <button type="submit" class="inline-flex min-h-11 items-center px-3 py-2 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200/80 rounded-lg font-bold text-xs transition duration-150 whitespace-nowrap">
-                                                            Tạm khóa
-                                                        </button>
-                                                    </form>
-                                                    <form method="POST" action="{{ route('communities.members.remove', [$community, $membership]) }}" class="flex items-center justify-end gap-2"
-                                                          onsubmit="return confirm('Bạn có chắc chắn muốn xóa thành viên này khỏi cộng đồng?');">
-                                                        @csrf
-                                                        <label for="remove-reason-{{ $membership->id }}" class="sr-only">Lý do xóa</label>
-                                                        <input id="remove-reason-{{ $membership->id }}" name="reason" type="text" required minlength="3" maxlength="500"
-                                                               class="w-44 rounded-lg border-slate-200 text-xs shadow-2xs focus:border-rose-500 focus:ring-rose-500 py-1.5 px-2.5"
-                                                               placeholder="Lý do xóa">
-                                                        <button type="submit" class="inline-flex min-h-11 items-center px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/80 rounded-lg font-bold text-xs transition duration-150 whitespace-nowrap">
-                                                            Xóa khỏi cộng đồng
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            @elseif ($membership->status === 'SUSPENDED')
-                                                <div class="space-y-2">
-                                                    <form method="POST" action="{{ route('communities.members.reactivate', [$community, $membership]) }}" class="flex items-center justify-end gap-2">
-                                                        @csrf
-                                                        <label for="reactivate-reason-{{ $membership->id }}" class="sr-only">Lý do mở khóa</label>
-                                                        <input id="reactivate-reason-{{ $membership->id }}" name="reason" type="text" required minlength="3" maxlength="500"
-                                                               class="w-44 rounded-lg border-slate-200 text-xs shadow-2xs focus:border-emerald-500 focus:ring-emerald-500 py-1.5 px-2.5"
-                                                               placeholder="Lý do mở khóa">
-                                                        <button type="submit" class="inline-flex min-h-11 items-center px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200/80 rounded-lg font-bold text-xs transition duration-150 whitespace-nowrap">
-                                                            Mở khóa
-                                                        </button>
-                                                    </form>
-                                                    <form method="POST" action="{{ route('communities.members.remove', [$community, $membership]) }}" class="flex items-center justify-end gap-2"
-                                                          onsubmit="return confirm('Bạn có chắc chắn muốn xóa thành viên này khỏi cộng đồng?');">
-                                                        @csrf
-                                                        <label for="remove-reason-{{ $membership->id }}" class="sr-only">Lý do xóa</label>
-                                                        <input id="remove-reason-{{ $membership->id }}" name="reason" type="text" required minlength="3" maxlength="500"
-                                                               class="w-44 rounded-lg border-slate-200 text-xs shadow-2xs focus:border-rose-500 focus:ring-rose-500 py-1.5 px-2.5"
-                                                               placeholder="Lý do xóa">
-                                                        <button type="submit" class="inline-flex min-h-11 items-center px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/80 rounded-lg font-bold text-xs transition duration-150 whitespace-nowrap">
-                                                            Xóa khỏi cộng đồng
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            @else
-                                                <span class="text-slate-400 text-xs italic">Không khả dụng</span>
-                                            @endif
+                                        <td class="px-6 py-4 whitespace-nowrap text-right">
+                                            <div class="flex items-center justify-end gap-2">
+                                                @if ($membership->status === 'ACTIVE')
+                                                    <button type="button"
+                                                            @click="openAction('suspend', '{{ route('communities.members.suspend', [$community, $membership]) }}', '{{ addslashes($membership->user->name) }}')"
+                                                            class="inline-flex items-center px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200/80 rounded-lg font-bold text-xs transition duration-150 shadow-2xs">
+                                                        Tạm khóa
+                                                    </button>
+                                                    <button type="button"
+                                                            @click="openAction('remove', '{{ route('communities.members.remove', [$community, $membership]) }}', '{{ addslashes($membership->user->name) }}')"
+                                                            class="inline-flex items-center px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/80 rounded-lg font-bold text-xs transition duration-150 shadow-2xs">
+                                                        Xóa
+                                                    </button>
+                                                @elseif ($membership->status === 'SUSPENDED')
+                                                    <button type="button"
+                                                            @click="openAction('reactivate', '{{ route('communities.members.reactivate', [$community, $membership]) }}', '{{ addslashes($membership->user->name) }}')"
+                                                            class="inline-flex items-center px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200/80 rounded-lg font-bold text-xs transition duration-150 shadow-2xs">
+                                                        Mở khóa
+                                                    </button>
+                                                    <button type="button"
+                                                            @click="openAction('remove', '{{ route('communities.members.remove', [$community, $membership]) }}', '{{ addslashes($membership->user->name) }}')"
+                                                            class="inline-flex items-center px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/80 rounded-lg font-bold text-xs transition duration-150 shadow-2xs">
+                                                        Xóa
+                                                    </button>
+                                                @else
+                                                    <span class="text-slate-400 text-xs italic">Không khả dụng</span>
+                                                @endif
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -241,6 +251,85 @@
                         </div>
                     @endif
                 @endif
+
+                <!-- Action Reason Modal -->
+                <div x-show="actionModal"
+                     x-cloak
+                     @keydown.escape.window="actionModal = false"
+                     class="fixed inset-0 z-50 overflow-y-auto"
+                     role="dialog"
+                     aria-modal="true"
+                     aria-labelledby="member-action-modal-title">
+                    <!-- Backdrop -->
+                    <div x-show="actionModal"
+                         x-transition:enter="ease-out duration-200"
+                         x-transition:enter-start="opacity-0"
+                         x-transition:enter-end="opacity-100"
+                         x-transition:leave="ease-in duration-150"
+                         x-transition:leave-start="opacity-100"
+                         x-transition:leave-end="opacity-0"
+                         @click="actionModal = false"
+                         class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity"></div>
+
+                    <!-- Dialog Box -->
+                    <div class="flex min-h-full items-center justify-center p-4 text-center">
+                        <div x-show="actionModal"
+                             x-transition:enter="ease-out duration-200"
+                             x-transition:enter-start="opacity-0 scale-95"
+                             x-transition:enter-end="opacity-100 scale-100"
+                             x-transition:leave="ease-in duration-150"
+                             x-transition:leave-start="opacity-100 scale-100"
+                             x-transition:leave-end="opacity-0 scale-95"
+                             @click.stop
+                             class="relative transform overflow-hidden rounded-2xl bg-white p-6 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-slate-200">
+                            <form :action="actionUrl" method="POST">
+                                @csrf
+                                <div class="flex items-start justify-between gap-3 mb-4">
+                                    <div>
+                                        <h3 id="member-action-modal-title" class="text-lg font-bold text-slate-900" x-text="actionTitle"></h3>
+                                        <p class="text-xs text-slate-500 mt-1">
+                                            <span>Thành viên:</span> <span class="font-bold text-slate-800" x-text="memberName"></span>
+                                        </p>
+                                    </div>
+                                    <button type="button" @click="actionModal = false" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <div class="mb-5">
+                                    <label for="member-action-reason" class="block text-xs font-semibold text-slate-700 mb-1.5" x-text="actionPrompt"></label>
+                                    <textarea id="member-action-reason"
+                                              name="reason"
+                                              x-ref="reasonInput"
+                                              x-model="reason"
+                                              required
+                                              minlength="3"
+                                              maxlength="500"
+                                              rows="3"
+                                              placeholder="Nhập lý do chi tiết (tối thiểu 3 ký tự)..."
+                                              class="w-full text-sm rounded-xl border-slate-200 focus:border-brand-500 focus:ring-brand-500 bg-slate-50/50 p-3"></textarea>
+                                    <p class="text-[11px] text-slate-400 mt-1">Lý do này sẽ được ghi nhận vào nhật ký kiểm toán quản trị.</p>
+                                </div>
+
+                                <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                                    <button type="button"
+                                            @click="actionModal = false"
+                                            class="px-4 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+                                        Hủy
+                                    </button>
+                                    <button type="submit"
+                                            :class="actionBtnClass"
+                                            :disabled="reason.trim().length < 3"
+                                            class="px-4 py-2 text-xs font-bold rounded-xl transition shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                                            x-text="actionBtnText">
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

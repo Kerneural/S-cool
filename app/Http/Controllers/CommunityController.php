@@ -33,13 +33,28 @@ class CommunityController extends Controller
 
         if ($isExpert) {
             if ($user && $user->isDeploymentOwner()) {
+                $rawFilter = $request->query('filter', 'all');
+                $filter = is_string($rawFilter) && in_array($rawFilter, ['all', 'owned', 'joined'], true) ? $rawFilter : 'all';
+
                 $query = Community::query()
-                    ->where('creator_id', $user->id)
                     ->select(['id', 'creator_id', 'name', 'slug', 'description', 'status', 'cover_path'])
                     ->withExists(['memberships as has_effective_membership' => function ($q) use ($user): void {
                         $q->where('user_id', $user->id)->effective();
                     }]);
-                $filter = 'owned';
+
+                if ($filter === 'owned') {
+                    $query->where('creator_id', $user->id);
+                } elseif ($filter === 'joined') {
+                    $query->where('status', 'ACTIVE')
+                        ->where('creator_id', '!=', $user->id)
+                        ->whereHas('memberships', function ($q) use ($user): void {
+                            $q->where('user_id', $user->id)->effective();
+                        });
+                } else {
+                    $query->where(function ($q) use ($user): void {
+                        $q->active()->orWhere('creator_id', $user->id);
+                    });
+                }
             } else {
                 $query = Community::query()
                     ->accessibleTo($user)
@@ -94,7 +109,12 @@ class CommunityController extends Controller
                         $q->where('user_id', $user->id)->effective();
                     });
             } else {
-                $query->active();
+                $query->where(function ($q) use ($user): void {
+                    $q->active();
+                    if ($user) {
+                        $q->orWhere('creator_id', $user->id);
+                    }
+                });
             }
         }
 

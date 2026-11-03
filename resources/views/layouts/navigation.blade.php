@@ -15,7 +15,7 @@
         ? \App\Models\Community::query()
             ->accessibleTo($currentUser)
             ->active()
-            ->where('id', '!=', $authCommunity->id)
+            ->withCount(['memberships' => fn ($q) => $q->effective()])
             ->orderBy('name')
             ->get()
         : collect();
@@ -30,7 +30,7 @@
                 <!-- S-cool Home / Brand Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}" aria-label="{{ __('S-cool home') }}" class="group rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2">
-                        <x-application-logo class="block h-8 w-auto group-hover:scale-105 transition-transform" />
+                        <x-application-logo class="block h-8 w-auto fill-current text-slate-800 group-hover:scale-105 transition-transform" />
                     </a>
                 </div>
 
@@ -38,14 +38,33 @@
                     <!-- Contextual Shell: Community Switcher Dropdown (AC-08) -->
                     <div class="relative min-w-0 flex-1 text-left" @keydown.escape.stop.prevent="if (switcherOpen) { switcherOpen = false; $refs.shellSwitcherTrigger.focus() }">
                         <button type="button"
-                                x-ref="shellSwitcherTrigger" aria-label="{{ __('Switch Community') }}" @click="switcherOpen = !switcherOpen"
+                                x-ref="shellSwitcherTrigger"
+                                aria-label="{{ __('Switch Community') }}"
+                                @click="switcherOpen = !switcherOpen"
                                 :aria-expanded="switcherOpen.toString()"
                                 aria-controls="shell-community-switcher"
-                                class="inline-flex min-h-10 items-center gap-2 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-line rounded-lg text-xs sm:text-sm font-semibold text-ink transition focus:outline-none focus:ring-2 focus:ring-brand min-w-0 max-w-full md:max-w-[200px] lg:max-w-[260px] shadow-2xs">
-                            <span class="truncate">{{ $authCommunity->name }}</span>
-                            <svg class="w-3.5 h-3.5 text-muted shrink-0 transition-transform duration-150" :class="{ 'rotate-180': switcherOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
+                                class="inline-flex min-h-11 items-center gap-2.5 px-2.5 py-1.5 bg-surface hover:bg-slate-50 border border-line rounded-xl text-ink transition focus:outline-none focus:ring-2 focus:ring-brand min-w-0 max-w-full md:max-w-[240px] lg:max-w-[280px] shadow-2xs group">
+                            <!-- Community Avatar / Cover Thumbnail -->
+                            @if ($authCommunity->cover_path && $authCommunity->isActive())
+                                <img src="{{ route('communities.cover.show', ['community' => $authCommunity, 'v' => $authCommunity->updated_at?->timestamp ?? 'icon']) }}" alt="{{ $authCommunity->name }}" class="w-8 h-8 rounded-lg object-cover shrink-0 shadow-2xs border border-line">
+                            @else
+                                <div class="w-8 h-8 rounded-lg bg-slate-900 text-white font-bold text-xs sm:text-sm flex items-center justify-center shrink-0 shadow-2xs">
+                                    {{ mb_strtoupper(mb_substr($authCommunity->name, 0, 1)) }}
+                                </div>
+                            @endif
+
+                            <!-- Community Name & Subtitle -->
+                            <div class="flex flex-col items-start text-left min-w-0 flex-1">
+                                <div class="flex items-center gap-1 w-full min-w-0">
+                                    <span class="truncate font-bold text-xs sm:text-sm text-ink group-hover:text-brand transition">{{ $authCommunity->name }}</span>
+                                    <svg class="w-3.5 h-3.5 text-muted shrink-0 transition-transform duration-150" :class="{ 'rotate-180': switcherOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </div>
+                                <span class="text-[10px] text-muted truncate w-full uppercase tracking-wider font-medium">
+                                    {{ __('Community') }}
+                                </span>
+                            </div>
                         </button>
 
                         <div id="shell-community-switcher"
@@ -58,26 +77,61 @@
                              x-transition:leave="transition ease-in duration-100"
                              x-transition:leave-start="transform opacity-100 translate-y-0"
                              x-transition:leave-end="transform opacity-0 -translate-y-1"
-                             class="origin-top-left absolute left-0 mt-2 w-72 max-w-[calc(100vw-5rem)] max-h-[70vh] overflow-y-auto rounded-xl shadow-xl shadow-slate-900/10 bg-surface border border-line divide-y divide-line/60 focus:outline-none z-50">
-                            <div class="py-1">
-                                <div class="px-4 py-2 text-xs font-semibold text-slate-600 uppercase tracking-wider bg-slate-50">
-                                    {{ __('Your Active Communities') }}
-                                </div>
+                             class="origin-top-left absolute left-0 mt-2 w-80 max-w-[calc(100vw-2rem)] max-h-[75vh] overflow-y-auto rounded-2xl shadow-xl shadow-slate-900/10 bg-surface border border-line divide-y divide-line/60 focus:outline-none z-50">
+                            
+                            <!-- Header: CHUYỂN ĐỔI CỘNG ĐỒNG -->
+                            <div class="px-4 py-2.5 text-[11px] font-bold text-muted uppercase tracking-wider bg-slate-50/60">
+                                {{ __('CHUYỂN ĐỔI CỘNG ĐỒNG') }}
+                            </div>
+
+                            <!-- List of Communities -->
+                            <div class="p-1.5 space-y-1">
                                 @if ($switcherCommunities->isEmpty())
-                                    <div class="px-4 py-3 text-xs text-slate-500 italic">
+                                    <div class="px-4 py-3 text-xs text-muted italic">
                                         {{ __('No other active communities') }}
                                     </div>
                                 @else
                                     @foreach ($switcherCommunities as $other)
-                                        <a href="{{ route('communities.posts.index', $other) }}" class="flex items-center justify-between px-4 py-2.5 text-sm text-slate-800 hover:bg-brand-50 hover:text-brand-700 transition">
-                                            <span class="truncate font-medium">{{ $other->name }}</span>
+                                        @php
+                                            $isCurrent = $other->id === $authCommunity->id;
+                                            $count = $other->memberships_count ?? $other->memberships()->effective()->count();
+                                        @endphp
+                                        <a href="{{ route('communities.posts.index', $other) }}"
+                                           class="flex items-center justify-between px-3 py-2 rounded-xl transition group {{ $isCurrent ? 'bg-amber-50/70 border border-amber-200/80 text-amber-900' : 'hover:bg-slate-50 text-slate-800' }}">
+                                            <div class="flex items-center gap-3 min-w-0">
+                                                @if ($other->cover_path && $other->isActive())
+                                                    <img src="{{ route('communities.cover.show', ['community' => $other, 'v' => $other->updated_at?->timestamp ?? 'icon']) }}" alt="{{ $other->name }}" class="w-8 h-8 rounded-lg object-cover shrink-0 shadow-2xs border border-line">
+                                                @else
+                                                    <div class="w-8 h-8 rounded-lg {{ $isCurrent ? 'bg-slate-900 text-white' : 'bg-slate-700 text-white' }} font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                                                        {{ mb_strtoupper(mb_substr($other->name, 0, 1)) }}
+                                                    </div>
+                                                @endif
+                                                <div class="min-w-0">
+                                                    <div class="truncate text-xs sm:text-sm {{ $isCurrent ? 'font-bold text-amber-900' : 'font-semibold text-ink group-hover:text-brand' }}">
+                                                        {{ $other->name }}
+                                                    </div>
+                                                    <div class="text-[11px] text-muted">
+                                                        {{ $count }} {{ __('members') }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            @if ($isCurrent)
+                                                <svg class="w-4 h-4 text-amber-600 shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                                                </svg>
+                                            @endif
                                         </a>
                                     @endforeach
                                 @endif
                             </div>
-                            <div class="p-2 bg-slate-50">
-                                <a href="{{ route('communities.index') }}" class="block px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 rounded-lg hover:bg-white transition text-center">
-                                    &larr; {{ __('View All Communities') }}
+
+                            <!-- Footer: ⚡ Khám phá thêm -->
+                            <div class="p-2 bg-slate-50/60 border-t border-line/60">
+                                <a href="{{ route('communities.index') }}" class="flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold text-ink hover:text-brand hover:bg-white rounded-xl transition text-center shadow-2xs">
+                                    <svg class="w-4 h-4 text-amber-500 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                    </svg>
+                                    <span>{{ __('Khám phá thêm') }}</span>
                                 </a>
                             </div>
                         </div>
@@ -91,14 +145,6 @@
                         <x-nav-link :href="route('communities.index')" :active="request()->routeIs('communities.*') && !request()->routeIs('admin.*')">
                             {{ __('Communities') }}
                         </x-nav-link>
-                        <x-nav-link :href="route('help.index')" :active="request()->routeIs('help.*')">
-                            {{ __('Help') }}
-                        </x-nav-link>
-                        @if (Auth::user()?->isDeploymentOwner())
-                            <x-nav-link :href="route('website-hub')" :active="request()->routeIs('website-hub*')">
-                                {{ __('Website Management') }}
-                            </x-nav-link>
-                        @endif
                         @if (config('scool.deployment_mode', 'general') === 'general' && Auth::user()?->isPlatformAdmin())
                             <x-nav-link :href="route('admin.communities.index')" :active="request()->routeIs('admin.*')">
                                 {{ __('Platform Admin') }}
@@ -254,14 +300,6 @@
                 <x-responsive-nav-link :href="route('communities.index')" :active="request()->routeIs('communities.*') && !request()->routeIs('admin.*')">
                     {{ __('Communities') }}
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('help.index')" :active="request()->routeIs('help.*')">
-                    {{ __('Help') }}
-                </x-responsive-nav-link>
-                @if (Auth::user()?->isDeploymentOwner())
-                    <x-responsive-nav-link :href="route('website-hub')" :active="request()->routeIs('website-hub*')">
-                        {{ __('Website Management') }}
-                    </x-responsive-nav-link>
-                @endif
                 @if (config('scool.deployment_mode', 'general') === 'general' && Auth::user()?->isPlatformAdmin())
                     <x-responsive-nav-link :href="route('admin.communities.index')" :active="request()->routeIs('admin.*')">
                         {{ __('Platform Admin') }}
