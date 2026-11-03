@@ -88,7 +88,7 @@
                 <div class="min-w-0 flex-1 bg-surface rounded-2xl border border-line shadow-xs overflow-hidden">
                     <div class="p-6 sm:p-8 border-b border-line bg-slate-50/50">
                         <h1 class="text-xl sm:text-2xl font-bold text-ink tracking-tight">
-                            {{ __('Edit Community: ') }} {{ $community->name }}
+                            {{ __('Community settings') }}: {{ $community->name }}
                         </h1>
                         <p class="text-xs sm:text-sm text-muted mt-1">
                             {{ __('Manage core settings, visual branding, guidelines, and access pricing.') }}
