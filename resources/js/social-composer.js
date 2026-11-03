@@ -1,3 +1,4 @@
+import { submitOnEnter } from './submit-on-enter.js';
 const instances = new WeakMap();
 
 export function validateSocialFiles(files, kind, existing = [], messages = {}) {
@@ -31,6 +32,7 @@ export function socialComposer(options = {}) {
                 const { createSocialEditor } = await import('./social-editor-engine');
                 if (!root.isConnected) return;
                 const editor = createSocialEditor(this.$refs.editor, {
+                    enterSends: options.enterSends, sendKey: event => this.sendKey(event),
                     content: this.body, format: this.format, label: options.label, placeholder: options.placeholder,
                     linkPrompt: options.linkPrompt, badLink: options.badLink,
                     files: options.allowFiles ? files => this.addFiles(files) : null,
@@ -40,6 +42,11 @@ export function socialComposer(options = {}) {
                 instances.set(root, editor); this.ready = true;
                 this.$refs.source.required = false;
             } catch { this.ready = false; }
+        },
+        sendKey(event) {
+            if (!options.enterSends) return false;
+            this.sync();
+            return submitOnEnter(event, this.$root.closest('form'), this.submitting || this.uploading);
         },
         sync() {
             if (options.wireBody) {

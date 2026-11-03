@@ -1,7 +1,10 @@
-        <div wire:poll.2s.visible x-data="conversationStream" class="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden flex flex-col min-h-[500px]">
+        <div wire:poll.2s.visible x-data="conversationStream" class="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden flex flex-col {{ $compact ? 'min-h-0 inbox-conversation' : 'min-h-[500px]' }}">
             <!-- Conversation Header -->
             <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <div class="flex items-center space-x-3">
+                    @if ($compact)
+                        <button type="button" @click="if (!$wire.body.trim() || confirm(@js(__('Discard your message draft and go back?')))) $dispatch('inbox-back')" aria-label="{{ __('Back to messages') }}" class="min-h-11 min-w-11 text-brand">←</button>
+                    @else
                     <a href="{{ route('communities.messages.index', $community) }}"
                        aria-label="{{ __('Back to inbox') }}"
                        class="inline-flex items-center p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition mr-1">
@@ -9,11 +12,16 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
                     </a>
+                    @endif
 
                     <x-member-identity :community="$community" :user="$otherUser" :name="false" />
                     <div>
                         <div class="flex items-center gap-2">
-                            <h1><x-member-identity :community="$community" :user="$otherUser" :avatar="false" /></h1>
+                            @if ($compact)
+                                <h3 class="font-bold"><x-member-identity :community="$community" :user="$otherUser" :avatar="false" /></h3>
+                            @else
+                                <h1 class="font-bold"><x-member-identity :community="$community" :user="$otherUser" :avatar="false" /></h1>
+                            @endif
                             @if ($community->isCreator($otherUser))
                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-brand-50 text-brand-700 border border-brand-200">
                                     {{ __('Creator') }}
@@ -27,13 +35,13 @@
                     </div>
                 </div>
 
-                <div class="text-xs text-slate-400 font-medium">
+                <div class="{{ $compact ? 'hidden' : '' }} text-xs text-slate-400 font-medium">
                     {{ __('Tin nhắn tự cập nhật') }}
                 </div>
             </div>
 
             <!-- Messages Stream -->
-            <div x-ref="stream" @scroll="nearBottom = $el.scrollHeight - $el.scrollTop - $el.clientHeight < 80" class="p-4 sm:p-6 flex-1 space-y-4 overflow-y-auto max-h-[55vh]">
+            <div x-ref="stream" @scroll="nearBottom = $el.scrollHeight - $el.scrollTop - $el.clientHeight < 80" class="p-4 sm:p-6 flex-1 space-y-4 overflow-y-auto {{ $compact ? 'max-h-[40vh]' : 'max-h-[55vh]' }}">
                 @if ($messages->isEmpty())
                     <div class="p-12 text-center text-slate-400 text-sm">
                         {{ __('No messages in this conversation yet. Send the first message below.') }}
@@ -48,7 +56,7 @@
                                 <p class="whitespace-pre-line leading-relaxed break-words">{{ $msg->body }}</p>
                             </div>
                             <div class="flex items-center gap-2 mt-1 px-1 text-[11px] text-slate-400">
-                                <span>{{ $msg->created_at->translatedFormat('M d, H:i') }}</span>
+                                <span><time datetime="{{ $msg->created_at->toIso8601String() }}" title="{{ $msg->created_at->copy()->timezone('Asia/Ho_Chi_Minh')->format('d/m/Y H:i:s') }} (UTC+7)">{{ $msg->created_at->copy()->timezone('Asia/Ho_Chi_Minh')->format('d/m · H:i') }}</time></span>
                                 @if ($isMe)
                                     <span>&bull;</span>
                                     <span>{{ $msg->isRead() ? __('Read') : __('Sent') }}</span>
@@ -76,14 +84,16 @@
                             id="message-body"
                             name="body"
                             wire:model="body"
+                            @keydown="sendOnEnter($event)"
                             maxlength="2000"
-                            rows="3"
+                            rows="2"
                             required
-                            placeholder="{{ __('Type your message here... (press Send to deliver)') }}"
+                            placeholder="{{ __('Type your message...') }}"
                             class="w-full rounded-xl border-slate-300 shadow-xs focus:border-brand-500 focus:ring-brand-500 text-sm bg-white leading-relaxed">{{ $body }}</textarea>
                         <x-input-error :messages="$errors->get('body')" class="mt-1" />
                     </div>
 
+                    <p class="text-xs text-muted">{{ __('Enter to send · Shift+Enter for a new line') }} · {{ __('Vietnam time (UTC+7)') }}</p>
                     <div class="flex items-center justify-between">
                         <span class="text-xs text-slate-400">
                             <span>{{ mb_strlen($body) }}</span> / 2000 {{ __('characters') }}

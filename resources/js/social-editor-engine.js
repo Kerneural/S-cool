@@ -11,6 +11,10 @@ export function createSocialEditor(element, options) {
         ...(options.format === 'markdown' ? { contentType: 'markdown' } : {}),
         editorProps: {
             attributes: { class: 'social-editor-content', role: 'textbox', 'aria-label': options.label, 'aria-multiline': 'true', 'data-placeholder': options.placeholder || '' },
+            handleKeyDown(view, event) {
+                if (view.composing || !options.enterSends) return false;
+                return options.sendKey(event);
+            },
             handlePaste(_view, event) {
                 if (!event.clipboardData?.files?.length || !options.files) return false;
                 event.preventDefault(); options.files([...event.clipboardData.files]); return true;

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Community;
 use App\Models\CommunityConversation;
-use App\Models\CommunityMessage;
 use App\Models\User;
 use App\Services\CommunityMessaging;
 use Illuminate\Http\RedirectResponse;
@@ -21,30 +20,7 @@ class CommunityMessageController extends Controller
      */
     public function index(Request $request, Community $community): View
     {
-        $actor = $request->user();
-        abort_unless($community->isActive(), 404);
-
-        $actorHasAccess = $community->isCreator($actor)
-            || ($community->memberships()->where('user_id', $actor->id)->effective()->exists());
-
-        abort_unless($actorHasAccess, 404);
-
-        $visible = CommunityConversation::query()->visibleTo($actor, $community);
-        $conversations = (clone $visible)
-            ->with(['userOne', 'userTwo', 'latestMessage'])
-            ->withCount(['messages as unread_count' => fn ($query) => $query
-                ->where('sender_id', '!=', $actor->id)->whereNull('read_at')])
-            ->orderByDesc('last_message_at')
-            ->orderByDesc('id')->paginate(15);
-
-        $totalUnread = CommunityMessage::whereIn('conversation_id', $visible->select('id'))
-            ->where('sender_id', '!=', $actor->id)->whereNull('read_at')->count();
-
-        return view('communities.messages.index', [
-            'community' => $community,
-            'conversations' => $conversations,
-            'totalUnread' => $totalUnread,
-        ]);
+        return view('communities.messages.index', app(CommunityMessaging::class)->inbox($community, $request->user()));
     }
 
     /**

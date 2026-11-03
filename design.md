@@ -916,3 +916,17 @@ composer, inline icon tools, explicit formatting disclosure, bounded growing tex
 comment image thumbnails opening the existing viewer. The composer must not dominate the
 discussion. Localize untouched built-in category names in display only; retain authored names,
 slugs and stored values.
+
+### 13.4 Owner-approved inbox interaction follow-up (2026-11-03)
+
+Community-scoped utilities show live unread counts and bounded notification/conversation
+previews in modeless panels. Reuse the participant-authorized thread in a compact chat panel;
+keep full inbox routes reachable. Refresh visible threads every two seconds and inbox summaries
+every five seconds, with an immediate refresh on return to the tab. Polling is near-realtime,
+not WebSocket delivery; queued notifications also depend on the worker. Never mark previewed
+messages read until their conversation is opened. Retain drafts when panels are hidden, preserve
+history scroll, and show a concise arrival notice instead of recurring attention animation.
+Enter submits new comments and messages; Shift+Enter inserts a newline. Composition/IME,
+uploads and pending sends must not cause accidental or duplicate submission. Post/lesson
+authoring and comment editing retain ordinary multiline behavior. Show Vietnamese calendar
+months and Vietnam-local message timestamps while retaining UTC persistence.

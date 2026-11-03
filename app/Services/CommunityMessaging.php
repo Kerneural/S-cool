@@ -11,12 +11,29 @@ use Illuminate\Support\Facades\Gate;
 
 class CommunityMessaging
 {
-    public function snapshot(Community $community, CommunityConversation $conversation, User $actor): array
+    public function inbox(Community $community, User $actor, ?int $page = null): array
+    {
+        abort_unless($community->isActive(), 404);
+        abort_unless($community->isCreator($actor)
+            || $community->memberships()->where('user_id', $actor->id)->effective()->exists(), 404);
+        $visible = CommunityConversation::query()->visibleTo($actor, $community);
+        $conversations = (clone $visible)->with(['userOne', 'userTwo', 'latestMessage'])
+            ->withCount(['messages as unread_count' => fn ($query) => $query
+                ->where('sender_id', '!=', $actor->id)->whereNull('read_at')])
+            ->orderByDesc('last_message_at')->orderByDesc('id')->paginate(15, ['*'], 'page', $page)
+            ->withPath(route('communities.messages.index', $community));
+        $totalUnread = CommunityMessage::whereIn('conversation_id', $visible->select('id'))
+            ->where('sender_id', '!=', $actor->id)->whereNull('read_at')->count();
+
+        return compact('community', 'conversations', 'totalUnread');
+    }
+
+    public function snapshot(Community $community, CommunityConversation $conversation, User $actor, string $pageName = 'page'): array
     {
         abort_unless((int) $conversation->community_id === (int) $community->id, 404);
         Gate::forUser($actor)->authorize('view', $conversation);
 
-        return DB::transaction(function () use ($community, $conversation, $actor): array {
+        return DB::transaction(function () use ($community, $conversation, $actor, $pageName): array {
             $currentCommunity = Community::whereKey($community->id)->lockForUpdate()->firstOrFail();
             $currentConversation = CommunityConversation::whereKey($conversation->id)
                 ->where('community_id', $currentCommunity->id)->lockForUpdate()->firstOrFail();
@@ -24,7 +41,7 @@ class CommunityMessaging
             $this->requireLockedParticipants($currentCommunity, [$currentConversation->user_one_id, $currentConversation->user_two_id]);
 
             // Newest page first, chronological order within each page.
-            $messages = $currentConversation->messages()->with('sender')->orderByDesc('id')->paginate(30);
+            $messages = $currentConversation->messages()->with('sender')->orderByDesc('id')->paginate(30, ['*'], $pageName);
             $messages->setCollection($messages->getCollection()->reverse()->values());
             $readAt = now('UTC');
             $currentConversation->messages()->whereIn('id', $messages->pluck('id'))

@@ -24,10 +24,14 @@ class ConversationThread extends Component
     #[Locked]
     public string $clientSendId;
 
+    #[Locked]
+    public bool $compact = false;
+
     public string $body = '';
 
-    public function mount(Community $community, CommunityConversation $conversation): void
+    public function mount(Community $community, CommunityConversation $conversation, bool $compact = false): void
     {
+        $this->compact = $compact;
         $this->communityId = $community->id;
         $this->conversationId = $conversation->id;
         $retryId = old('client_send_id');
@@ -63,8 +67,9 @@ class ConversationThread extends Component
         );
         $this->body = '';
         $this->clientSendId = (string) Str::uuid();
-        $this->resetPage();
+        $this->resetPage($this->compact ? 'chatPage' : 'page');
         $this->dispatch('conversation-sent');
+        $this->dispatch('inbox-refresh');
     }
 
     public function render()
@@ -72,7 +77,7 @@ class ConversationThread extends Component
         [$community, $conversation, $messages] = app(CommunityMessaging::class)->snapshot(
             Community::findOrFail($this->communityId),
             CommunityConversation::findOrFail($this->conversationId),
-            auth()->user(),
+            auth()->user(), $this->compact ? 'chatPage' : 'page',
         );
 
         return view('livewire.conversation-thread', [
