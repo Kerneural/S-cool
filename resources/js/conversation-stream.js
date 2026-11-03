@@ -1,3 +1,4 @@
+import { submitOnEnter } from './submit-on-enter.js';
 export function conversationStream(browser = globalThis) {
     return {
         nearBottom: true,
@@ -18,6 +19,7 @@ export function conversationStream(browser = globalThis) {
             this.$el.addEventListener('conversation-sent', this.onSent);
             this.$nextTick(() => this.jumpToLatest());
         },
+        sendOnEnter(event) { submitOnEnter(event, event.target.closest('form')); },
         ids() { return [...this.$refs.stream.querySelectorAll('[data-message-id]')].map(e => e.dataset.messageId).join(','); },
         jumpToLatest() {
             const stream = this.$refs.stream;

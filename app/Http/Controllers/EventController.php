@@ -60,7 +60,7 @@ class EventController extends Controller
 
         $prevMonth = $startOfMonth->copy()->subMonth()->format('Y-m');
         $nextMonth = $startOfMonth->copy()->addMonth()->format('Y-m');
-        $monthLabel = $startOfMonth->format('F Y');
+        $monthLabel = $startOfMonth->locale(app()->getLocale())->translatedFormat('F Y');
 
         $eventsQuery = $community->events()
             ->with('creator:id,name');

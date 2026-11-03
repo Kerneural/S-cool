@@ -2,6 +2,46 @@
 
 A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
+## Owner-approved inbox delivery follow-up - 2026-11-03
+
+- Authority: owner approved the investigated Enter/polling/panel/locale/timezone proposal
+  and requested local fixes, tests, audit, commit/push and a review PR. Branch
+  inbox-live-updates from merged main 9acd654; no Linear mutation, merge or host deployment.
+- Acceptance source: the explicit chat request, with Design 13.4 recording its UI boundary.
+  Existing unrelated root edits, branding, landing, commerce and tenant policies are preserved.
+- Delivered: community-scoped unread counts and bounded quick panels, reusable compact
+  participant-authorized chat, five-second inbox and two-second visible-thread refresh,
+  refresh on returning to the tab, arrival notices, draft/scroll retention and keyboard close.
+  Previewing an inbox does not read messages; opening a conversation reads only its page.
+  Native inbox pagination remains reachable, with independent compact-chat pagination.
+- New comment/message Enter submits through the existing form; Shift+Enter, IME composition,
+  uploads and pending sends retain editing/duplicate guards. Post/lesson authoring is unchanged.
+  Calendar headings use locale; message display converts to Vietnam time without rewriting UTC.
+  New interface copy uses the existing non-colliding module translation catalogs.
+- Verification: explicit guarded MySQL scool_test runs for CommunityMessagingTest (6/58),
+  CommunityMessagingAuditTest (9/52), CommunityMessagingConcurrencyTest (5/30),
+  CommunityNotificationTest (10/69), CommunityEventCalendarTest (5/38),
+  InboxLiveUpdatesTest (9/46), VietnameseLocaleTest (9/3504), VietnameseSweepTest (15/124):
+  68 distinct tests / 3,921 assertions passed. PHP test processes bypass the development
+  config cache with APP_CONFIG_CACHE=/tmp/scool-test-no-config-cache.php; the safety guard
+  remains intact. JS 90/90, touched-PHP Pint, PHPStan, production build, Blade compile,
+  diff and shared-contract checks passed. Remote full CI/review remain separate gates.
+- Browser: actual 127.0.0.1:8080, Chrome Owner and isolated in-app Member sessions observed
+  Enter send, Shift+Enter multiline, cross-session arrival without reload, unread badges,
+  notification previews, draft retention and Escape/focus return. Comment submission was
+  observed in both the native page and Livewire discussion modal. Calendar showed Vietnamese
+  November and message clocks showed UTC+7. Panels fit 375/768/1280px without page overflow;
+  clipping and a panel-state/poll race found during smoke were corrected and rechecked.
+- Cleanup: the dedicated synthetic member, two exact QA comments and its one conversation/
+  three messages were removed transactionally; the original post was unchanged. No reset,
+  reseed, volume/port change, or external email. Other existing demo conversations are retained.
+  Private screenshots remain outside Git. Real 200% zoom, offline recovery and physical IME
+  composition were not browser-tested; IME key guards are covered by JS tests.
+- Operations: the private CloudPanel runbook and README replace stop-when-empty with a
+  waiting, lock-protected once-per-minute worker. This is a pending owner-applied cron change;
+  queued notification latency still depends on worker health/backlog. No new dependency,
+  schema, WebSocket service or production operation was introduced.
+
 ## Runtime Expat security refresh - 2026-11-03
 
 - Authority: owner requested remediation, commit and push for the two failing

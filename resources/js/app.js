@@ -1,3 +1,4 @@
+import { inboxPanel } from './inbox-panel';
 import { socialComposer } from './social-composer';
 import { communitySettings } from './community-settings';
 import './bootstrap';
@@ -15,6 +16,7 @@ import { lessonAuthoring } from './lesson-authoring';
 
 document.addEventListener('alpine:init', () => {
     window.Alpine.data('socialComposer', socialComposer);
+    window.Alpine.data('inboxPanel', inboxPanel);
     window.Alpine.data('invitationAcceptance', invitationAcceptance);
     window.Alpine.data('lessonProgress', lessonProgress);
     window.Alpine.data('feedDiscussionMetadata', feedDiscussionMetadata);

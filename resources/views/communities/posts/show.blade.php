@@ -192,7 +192,7 @@
                         <span>{{ __('Replying to') }} <strong x-text="replyName"></strong></span>
                         <button type="button" @click="replyId = ''; replyName = ''" class="min-h-11 px-2">{{ __('Cancel') }}</button>
                     </div>
-                    <x-social-editor id="comment-body" :value="old('body', '')" :format="old('content_format', 'plain')" :limit="2000" />
+                    <x-social-editor id="comment-body" :enter-sends="true" :value="old('body', '')" :format="old('content_format', 'plain')" :limit="2000" />
 
                     <div class="flex justify-end">
                         <x-primary-button>

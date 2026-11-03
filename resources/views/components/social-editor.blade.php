@@ -1,8 +1,9 @@
-@props(['id', 'value' => '', 'format' => 'plain', 'limit' => 10000, 'files' => true, 'poll' => false, 'wireBody' => null, 'wireFormat' => null, 'ajax' => false])
+@props(['id', 'value' => '', 'format' => 'plain', 'limit' => 10000, 'files' => true, 'poll' => false, 'wireBody' => null, 'wireFormat' => null, 'ajax' => false, 'enterSends' => false])
 @php
 $compact = $limit === 2000;
 $options = [
     'body' => is_string($value) ? $value : '', 'format' => $format, 'allowFiles' => $files, 'ajax' => $ajax,
+    'enterSends' => (bool) $enterSends,
     'wireBody' => $wireBody, 'wireFormat' => $wireFormat, 'label' => __('Content'),
     'placeholder' => $compact ? __('Write a comment...') : '',
     'linkPrompt' => __('Enter an HTTPS link'), 'badLink' => __('Enter a valid HTTPS link.'),
@@ -33,7 +34,7 @@ $options = [
         <div class="social-editor-writing" wire:ignore>
             <div x-ref="editor" x-show="ready" x-cloak></div>
         </div>
-        <textarea id="{{ $id }}" x-ref="source" name="body" x-model="body" @input="sync()" x-show="!ready" class="social-editor-source block w-full rounded-xl border-0 p-3 text-base" rows="{{ $compact ? 1 : 7 }}" placeholder="{{ $compact ? __('Write a comment...') : '' }}" maxlength="{{ $limit }}" required>{{ is_string($value) ? $value : '' }}</textarea>
+        <textarea @keydown="sendKey($event)" id="{{ $id }}" x-ref="source" name="body" x-model="body" @input="sync()" x-show="!ready" class="social-editor-source block w-full rounded-xl border-0 p-3 text-base" rows="{{ $compact ? 1 : 7 }}" placeholder="{{ $compact ? __('Write a comment...') : '' }}" maxlength="{{ $limit }}" required>{{ is_string($value) ? $value : '' }}</textarea>
         <input type="hidden" name="content_format" :value="format" value="{{ $format }}">
         <div class="social-editor-tools flex flex-wrap items-center gap-1 {{ $compact ? 'px-1' : 'border-t border-line p-2' }}">
             @if ($compact)
@@ -112,3 +113,7 @@ $options = [
         <progress :value="progress" max="100" class="h-2 w-full accent-teal-700" aria-label="{{ __('Upload progress') }}"></progress>
     </div>
 </div>
+
+@if ($enterSends)
+    <p class="text-xs text-muted">{{ __('Enter to send · Shift+Enter for a new line') }}</p>
+@endif

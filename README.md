@@ -367,6 +367,28 @@ docker compose -p scool down                           # Stop; preserve MySQL da
 Frontend: use `npm run dev` for hot reload. Stop Vite and run `npm run build` to test built assets.
 Application/job logs are in `storage/logs/laravel.log`, separate from worker process logs.
 
+### Inbox updates on CloudPanel
+
+Community headers poll unread summaries every five seconds; open conversations poll
+every two seconds. Notification/message buttons open quick panels, with full inbox
+links retained. New comments/messages use Enter to send and Shift+Enter for a newline;
+post/lesson authoring keeps multiline Enter. Message clocks display Vietnam time;
+stored timestamps remain UTC. Polling requires a connected browser and working Livewire.
+
+Reply/course/member notifications are queued. For CloudPanel's existing once-per-minute
+cron, replace its stop-when-empty command with the following worker so it also waits
+for arrivals during the minute (keep **one** cron and the same deployment lock):
+
+```bash
+cd /home/phung-lophoc/htdocs/S-cool && /usr/bin/flock -n storage/framework/scool-queue.lock /home/phung-lophoc/bin/scool-php artisan queue:work database --sleep=1 --max-time=58 --timeout=60 --tries=3 >> storage/logs/queue-worker.log 2>&1
+```
+
+Use CloudPanel Cron Jobs with all five schedule fields set to `*`. The worker exits
+after its current job/time budget; the next cron acquires the same lock. Backlog or
+long jobs can delay notifications; inspect failed jobs/worker logs. Messages persist
+directly and do not wait for this queue. Larger traffic needs a separately planned
+supervised worker/realtime service.
+
 ## Verification
 
 ```bash

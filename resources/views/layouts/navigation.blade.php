@@ -7,10 +7,6 @@
     $currentUser = Auth::user();
     $hasCommunityContext = $authCommunity && $authCommunity->isActive() && $currentUser && ($authCommunity->isCreator($currentUser) || $authCommunity->memberships()->where('user_id', $currentUser->id)->effective()->exists());
 
-    $unreadNotificationsCount = ($hasCommunityContext && $currentUser)
-        ? \App\Models\AppNotification::unreadCountFor($currentUser, $authCommunity)
-        : 0;
-
     $switcherCommunities = ($hasCommunityContext && $currentUser)
         ? \App\Models\Community::query()
             ->accessibleTo($currentUser)
@@ -118,28 +114,7 @@
             <!-- Right: Utilities & Avatar Dropdown -->
             <div class="order-2 flex shrink-0 items-center gap-1 md:order-3 md:gap-2.5">
                 @if ($hasCommunityContext)
-                    <!-- Tenant Notifications Utility -->
-                    <a href="{{ route('communities.notifications.index', $authCommunity) }}"
-                       title="{{ __('Notifications') }}" aria-label="{{ __('Notifications') }}"
-                       class="inline-flex min-h-11 min-w-11 items-center justify-center relative p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                        </svg>
-                        @if ($unreadNotificationsCount > 0)
-                            <span class="absolute top-1.5 right-1.5 inline-flex items-center justify-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500 text-white">
-                                {{ $unreadNotificationsCount }}
-                            </span>
-                        @endif
-                    </a>
-
-                    <!-- Tenant Messages Utility -->
-                    <a href="{{ route('communities.messages.index', $authCommunity) }}"
-                       title="{{ __('Messages') }}" aria-label="{{ __('Messages') }}"
-                       class="inline-flex min-h-11 min-w-11 items-center justify-center p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                        </svg>
-                    </a>
+                    <livewire:inbox-center :community="$authCommunity" />
                 @endif
 
                 <!-- Account Dropdown / Auth Links -->

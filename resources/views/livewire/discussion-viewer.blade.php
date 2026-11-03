@@ -431,7 +431,7 @@
                     <div class="flex items-end gap-2">
                         <span aria-hidden="true" class="hidden h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-soft text-sm font-semibold text-brand sm:flex">{{ mb_substr(auth()->user()->name, 0, 1) }}</span>
                         <div class="min-w-0 flex-1" wire:key="social-comment-editor" wire:ignore>
-                            <x-social-editor id="discussion-comment-body" :value="$newCommentBody" :format="$newCommentFormat" :limit="2000" :files="false" wire-body="newCommentBody" wire-format="newCommentFormat">
+                            <x-social-editor id="discussion-comment-body" :enter-sends="true" :value="$newCommentBody" :format="$newCommentFormat" :limit="2000" :files="false" wire-body="newCommentBody" wire-format="newCommentFormat">
                                 <x-slot:tools>
                                     <label class="social-tool cursor-pointer focus-within:ring-2 focus-within:ring-brand" title="{{ __('Photo') }}"><x-social-tool-icon name="photo" /><span class="sr-only">{{ __('Photo') }}</span><input type="file" wire:model="commentImages" multiple accept=".jpg,.jpeg,.png,.webp" class="sr-only"></label>
                                     <label class="social-tool cursor-pointer focus-within:ring-2 focus-within:ring-brand" title="{{ __('Attach file') }}"><x-social-tool-icon name="attachment" /><span class="sr-only">{{ __('Attach file') }}</span><input type="file" wire:model="commentDocuments" multiple accept=".pdf,.docx,.xlsx,.pptx" class="sr-only"></label>
