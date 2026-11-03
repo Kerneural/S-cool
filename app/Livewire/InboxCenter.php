@@ -69,9 +69,14 @@ class InboxCenter extends Component
         }
 
         $actor = auth()->user();
-        $notifications = AppNotification::query()->visibleFor($actor, $community)->latest()->orderByDesc('id')->limit(8)->get();
+        // Window aggregation counts all visible unread rows before the preview LIMIT,
+        // without running the expensive visibility/comment predicates a second time.
+        $notifications = AppNotification::query()->visibleFor($actor, $community)
+            ->select('notifications.*')
+            ->selectRaw('SUM(CASE WHEN notifications.read_at IS NULL THEN 1 ELSE 0 END) OVER () AS visible_unread_total')
+            ->latest()->orderByDesc('id')->limit(8)->get();
         $previousNotificationCount = $this->notificationCount;
-        $this->notificationCount = AppNotification::unreadCountFor($actor, $community);
+        $this->notificationCount = (int) ($notifications->first()?->visible_unread_total ?? 0);
         $this->notices = $notifications->map(fn ($notice) => [
             'id' => $notice->id, 'summary' => $notice->summary(), 'unread' => $notice->read_at === null,
             'time' => $notice->created_at->diffForHumans(),

@@ -18,7 +18,7 @@ A checkpoint is historical context, not current Linear/Git/runtime evidence. Ver
   uploads and pending sends retain editing/duplicate guards. Post/lesson authoring is unchanged.
   Calendar headings use locale; message display converts to Vietnam time without rewriting UTC.
   New interface copy uses the existing non-colliding module translation catalogs.
-- Verification: explicit guarded MySQL scool_test runs for CommunityMessagingTest (6/58),
+- Initial verification: explicit guarded MySQL scool_test runs for CommunityMessagingTest (6/58),
   CommunityMessagingAuditTest (9/52), CommunityMessagingConcurrencyTest (5/30),
   CommunityNotificationTest (10/69), CommunityEventCalendarTest (5/38),
   InboxLiveUpdatesTest (9/46), VietnameseLocaleTest (9/3504), VietnameseSweepTest (15/124):
@@ -26,6 +26,14 @@ A checkpoint is historical context, not current Linear/Git/runtime evidence. Ver
   config cache with APP_CONFIG_CACHE=/tmp/scool-test-no-config-cache.php; the safety guard
   remains intact. JS 90/90, touched-PHP Pint, PHPStan, production build, Blade compile,
   diff and shared-contract checks passed. Remote full CI/review remain separate gates.
+- CI follow-up: first published head 5e95459 exposed two regressions outside the initial
+  local selection: an always-visible mark-all action at zero unread, and an extra comment
+  visibility query on Feed. The action now requires unread rows; one MySQL 8 window aggregate
+  computes the full unread total before limiting previews, preserving the original query
+  budget. Existing assertions were retained. Final reruns passed CommunityNotificationTest
+  (10/69), LearningWorkspaceUiAuditTest (7/64) and InboxLiveUpdatesTest (10/50), including
+  the new more-than-eight-notifications case. Distinct focused coverage totals 76 tests /
+  3,989 assertions; remote full CI must rerun on the follow-up head.
 - Browser: actual 127.0.0.1:8080, Chrome Owner and isolated in-app Member sessions observed
   Enter send, Shift+Enter multiline, cross-session arrival without reload, unread badges,
   notification previews, draft retention and Escape/focus return. Comment submission was

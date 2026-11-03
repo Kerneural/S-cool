@@ -146,4 +146,17 @@ class InboxLiveUpdatesTest extends TestCase
             ->assertSee('History marker 031')->assertDontSee('History marker 001');
         $this->assertSame(30, $thread->messages()->whereNotNull('read_at')->count());
     }
+
+    public function test_unread_total_spans_the_bounded_notification_preview(): void
+    {
+        [$community, $creator, $member] = $this->pair();
+        $post = Post::factory()->create(['community_id' => $community->id, 'user_id' => $creator->id]);
+        for ($i = 0; $i < 10; $i++) {
+            $comment = Comment::factory()->create(['post_id' => $post->id, 'user_id' => $member->id]);
+            (new SendPostReplyNotification($comment->id))->handle();
+        }
+        Livewire::actingAs($creator)->test(InboxCenter::class, ['community' => $community])
+            ->assertSet('notificationCount', 10)->assertCount('notices', 8)
+            ->call('markAllRead')->assertSet('notificationCount', 0)->assertDontSee('Mark all as read');
+    }
 }

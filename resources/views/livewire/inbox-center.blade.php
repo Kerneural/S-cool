@@ -42,7 +42,9 @@
                 @endforelse
             </div>
             <div class="flex flex-wrap items-center justify-between gap-2 px-4 py-2 text-sm">
-                <button type="button" wire:click="markAllRead" wire:loading.attr="disabled" class="min-h-11 font-semibold text-brand">{{ __('Mark all as read') }}</button>
+                @if ($notificationCount > 0)
+                    <button type="button" wire:click="markAllRead" wire:loading.attr="disabled" class="min-h-11 font-semibold text-brand">{{ __('Mark all as read') }}</button>
+                @endif
                 <a href="{{ route('communities.notifications.index', $community) }}" class="min-h-11 py-3 text-brand">{{ __('View all') }}</a>
             </div>
         </section>
