@@ -1,12 +1,23 @@
 <x-app-layout>
+    @php
+        $isDashboard = request()->routeIs('dashboard');
+    @endphp
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <h1 class="text-2xl font-bold tracking-tight text-slate-900">
-                    {{ config('scool.deployment_mode') === 'expert' && (! Auth::user()?->isDeploymentOwner()) ? __('My Communities') : __('Communities') }}
+                    @if ($isDashboard)
+                        {{ __('Learning Dashboard') }}
+                    @else
+                        {{ config('scool.deployment_mode') === 'expert' && (! Auth::user()?->isDeploymentOwner()) ? __('My Communities') : __('Communities') }}
+                    @endif
                 </h1>
                 <p class="text-sm text-slate-500 mt-1">
-                    {{ config('scool.deployment_mode') === 'expert' && (! Auth::user()?->isDeploymentOwner()) ? __('Choose a community to enter.') : __('Explore, collaborate, and manage your learning spaces.') }}
+                    @if ($isDashboard)
+                        {{ __('Track your learning journey, spaces, and progress.') }}
+                    @else
+                        {{ config('scool.deployment_mode') === 'expert' && (! Auth::user()?->isDeploymentOwner()) ? __('Choose a community to enter.') : __('Explore, collaborate, and manage your learning spaces.') }}
+                    @endif
                 </p>
             </div>
             @can('create', App\Models\Community::class)
@@ -22,6 +33,48 @@
 
     <div class="py-8">
         <div data-live-search-surface class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            @if ($isDashboard && Auth::check())
+                @php
+                    $dashUser = Auth::user();
+                    $createdCount = $dashUser->createdCommunities()->count();
+                    $joinedCount = $dashUser->memberships()->effective()->count();
+                @endphp
+                <!-- Personalized Dashboard Header Banner -->
+                <div class="bg-surface rounded-2xl border border-line p-6 sm:p-7 shadow-xs">
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                        <div class="space-y-1.5 min-w-0">
+                            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-semibold bg-brand-soft text-brand border border-brand/20">
+                                <span class="w-1.5 h-1.5 rounded-full bg-brand animate-pulse"></span>
+                                <span>{{ __('Personal Learning Hub') }}</span>
+                            </div>
+                            <h2 class="text-xl sm:text-2xl font-bold text-ink tracking-tight">
+                                {{ __('Welcome back, :name!', ['name' => $dashUser->name]) }}
+                            </h2>
+                            <p class="text-xs sm:text-sm text-muted max-w-2xl leading-relaxed">
+                                {{ __('Theo dõi không gian học tập và các cộng đồng bạn đang tham gia. Chuyển đổi nhanh giữa các cộng đồng hoặc tìm kiếm không gian học tập mới.') }}
+                            </p>
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-3 shrink-0">
+                            <!-- Metric Chips -->
+                            <div class="flex items-center gap-2 bg-slate-50 border border-line px-3.5 py-2 rounded-xl">
+                                <span class="text-base sm:text-lg font-bold text-ink">{{ $createdCount }}</span>
+                                <span class="text-xs text-muted font-medium">{{ __('Created Communities') }}</span>
+                            </div>
+                            <div class="flex items-center gap-2 bg-slate-50 border border-line px-3.5 py-2 rounded-xl">
+                                <span class="text-base sm:text-lg font-bold text-ink">{{ $joinedCount }}</span>
+                                <span class="text-xs text-muted font-medium">{{ __('Joined Communities') }}</span>
+                            </div>
+                            <a href="{{ route('communities.index') }}" class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-brand hover:bg-brand-hover text-white rounded-xl text-xs font-bold transition shadow-xs active:scale-[0.98]">
+                                <span>{{ __('Explore All Communities') }}</span>
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @endif
             @if (session('status'))
                 <div class="flex items-center p-4 text-sm font-medium text-emerald-800 bg-emerald-50 rounded-xl border border-emerald-200/70">
                     <svg class="w-5 h-5 text-emerald-600 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -37,15 +90,15 @@
                     @if (config('scool.deployment_mode') !== 'expert' || Auth::user()?->isDeploymentOwner())
                     <!-- Filter Tabs -->
                     <nav data-live-search-tabs class="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 rounded-xl" aria-label="{{ __('Filters') }}">
-                        <a href="{{ route('communities.index', array_filter(['filter' => 'all', 'q' => $searchQuery ?? ''])) }}"
+                        <a href="{{ route($isDashboard ? 'dashboard' : 'communities.index', array_filter(['filter' => 'all', 'q' => $searchQuery ?? ''])) }}"
                            class="px-3.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all {{ ($currentFilter ?? 'all') === 'all' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-white/50' }}">
                             {{ __('All') }}
                         </a>
-                        <a href="{{ route('communities.index', array_filter(['filter' => 'owned', 'q' => $searchQuery ?? ''])) }}"
+                        <a href="{{ route($isDashboard ? 'dashboard' : 'communities.index', array_filter(['filter' => 'owned', 'q' => $searchQuery ?? ''])) }}"
                            class="px-3.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all {{ ($currentFilter ?? '') === 'owned' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-white/50' }}">
                             {{ __('Owned (Creator)') }}
                         </a>
-                        <a href="{{ route('communities.index', array_filter(['filter' => 'joined', 'q' => $searchQuery ?? ''])) }}"
+                        <a href="{{ route($isDashboard ? 'dashboard' : 'communities.index', array_filter(['filter' => 'joined', 'q' => $searchQuery ?? ''])) }}"
                            class="px-3.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all {{ ($currentFilter ?? '') === 'joined' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-white/50' }}">
                             {{ __('Joined (Member)') }}
                         </a>
@@ -53,9 +106,9 @@
                     @endif
 
                     <!-- Search Form -->
-                    <form method="GET" action="{{ route('communities.index') }}" class="flex flex-wrap items-center gap-2 min-w-0" x-data="liveListSearch" @submit.prevent="search()">
+                    <form method="GET" action="{{ route($isDashboard ? 'dashboard' : 'communities.index') }}" class="flex items-center min-w-0" x-data="liveListSearch" @submit.prevent="search()">
                         <input type="hidden" name="filter" value="{{ $currentFilter ?? 'all' }}">
-                        <div class="relative flex-1 sm:w-72">
+                        <div class="relative w-full sm:w-72">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -64,21 +117,24 @@
                             <input type="text" name="q" aria-label="{{ __('Search communities') }}" maxlength="100" value="{{ $searchQuery ?? '' }}" placeholder="{{ __('Search communities...') }}"
                                    @input="liveSearch"
                                    autocomplete="off"
-                                   class="w-full text-sm rounded-xl border-slate-200 pl-9 pr-3 py-2 bg-slate-50/50 focus:bg-white focus:border-brand-500 focus:ring-brand-500 transition-colors">
+                                   class="w-full text-sm rounded-xl border-slate-200 pl-9 pr-8 py-2 bg-slate-50/50 focus:bg-white focus:border-brand-500 focus:ring-brand-500 transition-colors">
+                            @if (!empty($searchQuery))
+                                <a href="{{ route($isDashboard ? 'dashboard' : 'communities.index', ['filter' => $currentFilter ?? 'all']) }}"
+                                   class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 transition"
+                                   aria-label="{{ __('Clear') }}" title="{{ __('Clear') }}">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </a>
+                            @endif
                         </div>
-                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs rounded-xl transition shadow-sm">
-                            {{ __('Search') }}
-                        </button>
-                            <a href="{{ route('communities.index', ['filter' => $currentFilter ?? 'all']) }}" class="text-xs text-slate-500 hover:text-slate-800 underline ml-1">
-                                {{ __('Clear') }}
-                            </a>
 
                         <p x-show="loading" x-cloak role="status" class="basis-full text-xs text-muted">{{ __('Searching…') }}</p>
                         <div x-show="error" x-cloak role="alert" class="basis-full text-xs text-rose-700">
                             <span x-text="error"></span>
                             <button type="button" @click="search()" class="ml-2 underline font-semibold">{{ __('Retry') }}</button>
                         </div>
-</form>
+                    </form>
                 </div>
             </div>
 
@@ -94,23 +150,23 @@
                         @if (!empty($searchQuery))
                             <h3 class="text-base font-semibold text-slate-900 mb-1">{{ __('No matching communities') }}</h3>
                             <p class="text-sm text-slate-500 mb-6 max-w-md mx-auto">{{ __('No communities found matching ":query". Try searching with a different term.', ['query' => $searchQuery]) }}</p>
-                            <a href="{{ route('communities.index', ['filter' => $currentFilter ?? 'all']) }}" class="inline-flex items-center px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs rounded-xl transition">
+                            <a href="{{ route($isDashboard ? 'dashboard' : 'communities.index', ['filter' => $currentFilter ?? 'all']) }}" class="inline-flex items-center px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs rounded-xl transition">
                                 {{ __('Clear Search') }}
                             </a>
                         @elseif (($currentFilter ?? 'all') === 'owned')
-                            <h3 class="text-base font-semibold text-slate-900 mb-1">{{ __('No created communities yet') }}</h3>
-                            <p class="text-sm text-slate-500 mb-6 max-w-md mx-auto">{{ __('You have not created any communities yet. Build your first learning hub in seconds.') }}</p>
+                            <h3 class="text-base font-semibold text-slate-900 mb-1">{{ __('Bạn chưa sở hữu trang cộng đồng nào') }}</h3>
+                            <p class="text-sm text-slate-500 mb-6 max-w-md mx-auto">{{ __('Bạn chưa tạo hoặc sở hữu trang cộng đồng nào.') }}</p>
                         @can('create', App\Models\Community::class)
                             <a href="{{ route('communities.create') }}" class="inline-flex items-center px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-medium text-xs rounded-xl transition shadow-sm shadow-brand-500/20">
                                 {{ __('Create a Community') }}
                             </a>
                         @endcan
                         @elseif (($currentFilter ?? 'all') === 'joined')
-                            <h3 class="text-base font-semibold text-slate-900 mb-1">{{ __('No memberships found') }}</h3>
-                            <p class="text-sm text-slate-500 mb-6 max-w-md mx-auto">{{ __('You have not joined any communities as a member yet.') }}</p>
+                            <h3 class="text-base font-semibold text-slate-900 mb-1">{{ __('Chưa tham gia cộng đồng nào cả') }}</h3>
+                            <p class="text-sm text-slate-500 mb-6 max-w-md mx-auto">{{ __('Bạn chưa tham gia không gian cộng đồng nào với tư cách thành viên.') }}</p>
                         @else
-                            <h3 class="text-base font-semibold text-slate-900 mb-1">{{ __('Welcome to S-cool') }}</h3>
-                            <p class="text-sm text-slate-500 mb-6 max-w-md mx-auto">{{ __('No active communities are available yet. Create the first learning community.') }}</p>
+                            <h3 class="text-base font-semibold text-slate-900 mb-1">{{ __('Bạn chưa tham gia cộng đồng nào') }}</h3>
+                            <p class="text-sm text-slate-500 mb-6 max-w-md mx-auto">{{ __('Chưa có không gian cộng đồng nào để hiển thị.') }}</p>
                         @can('create', App\Models\Community::class)
                             <a href="{{ route('communities.create') }}" class="inline-flex items-center px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-medium text-xs rounded-xl transition shadow-sm shadow-brand-500/20">
                                 {{ __('Get Started — Create a Community') }}

@@ -54,27 +54,19 @@ class WebsiteManagementHubTest extends TestCase
         $response->assertSee('Community Beta');
 
         // Check header actions
-        $response->assertSee(route('communities.create'));
+        $response->assertDontSee(route('communities.create'));
         $response->assertSee(route('admin.communities.index'));
 
-        // Check direct tools for Community 1 (with published course)
+        // Check direct tools for Community 1 (4 core admin tools: Overview, Members, Orders, Settings)
         $response->assertSee(route('communities.manage', $comm1));
-        $response->assertSee(route('communities.manage.courses.show', [$comm1, $course1]));
         $response->assertSee(route('communities.members.index', $comm1));
-        $response->assertSee(route('communities.invitations.index', $comm1));
-        $response->assertSee(route('communities.reports.index', $comm1));
         $response->assertSee(route('communities.orders.index', $comm1));
-        $response->assertSee(route('communities.manage.proof-of-work.index', $comm1));
         $response->assertSee(route('communities.edit', $comm1));
 
-        // Check direct tools for Community 2 (without courses, safely falls back to classroom)
+        // Check direct tools for Community 2 (4 core admin tools)
         $response->assertSee(route('communities.manage', $comm2));
-        $response->assertSee(route('communities.classroom.index', $comm2));
         $response->assertSee(route('communities.members.index', $comm2));
-        $response->assertSee(route('communities.invitations.index', $comm2));
-        $response->assertSee(route('communities.reports.index', $comm2));
         $response->assertSee(route('communities.orders.index', $comm2));
-        $response->assertSee(route('communities.manage.proof-of-work.index', $comm2));
         $response->assertSee(route('communities.edit', $comm2));
     }
 
@@ -159,16 +151,12 @@ class WebsiteManagementHubTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Quản trị website');
-        $response->assertSee('Tạo cộng đồng');
+        $response->assertDontSee('Tạo cộng đồng');
         $response->assertSee('Quản trị nền tảng');
         $response->assertSee('Công cụ trực tiếp');
         $response->assertSee('Tổng quan');
-        $response->assertSee('Khóa học');
         $response->assertSee('Thành Viên');
-        $response->assertSee('Lời mời');
-        $response->assertSee('Báo cáo');
         $response->assertSee('Đơn hàng');
-        $response->assertSee('Bài nộp');
         $response->assertSee('Cài đặt');
         $response->assertSee('thành viên');
         $response->assertSee('Hoạt động');

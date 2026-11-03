@@ -34,10 +34,6 @@
                     </div>
                     <div class="flex shrink-0 flex-wrap gap-2">
                         <a href="{{ route('communities.classroom.index', $community) }}" class="inline-flex min-h-11 items-center justify-center rounded-xl bg-brand px-5 py-2.5 text-sm font-semibold text-white shadow-xs transition hover:bg-brand-hover">{{ __('Open Classroom') }}</a>
-                        <a href="{{ route('communities.posts.index', $community) }}" class="inline-flex min-h-11 items-center justify-center rounded-xl border border-line bg-surface px-4 py-2.5 text-sm font-semibold text-ink transition hover:bg-slate-50">{{ __('Community Feed') }}</a>
-                        @can('update', $community)
-                            <a href="{{ route('communities.edit', $community) }}" class="inline-flex min-h-11 items-center justify-center rounded-xl border border-brand-200 bg-brand-soft px-4 py-2.5 text-sm font-semibold text-brand transition hover:bg-teal-100">{{ __('Edit Settings') }}</a>
-                        @endcan
                     </div>
                 </div>
             </section>
