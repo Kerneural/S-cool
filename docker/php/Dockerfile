@@ -6,6 +6,7 @@ FROM php:8.2-fpm-alpine
 RUN apk add --no-cache \
     curl \
     git \
+    'libexpat>=2.10.0' \
     libzip-dev \
     libpng-dev \
     icu-dev \
