@@ -2,6 +2,27 @@
 
 A checkpoint is historical context, not current Linear/Git/runtime evidence. Verify HEAD, status and source before resuming. Preserve separate issue sections.
 
+## Runtime Expat security refresh - 2026-11-03
+
+- Authority: owner requested remediation, commit and push for the two failing
+  image-scan findings on PR #92. Branch report-handover; base cd513be.
+  Preserve the published report package; no application/DB or host deployment.
+- Confirmed cause: run 41589332250 reused the cached `RUN apk upgrade --no-cache`
+  layer and scanned libexpat 2.9.0-r0. APK no-cache does not invalidate Docker cache.
+- Change: retain the package upgrade and require `libexpat>=2.10.0-r0` in the same
+  RUN instruction, invalidating the old layer and enforcing the patched minimum
+  for CVE-2026-117610 and CVE-2026-118370. CI scan gates remain unchanged.
+- Verification: `docker build --pull -f docker/php/Dockerfile -t
+  scool-php:libexpat-security-check .` passed. Package inventory confirmed
+  libexpat 2.10.0-r0; the embedded and final-container PHP security gates passed
+  on PHP 8.2.35. Trivy 0.75.0 with upstream GHCR DB, saved-image input,
+  HIGH/CRITICAL severity and exit-code 1 returned zero findings on Alpine 3.24.3.
+- Initial verification attempts exposed a malformed line continuation and Git
+  Bash path conversion; both were corrected before the successful checks above.
+  This is runtime-image verification; full application acceptance belongs to CI.
+- Publication: commit/push authorized; independent review, CI and merge remain
+  separate gates. Running app/queue containers, CloudPanel and Azure are unchanged.
+
 ## EUR-83 — Approved social and website management completion (2026-11-02)
 
 - Authority: owner approved the six-part proposal in chat. Continue eur-83-owner-usability at

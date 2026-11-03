@@ -24,7 +24,8 @@ RUN docker-php-ext-install \
     gd \
     opcache
 
-RUN apk upgrade --no-cache
+# Require the fixed Expat release for CVE-2026-117610 and CVE-2026-118370.
+RUN apk upgrade --no-cache && apk add --no-cache 'libexpat>=2.10.0-r0'
 
     # Cài đặt Composer chính thức từ Docker Hub
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
