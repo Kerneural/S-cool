@@ -11,7 +11,9 @@
         ? \App\Models\Community::query()
             ->accessibleTo($currentUser)
             ->active()
-            ->where('id', '!=', $authCommunity->id)
+            ->withCount(['memberships' => function ($q) {
+                $q->effective();
+            }])
             ->orderBy('name')
             ->get()
         : collect();
@@ -54,26 +56,49 @@
                              x-transition:leave="transition ease-in duration-100"
                              x-transition:leave-start="transform opacity-100 translate-y-0"
                              x-transition:leave-end="transform opacity-0 -translate-y-1"
-                             class="origin-top-left absolute left-0 mt-2 w-72 max-w-[calc(100vw-5rem)] max-h-[70vh] overflow-y-auto rounded-xl shadow-xl shadow-slate-900/10 bg-surface border border-line divide-y divide-line/60 focus:outline-none z-50">
-                            <div class="py-1">
-                                <div class="px-4 py-2 text-xs font-semibold text-slate-600 uppercase tracking-wider bg-slate-50">
-                                    {{ __('Your Active Communities') }}
-                                </div>
-                                @if ($switcherCommunities->isEmpty())
-                                    <div class="px-4 py-3 text-xs text-slate-500 italic">
-                                        {{ __('No other active communities') }}
-                                    </div>
-                                @else
-                                    @foreach ($switcherCommunities as $other)
-                                        <a href="{{ route('communities.posts.index', $other) }}" class="flex items-center justify-between px-4 py-2.5 text-sm text-slate-800 hover:bg-brand-50 hover:text-brand-700 transition">
-                                            <span class="truncate font-medium">{{ $other->name }}</span>
-                                        </a>
-                                    @endforeach
-                                @endif
+                             class="origin-top-left absolute left-0 mt-2 w-80 max-w-[calc(100vw-3rem)] max-h-[75vh] overflow-y-auto rounded-xl shadow-xl shadow-slate-900/10 bg-surface border border-line focus:outline-none z-50">
+                            <div class="px-3.5 py-2.5 text-[11px] font-bold text-slate-500 uppercase tracking-wider bg-slate-50/80 border-b border-line/60">
+                                {{ __('Switch Community') }}
                             </div>
-                            <div class="p-2 bg-slate-50">
-                                <a href="{{ route('communities.index') }}" class="block px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 rounded-lg hover:bg-white transition text-center">
-                                    &larr; {{ __('View All Communities') }}
+                            <div class="p-1.5 space-y-1">
+                                @foreach ($switcherCommunities as $comm)
+                                    @php
+                                        $isCurrent = $authCommunity && $comm->id === $authCommunity->id;
+                                    @endphp
+                                    <a href="{{ route('communities.posts.index', $comm) }}"
+                                       class="flex items-center justify-between gap-3 px-3 py-2 rounded-lg transition {{ $isCurrent ? 'bg-teal-500/10 border border-teal-500/20 text-teal-950 font-bold shadow-2xs' : 'hover:bg-slate-50 text-slate-800' }}">
+                                        <div class="flex items-center gap-2.5 min-w-0">
+                                            @if ($comm->cover_path)
+                                                <img src="{{ route('communities.cover.show', $comm) }}" alt="{{ $comm->name }}" class="w-9 h-9 rounded-lg object-cover border border-slate-200 shrink-0">
+                                            @else
+                                                <div class="w-9 h-9 rounded-lg {{ $isCurrent ? 'bg-brand text-white shadow-2xs' : 'bg-brand-soft text-brand' }} font-bold text-sm flex items-center justify-center border border-brand/20 shrink-0">
+                                                    {{ strtoupper(substr($comm->name, 0, 1)) }}
+                                                </div>
+                                            @endif
+                                            <div class="min-w-0 flex-1">
+                                                <div class="truncate text-sm {{ $isCurrent ? 'font-bold text-teal-950' : 'font-semibold text-slate-800' }}">
+                                                    {{ $comm->name }}
+                                                </div>
+                                                <div class="text-xs {{ $isCurrent ? 'text-teal-700/80 font-medium' : 'text-slate-500' }}">
+                                                    {{ $comm->memberships_count ?? 0 }} {{ __('thành viên') }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @if ($isCurrent)
+                                            <svg class="w-5 h-5 text-brand shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        @endif
+                                    </a>
+                                @endforeach
+                            </div>
+                            <div class="p-1.5 bg-slate-50/90 border-t border-line/60">
+                                <a href="{{ route('communities.index') }}"
+                                   class="flex items-center justify-center gap-2 w-full px-3 py-2 text-xs sm:text-sm font-semibold text-slate-700 hover:text-brand hover:bg-white rounded-lg border border-transparent hover:border-line shadow-2xs transition group">
+                                    <svg class="w-4 h-4 text-brand shrink-0 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                    </svg>
+                                    <span>{{ __('Explore more') }}</span>
                                 </a>
                             </div>
                         </div>
@@ -119,7 +144,7 @@
 
                 <!-- Account Dropdown / Auth Links -->
                 @auth
-                    <x-dropdown align="right" width="48">
+                    <x-dropdown align="right" width="64">
                         <x-slot name="trigger">
                             <button type="button" :aria-expanded="open.toString()" aria-haspopup="true" aria-label="{{ __('Account menu for :name', ['name' => Auth::user()->name]) }}" class="inline-flex min-h-11 items-center gap-2 p-1 rounded-full hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand transition">
                                 @if (Auth::user()->avatar_path)
@@ -137,40 +162,62 @@
                         </x-slot>
 
                         <x-slot name="content">
-                            @if (Auth::user()?->isDeploymentOwner())
-                                <x-dropdown-link :href="route('website-hub')">
-                                    {{ __('Website Management') }}
+                            <!-- User Identity Card (AC-05) -->
+                            <div class="px-3.5 py-3 border-b border-line/70 mb-1 bg-slate-50/70 rounded-t-lg">
+                                <div class="flex items-center gap-3">
+                                    @if (Auth::user()->avatar_path)
+                                        <img src="{{ route('profile.avatar') }}" alt="{{ Auth::user()->name }}" class="w-10 h-10 rounded-full object-cover border border-slate-200 shrink-0">
+                                    @else
+                                        <div class="w-10 h-10 rounded-full bg-brand-soft text-brand font-bold text-sm flex items-center justify-center border border-brand/20 shrink-0">
+                                            {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                                        </div>
+                                    @endif
+                                    <div class="min-w-0 flex-1">
+                                        <div class="text-sm font-semibold text-ink truncate">{{ Auth::user()->name }}</div>
+                                        <div class="text-xs text-muted truncate">{{ Auth::user()->email }}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-0.5">
+                                @if (Auth::user()?->isDeploymentOwner())
+                                    <x-dropdown-link :href="route('website-hub')">
+                                        {{ __('Website Management') }}
+                                    </x-dropdown-link>
+                                @endif
+
+                                <x-dropdown-link :href="route('profile.edit')">
+                                    {{ __('Profile & Settings') }}
                                 </x-dropdown-link>
-                            @endif
 
-                            <x-dropdown-link :href="route('profile.edit')">
-                                {{ __('Profile & Settings') }}
-                            </x-dropdown-link>
-
-                            <x-dropdown-link :href="route('account.memberships.index')">
-                                {{ __('My Access') }}
-                            </x-dropdown-link>
-
-                            <x-dropdown-link :href="route('account.payment-history.index')">
-                                {{ __('Payment History') }}
-                            </x-dropdown-link>
-
-                            <x-dropdown-link :href="route('account.referrals')">
-                                {{ __('Referrals') }}
-                            </x-dropdown-link>
-
-                            <x-dropdown-link :href="route('help.index')">
-                                {{ __('Help Center') }}
-                            </x-dropdown-link>
-
-                            <!-- Authentication -->
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <x-dropdown-link :href="route('logout')"
-                                        onclick="event.preventDefault(); this.closest('form').submit();">
-                                    {{ __('Log Out') }}
+                                <x-dropdown-link :href="route('account.memberships.index')">
+                                    {{ __('My Access') }}
                                 </x-dropdown-link>
-                            </form>
+
+                                <x-dropdown-link :href="route('account.payment-history.index')">
+                                    {{ __('Payment History') }}
+                                </x-dropdown-link>
+
+                                <x-dropdown-link :href="route('account.referrals')">
+                                    {{ __('Referrals') }}
+                                </x-dropdown-link>
+
+                                <x-dropdown-link :href="route('help.index')">
+                                    {{ __('Help Center') }}
+                                </x-dropdown-link>
+                            </div>
+
+                            <div class="border-t border-line/70 my-1 pt-1">
+                                <!-- Authentication (Safe POST Form) -->
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <x-dropdown-link :href="route('logout')"
+                                            onclick="event.preventDefault(); this.closest('form').submit();"
+                                            class="text-rose-600 hover:text-rose-700 hover:bg-rose-50 focus:bg-rose-50 focus:text-rose-700">
+                                        {{ __('Log Out') }}
+                                    </x-dropdown-link>
+                                </form>
+                            </div>
                         </x-slot>
                     </x-dropdown>
                 @else
@@ -270,6 +317,9 @@
                     </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('account.referrals')">
                         {{ __('Referrals') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('help.index')">
+                        {{ __('Help Center') }}
                     </x-responsive-nav-link>
 
                     <!-- Authentication -->

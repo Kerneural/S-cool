@@ -54,9 +54,11 @@
                     @endif
                 @endcan
 
-                <a href="{{ route('communities.index') }}" class="inline-flex items-center px-2.5 py-1.5 bg-surface hover:bg-slate-50 border border-line rounded-lg font-medium text-ink shadow-2xs transition">
-                    {{ __('Back to List') }}
-                </a>
+                @if (config('scool.deployment_mode', 'general') !== 'expert')
+                    <a href="{{ route('communities.index') }}" class="inline-flex items-center px-2.5 py-1.5 bg-surface hover:bg-slate-50 border border-line rounded-lg font-medium text-ink shadow-2xs transition">
+                        {{ __('Back to List') }}
+                    </a>
+                @endif
             </div>
         </div>
 

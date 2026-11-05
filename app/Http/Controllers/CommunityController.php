@@ -40,6 +40,20 @@ class CommunityController extends Controller
                         $q->where('user_id', $user->id)->effective();
                     }]);
                 $filter = 'owned';
+
+                if ($request->routeIs('dashboard')) {
+                    if ($intended = $this->intendedDestination($request)) {
+                        return redirect()->to($intended);
+                    }
+
+                    $accessibleCount = (clone $query)->count();
+
+                    if ($accessibleCount === 1) {
+                        $single = (clone $query)->first();
+
+                        return redirect()->route('communities.posts.index', $single);
+                    }
+                }
             } else {
                 $query = Community::query()
                     ->accessibleTo($user)
