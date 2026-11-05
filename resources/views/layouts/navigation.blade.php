@@ -68,7 +68,7 @@
                                     <a href="{{ route('communities.posts.index', $comm) }}"
                                        class="flex items-center justify-between gap-3 px-3 py-2 rounded-lg transition {{ $isCurrent ? 'bg-teal-500/10 border border-teal-500/20 text-teal-950 font-bold shadow-2xs' : 'hover:bg-slate-50 text-slate-800' }}">
                                         <div class="flex items-center gap-2.5 min-w-0">
-                                            @if ($comm->cover_path)
+                                            @if ($comm->cover_path && ! $isCurrent)
                                                 <img src="{{ route('communities.cover.show', $comm) }}" alt="{{ $comm->name }}" class="w-9 h-9 rounded-lg object-cover border border-slate-200 shrink-0">
                                             @else
                                                 <div class="w-9 h-9 rounded-lg {{ $isCurrent ? 'bg-brand text-white shadow-2xs' : 'bg-brand-soft text-brand' }} font-bold text-sm flex items-center justify-center border border-brand/20 shrink-0">
