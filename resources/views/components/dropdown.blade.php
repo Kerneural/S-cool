@@ -9,6 +9,8 @@ $alignmentClasses = match ($align) {
 
 $width = match ($width) {
     '48' => 'w-48',
+    '60' => 'w-60 min-w-[240px]',
+    '64' => 'w-64 min-w-[240px]',
     default => $width,
 };
 @endphp
@@ -25,7 +27,7 @@ $width = match ($width) {
             x-transition:leave="transition ease-in duration-75"
             x-transition:leave-start="opacity-100 translate-y-0"
             x-transition:leave-end="opacity-0 -translate-y-1"
-            class="absolute z-50 mt-2 {{ $width }} rounded-xl shadow-xl shadow-slate-900/10 {{ $alignmentClasses }}"
+            class="absolute z-50 mt-2 {{ $width }} max-w-[calc(100vw-2rem)] rounded-xl shadow-xl shadow-slate-900/10 {{ $alignmentClasses }}"
             style="display: none;"
             @click="open = false">
         <div class="rounded-xl border border-line bg-surface/95 backdrop-blur-md overflow-hidden p-1 {{ $contentClasses }}">
