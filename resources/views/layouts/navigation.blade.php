@@ -27,7 +27,7 @@
             <div class="order-1 flex min-w-0 flex-1 items-center gap-2 md:flex-none md:gap-3">
                 <!-- S-cool Home / Brand Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" aria-label="{{ __('S-cool home') }}" class="group rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2">
+                    <a href="{{ route('communities.index') }}" aria-label="{{ __('S-cool home') }}" class="group rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2">
                         <x-application-logo class="block h-8 w-auto group-hover:scale-105 transition-transform" />
                     </a>
                 </div>

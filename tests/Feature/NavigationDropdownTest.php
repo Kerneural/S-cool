@@ -157,5 +157,8 @@ class NavigationDropdownTest extends TestCase
         // 4. Logout is submitted strictly via POST with CSRF protection
         $profileRes->assertSee('<form method="POST" action="'.route('logout').'"', false);
         $profileRes->assertSee('name="_token"', false);
+
+        // 5. Brand logo links directly to outer communities directory (Skool platform home standard)
+        $profileRes->assertSee('<a href="'.route('communities.index').'" aria-label="'.__('S-cool home').'"', false);
     }
 }
