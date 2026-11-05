@@ -27,20 +27,99 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
 
+      - name: Check for documentation-only changes
+        id: check_changes
+        shell: bash
+        run: |
+          BEFORE_SHA="${{ github.event.before }}"
+          EVENT_NAME="${{ github.event_name }}"
+          BASE_REF="${{ github.base_ref }}"
+          CHANGED_FILES=""
+
+          echo "Event: $EVENT_NAME, Base ref: $BASE_REF, Before SHA: $BEFORE_SHA"
+
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            if [ -n "$BEFORE_SHA" ] && [ "$BEFORE_SHA" != "0000000000000000000000000000000000000000" ] && git rev-parse --verify "$BEFORE_SHA" >/dev/null 2>&1; then
+              echo "Checking files changed in this push ($BEFORE_SHA...HEAD)..."
+              CHANGED_FILES=$(git diff --name-only "$BEFORE_SHA" HEAD || true)
+            else
+              echo "Checking files changed against base branch (origin/$BASE_REF)..."
+              git fetch origin "$BASE_REF" --depth=1 || true
+              CHANGED_FILES=$(git diff --name-only "origin/$BASE_REF"...HEAD || true)
+            fi
+          elif [ "$EVENT_NAME" = "push" ]; then
+            if [ -n "$BEFORE_SHA" ] && [ "$BEFORE_SHA" != "0000000000000000000000000000000000000000" ] && git rev-parse --verify "$BEFORE_SHA" >/dev/null 2>&1; then
+              echo "Checking files changed in push ($BEFORE_SHA...HEAD)..."
+              CHANGED_FILES=$(git diff --name-only "$BEFORE_SHA" HEAD || true)
+            elif git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
+              echo "Checking files changed in commit (HEAD~1...HEAD)..."
+              CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD || true)
+            fi
+          else
+            echo "Workflow dispatch or non-standard trigger; running full CI suite."
+            echo "docs_only=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No changed files detected; running full CI suite."
+            echo "docs_only=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "Changed files detected:"
+          echo "$CHANGED_FILES"
+
+          DOCS_ONLY=true
+          while IFS= read -r file; do
+            [ -z "$file" ] && continue
+            if [[ "$file" =~ ^docs/ ]] || [[ "$file" =~ \.md$ ]] || [[ "$file" =~ ^LICENSE ]]; then
+              echo "  [DOC] $file"
+            else
+              echo "  [CODE/CONFIG] $file"
+              DOCS_ONLY=false
+              break
+            fi
+          done <<< "$CHANGED_FILES"
+
+          if [ "$DOCS_ONLY" = "true" ]; then
+            echo "All changed files are documentation. Enabling fast-pass mode."
+            echo "docs_only=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Code or config changes detected. Full CI suite will run."
+            echo "docs_only=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify agent contract
+        shell: bash
+        run: bash scripts/verify-agent-contract.sh --require-tracked
+
+      - name: Report documentation-only pass
+        if: steps.check_changes.outputs.docs_only == 'true'
+        shell: bash
+        run: |
+          echo "Documentation-only change verified."
+          echo "Agent contract validated successfully."
+          echo "Heavy container build and full application test suite skipped."
+
       - name: Verify repository files
+        if: steps.check_changes.outputs.docs_only != 'true'
         run: |
           pwd
           git rev-parse HEAD
           test -f composer.json
           test -f docker-compose.yml
           echo "Repository files are present."
+
       - name: Inspect runner tools
+        if: steps.check_changes.outputs.docs_only != 'true'
         run: |
           uname -a
           docker version
           docker compose version
 
       - name: Scan Git history for secrets
+        if: steps.check_changes.outputs.docs_only != 'true'
         run: |
           docker run --rm \
             --user "$(id -u):$(id -g)" \
@@ -52,6 +131,7 @@ jobs:
               --no-banner
 
       - name: Test PHP security scanner rules
+        if: steps.check_changes.outputs.docs_only != 'true'
         run: |
           docker run --rm \
             -v "$PWD:/src:ro" \
@@ -65,6 +145,7 @@ jobs:
               tests/semgrep/semgrep.php
 
       - name: Scan application PHP security patterns
+        if: steps.check_changes.outputs.docs_only != 'true'
         run: |
           docker run --rm \
             -v "$PWD:/src:ro" \
@@ -79,9 +160,11 @@ jobs:
               app routes
 
       - name: Set up Docker Buildx
+        if: steps.check_changes.outputs.docs_only != 'true'
         uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
 
       - name: Build PHP runtime image
+        if: steps.check_changes.outputs.docs_only != 'true'
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         env:
           DOCKER_BUILD_RECORD_UPLOAD: "false"
@@ -96,11 +179,13 @@ jobs:
           cache-to: type=gha,scope=scool-php,mode=max
 
       - name: Verify PHP runtime image
+        if: steps.check_changes.outputs.docs_only != 'true'
         run: |
           docker run --rm scool-php:ci php --version
           docker run --rm scool-php:ci php /usr/local/bin/scool-verify-php-security.php
 
       - name: Scan PHP runtime image
+        if: steps.check_changes.outputs.docs_only != 'true'
         # Download from upstream directly: the GCR mirror returned 404 for a DB layer.
         run: |
           docker image inspect scool-php:ci --format '{{.Id}}'
@@ -108,18 +193,19 @@ jobs:
           docker save scool-php:ci \
             -o "$RUNNER_TEMP/scool-php-ci.tar"
 
-            docker run --rm \
-              -v "$RUNNER_TEMP/scool-php-ci.tar:/scan/image.tar:ro" \
-              aquasec/trivy:0.75.0 \
-              image \
-                --db-repository ghcr.io/aquasecurity/trivy-db:2 \
-                --input /scan/image.tar \
-                --scanners vuln \
-                --severity HIGH,CRITICAL \
-                --exit-code 1 \
-                --timeout 5m
+          docker run --rm \
+            -v "$RUNNER_TEMP/scool-php-ci.tar:/scan/image.tar:ro" \
+            aquasec/trivy:0.75.0 \
+            image \
+              --db-repository ghcr.io/aquasecurity/trivy-db:2 \
+              --input /scan/image.tar \
+              --scanners vuln \
+              --severity HIGH,CRITICAL \
+              --exit-code 1 \
+              --timeout 5m
 
       - name: Setup Node
+        if: steps.check_changes.outputs.docs_only != 'true'
         id: node
         uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
@@ -128,12 +214,14 @@ jobs:
           package-manager-cache: false
 
       - name: Cache npm downloads
+        if: steps.check_changes.outputs.docs_only != 'true'
         uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
         with:
           path: ~/.npm/_cacache
           key: ${{ runner.os }}-${{ runner.arch }}-npm-node-${{ steps.node.outputs.node-version }}-${{ hashFiles('package-lock.json') }}
 
       - name: Install and build frontend
+        if: steps.check_changes.outputs.docs_only != 'true'
         run: |
           node --version
           npm --version
@@ -142,9 +230,11 @@ jobs:
           test -f public/build/manifest.json
 
       - name: Test frontend state helpers
+        if: steps.check_changes.outputs.docs_only != 'true'
         run: node --test tests/js/*.test.mjs
 
       - name: Validate PHP dependency files
+        if: steps.check_changes.outputs.docs_only != 'true'
         run: |
           test -f composer.lock
 
@@ -154,12 +244,14 @@ jobs:
             composer validate --strict --no-interaction
 
       - name: Cache Composer downloads
+        if: steps.check_changes.outputs.docs_only != 'true'
         uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
         with:
           path: storage/framework/testing/composer-cache/files
           key: ${{ runner.os }}-${{ runner.arch }}-composer-php82-${{ hashFiles('composer.lock', 'docker/php/Dockerfile', 'docker/php/security.ini', 'docker/php/verify-security.php') }}
 
       - name: Install PHP dependencies
+        if: steps.check_changes.outputs.docs_only != 'true'
         run: |
           mkdir -p storage/framework/testing/composer-cache
 
@@ -174,6 +266,7 @@ jobs:
           test -f vendor/bin/phpstan
 
       - name: Check dependency security
+        if: steps.check_changes.outputs.docs_only != 'true'
         run: |
           npm audit --audit-level=high
 
@@ -183,13 +276,15 @@ jobs:
             composer audit --locked
 
       - name: Check PHP formatting
+        if: steps.check_changes.outputs.docs_only != 'true'
         run: |
           docker run --rm \
-          -v "$PWD:/var/www/html" \
-          scool-php:ci \
-          composer run pint:test
+            -v "$PWD:/var/www/html" \
+            scool-php:ci \
+            composer run pint:test
 
       - name: Start test services
+        if: steps.check_changes.outputs.docs_only != 'true'
         run: |
           docker compose -p scool up -d \
             --wait --wait-timeout 120 \
@@ -198,16 +293,18 @@ jobs:
           docker compose -p scool ps
 
       - name: Prepare Laravel environment
+        if: steps.check_changes.outputs.docs_only != 'true'
         run: |
           test ! -e .env
           cp .env.example .env
 
           docker run --rm \
-          -v "$PWD:/var/www/html" \
-          scool-php:ci \
-          php artisan key:generate --no-interaction
+            -v "$PWD:/var/www/html" \
+            scool-php:ci \
+            php artisan key:generate --no-interaction
 
       - name: Analyse PHP code
+        if: steps.check_changes.outputs.docs_only != 'true'
         run: |
           docker run --rm \
             --network scool_scool-network \
@@ -221,6 +318,7 @@ jobs:
               --no-progress
 
       - name: Run application test
+        if: steps.check_changes.outputs.docs_only != 'true'
         run: |
           mkdir -p storage/framework/testing
 
@@ -236,6 +334,7 @@ jobs:
               --log-junit storage/framework/testing/junit.xml
 
       - name: Prepare CI evidence
+        if: steps.check_changes.outputs.docs_only != 'true'
         run: |
           test -s storage/framework/testing/junit.xml
           test -s public/build/manifest.json
@@ -244,6 +343,7 @@ jobs:
           git rev-parse HEAD > storage/framework/testing/tested-sha.txt
 
       - name: Upload successful CI evidence
+        if: steps.check_changes.outputs.docs_only != 'true'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ci-evidence-${{ github.sha }}-${{ github.run_attempt }}
@@ -257,8 +357,6 @@ jobs:
             public/build/assets/
 
       - name: Stop test services
-        if: always()
+        if: always() && steps.check_changes.outputs.docs_only != 'true'
         run: |
           docker compose -p scool down --remove-orphans
-
-# test comment

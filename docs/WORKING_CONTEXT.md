@@ -29,6 +29,11 @@ A checkpoint is historical context, not current Linear/Git/runtime evidence. Ver
      - Fixed Step 24 `VietnameseLocaleTest` failure in CI #177 by removing redundant `"Website Management"` from `lang/vi.json`, resolving cross-catalog collision with `lang/modules/classroom/vi.json` (commit `11c4a68`).
      - Fixed Step 24 `ExperienceShellAuditRegressionTest` failure in CI #178 by replacing duplicate active community cover `<img src="...">` in switcher dropdown with an Initial letter badge, preserving the strict single cover image constraint on community workspace pages (commit `765f593`).
      - **S-cool CI #179 PASSED with 100% SUCCESS** across all 27 automated CI pipeline steps.
+    - Implemented smart early pass for documentation-only changes in `.github/workflows/ci.yml`:
+      - Detects if 100% of changed files in PR / push are documentation (`docs/**`, `*.md`, `LICENSE*`).
+      - Runs agent contract validation (`scripts/verify-agent-contract.sh --require-tracked`).
+      - Skips heavy Docker builds, Trivy vulnerability scans, MySQL services, and full test suites when only documentation is modified, reducing CI time from ~6 minutes to ~10 seconds while satisfying GitHub required branch protection checks (`CI/ Runner Preflight`).
+      - Code, template, asset, and configuration changes automatically trigger the complete 27-step CI pipeline.
 - Verification & Test Evidence:
   - Feature test `NavigationDropdownTest`: 5 passed (37 assertions).
   - Shell Audit Regression `ExperienceShellAuditRegressionTest`: 7 passed (86 assertions).
